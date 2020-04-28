@@ -1,6 +1,6 @@
 {
   "name": "@keyko-io/nevermind-contracts",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Nevermind implementation of Ocean Protocol in Solidity",
   "bugs": {
     "url": "https://github.com/keyko-io/nevermind-contracts/issues"
