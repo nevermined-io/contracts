@@ -17,7 +17,16 @@ jobs:
         with:
           node-version: 10
           registry-url: https://registry.npmjs.org/
+      - name: Pre-install
+        run: |
+          npm i
+          npm install -g ganache-cli@~6.4.4
+          ganache-cli > ganache-cli.log &
       - run: npm ci
+      - name: Generate dev artifacts
+        run: |
+          npm run compile
+          npm run deploy:development
       - run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}
