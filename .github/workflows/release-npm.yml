@@ -27,7 +27,8 @@ jobs:
         run: |
           npm run compile
           npm run deploy:development
-      - run: npm publish
+      - name: Publish package
+        run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}
 
