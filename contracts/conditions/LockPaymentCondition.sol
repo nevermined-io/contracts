@@ -8,7 +8,7 @@ import './Condition.sol';
 import '../registry/DIDRegistry.sol';
 import '../Common.sol';
 import '@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol';
-import '@openzeppelin/contracts-upgradeable/token/ERC20/SafeERC20Upgradeable.sol';
+
 
 /**
  * @title Lock Payment Condition
@@ -19,8 +19,6 @@ import '@openzeppelin/contracts-upgradeable/token/ERC20/SafeERC20Upgradeable.sol
  * into account the royalties to be paid to the original creators in a secondary market.  
  */
 contract LockPaymentCondition is Condition, Common {
-
-    using SafeERC20Upgradeable for IERC20Upgradeable;
 
     DIDRegistry internal didRegistry;
 
@@ -90,7 +88,7 @@ contract LockPaymentCondition is Condition, Common {
         pure
         returns (bytes32)
     {
-        return keccak256(abi.encode(
+        return keccak256(abi.encodePacked(
             _did,
             _rewardAddress,
             _tokenAddress,
@@ -174,7 +172,7 @@ contract LockPaymentCondition is Condition, Common {
     internal
     {
         IERC20Upgradeable token = ERC20Upgradeable(_tokenAddress);
-        token.safeTransferFrom(msg.sender, _rewardAddress, _amount);
+        token.transferFrom(msg.sender, _rewardAddress, _amount);
     }
 
     /**

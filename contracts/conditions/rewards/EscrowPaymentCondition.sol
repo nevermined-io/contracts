@@ -6,7 +6,7 @@ pragma solidity 0.6.12;
 import './Reward.sol';
 import '../../Common.sol';
 import '../ConditionStoreLibrary.sol';
-import '@openzeppelin/contracts-upgradeable/token/ERC20/SafeERC20Upgradeable.sol';
+
 
 /**
  * @title Escrow Payment Condition
@@ -19,8 +19,7 @@ import '@openzeppelin/contracts-upgradeable/token/ERC20/SafeERC20Upgradeable.sol
  *      are fulfilled.
  */
 contract EscrowPaymentCondition is Reward, Common {
-
-    using SafeERC20Upgradeable for IERC20Upgradeable;
+    
 
     bytes32 constant public CONDITION_TYPE = keccak256('EscrowPayment');
 
@@ -97,8 +96,8 @@ contract EscrowPaymentCondition is Reward, Common {
         return keccak256(
             abi.encodePacked(
                 _did,
-                keccak256(abi.encodePacked(_amounts)),
-                keccak256(abi.encodePacked(_receivers)),
+                _amounts,
+                _receivers,
                 _lockPaymentAddress, 
                 _tokenAddress,
                 _lockCondition,
@@ -129,7 +128,7 @@ contract EscrowPaymentCondition is Reward, Common {
         pure
         returns (bytes32)
     {
-        return keccak256(abi.encode(
+        return keccak256(abi.encodePacked(
             _did,
             _rewardAddress,
             _tokenAddress,
@@ -172,7 +171,9 @@ contract EscrowPaymentCondition is Reward, Common {
             abi.encodePacked(
                 _agreementId,
                 conditionStoreManager.getConditionTypeRef(_lockCondition),
-                hashValuesLockPayment(_did, _lockPaymentAddress, _tokenAddress, _amounts, _receivers)
+                keccak256(
+                    abi.encodePacked(_did, _lockPaymentAddress, _tokenAddress, _amounts, _receivers)
+                )
             )
         ) == _lockCondition,
             'LockCondition ID does not match'
@@ -255,7 +256,7 @@ contract EscrowPaymentCondition is Reward, Common {
                 _receivers[i] != address(this),
                 'Escrow contract can not be a receiver'
             );
-            token.safeTransfer(_receivers[i], _amounts[i]);
+            token.transfer(_receivers[i], _amounts[i]);
         }
 
         return super.fulfill(
