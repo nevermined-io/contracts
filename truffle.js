@@ -1,3 +1,4 @@
+const ganache = require('ganache-core')
 require('ts-node/register')
 
 const HDWalletProvider = require('truffle-hdwallet-provider')
@@ -36,7 +37,11 @@ module.exports = {
             port: rpcPort || 18545,
             // has to be '*' because this is usually ganache
             network_id: '*',
-            gas: 6721975
+            gas: 6721975,
+            provider: ganache.provider({
+                gasLimit: 6721975,
+                default_balance_ether: 10000000000000000000
+            })
         },
         // spree network from docker
         spree: {

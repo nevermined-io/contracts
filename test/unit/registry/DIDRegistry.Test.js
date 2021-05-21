@@ -29,6 +29,10 @@ contract('DIDRegistry', (accounts) => {
         ASSOCIATED_WITH: '0x5'
     }
 
+    //    beforeAll(async () => {
+    //        await startChain()
+    //    })
+
     beforeEach(async () => {
         await setupTest()
     })

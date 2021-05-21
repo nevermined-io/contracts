@@ -16,12 +16,10 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
         with:
-          node-version: '10.x'
+          node-version: '12.22.1'
       - name: Pre-install
         run: |
           yarn
-          npm install ganache-cli@~6.12.2 -g
-          ganache-cli -q -p 18545 &
       - name: Compile and Lint
         run: |
           yarn lint
@@ -30,8 +28,6 @@ jobs:
       - name: Run Unit Tests
         run: |
           yarn test:unit
-          pkill --signal 9 -f ganache-cli
-          ganache-cli -q -p 18545 &
       - name: Run Integration Tests
         run: |
           yarn test:integration
@@ -44,12 +40,10 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
         with:
-          node-version: '10.x'
+          node-version: '12.22.1'
       - name: Pre-install
         run: |
           yarn
-          npm install ganache-cli@~6.12.2 -g
-          ganache-cli -q -p 18545 &
       - name: Compile and Lint
         run: |
           yarn lint
