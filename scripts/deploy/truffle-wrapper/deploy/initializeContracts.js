@@ -354,7 +354,7 @@ async function initializeContracts({
                     roles.ownerWallet,
                     getAddress('AgreementStoreManager'),
                     getAddress('DIDRegistry'),
-                    getAddress('AccessCondition'),
+                    getAddress('AccessProofCondition'),
                     getAddress('LockPaymentCondition'),
                     getAddress('EscrowPaymentCondition')
                 ],
