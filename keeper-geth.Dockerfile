@@ -16,10 +16,14 @@ RUN apk add --no-cache --update\
       python3\
       curl
 
+RUN curl https://sh.rustup.rs -sSf | bash -s -- -y
+ENV PATH="/root/.cargo/bin:${PATH}"
+
 COPY . /nevermined-contracts
 WORKDIR /nevermined-contracts
 
 RUN yarn
+RUN sh ./scripts/build.sh
 
 ENV MNEMONIC="taxi music thumb unique chat sand crew more leg another off lamp"
 ENV DEPLOY_CONTRACTS=true
@@ -36,6 +40,7 @@ LABEL maintainer="Nevermined <root@nevermined.io>"
 
 COPY scripts/keeper_entrypoint_geth.sh /
 COPY --from=deploy /artifacts /artifacts
+COPY --from=deploy /circuits /circuits
 COPY --from=deploy /chain-data /chain-data
 
 ENTRYPOINT ["/keeper_entrypoint_geth.sh"]

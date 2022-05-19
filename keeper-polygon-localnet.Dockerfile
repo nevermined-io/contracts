@@ -16,12 +16,16 @@ RUN apk add --no-cache --update\
       python3\
       curl
 
+RUN curl https://sh.rustup.rs -sSf | bash -s -- -y
+ENV PATH="/root/.cargo/bin:${PATH}"
+
 COPY networks/polygon-localnet/genesis.json /polygon-sdk/genesis.json
 
 COPY . /nevermined-contracts
 WORKDIR /nevermined-contracts
 
 RUN yarn
+RUN sh ./scripts/build.sh
 
 ENV MNEMONIC="taxi music thumb unique chat sand crew more leg another off lamp"
 ENV DEPLOY_CONTRACTS=true
@@ -38,6 +42,7 @@ LABEL maintainer="Nevermined <root@nevermined.io>"
 
 COPY scripts/keeper_entrypoint_polygon.sh /
 COPY --from=deploy /artifacts /artifacts
+COPY --from=deploy /circuits /circuits
 COPY --from=deploy /polygon-sdk /polygon-sdk
 
 ENTRYPOINT ["/keeper_entrypoint_polygon.sh"]

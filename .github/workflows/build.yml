@@ -13,6 +13,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
       - uses: actions/setup-node@v1
         with:
           node-version: '14.x'
@@ -22,11 +25,16 @@ jobs:
           yarn install --frozen-lockfile
           git submodule init
           git submodule update
-      - name: Compile and Lint
+      - name: Lint
         run: |
           yarn lint
-          yarn clean
+      - name: Generate circuits
+        run: |
           sh ./scripts/build.sh
+          git diff --exit-code
+      - name: Compile
+        run: |
+          yarn clean
           yarn compile
       - name: Run Unit Tests
         run: |

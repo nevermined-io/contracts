@@ -41,8 +41,6 @@ This can be done via the definition of the following environment variables:
 * `NVM_MARKETPLACE_FEE`. It refers to the fee charged by Nevermined for using the Service Agreements. It uses an integer number representing a 2 decimal number. It means 1450 means 14.50% fee. The value must be beteen 0 and 10000 (100%). See `marketplaceFee` variable.
 * `NVM_RECEIVER_FEE`. It refers to the address that will receive the fee charged by Nevermined per transaction. See `feeReceiver` variable
 
-
-
 #### Deployer
 
 Can be any account. It is used for deploying the initial proxy contracts and the logic contracts.
@@ -158,9 +156,12 @@ All upgrades of the contracts have to be approved by the `upgrader` wallet confi
 
 ## Upload the artifacts (abis/contracts) to Contract Repository
 
-Once the contracts are deployed to a public network or a new contract version whose contract abis has to been uploaded, use the Github Action `Upload Contracts and Artifacts to Repository`:
+Once the contracts are deployed to a public network or a new contract version whose contract abis has to been uploaded, use `scripts/upload_artifacts_s3.sh` to upload
+the contracts or artifacts to repository https://artifacts-nevermined-rocks.s3.amazonaws.com.
 
-![Github Workflow Upload Contracts and Artifacts Repository example](./assets/gi-workflow-upload-artifacts.png)
+*Your environment has to be configured and authorized to use aws cli to upload files to `artifacts-nevermined-rocks` bucketi*.
+
+The script has the next variables:
 
 - `branch` is the branch from where the workflow and artifacts will be used.
 - `asset` can be `abis`/`contracts`. Use abis if you want to upload the contract ABIs that not contain deployment information. Contracts for uploading abis with deployment information to `network`.
@@ -170,8 +171,8 @@ Once the contracts are deployed to a public network or a new contract version wh
 This workflows uses the script `scripts/upload_artifacts_s3.sh` that can be used using the next syntax:
 
 ```bash
-./upload_artifacts_s3.sh abis
-./upload_artifacts_s3.sh contracts mumbai awesome_tag
+./scripts/upload_artifacts_s3.sh abis
+./scripts/upload_artifacts_s3.sh contracts mumbai awesome_tag
 ```
 
 ## Document
@@ -181,26 +182,6 @@ This workflows uses the script `scripts/upload_artifacts_s3.sh` that can be used
 - Update the contracts documentation
 - run `yarn doc:contracts`
 - Commit the changes in `docs/contracts` folder
-
-### Address Documentation
-
-- Update the addresses in the `README.md`
-- run `node ./scripts/contracts/get-addresses.js <network name>`
-
-It will output the current proxy addresses in the `README` friendly format.
-
-```text
-| AccessCondition                   | v0.9.0 | 0x45DE141F8Efc355F1451a102FB6225F1EDd2921d |
-| AgreementStoreManager             | v0.9.0 | 0x62f84700b1A0ea6Bfb505aDC3c0286B7944D247C |
-| ConditionStoreManager             | v0.9.0 | 0x39b0AA775496C5ebf26f3B81C9ed1843f09eE466 |
-| DIDRegistry                       | v0.9.0 | 0x4A0f7F763B1A7937aED21D63b2A78adc89c5Db23 |
-| DIDRegistryLibrary                | v0.9.0 | 0x3B3504908Db36f5D5f07CD420ee2BBBbDfB674cF |
-| Dispenser                         | v0.9.0 | 0x865396b7ddc58C693db7FCAD1168E3BD95Fe3368 |
-....
-
-```
-
-- Copy this to the `README.md`
 
 ## Trigger CI
 

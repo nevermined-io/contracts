@@ -21,12 +21,16 @@ RUN apk add --no-cache --update\
       python3\
       curl
 
+RUN curl https://sh.rustup.rs -sSf | bash -s -- -y
+ENV PATH="/root/.cargo/bin:${PATH}"
+
 COPY --from=openethereum /home/openethereum /home/openethereum
 
 COPY . /nevermined-contracts
 WORKDIR /nevermined-contracts
 
 RUN yarn
+RUN sh ./scripts/build.sh
 
 ENV MNEMONIC="taxi music thumb unique chat sand crew more leg another off lamp"
 ENV DEPLOY_CONTRACTS=true
@@ -44,6 +48,7 @@ LABEL maintainer="Nevermined <root@nevermined.io>"
 COPY scripts/keeper_entrypoint_nodeploy.sh /
 
 COPY --from=deploy /nevermined-contracts/artifacts2 /nevermined-contracts/artifacts2
+COPY --from=deploy /nevermined-contracts/circuits2 /nevermined-contracts/circuits2
 COPY --from=deploy /home/openethereum /home/openethereum
 
 ENTRYPOINT ["/keeper_entrypoint_nodeploy.sh"]

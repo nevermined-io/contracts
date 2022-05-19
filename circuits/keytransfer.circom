@@ -1,13 +1,13 @@
 pragma circom 2.0.0;
 
-include "circomlib/circuits/pointbits.circom";
-include "circomlib/circuits/escalarmulany.circom";
-include "circomlib/circuits/escalarmulfix.circom";
+include "../node_modules/circomlib/circuits/pointbits.circom";
+include "../node_modules/circomlib/circuits/escalarmulany.circom";
+include "../node_modules/circomlib/circuits/escalarmulfix.circom";
 
-include "circomlib/circuits/mimcsponge.circom";
-include "circomlib/circuits/poseidon.circom";
-include "circomlib/circuits/gates.circom";
-include "circomlib/circuits/comparators.circom";
+include "../node_modules/circomlib/circuits/mimcsponge.circom";
+include "../node_modules/circomlib/circuits/poseidon.circom";
+include "../node_modules/circomlib/circuits/gates.circom";
+include "../node_modules/circomlib/circuits/comparators.circom";
 
 template Main() {
 	signal input provider_k;

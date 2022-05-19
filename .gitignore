@@ -6,11 +6,8 @@ files
 # Symbolic Execution Results
 test/verification/manticore/results/*
 
-# Development
-artifacts/*.hardhat.json
-artifacts/*.development.json
-artifacts/*.spree.json
-artifacts/*.external.json
+# Artifacts are stored in https://artifacts-nevermined-rocks.s3.amazonaws.com/
+!artifacts/placeholder
 
 # Build / Travis
 build/
@@ -72,3 +69,4 @@ powersOfTau28_hez_final_14.ptau
 .idea/
 src/main/java/*
 keytransfer_js/
+

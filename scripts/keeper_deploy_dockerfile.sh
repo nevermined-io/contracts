@@ -51,7 +51,9 @@ EXECUTION_GID=$(id -g)
 USER_ID=${LOCAL_USER_ID:-$EXECUTION_UID}
 GROUP_ID=${LOCAL_GROUP_ID:-$EXECUTION_GID}
 chown -R $USER_ID:$GROUP_ID /nevermined-contracts/artifacts
+chown -R $USER_ID:$GROUP_ID /nevermined-contracts/circuits
 
 # We move the artifact directory as this path will be mounted in dockercompose
 mv /nevermined-contracts/artifacts /nevermined-contracts/artifacts2
+mv /nevermined-contracts/circuits /nevermined-contracts/circuits2
 
