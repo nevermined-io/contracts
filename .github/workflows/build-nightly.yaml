@@ -94,10 +94,10 @@ jobs:
           node-version: '14.x'
       - name: Pre-install
         env:
-          ALCHEMY_TOKEN: ${{ secrets.KOVAN_ALCHEMY_TOKEN }}
+          KOVAN_ARCHIVE_RPC_ENDPOINT: ${{ secrets.KOVAN_ARCHIVE_RPC_ENDPOINT }}
         run: |
           yarn
-          yarn run hardhat node --port 18545 --fork https://eth-kovan.alchemyapi.io/v2/$ALCHEMY_TOKEN --fork-block-number 28000000 &
+          yarn run hardhat node --port 18545 --fork KOVAN_ARCHIVE_RPC_ENDPOINT --fork-block-number 28000000 &
       - name: Compile and Lint
         run: |
           yarn lint
