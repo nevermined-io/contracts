@@ -101,7 +101,7 @@
     "@gnosis.pm/safe-deployments": "^1.4.0",
     "@gnosis.pm/safe-ethers-lib": "^1.1.0",
     "@nomiclabs/hardhat-ethers": "^2.0.4",
-    "@nomiclabs/hardhat-truffle5": "^2.0.3",
+    "@nomiclabs/hardhat-truffle5": "^2.0.6",
     "@nomiclabs/hardhat-web3": "^2.0.0",
     "@openzeppelin/hardhat-upgrades": "^1.17.0",
     "bignumber.js": "^9.0.0",
@@ -127,7 +127,7 @@
     "prettier": "^2.6.2",
     "snarkjs": "0.4.14",
     "solhint": "^3.3.7",
-    "solidity-coverage": "^0.7.16",
+    "solidity-coverage": "^0.7.21",
     "solidity-docgen": "^0.5.11",
     "web3": "^1.7.3",
     "yargs": "~15.3.1"

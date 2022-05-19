@@ -4,36 +4,26 @@
 const chai = require('chai')
 const { assert } = chai
 const chaiAsPromised = require('chai-as-promised')
+const { ethers } = require('hardhat')
 chai.use(chaiAsPromised)
-
-const NeverminedConfig = artifacts.require('NeverminedConfig')
-const EpochLibrary = artifacts.require('EpochLibrary')
-const ConditionStoreManager = artifacts.require('ConditionStoreManager')
-const DIDRegistryLibrary = artifacts.require('DIDRegistryLibrary')
-const ERC721 = artifacts.require('TestERC721')
-const DIDRegistry = artifacts.require('DIDRegistry')
-const NFTHolderCondition = artifacts.require('NFT721HolderCondition')
 
 const constants = require('../../helpers/constants.js')
 const testUtils = require('../../helpers/utils.js')
 
-contract('NFT721HolderCondition', (accounts) => {
-    const owner = accounts[1]
-    const createRole = accounts[0]
+describe('NFT721HolderCondition', () => {
+    let accounts
+    let owner
+    let createRole
     const amount = 1
     let didRegistry
     let conditionStoreManager
     let nftHolderCondition
     let token
-    let nvmConfig
 
     before(async () => {
-        nvmConfig = await NeverminedConfig.new()
-        await nvmConfig.initialize(owner, owner)
-        const epochLibrary = await EpochLibrary.new()
-        await ConditionStoreManager.link(epochLibrary)
-        const didRegistryLibrary = await DIDRegistryLibrary.new()
-        await DIDRegistry.link(didRegistryLibrary)
+        accounts = await ethers.getSigners()
+        owner = accounts[1]
+        createRole = accounts[0]
     })
 
     beforeEach(async () => {
@@ -41,50 +31,62 @@ contract('NFT721HolderCondition', (accounts) => {
     })
 
     async function setupTest() {
+        
         if (!didRegistry) {
-            didRegistry = await DIDRegistry.new()
+            const NeverminedConfig = await ethers.getContractFactory('NeverminedConfig')
+            const EpochLibrary = await ethers.getContractFactory('EpochLibrary')
+            const DIDRegistryLibrary = await ethers.getContractFactory('DIDRegistryLibrary')
+            const nvmConfig = await NeverminedConfig.deploy()
+            await nvmConfig.initialize(owner.address, owner.address)
+            const epochLibrary = await EpochLibrary.deploy()
+            // await ConditionStoreManager.link(epochLibrary)
+            const didRegistryLibrary = await DIDRegistryLibrary.deploy()
+            // await DIDRegistry.link(didRegistryLibrary)
+            const ConditionStoreManager = await ethers.getContractFactory('ConditionStoreManager', {libraries: { EpochLibrary: epochLibrary.address }})
+            const ERC721 = await ethers.getContractFactory('TestERC721')
+            const DIDRegistry = await ethers.getContractFactory('DIDRegistry', {libraries: { DIDRegistryLibrary: didRegistryLibrary.address }})
+            const NFTHolderCondition = await ethers.getContractFactory('NFT721HolderCondition')
+            didRegistry = await DIDRegistry.deploy()
             await didRegistry.initialize(owner, constants.address.zero, constants.address.zero)
-            token = await ERC721.new()
+            token = await ERC721.deploy()
             await token.initialize()
-        }
-        if (!conditionStoreManager) {
-            conditionStoreManager = await ConditionStoreManager.new()
-            await conditionStoreManager.initialize(createRole, owner, nvmConfig.address, { from: owner })
+            conditionStoreManager = await ConditionStoreManager.deploy()
+            await conditionStoreManager.connect(owner).initialize(createRole.address, owner.address, nvmConfig.address)
 
-            nftHolderCondition = await NFTHolderCondition.new()
-            await nftHolderCondition.initialize(
-                accounts[0],
+            nftHolderCondition = await NFTHolderCondition.deploy()
+            await nftHolderCondition.connect(accounts[0]).initialize(
+                accounts[0].address,
                 conditionStoreManager.address,
-                { from: accounts[0] })
+            )
         }
     }
 
     describe('fulfill existing condition', () => {
         it('should fulfill if conditions exist for account address', async () => {
             const didSeed = testUtils.generateId()
-            const did = await didRegistry.hashDID(didSeed, owner)
+            const did = await didRegistry.hashDID(didSeed, owner.address)
 
             const agreementId = testUtils.generateId()
             const holderAddress = accounts[2]
 
-            const hashValues = await nftHolderCondition.hashValues(did, holderAddress, amount, token.address)
+            const hashValues = await nftHolderCondition.hashValues(did, holderAddress.address, amount, token.address)
             const conditionId = await nftHolderCondition.generateId(agreementId, hashValues)
 
-            await conditionStoreManager.createCondition(
+            await conditionStoreManager.createCondition2(
                 conditionId,
                 nftHolderCondition.address)
 
-            await token.mint(did, { from: holderAddress })
+            await token.connect(holderAddress).mint(did)
 
-            const result = await nftHolderCondition.fulfill(agreementId, did, holderAddress, amount, token.address)
+            const result = await nftHolderCondition.fulfill(agreementId, did, holderAddress.address, amount, token.address)
             const { state } = await conditionStoreManager.getCondition(conditionId)
-            assert.strictEqual(state.toNumber(), constants.condition.state.fulfilled)
+            assert.strictEqual(state, constants.condition.state.fulfilled)
 
             testUtils.assertEmitted(result, 1, 'Fulfilled')
             const eventArgs = testUtils.getEventArgsFromTx(result, 'Fulfilled')
             expect(eventArgs._agreementId).to.equal(agreementId)
             expect(eventArgs._did).to.equal(did)
-            expect(eventArgs._address).to.equal(holderAddress)
+            expect(eventArgs._address).to.equal(holderAddress.address)
             expect(eventArgs._conditionId).to.equal(conditionId)
             expect(eventArgs._amount.toNumber()).to.equal(amount)
         })
@@ -93,15 +95,15 @@ contract('NFT721HolderCondition', (accounts) => {
     describe('fulfill non existing condition', () => {
         it('should not fulfill if conditions do not exist', async () => {
             const didSeed = testUtils.generateId()
-            const did = await didRegistry.hashDID(didSeed, owner)
+            const did = await didRegistry.hashDID(didSeed, owner.address)
 
             const agreementId = testUtils.generateId()
             const holderAddress = accounts[2]
 
-            await token.mint(did, { from: holderAddress })
+            await token.connect(holderAddress).mint(did)
 
             await assert.isRejected(
-                nftHolderCondition.fulfill(agreementId, did, holderAddress, amount, token.address),
+                nftHolderCondition.fulfill(agreementId, did, holderAddress.address, amount, token.address),
                 constants.acl.error.invalidUpdateRole
             )
         })
@@ -110,22 +112,22 @@ contract('NFT721HolderCondition', (accounts) => {
     describe('fail to fulfill existing condition', () => {
         it('out of balance should fail to fulfill if conditions exist', async () => {
             const didSeed = testUtils.generateId()
-            const did = await didRegistry.hashDID(didSeed, owner)
+            const did = await didRegistry.hashDID(didSeed, owner.address)
 
             const agreementId = testUtils.generateId()
             const holderAddress = accounts[2]
 
-            const hashValues = await nftHolderCondition.hashValues(did, holderAddress, amount, token.address)
+            const hashValues = await nftHolderCondition.hashValues(did, holderAddress.address, amount, token.address)
             const conditionId = await nftHolderCondition.generateId(agreementId, hashValues)
 
-            await token.mint(did, { from: owner })
+            await token.connect(owner).mint(did)
 
-            await conditionStoreManager.createCondition(
+            await conditionStoreManager.createCondition2(
                 conditionId,
                 nftHolderCondition.address)
 
             await assert.isRejected(
-                nftHolderCondition.fulfill(agreementId, did, holderAddress, amount, token.address),
+                nftHolderCondition.fulfill(agreementId, did, holderAddress.address, amount, token.address),
                 constants.condition.nft.error.notEnoughNFTBalance
             )
         })

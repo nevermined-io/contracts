@@ -31,6 +31,18 @@ const utils = {
         assert.strictEqual(n, gotEvents, `Event ${name} was not emitted.`)
     },
 
+    assertEmittedEthers: (result, n, name) => {
+        let gotEvents = 0
+        console.log(result,n,name)
+        for (let i = 0; i < result.logs.length; i++) {
+            const ev = result.logs[i]
+            if (ev.event === name) {
+                gotEvents++
+            }
+        }
+        assert.strictEqual(n, gotEvents, `Event ${name} was not emitted.`)
+    },
+
     getEventArgsFromTx: (txReceipt, eventName) => {
         return txReceipt.logs.filter((log) => {
             return log.event === eventName
@@ -76,6 +88,18 @@ const utils = {
             const addr = require(`../../artifacts/${name}.external.json`).address
             return afact.at(addr)
         }
+    },
+
+    deployManagers: async () => {
+        const NeverminedConfig = await ethers.getContractFactory('NeverminedConfig')
+        const EpochLibrary = await ethers.getContractFactory('EpochLibrary')
+        const DIDRegistryLibrary = await ethers.getContractFactory('DIDRegistryLibrary')
+        nvmConfig = await NeverminedConfig.deploy()
+        await nvmConfig.initialize(owner.address, owner.address)
+        epochLibrary = await EpochLibrary.deploy()
+        await ConditionStoreManager.link(epochLibrary)
+        didRegistryLibrary = await DIDRegistryLibrary.deploy()
+        await DIDRegistry.link(didRegistryLibrary)
     }
 
 }

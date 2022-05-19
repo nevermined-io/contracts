@@ -3,6 +3,7 @@
  */
 require('@openzeppelin/hardhat-upgrades')
 require('@nomiclabs/hardhat-truffle5')
+require('@nomiclabs/hardhat-ethers')
 require('hardhat-dependency-compiler')
 require('hardhat-gas-reporter')
 const utils = require('web3-utils')
