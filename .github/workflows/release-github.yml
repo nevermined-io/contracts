@@ -67,6 +67,16 @@ jobs:
             CHANGELOG.md
 
       # Upload contracts abis to S3 bucket
+      # Install dependencies
+      - name: Install missing dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y jq unzip zip git tar
+
+      # Install awscli
+      - name: install-aws-cli-action
+        uses: unfor19/install-aws-cli-action@v1.0.3
+
       # Impersonate AWS role
       - name: Configure AWS credentials from Test account
         uses: aws-actions/configure-aws-credentials@v1
