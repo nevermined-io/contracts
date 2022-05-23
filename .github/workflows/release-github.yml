@@ -12,6 +12,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       # Build process
       - uses: actions/setup-node@v3
@@ -56,12 +58,19 @@ jobs:
           yarn add --dev auto-changelog
           npx auto-changelog
 
-      - uses: "marvinpinto/action-automatic-releases@latest"
+      - name: Commit CHANGELOG.md
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: Automated CHANGELOG.md update
+          commit_options: '--no-verify --signoff'
+          file_pattern: CHANGELOG.md
+          branch: master
+
+      - name: Publish Github relase
+        uses: "marvinpinto/action-automatic-releases@latest"
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: "latest"
-          prerelease: true
-          title: "Development Build"
+          prerelease: false
           files: |
             contracts-${{ env.RELEASE_VERSION }}.tar.gz
             CHANGELOG.md
