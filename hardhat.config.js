@@ -36,8 +36,10 @@ module.exports = {
     paths: {
         artifacts: 'build'
     },
-    dockgen: {
-        output: 'docs/contracts',
+    docgen: {
+        root: process.cwd(),
+        sourcesDir: 'contracts',
+        outputDir: 'docs/contracts',
     },
     dependencyCompiler: disableDependencies ? undefined : {
         paths: [
