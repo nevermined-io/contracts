@@ -10,7 +10,6 @@ import '../../registry/DIDRegistry.sol';
 import '@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol';
 import '../../interfaces/IDynamicPricing.sol';
-import '../../interfaces/IRoyaltyRecipient.sol';
 
 /**
  * @title Escrow Payment Condition

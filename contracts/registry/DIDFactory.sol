@@ -593,14 +593,14 @@ contract DIDFactory is OwnableUpgradeable, ProvenanceRegistry {
     /**
      * @param _did refers to decentralized identifier (a bytes32 length ID).
      * @return owner the did owner
-     * @return lastChecksum 
-     * @return url 
-     * @return lastUpdatedBy 
-     * @return blockNumberUpdated 
-     * @return providers
-     * @return nftSupply
-     * @return mintCap
-     * @return royalties
+     * @return lastChecksum last checksum
+     * @return url url
+     * @return lastUpdatedBy timestamp when was last updated
+     * @return blockNumberUpdated block number when was last updated
+     * @return providers providers list
+     * @return nftSupply NFT supply
+     * @return mintCap Mint cap
+     * @return royalties Royalties (legacy)
      */
     function getDIDRegister(
         bytes32 _did
@@ -758,15 +758,15 @@ contract DIDFactory is OwnableUpgradeable, ProvenanceRegistry {
     /**
      * Fetch the complete provenance entry attributes
      * @param _provId refers to the provenance identifier
-     * @return did 
-     * @return relatedDid 
-     * @return agentId
-     * @return activityId 
-     * @return agentInvolvedId 
-     * @return method
-     * @return createdBy 
-     * @return blockNumberUpdated 
-     * @return signature 
+     * @return did DID
+     * @return relatedDid related DID
+     * @return agentId agent ID
+     * @return activityId activity ID
+     * @return agentInvolvedId involved agent ID
+     * @return method method
+     * @return createdBy created by
+     * @return blockNumberUpdated block number when updated
+     * @return signature signature
      * 
      */
     function getProvenanceEntry(

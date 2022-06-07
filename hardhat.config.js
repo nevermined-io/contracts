@@ -6,6 +6,7 @@ require('@nomiclabs/hardhat-truffle5')
 require('hardhat-dependency-compiler')
 require('hardhat-gas-reporter')
 require('solidity-coverage')
+require('solidity-docgen')
 
 const utils = require('web3-utils')
 
@@ -34,6 +35,9 @@ module.exports = {
     },
     paths: {
         artifacts: 'build'
+    },
+    dockgen: {
+        output: 'docs/contracts',
     },
     dependencyCompiler: disableDependencies ? undefined : {
         paths: [
