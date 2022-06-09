@@ -141,10 +141,10 @@ Install the `nevermined-contracts` `npm` package.
 npm install @nevermined-io/contracts
 ```
 
-Load the ABI of the `NeverminedToken` contract on the `staging` network:
+Load the ABI of the `NeverminedToken` contract on the `Rinkeby` network:
 
 ```javascript
-const NeverminedToken = require('@nevermined-io/contracts/artifacts/NeverminedToken.staging.json')
+const NeverminedToken = require('@nevermined-io/contracts/artifacts/NeverminedToken.rinkeby.json')
 ```
 
 The structure of the `artifacts` is:

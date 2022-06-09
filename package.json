@@ -34,7 +34,7 @@
     "deploy:rinkeby": "export NETWORK=rinkeby&&export TESTNET=true&&yarn deploy --network rinkeby",
     "deploy:alfajores": "export NETWORK=celo-alfajores&&export TESTNET=true&&yarn deploy --network celo-alfajores",
     "deploy:baklava": "export NETWORK=celo-baklava&&export TESTNET=true&&yarn deploy --network celo-baklava",
-    "deploy:celo-mainnet": "export NETWORK=celo-mainnet&&export TESTNET=false&&yarn deploy --network celo-mainnet",
+    "deploy:celo-mainnet": "export NETWORK=celo&&export TESTNET=false&&yarn deploy --network celo",
     "deploy:mumbai": "export NETWORK=mumbai&&export TESTNET=true&&yarn deploy --network mumbai",
     "deploy:integration": "export NETWORK=integration&&yarn deploy --network integration",
     "deploy:staging": "export NETWORK=staging&&yarn deploy --network staging",
