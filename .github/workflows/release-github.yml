@@ -29,20 +29,9 @@ jobs:
 
       - name: Compile and Lint
         run: |
-          yarn lint
           yarn clean
           sh ./scripts/build.sh
           yarn compile
-
-      - name: Run Unit Tests
-        run: |
-          yarn test:unit
-
-      - name: Run Integration Tests
-        run: |
-          yarn test:integration
-        env:
-          NODE_OPTIONS: "--max-old-space-size=7500"
 
       # Add the artifacts to include in the release
       - name: Set version to env
