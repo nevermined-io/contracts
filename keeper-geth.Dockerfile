@@ -23,7 +23,7 @@ COPY . /nevermined-contracts
 WORKDIR /nevermined-contracts
 
 RUN yarn
-RUN sh ./scripts/build.sh
+RUN sh ./scripts/build-circuit.sh
 
 ENV MNEMONIC="taxi music thumb unique chat sand crew more leg another off lamp"
 ENV DEPLOY_CONTRACTS=true

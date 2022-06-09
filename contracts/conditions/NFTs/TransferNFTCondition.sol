@@ -266,21 +266,6 @@ contract TransferNFTCondition is Condition, ITransferNFT, ReentrancyGuardUpgrade
         address _nftReceiver,
         uint256 _nftAmount,
         bytes32 _lockPaymentCondition,
-        address _nftContractAddress
-    )
-    internal
-    returns (ConditionStoreLibrary.ConditionState)
-    {
-        return fulfillInternal(_account, _agreementId, _did, _nftReceiver, _nftAmount, _lockPaymentCondition, _nftContractAddress, true);
-    }
-    
-    function fulfillInternal(
-        address _account,
-        bytes32 _agreementId,
-        bytes32 _did,
-        address _nftReceiver,
-        uint256 _nftAmount,
-        bytes32 _lockPaymentCondition,
         address _nftContractAddress,
         bool _transfer
     )
@@ -353,43 +338,7 @@ contract TransferNFTCondition is Condition, ITransferNFT, ReentrancyGuardUpgrade
     returns (ConditionStoreLibrary.ConditionState)
     {
         require(hasRole(MARKET_ROLE, msg.sender) || erc1155.isApprovedForAll(_nftHolder, msg.sender), 'Invalid access role');
-        
-        bytes32 _id = generateId(
-            _agreementId,
-            hashValues(_did, _nftHolder, _nftReceiver, _nftAmount, _lockPaymentCondition)
-        );
-
-        require(
-            conditionStoreManager.getConditionState(_lockPaymentCondition) == ConditionStoreLibrary.ConditionState.Fulfilled,
-            'LockCondition needs to be Fulfilled'
-        );
-        
-        if (_transfer)  {
-            require(
-                erc1155.balanceOf(_nftHolder, uint256(_did)) >= _nftAmount,
-                'Not enough balance'
-            );
-
-            erc1155.safeTransferFrom(_nftHolder, _nftReceiver, uint256(_did), _nftAmount, '');
-        }   else {
-            erc1155.mint(_nftReceiver, uint256(_did), _nftAmount, '');
-        }
-
-        ConditionStoreLibrary.ConditionState state = super.fulfill(
-            _id,
-            ConditionStoreLibrary.ConditionState.Fulfilled
-        );
-
-        emit Fulfilled(
-            _agreementId,
-            _did,
-            _nftReceiver,
-            _nftAmount,
-            _id,
-            address(erc1155)
-        );
-
-        return state;
+        return fulfillInternal(_nftHolder, _agreementId, _did, _nftReceiver, _nftAmount, _lockPaymentCondition, address(erc1155), _transfer);
     }    
     
 }

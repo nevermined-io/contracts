@@ -154,16 +154,12 @@ contract('NFTSalesTemplate', (accounts) => {
 
             const realAgreementId = await agreementStoreManager.agreementId(agreementId, accounts[0])
 
-            /*
             const storedAgreementData = await nftSalesTemplate.getAgreementData(realAgreementId)
             assert.strictEqual(storedAgreementData.accessConsumer, agreement.accessConsumer)
             assert.strictEqual(storedAgreementData.accessProvider, accounts[0])
-            */
 
-            // const storedAgreement = await agreementStoreManager.getAgreement(agreementId)
             const condIds = await testUtils.getAgreementConditionIds(nftSalesTemplate, realAgreementId)
             expect(condIds).to.deep.equal(agreement.conditionIds)
-            // expect(storedAgreement.lastUpdatedBy).to.equal(templateId)
 
             let i = 0
             const conditionTypes = await nftSalesTemplate.getConditionTypes()

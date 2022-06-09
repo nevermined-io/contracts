@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 // Code is Apache-2.0 and docs are CC-BY-4.0
 
 import '@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol';
+import '../interfaces/IRoyaltyScheme.sol';
 
 /**
  * @title DID Registry Library
@@ -43,6 +44,8 @@ library DIDRegistryLibrary {
         uint256 nftSupply;
         // The max number of NFTs associated to the DID that can be minted 
         uint256 mintCap;
+        address royaltyRecipient;
+        IRoyaltyScheme royaltyScheme;
     }
 
     // List of DID's registered in the system
@@ -72,7 +75,6 @@ library DIDRegistryLibrary {
         
         if (didOwner == address(0)) {
             didOwner = msg.sender;
-            // _self.didRegisterIds.push(_did);
             creator = didOwner;
         }
 
@@ -149,12 +151,16 @@ library DIDRegistryLibrary {
         DIDRegisterList storage _self,
         bytes32 _did,
         uint256[] memory _amounts,
-        address[] memory _receivers
+        address[] memory _receivers,
+        address _tokenAddress
     )
     internal
     view
     returns (bool)
     {
+        if (address(_self.didRegisters[_did].royaltyScheme) != address(0)) {
+            return _self.didRegisters[_did].royaltyScheme.check(_did, _amounts, _receivers, _tokenAddress);
+        }
         // If there are no royalties everything is good
         if (_self.didRegisters[_did].royalties == 0) {
             return true;
@@ -170,10 +176,14 @@ library DIDRegistryLibrary {
         
         // If (_did.creator is not in _receivers) - It means the original creator is not included as part of the payment
         // return false;
+        address recipient = _self.didRegisters[_did].creator;
+        if (_self.didRegisters[_did].royaltyRecipient != address(0)) {
+            recipient = _self.didRegisters[_did].royaltyRecipient;
+        }
         bool found = false;
         uint256 index;
         for (index = 0; index < _receivers.length; index++) {
-            if (_self.didRegisters[_did].creator == _receivers[index])  {
+            if (recipient == _receivers[index])  {
                 found = true;
                 break;
             }

@@ -15,7 +15,7 @@ const deployManagers = require('../../helpers/deployManagers.js')
 const deployConditions = require('../../helpers/deployConditions.js')
 
 contract('End to End NFT Scenarios', (accounts) => {
-    const royalties = 10 // 10% of royalties in the secondary market
+    const royalties = 100000 // 10% of royalties in the secondary market
     const cappedAmount = 5
     const didSeed = testUtils.generateId()
     const didSeed2 = testUtils.generateId()
@@ -36,7 +36,7 @@ contract('End to End NFT Scenarios', (accounts) => {
 
     const owner = accounts[8]
     const deployer = accounts[8]
-    const governor = accounts[10]
+    const governor = accounts[9]
 
     // Configuration of First Sale:
     // Artist -> Collector1, the gallery get a cut (25%)
@@ -66,7 +66,8 @@ contract('End to End NFT Scenarios', (accounts) => {
         escrowCondition,
         nftHolderCondition,
         accessCondition,
-        getBalance
+        getBalance,
+        royaltyManager
 
     async function setupTest() {
         ({
@@ -75,7 +76,8 @@ contract('End to End NFT Scenarios', (accounts) => {
             agreementStoreManager,
             conditionStoreManager,
             templateStoreManager,
-            nft
+            nft,
+            royaltyManager
         } = await deployManagers(
             deployer,
             owner,
@@ -243,12 +245,16 @@ contract('End to End NFT Scenarios', (accounts) => {
             did = await didRegistry.hashDID(didSeed, artist)
 
             await didRegistry.registerMintableDID(
-                didSeed, checksum, [], url, cappedAmount, royalties, constants.activities.GENERATED, '', { from: artist })
+                didSeed, checksum, [], url, cappedAmount, 0, constants.activities.GENERATED, '', { from: artist }
+            )
+            await didRegistry.setDIDRoyalties(did, royaltyManager.address, { from: artist })
+            await royaltyManager.setRoyalty(did, royalties, { from: artist })
             await didRegistry.mint(did, 5, { from: artist })
             await nft.setApprovalForAll(transferCondition.address, true, { from: artist })
 
             const balance = await nft.balanceOf(artist, did)
             assert.strictEqual(5, balance.toNumber())
+            assert.equal(royaltyManager.address, await didRegistry.getDIDRoyaltyScheme(did))
         })
     })
 
@@ -467,7 +473,7 @@ contract('End to End NFT Scenarios', (accounts) => {
             did = await didRegistry.hashDID(didSeed2, artist)
 
             await didRegistry.registerMintableDID(
-                didSeed2, checksum, [], url, cappedAmount, royalties, constants.activities.GENERATED, '', { from: artist })
+                didSeed2, checksum, [], url, cappedAmount, 10, constants.activities.GENERATED, '', { from: artist })
             await didRegistry.mint(did, 5, { from: artist })
             await nft.setApprovalForAll(transferCondition.address, true, { from: artist })
 

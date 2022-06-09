@@ -11,7 +11,7 @@ async function loadWallet({ makeWallet }) {
     let wallets = [
         { name: 'owner', account: accounts[8] },
         { name: 'upgrader', account: accounts[8] },
-        { name: 'governor', account: accounts[10] }
+        { name: 'governor', account: accounts[9] }
     ]
     let contractNetworks = {}
     if (makeWallet) {
@@ -61,10 +61,10 @@ async function loadWallet({ makeWallet }) {
     const roles = {
         deployer: accounts[8],
         upgrader: accounts[8],
-        governor: accounts[10],
+        governor: accounts[9],
         ownerWallet: (wallets.find(a => a.name === 'owner') || { account: accounts[8] }).account,
         upgraderWallet: (wallets.find(a => a.name === 'upgrader') || { account: accounts[8] }).account,
-        governorWallet: (wallets.find(a => a.name === 'governor') || { account: accounts[10] }).account,
+        governorWallet: (wallets.find(a => a.name === 'governor') || { account: accounts[9] }).account,
         contractNetworks
     }
     return { roles, contractNetworks }

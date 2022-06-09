@@ -304,52 +304,7 @@ contract TransferNFT721Condition is Condition, ITransferNFT, ReentrancyGuardUpgr
     returns (ConditionStoreLibrary.ConditionState)
     {
         require(hasRole(MARKET_ROLE, msg.sender) || erc721.isApprovedForAll(_nftHolder, msg.sender), 'Invalid access role');
-        
-        bytes32 _id = generateId(
-            _agreementId,
-            hashValues(_did, _nftHolder, _nftReceiver, _nftAmount, _lockPaymentCondition, address(erc721), _transfer)
-        );
-        
-        require(
-            conditionStoreManager.getConditionState(_lockPaymentCondition) == ConditionStoreLibrary.ConditionState.Fulfilled,
-            'LockCondition needs to be Fulfilled'
-        );
-        
-        if (_transfer)  {
-            require(
-                _nftAmount == 0 || (_nftAmount == 1 && erc721.ownerOf(uint256(_did)) == msg.sender),
-                'Not enough balance'
-            );
-
-            if (_nftAmount == 1)
-                erc721.safeTransferFrom(
-                    erc721.ownerOf(uint256(_did)), 
-                    _nftReceiver, 
-                    uint256(_did)
-                );
-        }   else {
-            require(
-                didRegistry.isDIDProviderOrOwner(_did, msg.sender), 
-                'Only owner or provider'
-            );
-            erc721.mint(_nftReceiver, uint256(_did));
-        }
-
-        ConditionStoreLibrary.ConditionState state = super.fulfill(
-            _id,
-            ConditionStoreLibrary.ConditionState.Fulfilled
-        );
-
-        emit Fulfilled(
-            _agreementId,
-            _did,
-            _nftReceiver,
-            _nftAmount,
-            _id,
-            address(erc721)
-        );
-
-        return state;
-    }
+        return fulfillInternal(_nftHolder, _agreementId, _did, _nftReceiver, _nftAmount, _lockPaymentCondition, address(erc721), _transfer);
+    }        
 }
 

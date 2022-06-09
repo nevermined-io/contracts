@@ -1,7 +1,9 @@
 #!/bin/sh
 
 # We need to move the artifacts folder where it is expected and start openethereum
-cp -rp /nevermined-contracts/artifacts2/* /nevermined-contracts/artifacts/
-cp -rp /nevermined-contracts/circuits2/* /nevermined-contracts/circuits/
+mkdir -p /nevermined-contracts/artifacts
+mkdir -p /nevermined-contracts/circuits
+cp -rp /artifacts/* /nevermined-contracts/artifacts/
+cp -rp /circuits/* /nevermined-contracts/circuits/
 
 exec /home/openethereum/openethereum "$@"

@@ -117,11 +117,9 @@ contract('NFTAccessTemplate', (accounts) => {
             await nftAccessTemplate.createAgreement(agreementId, ...Object.values(agreement))
             const realAgreementId = await agreementStoreManager.agreementId(agreementId, accounts[0])
 
-            /*
-            const storedAgreementData = await nftAccessTemplate.getAgreementData(agreementId)
+            const storedAgreementData = await nftAccessTemplate.getAgreementData(realAgreementId)
             assert.strictEqual(storedAgreementData.accessConsumer, agreement.accessConsumer)
             assert.strictEqual(storedAgreementData.accessProvider, accounts[0])
-            */
 
             const condIds = await testUtils.getAgreementConditionIds(nftAccessTemplate, realAgreementId)
             expect(condIds).to.deep.equal(agreement.conditionIds)

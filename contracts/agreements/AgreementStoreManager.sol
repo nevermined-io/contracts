@@ -7,7 +7,6 @@ pragma solidity ^0.8.0;
 
 import './AgreementStoreLibrary.sol';
 import '../conditions/ConditionStoreManager.sol';
-import '../conditions/LockPaymentCondition.sol';
 import '../conditions/ICondition.sol';
 import '../registry/DIDRegistry.sol';
 import '../templates/TemplateStoreManager.sol';
@@ -179,34 +178,33 @@ contract AgreementStoreManager is OwnableUpgradeable, AccessControlUpgradeable {
             msg.sender,
             _conditionIds
         );
-
-        // same as above
-        // return getAgreementListSize();
     }
 
-    function createAgreementAndPay(
-        bytes32 _id,
-        bytes32 _did,
-        address[] memory _conditionTypes,
-        bytes32[] memory _conditionIds,
-        uint[] memory _timeLocks,
-        uint[] memory _timeOuts,
-        address _creator,
-        uint _idx,
-        address payable _rewardAddress,
-        address _tokenAddress,
-        uint256[] memory _amounts,
-        address[] memory _receivers
-    )
+    struct CreateAgreementArgs {
+        bytes32 _id;
+        bytes32 _did;
+        address[] _conditionTypes;
+        bytes32[] _conditionIds;
+        uint[] _timeLocks;
+        uint[] _timeOuts;
+        address _creator;
+        uint _idx;
+        address payable _rewardAddress;
+        address _tokenAddress;
+        uint256[] _amounts;
+        address[] _receivers;
+    }
+
+    function createAgreementAndPay(CreateAgreementArgs memory args)
         public payable
     {
         address[] memory _account = new address[](1);
-        _account[0] = _creator;
+        _account[0] = args._creator;
         uint[] memory indices = new uint[](1);
-        indices[0] = _idx;
+        indices[0] = args._idx;
         bytes[] memory params = new bytes[](1);
-        params[0] = abi.encode(_did, _rewardAddress, _tokenAddress, _amounts, _receivers);
-        createAgreementAndFulfill(_id, _did, _conditionTypes, _conditionIds, _timeLocks, _timeOuts, _account, indices, params);
+        params[0] = abi.encode(args._did, args._rewardAddress, args._tokenAddress, args._amounts, args._receivers);
+        createAgreementAndFulfill(args._id, args._did, args._conditionTypes, args._conditionIds, args._timeLocks, args._timeOuts, _account, indices, params);
     }
 
     function createAgreementAndFulfill(
@@ -224,8 +222,11 @@ contract AgreementStoreManager is OwnableUpgradeable, AccessControlUpgradeable {
     {
         require(hasRole(PROXY_ROLE, msg.sender), 'Invalid access role');
         createAgreement(_id, _did, _conditionTypes, _conditionIds, _timeLocks, _timeOuts);
-        for (uint i = 0; i < _idx.length; i++) {
-            ICondition(_conditionTypes[_idx[i]]).fulfillProxy{value: msg.value}(_account[i], _id, params[i]);
+        if (_idx.length > 0) {
+            ICondition(_conditionTypes[_idx[0]]).fulfillProxy{value: msg.value}(_account[0], _id, params[0]);
+        }
+        for (uint i = 1; i < _idx.length; i++) {
+            ICondition(_conditionTypes[_idx[i]]).fulfillProxy(_account[i], _id, params[i]);
         }
     }
 

@@ -17,10 +17,11 @@ import '../token/erc721/NFT721Upgradeable.sol';
 contract DIDRegistry is DIDFactory {
 
     using DIDRegistryLibrary for DIDRegistryLibrary.DIDRegisterList;
-    using SafeMathUpgradeable for uint256;
 
     NFTUpgradeable public erc1155;
     NFT721Upgradeable public erc721;
+
+    mapping (address => bool) public royaltiesCheckers;
 
     //////////////////////////////////////////////////////////////
     ////////  EVENTS  ////////////////////////////////////////////
@@ -44,6 +45,44 @@ contract DIDRegistry is DIDFactory {
         erc721 = NFT721Upgradeable(_erc721);
         transferOwnership(_owner);
         manager = _owner;
+    }
+
+    function registerRoyaltiesChecker(address _addr) public onlyOwner {
+        royaltiesCheckers[_addr] = true;
+    }
+
+    event DIDRoyaltiesAdded(bytes32 indexed did, address indexed addr);
+    event DIDRoyaltyRecipientChanged(bytes32 indexed did, address indexed addr);
+
+    function setDIDRoyalties(
+        bytes32 _did,
+        address _royalties
+    )
+    public
+    {
+        require(didRegisterList.didRegisters[_did].creator == msg.sender, 'Only creator can set royalties');
+        require(address(didRegisterList.didRegisters[_did].royaltyScheme) == address(0), 'Cannot change royalties');
+        didRegisterList.didRegisters[_did].royaltyScheme = IRoyaltyScheme(_royalties);
+
+        emit DIDRoyaltiesAdded(
+            _did,
+            _royalties
+        );
+    }
+
+    function setDIDRoyaltyRecipient(
+        bytes32 _did,
+        address _recipient
+    )
+    public
+    {
+        require(didRegisterList.didRegisters[_did].creator == msg.sender, 'Only creator can set royalties');
+        didRegisterList.didRegisters[_did].royaltyRecipient = _recipient;
+
+        emit DIDRoyaltyRecipientChanged(
+            _did,
+            _recipient
+        );
     }
 
     /**
@@ -257,12 +296,12 @@ contract DIDRegistry is DIDFactory {
     {
         if (didRegisterList.didRegisters[_did].mintCap > 0) {
             require(
-                didRegisterList.didRegisters[_did].nftSupply.add(_amount) <= didRegisterList.didRegisters[_did].mintCap,
+                didRegisterList.didRegisters[_did].nftSupply + _amount <= didRegisterList.didRegisters[_did].mintCap,
                 'Cap exceeded'
             );
         }
         
-        didRegisterList.didRegisters[_did].nftSupply = didRegisterList.didRegisters[_did].nftSupply.add(_amount);
+        didRegisterList.didRegisters[_did].nftSupply = didRegisterList.didRegisters[_did].nftSupply + _amount;
         
         super.used(
             keccak256(abi.encode(_did, msg.sender, 'mint', _amount, block.number)),

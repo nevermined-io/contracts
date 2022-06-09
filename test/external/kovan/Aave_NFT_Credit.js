@@ -30,7 +30,7 @@ const TestERC721 = artifacts.require('TestERC721')
 const constants = require('../../helpers/constants.js')
 const testUtils = require('../../helpers/utils.js')
 
-contract('End to End NFT Collateral Scenario', (accounts) => {
+contract('End to End NFT Collateral Scenario [@skip-on-coverage]', (accounts) => {
     const lender = accounts[1]
     const borrower = accounts[2]
 

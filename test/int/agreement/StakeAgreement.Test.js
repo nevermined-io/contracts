@@ -83,8 +83,6 @@ contract.skip('Stake Agreement integration test', (accounts) => {
         const conditionIdLock =
             await lockPaymentCondition.hashValues(did, escrowPaymentCondition.address, token.address, [stakeAmount], [staker])
         const fullConditionIdLock = await lockPaymentCondition.generateId(agreementId, conditionIdLock)
-        console.log('ids', did, escrowPaymentCondition.address, token.address, [stakeAmount], [staker])
-        console.log('ids 2', agreementId, conditionIdLock)
         const fullConditionIdSign = await signCondition.generateId(agreementId, conditionIdSign)
         const conditionIdEscrow =
         await escrowPaymentCondition.hashValues(did, [stakeAmount], [staker], accounts[0], escrowPaymentCondition.address, token.address, fullConditionIdLock, fullConditionIdSign)
@@ -149,7 +147,6 @@ contract.skip('Stake Agreement integration test', (accounts) => {
             // stake: fulfill lock reward
             await token.approve(lockPaymentCondition.address, stakeAmount, { from: alice })
 
-            console.log('ids here', agreementId, did, escrowPaymentCondition.address, token.address, [stakeAmount], [staker])
             await lockPaymentCondition.fulfill(agreementId, did, escrowPaymentCondition.address, token.address, [stakeAmount], [staker])
             assert.strictEqual(await getBalance(token, alice), 0)
             assert.strictEqual(await getBalance(token, escrowPaymentCondition.address), stakeAmount)

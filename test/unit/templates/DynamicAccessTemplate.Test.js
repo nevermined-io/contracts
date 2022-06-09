@@ -158,14 +158,6 @@ contract('DynamicAccessTemplate', (accounts) => {
             const eventArgs = testUtils.getEventArgsFromTx(result, 'AgreementCreated')
             expect(eventArgs._agreementId).to.equal(realAgreementId)
             expect(eventArgs._did).to.equal(agreement.did)
-            // expect(eventArgs._accessProvider).to.equal(accounts[0])
-            // expect(eventArgs._accessConsumer).to.equal(agreement.accessConsumer)
-
-            /*
-            const storedAgreementData = await dynamicAccessTemplate.getAgreementData(agreementId)
-            assert.strictEqual(storedAgreementData.accessConsumer, agreement.accessConsumer)
-            assert.strictEqual(storedAgreementData.accessProvider, accounts[0])
-            */
 
             const condIds = await testUtils.getAgreementConditionIds(dynamicAccessTemplate, agreementId)
             expect(condIds).to.deep.equal(agreement.conditionIds)

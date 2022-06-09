@@ -103,10 +103,6 @@ contract DutchAuction is AbstractAuction {
         require(_bidAmount <= auctions[_auctionId].floor, 'DutchAuction: Only lower or equal than start price');
         require(_bidAmount > auctions[_auctionId].price, 'DutchAuction: Only higher bids');
         
-        // solhint-disable-next-line
-        (bool sent, ) = payable(address(this)).call{value: msg.value}('');
-        require(sent, 'DutchAuction: Failed to send native token');
-
         auctions[_auctionId].whoCanClaim = msg.sender;
         auctions[_auctionId].price = _bidAmount;
         auctionBids[_auctionId][msg.sender] = _bidAmount;
@@ -124,6 +120,10 @@ contract DutchAuction is AbstractAuction {
             DynamicPricingState.InProgress,
             DynamicPricingState.Finished
         );
+        // solhint-disable-next-line
+        (bool sent, ) = payable(address(this)).call{value: msg.value}('');
+        require(sent, 'DutchAuction: Failed to send native token');
+
     }
 
     function placeERC20Bid(

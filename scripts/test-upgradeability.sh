@@ -7,7 +7,7 @@ export TESTNET=true
 
 # rm -rf artifacts/*.external.json deploy-cache.json
 rm -f .openzeppelin/unknown-31337.json
-git checkout $BASE
+git checkout $BASE || exit 1
 yarn
 yarn compile
 
@@ -19,6 +19,7 @@ npx hardhat run ./scripts/deploy/truffle-wrapper/deployContractsWrapper.js --net
 
 git checkout $BRANCH
 yarn
+./scripts/build-circuit.sh
 
 export FAIL=true
 

@@ -2,6 +2,20 @@
 const ZeroAddress = '0x0000000000000000000000000000000000000000'
 const { ethers, upgrades, web3 } = require('hardhat')
 
+async function doDeploy(signer, args) {
+    if (process.env.NO_PROXY === 'true') {
+        const c = await signer.deploy()
+        await c.deployed()
+        const tx = await c.initialize(...args)
+        await tx.wait()
+        return c
+    } else {
+        const c = await upgrades.deployProxy(signer, args, { unsafeAllowLinkedLibraries: true })
+        await c.deployed()
+        return c
+    }
+}
+
 async function zosCreate({ contract, args, libraries, verbose, ctx }) {
     const { cache, addresses, roles } = ctx
     if (addresses[contract]) {
@@ -11,8 +25,7 @@ async function zosCreate({ contract, args, libraries, verbose, ctx }) {
         return addresses[contract]
     } else {
         const C = await ethers.getContractFactory(contract, { libraries })
-        const c = await upgrades.deployProxy(C.connect(ethers.provider.getSigner(roles.deployer)), args, { unsafeAllowLinkedLibraries: true })
-        await c.deployed()
+        const c = await doDeploy(C.connect(ethers.provider.getSigner(roles.deployer)), args)
         cache[contract] = c
         if (verbose) {
             console.log(`${contract}: ${c.address}`)
@@ -125,6 +138,15 @@ async function initializeContracts({
             ctx,
             args: [roles.deployer, addressBook.NFTUpgradeable || ZeroAddress, addressBook.NFT721Upgradeable || ZeroAddress],
             libraries: { DIDRegistryLibrary: didRegistryLibrary },
+            verbose
+        })
+    }
+
+    if (contracts.indexOf('StandardRoyalties') > -1 && contracts.indexOf('DIDRegistry') > -1) {
+        addressBook.StandardRoyalties = await zosCreate({
+            contract: 'StandardRoyalties',
+            ctx,
+            args: [addressBook.DIDRegistry],
             verbose
         })
     }
@@ -350,6 +372,23 @@ async function initializeContracts({
                     getAddress('ConditionStoreManager'),
                     getAddress('TemplateStoreManager'),
                     getAddress('DIDRegistry')
+                ],
+                verbose
+            })
+        }
+    }
+
+    if (getAddress('ConditionStoreManager') &&
+        getAddress('EscrowPaymentCondition') &&
+        getAddress('DIDRegistry')) {
+        if (contracts.indexOf('RewardsDistributor') > -1) {
+            addressBook.RewardsDistributor = await zosCreate({
+                contract: 'RewardsDistributor',
+                ctx,
+                args: [
+                    getAddress('DIDRegistry'),
+                    getAddress('ConditionStoreManager'),
+                    getAddress('EscrowPaymentCondition')
                 ],
                 verbose
             })

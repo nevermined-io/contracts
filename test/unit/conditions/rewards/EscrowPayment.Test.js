@@ -311,10 +311,6 @@ function escrowTest(EscrowPaymentCondition, LockPaymentCondition, Token, nft, nf
                 const balanceContractBefore = await getETHBalance(escrowPayment.address)
                 const balanceReceiverBefore = await getETHBalance(receivers[0])
 
-                //            console.log('Balance Sender Before: ' + balanceSenderBefore)
-                //            console.log('Balance Contract Before: ' + balanceContractBefore)
-                //            console.log('Balance Receiver Before: ' + balanceReceiverBefore)
-
                 assert(balanceSenderBefore >= totalAmount)
 
                 await lockPaymentCondition.fulfill(
@@ -323,11 +319,6 @@ function escrowTest(EscrowPaymentCondition, LockPaymentCondition, Token, nft, nf
 
                 const balanceSenderAfterLock = await getETHBalance(sender)
                 const balanceContractAfterLock = await getETHBalance(escrowPayment.address)
-                // const balanceReceiverAfterLock = await getETHBalance(receivers[0])
-
-                // console.log('Balance Sender Lock: ' + balanceSenderAfterLock)
-                // console.log('Balance Contract Lock: ' + balanceContractAfterLock)
-                // console.log('Balance Receiver Lock: ' + balanceReceiverAfterLock)
 
                 assert(balanceSenderAfterLock >= balanceSenderBefore - totalAmount)
                 assert(balanceContractAfterLock <= balanceContractBefore + totalAmount)
@@ -357,10 +348,6 @@ function escrowTest(EscrowPaymentCondition, LockPaymentCondition, Token, nft, nf
                 const balanceSenderAfterEscrow = await getETHBalance(sender)
                 const balanceContractAfterEscrow = await getETHBalance(escrowPayment.address)
                 const balanceReceiverAfterEscrow = await getETHBalance(receivers[0])
-
-                // console.log('Balance Sender Escrow: ' + balanceSenderAfterEscrow)
-                // console.log('Balance Contract Escrow: ' + balanceContractAfterEscrow)
-                // console.log('Balance Receiver Escrow: ' + balanceReceiverAfterEscrow)
 
                 assert(balanceSenderAfterEscrow <= balanceSenderBefore - totalAmount)
                 assert(balanceContractAfterEscrow <= balanceContractBefore)

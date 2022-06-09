@@ -232,7 +232,6 @@ contract('Access Proof Template integration test', (accounts) => {
             const babyJub = await circomlib.buildBabyjub()
             const F = poseidon.F
             const [cipherL, cipherR] = ev[0].returnValues._cipher
-            console.log([F.e(providerPub[0]), F.e(providerPub[1])], F.e(buyerK), buyerK)
             const k2 = babyJub.mulPointEscalar([F.e(providerPub[0]), F.e(providerPub[1])], buyerK)
 
             const plain = mimcdecrypt(cipherL, cipherR, F.toObject(k2[0]))

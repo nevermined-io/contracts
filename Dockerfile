@@ -10,12 +10,18 @@ RUN apk add --no-cache --update\
       krb5-libs\
       krb5\
       make\
-      python3
+      python3\
+      curl
+
+RUN curl https://sh.rustup.rs -sSf | bash -s -- -y
+ENV PATH="/root/.cargo/bin:${PATH}"
 
 COPY . /nevermined-contracts
 WORKDIR /nevermined-contracts
 
 RUN yarn
+RUN sh ./scripts/build-circuit.sh
+
 RUN yarn clean
 RUN yarn compile
 

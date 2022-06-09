@@ -17,12 +17,13 @@ contract DIDRegistryLibraryProxy {
     function areRoyaltiesValid(
         bytes32 _did,
         uint256[] memory _amounts,
-        address[] memory _receivers
+        address[] memory _receivers,
+        address _tokenAddress
     )
     public
     view
     returns (bool) {
-        return didRegisterList.areRoyaltiesValid(_did, _amounts, _receivers);
+        return didRegisterList.areRoyaltiesValid(_did, _amounts, _receivers, _tokenAddress);
     }
 
     function updateDIDOwner(

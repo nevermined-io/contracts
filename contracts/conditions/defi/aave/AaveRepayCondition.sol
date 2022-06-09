@@ -9,6 +9,7 @@ import '../../../registry/DIDRegistry.sol';
 import './AaveCreditVault.sol';
 import '@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol';
+import '@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol';
 
 /**
  * @title Lock Payment Condition
@@ -19,7 +20,8 @@ import '@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol';
  */
 contract AaveRepayCondition is Condition, Common {
     using SafeMathUpgradeable for uint256;
-    
+    using SafeERC20Upgradeable for ERC20Upgradeable;
+
     AaveCreditVault internal aaveCreditVault;
     
     bytes32 public constant CONDITION_TYPE = keccak256('AaveRepayCondition');
@@ -127,7 +129,7 @@ contract AaveRepayCondition is Condition, Common {
         );
         
         if (state == ConditionStoreLibrary.ConditionState.Fulfilled)    {
-            token.transferFrom(msg.sender, _vaultAddress, totalDebt);
+            token.safeTransferFrom(msg.sender, _vaultAddress, totalDebt);
             vault.repay(_assetToRepay, _interestRateMode, _id);
         } else if (state == ConditionStoreLibrary.ConditionState.Aborted)    {
             vault.setRepayConditionId(_id);

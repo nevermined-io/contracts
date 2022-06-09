@@ -5,6 +5,8 @@ require('@openzeppelin/hardhat-upgrades')
 require('@nomiclabs/hardhat-truffle5')
 require('hardhat-dependency-compiler')
 require('hardhat-gas-reporter')
+require('solidity-coverage')
+
 const utils = require('web3-utils')
 
 const MNEMONIC = process.env.MNEMONIC || 'taxi music thumb unique chat sand crew more leg another off lamp'
@@ -13,6 +15,8 @@ const url = process.env.KEEPER_RPC_URL
 const accounts = {
     mnemonic: MNEMONIC
 }
+
+const disableDependencies = process.env.DISABLE_DEPENDENCIES === 'true'
 
 module.exports = {
     solidity: {
@@ -25,23 +29,13 @@ module.exports = {
                         runs: 10
                     }
                 }
-            },
-            {
-                version: '0.5.3',
-                settings: {
-                    evmVersion: 'constantinople',
-                    optimizer: {
-                        enabled: true,
-                        runs: 10
-                    }
-                }
             }
         ]
     },
     paths: {
         artifacts: 'build'
     },
-    dependencyCompiler: {
+    dependencyCompiler: disableDependencies ? undefined : {
         paths: [
             '@gnosis.pm/safe-contracts/contracts/GnosisSafe.sol',
             '@gnosis.pm/safe-contracts/contracts/libraries/MultiSend.sol',

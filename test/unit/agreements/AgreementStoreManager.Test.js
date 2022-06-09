@@ -1,10 +1,12 @@
 /* eslint-env mocha */
 /* eslint-disable no-console */
-/* global artifacts, contract, describe, it, expect */
+/* global artifacts, contract, describe, it */
 
+const { expect } = require('chai')
 const chai = require('chai')
 const { assert } = chai
 const chaiAsPromised = require('chai-as-promised')
+const { web3 } = require('hardhat')
 chai.use(chaiAsPromised)
 
 const NeverminedConfig = artifacts.require('NeverminedConfig')
@@ -173,6 +175,20 @@ contract('AgreementStoreManager', (accounts) => {
 
         it('contract should have initialized', async () => {
             expect(await agreementStoreManager.getDIDRegistryAddress()).to.equal(didRegistry.address)
+        })
+    })
+
+    describe('proxy', () => {
+        const proxyRole = web3.utils.soliditySha3('PROXY_ROLE')
+        it('setting proxy', async () => {
+            await agreementStoreManager.grantProxyRole(accounts[2], { from: owner })
+            expect(await agreementStoreManager.hasRole(proxyRole, accounts[2])).to.equal(true)
+        })
+        it('revoking proxy', async () => {
+            await agreementStoreManager.grantProxyRole(accounts[2], { from: owner })
+            expect(await agreementStoreManager.hasRole(proxyRole, accounts[2])).to.equal(true)
+            await agreementStoreManager.revokeProxyRole(accounts[2], { from: owner })
+            expect(await agreementStoreManager.hasRole(proxyRole, accounts[2])).to.equal(false)
         })
     })
 
@@ -447,67 +463,6 @@ contract('AgreementStoreManager', (accounts) => {
                 otherAgreementId,
                 ...Object.values(otherAgreement),
                 { from: templateId }
-            )
-        })
-    })
-
-    describe.skip('is agreement DID provider', () => {
-        it('should return true if agreement DID provider', async () => {
-            const did = await registerNewDID()
-
-            const agreement = {
-                did: did,
-                conditionTypes: [common.address, common.address],
-                conditionIds: [testUtils.generateId(), testUtils.generateId()],
-                timeLocks: [0, 1],
-                timeOuts: [2, 3]
-
-            }
-
-            const agreementId = testUtils.generateId()
-
-            await agreementStoreManager.createAgreement(
-                agreementId,
-                ...Object.values(agreement),
-                { from: templateId }
-            )
-            assert.strictEqual(
-                await agreementStoreManager.isAgreementDIDProvider(
-                    agreementId,
-                    providers[0]
-                ),
-                true
-            )
-        })
-
-        it('should return false if not agreement DID provider', async () => {
-            const did = await registerNewDID()
-
-            const agreement = {
-                did: did,
-                conditionTypes: [common.address, common.address],
-                conditionIds: [testUtils.generateId(), testUtils.generateId()],
-                timeLocks: [0, 1],
-                timeOuts: [2, 3]
-
-            }
-
-            const agreementId = testUtils.generateId()
-
-            await agreementStoreManager.createAgreement(
-                agreementId,
-                ...Object.values(agreement),
-                { from: templateId }
-            )
-
-            const invalidProvider = accounts[5]
-
-            assert.strictEqual(
-                await agreementStoreManager.isAgreementDIDProvider(
-                    agreementId,
-                    invalidProvider
-                ),
-                false
             )
         })
     })

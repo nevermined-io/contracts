@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 // Code is Apache-2.0 and docs are CC-BY-4.0
 
 import {IERC20, ILendingPool, ILendingPoolAddressesProvider, IProtocolDataProvider, IStableDebtToken, IPriceOracleGetter} from '../../../interfaces/IAaveInterfaces.sol';
-import {SafeERC20, SafeMath} from '../../../libraries/AaveLibrary.sol';
+import {SafeERC20} from '../../../libraries/AaveLibrary.sol';
 import '../../../interfaces/IWETHGateway.sol';
 import '@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol';
@@ -19,7 +19,6 @@ contract AaveCreditVault is
 {
     
     using SafeERC20 for IERC20;
-    using SafeMath for uint256;
     
     ILendingPool public lendingPool;
     IProtocolDataProvider public dataProvider;
@@ -51,37 +50,6 @@ contract AaveCreditVault is
     * @param _agreementFee Agreement fee that lender will receive on agreement maturity
     * @param _treasuryAddress Address of nevermined contract to store fees
     */
-    /*
-    constructor(
-        address _lendingPool,
-        address _dataProvider,
-        address _weth,
-        uint256 _nvmFee,
-        uint256 _agreementFee,
-        address _treasuryAddress,
-        address _borrower,
-        address _lender,
-        address[] memory _conditions
-    ) initializer {
-        lendingPool = ILendingPool(_lendingPool);
-        dataProvider = IProtocolDataProvider(_dataProvider);
-        weth = IWETHGateway(_weth);
-        addressProvider = lendingPool.getAddressesProvider();
-        priceOracle = IPriceOracleGetter(addressProvider.getPriceOracle());
-        nvmFee = _nvmFee;
-        agreementFee = _agreementFee;
-        treasuryAddress = _treasuryAddress;
-        borrower = _borrower;
-        lender = _lender;
-        AccessControlUpgradeable.__AccessControl_init();
-        AccessControlUpgradeable._setupRole(BORROWER_ROLE, _borrower);
-        AccessControlUpgradeable._setupRole(LENDER_ROLE, _lender);
-        
-        for(uint256 i = 0; i < _conditions.length; i++){
-            AccessControlUpgradeable._setupRole(CONDITION_ROLE, _conditions[i]);
-        }        
-    }*/
-    
     function initialize(
         address _lendingPool,
         address _dataProvider,
@@ -232,7 +200,7 @@ contract AaveCreditVault is
         borrowedAsset = _assetToBorrow;
         borrowedAmount = _amount;
         lendingPool.borrow(_assetToBorrow, _amount, _interestRateMode, 0, address(this));
-        IERC20(_assetToBorrow).transfer(_delgatee, _amount);
+        IERC20(_assetToBorrow).safeTransfer(_delgatee, _amount);
     }
     
     /**
@@ -303,7 +271,7 @@ contract AaveCreditVault is
         (uint256 _decimals, , , , , , , , , ) = dataProvider
           .getReserveConfigurationData(borrowedAsset);
         
-        return totalDebtETH.div(price).mul(10**_decimals);
+        return totalDebtETH * (10**_decimals) / price;
     }
     
     /**
@@ -331,10 +299,10 @@ contract AaveCreditVault is
     returns (uint256) 
     {
         uint256 creditDebt = getCreditAssetDebt();
-        uint256 delegatorFee = borrowedAmount.div(FEE_BASE).mul(agreementFee);
-        uint256 nvmFeeAmount = borrowedAmount.div(FEE_BASE).mul(nvmFee);
+        uint256 delegatorFee = borrowedAmount * agreementFee / FEE_BASE;
+        uint256 nvmFeeAmount = borrowedAmount * nvmFee / FEE_BASE;
         
-        return creditDebt.add(delegatorFee).add(nvmFeeAmount);
+        return creditDebt + delegatorFee + nvmFeeAmount;
     }
     
     /**
@@ -351,10 +319,10 @@ contract AaveCreditVault is
         require(hasRole(CONDITION_ROLE, msg.sender), 'Only conditions');
 
         lendingPool.withdraw(_asset, uint256(2**256 - 1), _delegator);
-        uint256 delegatorFee = borrowedAmount.div(FEE_BASE).mul(agreementFee);
-        IERC20(borrowedAsset).transfer(_delegator, delegatorFee);
+        uint256 delegatorFee = borrowedAmount * agreementFee / FEE_BASE;
+        IERC20(borrowedAsset).safeTransfer(_delegator, delegatorFee);
         uint256 finalBalance = IERC20(borrowedAsset).balanceOf(address(this));
-        IERC20(borrowedAsset).transfer(treasuryAddress, finalBalance);
+        IERC20(borrowedAsset).safeTransfer(treasuryAddress, finalBalance);
     }
 
     /**

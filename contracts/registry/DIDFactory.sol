@@ -278,13 +278,14 @@ contract DIDFactory is OwnableUpgradeable, ProvenanceRegistry {
     function areRoyaltiesValid(     
         bytes32 _did,
         uint256[] memory _amounts,
-        address[] memory _receivers
+        address[] memory _receivers,
+        address _tokenAddress
     )
     public
     view
     returns (bool)
     {
-        return didRegisterList.areRoyaltiesValid(_did, _amounts, _receivers);
+        return didRegisterList.areRoyaltiesValid(_did, _amounts, _receivers, _tokenAddress);
     }
     
     function wasGeneratedBy(
@@ -629,6 +630,20 @@ contract DIDFactory is OwnableUpgradeable, ProvenanceRegistry {
         mintCap = didRegisterList.didRegisters[_did].mintCap;
         royalties = didRegisterList.didRegisters[_did].royalties;
     }
+
+    function getDIDSupply(
+        bytes32 _did
+    )
+    public
+    view
+    returns (
+        uint256 nftSupply,
+        uint256 mintCap
+    )
+    {
+        nftSupply = didRegisterList.didRegisters[_did].nftSupply;
+        mintCap = didRegisterList.didRegisters[_did].mintCap;
+    }
     
     /**
      * @param _did refers to decentralized identifier (a bytes32 length ID).
@@ -652,6 +667,34 @@ contract DIDFactory is OwnableUpgradeable, ProvenanceRegistry {
     returns (address didOwner)
     {
         return didRegisterList.didRegisters[_did].owner;
+    }
+
+    function getDIDRoyaltyRecipient(bytes32 _did)
+    public
+    view
+    returns (address)
+    {
+        address res = didRegisterList.didRegisters[_did].royaltyRecipient;
+        if (res == address(0)) {
+            return didRegisterList.didRegisters[_did].creator;
+        }
+        return res;
+    }
+
+    function getDIDRoyaltyScheme(bytes32 _did)
+    public
+    view
+    returns (address)
+    {
+        return address(didRegisterList.didRegisters[_did].royaltyScheme);
+    }
+
+    function getDIDCreator(bytes32 _did)
+    public
+    view
+    returns (address)
+    {
+        return didRegisterList.didRegisters[_did].creator;
     }
 
     /**

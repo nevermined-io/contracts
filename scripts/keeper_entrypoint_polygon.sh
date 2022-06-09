@@ -9,4 +9,4 @@ cp -rp /artifacts/* /nevermined-contracts/artifacts/
 cp -rp /circuits/* /nevermined-contracts/circuits/
 
 cd /polygon-sdk
-exec polygon-sdk server "$@"
+exec polygon-edge server "$@"

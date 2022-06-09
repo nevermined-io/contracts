@@ -118,11 +118,10 @@ contract('EscrowComputeExecutionTemplate', (accounts) => {
 
             await escrowComputeExecutionTemplate.createAgreement(agreementId, ...Object.values(agreement))
             const realAgreementId = await agreementStoreManager.agreementId(agreementId, accounts[0])
-            /*
-            const storedAgreementData = await escrowComputeExecutionTemplate.getAgreementData(agreementId)
+            const storedAgreementData = await escrowComputeExecutionTemplate.getAgreementData(realAgreementId)
             assert.strictEqual(storedAgreementData.accessConsumer, agreement.accessConsumer)
             assert.strictEqual(storedAgreementData.accessProvider, accounts[0])
-*/
+
             const condIds = await testUtils.getAgreementConditionIds(escrowComputeExecutionTemplate, realAgreementId)
             expect(condIds).to.deep.equal(agreement.conditionIds)
 
@@ -168,16 +167,6 @@ contract('EscrowComputeExecutionTemplate', (accounts) => {
             const eventArgs = testUtils.getEventArgsFromTx(result, 'AgreementCreated')
             expect(eventArgs._agreementId).to.equal(realAgreementId)
             expect(eventArgs._did).to.equal(agreement.did)
-            /*
-            expect(eventArgs._accessProvider).to.equal(accounts[0])
-            expect(eventArgs._accessConsumer).to.equal(agreement.accessConsumer)
-
-            const storedAgreement = await agreementStoreManager.getAgreement(agreementId)
-            expect(storedAgreement.conditionIds)
-                .to.deep.equal(agreement.conditionIds)
-            expect(storedAgreement.lastUpdatedBy)
-                .to.equal(templateId)
-            */
         })
 
         it.skip('create agreement should set asset provider as accessProvider instead of owner', async () => {

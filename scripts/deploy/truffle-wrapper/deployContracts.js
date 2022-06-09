@@ -86,11 +86,16 @@ async function deployContracts({ contracts: origContracts, verbose, testnet, mak
         DIDRegistry: { DIDRegistryLibrary: didRegistryLibraryAddress },
         ConditionStoreManager: { EpochLibrary: epochLibraryAddress }
     }
-    await exportArtifacts(contracts.filter(a => a !== 'AaveCreditVault' && a !== 'PlonkVerifier'), addressBook, libraries)
-    await exportLibraryArtifacts(['EpochLibrary', 'DIDRegistryLibrary', 'PlonkVerifier'], addressBook)
 
-    if (contracts.indexOf('AaveCreditVault') > -1) {
-        await exportLibraryArtifacts(['AaveCreditVault'], addressBook)
+    if (process.env.NO_PROXY === 'true') {
+        await exportLibraryArtifacts(contracts, addressBook)
+    } else {
+        await exportArtifacts(contracts.filter(a => a !== 'AaveCreditVault' && a !== 'PlonkVerifier'), addressBook, libraries)
+        await exportLibraryArtifacts(['EpochLibrary', 'DIDRegistryLibrary', 'PlonkVerifier'], addressBook)
+
+        if (contracts.indexOf('AaveCreditVault') > -1) {
+            await exportLibraryArtifacts(['AaveCreditVault'], addressBook)
+        }
     }
 
     return addressBook

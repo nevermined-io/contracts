@@ -258,19 +258,19 @@ contract('Mintable DIDRegistry (ERC-721)', (accounts) => {
             assert.strictEqual(Number(storedDIDRegister.royalties), 10)
 
             assert.isNotOk( // MUST BE FALSE. Royalties for original creator are too low
-                await didRegistryLibraryProxy.areRoyaltiesValid(did, [91, 9], [consumer, owner]))
+                await didRegistryLibraryProxy.areRoyaltiesValid(did, [91, 9], [consumer, owner], constants.address.zero))
 
             assert.isOk( // MUST BE TRUE. There is not payment
-                await didRegistryLibraryProxy.areRoyaltiesValid(did, [], []))
+                await didRegistryLibraryProxy.areRoyaltiesValid(did, [], [], constants.address.zero))
 
             assert.isOk( // MUST BE TRUE. Original creator is getting 10% by royalties
-                await didRegistryLibraryProxy.areRoyaltiesValid(did, [90, 10], [other, owner]))
+                await didRegistryLibraryProxy.areRoyaltiesValid(did, [90, 10], [other, owner], constants.address.zero))
 
             assert.isOk( // MUST BE TRUE. Original creator is getting 10% by royalties
-                await didRegistryLibraryProxy.areRoyaltiesValid(did, [10, 90], [owner, other]))
+                await didRegistryLibraryProxy.areRoyaltiesValid(did, [10, 90], [owner, other], constants.address.zero))
 
             assert.isNotOk( // MUST BE FALSE. Original creator is not getting royalties
-                await didRegistryLibraryProxy.areRoyaltiesValid(did, [100], [other]))
+                await didRegistryLibraryProxy.areRoyaltiesValid(did, [100], [other], constants.address.zero))
         })
     })
 })

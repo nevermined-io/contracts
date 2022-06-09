@@ -116,11 +116,9 @@ contract('AccessTemplate', (accounts) => {
             await accessTemplate.createAgreement(agreementId, ...Object.values(agreement))
             const realAgreementId = await agreementStoreManager.agreementId(agreementId, accounts[0])
 
-            /*
-            const storedAgreementData = await accessTemplate.getAgreementData(agreementId)
+            const storedAgreementData = await accessTemplate.getAgreementData(realAgreementId)
             assert.strictEqual(storedAgreementData.accessConsumer, agreement.accessConsumer)
             assert.strictEqual(storedAgreementData.accessProvider, accounts[0])
-            */
 
             const condIds = await testUtils.getAgreementConditionIds(accessTemplate, realAgreementId)
             expect(condIds).to.deep.equal(agreement.conditionIds)

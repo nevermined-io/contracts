@@ -8,6 +8,12 @@ test/verification/manticore/results/*
 
 # Artifacts are stored in https://artifacts-nevermined-rocks.s3.amazonaws.com/
 !artifacts/placeholder
+artifacts/*
+
+circom
+circuits
+cache
+*.tgz
 
 # Build / Travis
 build/
@@ -69,4 +75,5 @@ powersOfTau28_hez_final_14.ptau
 .idea/
 src/main/java/*
 keytransfer_js/
+keytransfer_cpp/
 

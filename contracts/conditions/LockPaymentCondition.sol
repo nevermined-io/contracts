@@ -161,7 +161,7 @@ contract LockPaymentCondition is ILockPayment, ReentrancyGuardUpgradeable, Condi
 
     /**
      * @notice fulfill lock condition using the funds locked in an external contract 
-     *          (auction, bonding courve, lottery, etc) 
+     *          (auction, bonding curve, lottery, etc) 
     * @param _agreementId the agreement identifier
     * @param _did the asset decentralized identifier
     * @param _rewardAddress the contract address where the reward is locked
@@ -186,12 +186,13 @@ contract LockPaymentCondition is ILockPayment, ReentrancyGuardUpgradeable, Condi
     nonReentrant
     returns (ConditionStoreLibrary.ConditionState)
     {
+        address tokenAddress = IDynamicPricing(_externalContract).getTokenAddress(_remoteId);
         require(
             _amounts.length == _receivers.length,
             'Amounts and Receivers arguments have wrong length'
         );
         require(
-            didRegistry.areRoyaltiesValid(_did, _amounts, _receivers),
+            didRegistry.areRoyaltiesValid(_did, _amounts, _receivers, tokenAddress),
             'Royalties are not satisfied'
         );
 
@@ -199,20 +200,22 @@ contract LockPaymentCondition is ILockPayment, ReentrancyGuardUpgradeable, Condi
             areMarketplaceFeesIncluded(_amounts, _receivers),
             'Invalid marketplace fees'
         );        
-        
-        (IDynamicPricing.DynamicPricingState externalState, uint256 externalAmount, address whoCanClaim) =
-            IDynamicPricing(_externalContract).getStatus(_remoteId);
 
-        require(msg.sender == whoCanClaim, 'No allowed');
-        require(externalState != IDynamicPricing.DynamicPricingState.NotStarted &&
-            externalState != IDynamicPricing.DynamicPricingState.Aborted, 'Invalid external state');
-        require(calculateTotalAmount(_amounts) == externalAmount, 'Amounts dont match');
+        {
+            (IDynamicPricing.DynamicPricingState externalState, uint256 externalAmount, address whoCanClaim) =
+                IDynamicPricing(_externalContract).getStatus(_remoteId);
 
-        require(IDynamicPricing(_externalContract).withdraw(_remoteId, _rewardAddress), 'Unable to withdraw');
+            require(msg.sender == whoCanClaim, 'No allowed');
+            require(externalState != IDynamicPricing.DynamicPricingState.NotStarted &&
+                externalState != IDynamicPricing.DynamicPricingState.Aborted, 'Invalid external state');
+            require(calculateTotalAmount(_amounts) == externalAmount, 'Amounts dont match');
+
+            require(IDynamicPricing(_externalContract).withdraw(_remoteId, _rewardAddress), 'Unable to withdraw');
+        }
     
         bytes32 _id = generateId(
             _agreementId,
-            hashValues(_did, _rewardAddress, IDynamicPricing(_externalContract).getTokenAddress(_remoteId), _amounts, _receivers)
+            hashValues(_did, _rewardAddress, tokenAddress, _amounts, _receivers)
         );
         
         ConditionStoreLibrary.ConditionState state = super.fulfill(
@@ -260,7 +263,7 @@ contract LockPaymentCondition is ILockPayment, ReentrancyGuardUpgradeable, Condi
         );
 
         require(
-            didRegistry.areRoyaltiesValid(_did, _amounts, _receivers),
+            didRegistry.areRoyaltiesValid(_did, _amounts, _receivers, _tokenAddress),
             'Royalties are not satisfied'
         );
         
@@ -316,23 +319,13 @@ contract LockPaymentCondition is ILockPayment, ReentrancyGuardUpgradeable, Condi
     }
  
    /**
-    * @notice _transferERC20 transfer ERC20 tokens 
+    * @notice _transferERC20Proxy transfer ERC20 tokens 
+    * @param _senderAddress the address to send the tokens from
     * @param _rewardAddress the address to receive the tokens
     * @param _tokenAddress the ERC20 contract address to use during the payment
     * @param _amount token amount to be locked/released
     * @dev Will throw if transfer fails
     */
-    function _transferERC20(
-        address _rewardAddress,
-        address _tokenAddress,
-        uint256 _amount
-    )
-    internal
-    {
-        IERC20Upgradeable token = ERC20Upgradeable(_tokenAddress);
-        token.safeTransferFrom(msg.sender, _rewardAddress, _amount);
-    }
-
     function _transferERC20Proxy(
         address _senderAddress,
         address _rewardAddress,

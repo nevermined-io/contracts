@@ -14,6 +14,7 @@ const deployManagers = async function(deployer, owner, governor = owner) {
     const nft721 = await testUtils.deploy('NFT721Upgradeable', [], deployer)
 
     const didRegistry = await testUtils.deploy('DIDRegistry', [owner, nft.address, nft721.address], deployer, [didRegistryLibrary])
+    const royaltyManager = await testUtils.deploy('StandardRoyalties', [didRegistry.address], deployer)
 
     const templateStoreManager = await testUtils.deploy('TemplateStoreManager', [owner], deployer)
 
@@ -45,6 +46,7 @@ const deployManagers = async function(deployer, owner, governor = owner) {
             agreementStoreManager.address,
             { from: owner }
         )
+        await didRegistry.registerRoyaltiesChecker(royaltyManager.address, { from: owner })
     }
 
     return {
@@ -57,7 +59,8 @@ const deployManagers = async function(deployer, owner, governor = owner) {
         nvmConfig,
         nft721,
         deployer,
-        owner
+        owner,
+        royaltyManager
     }
 }
 

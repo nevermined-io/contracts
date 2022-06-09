@@ -12,16 +12,26 @@ jobs:
   publish-npm:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
       - uses: actions/setup-node@v1
         with:
           node-version: 14
           registry-url: https://registry.npmjs.org/
       - name: Pre-install
         run: |
-          yarn
+          rm -rf node_modules
+          yarn install --frozen-lockfile
+          git submodule init
+          git submodule update
           npm install ganache-cli@~6.12.2 -g
           ganache-cli -q -p 18545 &
+      - name: Generate circuits
+        run: |
+          sh ./scripts/build-circuit.sh
+          git diff --exit-code
       - name: Generate dev artifacts
         run: |
           yarn compile

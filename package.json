@@ -1,6 +1,6 @@
 {
   "name": "@nevermined-io/contracts",
-  "version": "2.0.0-rc1",
+  "version": "2.0.0-rc5",
   "description": "Nevermined implementation of Nevermined in Solidity",
   "bugs": {
     "url": "https://github.com/nevermined-io/contracts/issues"
@@ -62,7 +62,7 @@
     "test:kovan-integration": "hardhat test --network external $(find test/external/kovan -name '*.*s')",
     "test:fast": "hardhat test $(find test/unit -name '*.*s') $(find test/int -name '*.*s')",
     "test:upgrade": "hardhat test $(find test/upgrade -name '*.*s')",
-    "test:cover": "truffle run coverage",
+    "test:cover": "hardhat coverage --testfiles 'test'",
     "test:manticore": "./test/verification/manticore/run.sh",
     "doc:contracts": "solidity-docgen -i contracts -o docs/contracts/ -t docs/docgen_template/ ",
     "doc:addresses": "node scripts/contracts/get-addresses.js",
@@ -77,7 +77,7 @@
     "lint:fix": "yarn lint:eslint --fix && yarn lint:ethlint --fix",
     "security:mythril": "truffle compile&&myth -x --truffle --max-depth 12 --outform markdown 2>&1 | tee mythrilReport.md",
     "security:securify": "docker run -v $(pwd):/project chainsecurity/securify -t 2>&1 | tee securifyReport.txt",
-    "security:slither": "slither . 2>&1 | tee slitherReport.txt",
+    "security:slither": "export DISABLE_DEPENDENCIES=true && rm -rf build && slither . --hardhat-artifacts-directory build 2>&1 | tee slitherReport.txt",
     "security:upgradeability": "yarn clean&&yarn compile&&./scripts/upgradeability_checks.sh"
   },
   "directories": {
@@ -86,7 +86,8 @@
   },
   "files": [
     "artifacts/**/*development.json",
-    "docs/**/*",
+	  "circuits/keytransfer.wasm",
+    "circuits/keytransfer.zkey",
     "README.md"
   ],
   "repository": {

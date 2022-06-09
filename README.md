@@ -9,7 +9,6 @@
 ![Build](https://github.com/nevermined-io/contracts/workflows/Build/badge.svg)
 ![NPM Package](https://github.com/nevermined-io/contracts/workflows/NPM%20Release/badge.svg)
 ![Pypi Package](https://github.com/nevermined-io/contracts/workflows/Pypi%20Release/badge.svg)
-![Maven Package](https://github.com/nevermined-io/contracts/workflows/Maven%20Release/badge.svg)
 
 ## Table of Contents
 
@@ -122,7 +121,7 @@ Also you can find a complete list here: https://artifacts.nevermined.rocks/
 
 ## Packages
 
-To facilitate the integration of `nevermined-contracts` there are `Python`, `JavaScript` and `Java` packages ready to be integrated. Those libraries include the Smart Contract ABI's.
+To facilitate the integration of `nevermined-contracts` there are `Python`, `JavaScript` packages ready to be integrated. Those libraries include the Smart Contract ABI's.
 Using these packages helps to avoid compiling the Smart Contracts and copying the ABI's manually to your project. In that way the integration is cleaner and easier.
 The packages provided currently are:
 
@@ -131,8 +130,6 @@ The packages provided currently are:
   to be imported from your `JavaScript` code.
 * Python `Pypi` package - The [Pypi nevermined-contracts package](https://pypi.org/project/nevermined-contracts/) provides
   the same ABI's to be used from `Python`.
-* Java `Maven` package - The [Maven nevermined-contracts package](https://search.maven.org/artifact/io.keyko.nevermined/contracts)
-  provides the same ABI's to be used from `Java`.
 
 The packages contains all the content from the `doc/` and `artifacts/` folders.
 
