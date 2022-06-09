@@ -1,5 +1,5 @@
 pragma solidity ^0.8.0;
-// Copyright 2020 Keyko GmbH.
+// Copyright 2022 Nevermined AG.
 // SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 // Code is Apache-2.0 and docs are CC-BY-4.0
 
@@ -12,7 +12,7 @@ import '../agreements/AgreementStoreManager.sol';
 
 /**
  * @title Access Condition
- * @author Keyko
+ * @author Nevermined
  *
  * @dev Implementation of the Access Condition
  *
@@ -36,8 +36,8 @@ ISecretStore, ISecretStorePermission {
 
     mapping(bytes32 => DocumentPermission) private documentPermissions;
     AgreementStoreManager private agreementStoreManager;
-    
-    
+    DIDRegistry private didRegistry;
+
     event Fulfilled(
         bytes32 indexed _agreementId,
         bytes32 indexed _documentId,
@@ -49,13 +49,8 @@ ISecretStore, ISecretStorePermission {
         bytes32 _documentId
     )
     {
-        DIDRegistry didRegistry = DIDRegistry(
-            agreementStoreManager.getDIDRegistryAddress()
-        );
-        
         require(
-            didRegistry.isDIDProvider(_documentId, msg.sender) || 
-            msg.sender == didRegistry.getDIDOwner(_documentId),
+            didRegistry.isDIDProviderOrOwner(_documentId, msg.sender),
             'Invalid DID owner/provider'
         );
         _;
@@ -87,6 +82,19 @@ ISecretStore, ISecretStorePermission {
 
         agreementStoreManager = AgreementStoreManager(
             _agreementStoreManagerAddress
+        );
+        didRegistry = DIDRegistry(
+            agreementStoreManager.getDIDRegistryAddress()
+        );
+        
+    }
+
+    /**
+     * Should be called when the contract has been upgraded.
+     */
+    function reinitialize() external reinitializer(2) {
+        didRegistry = DIDRegistry(
+            agreementStoreManager.getDIDRegistryAddress()
         );
     }
 
@@ -199,9 +207,6 @@ ISecretStore, ISecretStorePermission {
         override
         returns(bool permissionGranted)
     {
-        DIDRegistry didRegistry = DIDRegistry(
-            agreementStoreManager.getDIDRegistryAddress()
-        );
         return (
             didRegistry.isDIDProvider(_documentId, _grantee) ||
             didRegistry.isDIDOwner(_grantee, _documentId) ||

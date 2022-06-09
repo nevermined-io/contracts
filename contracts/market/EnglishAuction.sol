@@ -104,10 +104,6 @@ contract EnglishAuction is AbstractAuction {
         require(userBid >= auctions[_auctionId].floor, 'EnglishAuction: Only higher or equal than floor');
         require(userBid > auctions[_auctionId].price, 'EnglishAuction: Only higher bids');
         
-        // solhint-disable-next-line
-        (bool sent, ) = payable(address(this)).call{value: msg.value}('');
-        require(sent, 'EnglishAuction: Failed to send native token');
-
         auctions[_auctionId].whoCanClaim = msg.sender;
         auctions[_auctionId].price = userBid;
         auctionBids[_auctionId][msg.sender] = userBid;
@@ -120,6 +116,11 @@ contract EnglishAuction is AbstractAuction {
             address(0),
             userBid
         );
+
+        // solhint-disable-next-line
+        (bool sent, ) = payable(address(this)).call{value: msg.value}('');
+        require(sent, 'EnglishAuction: Failed to send native token');
+
     }
 
     function placeERC20Bid(

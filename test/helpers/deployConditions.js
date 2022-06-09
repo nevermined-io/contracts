@@ -1,10 +1,7 @@
 /* global artifacts */
-const AccessCondition = artifacts.require('AccessCondition')
-const AccessProofCondition = artifacts.require('AccessProofCondition')
-const EscrowPaymentCondition = artifacts.require('EscrowPaymentCondition')
-const LockPaymentCondition = artifacts.require('LockPaymentCondition')
-const ComputeExecutionCondition = artifacts.require('ComputeExecutionCondition')
 const DisputeManager = artifacts.require('PlonkVerifier')
+
+const testUtils = require('./utils')
 
 const deployConditions = async function(
     deployer,
@@ -14,60 +11,49 @@ const deployConditions = async function(
     didRegistry,
     token
 ) {
-    const lockPaymentCondition = await LockPaymentCondition.new({ from: deployer })
-    await lockPaymentCondition.initialize(
-        owner,
+    const lockPaymentCondition = await testUtils.deploy('LockPaymentCondition', [owner,
         conditionStoreManager.address,
-        didRegistry.address,
-        { from: deployer }
-    )
+        didRegistry.address
+    ], deployer)
 
-    const accessCondition = await AccessCondition.new({ from: deployer })
-    await accessCondition.methods['initialize(address,address,address)'](
-        owner,
+    const accessCondition = await testUtils.deploy('AccessCondition', [owner,
         conditionStoreManager.address,
-        agreementStoreManager.address,
-        { from: deployer }
-    )
+        agreementStoreManager.address], deployer)
 
     const disputeManager = await DisputeManager.new({ from: deployer })
 
-    const accessProofCondition = await AccessProofCondition.new({ from: deployer })
-    await accessProofCondition.initialize(
-        owner,
+    const accessProofCondition = await testUtils.deploy('AccessProofCondition', [owner,
         conditionStoreManager.address,
         agreementStoreManager.address,
-        disputeManager.address,
-        { from: deployer }
+        disputeManager.address
+    ], deployer)
+
+    const escrowPaymentCondition = await testUtils.deploy(
+        'EscrowPaymentCondition',
+        [owner, conditionStoreManager.address],
+        deployer
     )
 
-    const escrowPaymentCondition = await EscrowPaymentCondition.new({ from: deployer })
-    await escrowPaymentCondition.initialize(
-        owner,
+    const computeExecutionCondition = await testUtils.deploy('ComputeExecutionCondition', [owner,
         conditionStoreManager.address,
-        { from: deployer }
+        agreementStoreManager.address],
+    deployer
     )
 
-    const computeExecutionCondition = await ComputeExecutionCondition.new({ from: deployer })
-    await computeExecutionCondition.methods['initialize(address,address,address)'](
-        owner,
-        conditionStoreManager.address,
-        agreementStoreManager.address,
-        { from: deployer }
-    )
-
-    await conditionStoreManager.grantProxyRole(
-        escrowPaymentCondition.address,
-        { from: owner }
-    )
+    if (testUtils.deploying) {
+        await conditionStoreManager.grantProxyRole(
+            escrowPaymentCondition.address,
+            { from: owner }
+        )
+    }
 
     return {
         accessCondition,
         accessProofCondition,
         escrowPaymentCondition,
+        escrowCondition: escrowPaymentCondition,
         lockPaymentCondition,
-        computeExecutionCondition,
-        disputeManager
+        computeExecutionCondition
     }
 }
 

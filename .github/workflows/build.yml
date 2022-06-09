@@ -1,19 +1,15 @@
 name: Build and Tests
 
-#on: [ push, pull_request ]
 on: push
-#on:
-#  push:
-#  pull_request:
-#    branches:
-#      - master
 
 jobs:
-
   tests:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
       - uses: actions/setup-node@v1
         with:
           node-version: '14.x'
@@ -23,11 +19,16 @@ jobs:
           yarn install --frozen-lockfile
           git submodule init
           git submodule update
-      - name: Compile and Lint
+      - name: Lint
         run: |
           yarn lint
+      - name: Generate circuits
+        run: |
+          sh ./scripts/build-circuit.sh
+          git diff --exit-code
+      - name: Compile
+        run: |
           yarn clean
-          sh ./scripts/build.sh
           yarn compile
       - name: Run Unit Tests
         run: |
@@ -41,7 +42,7 @@ jobs:
   upgradability:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: actions/setup-node@v1
         with:
           node-version: '14.x'
@@ -55,7 +56,7 @@ jobs:
         run: |
           yarn lint
           yarn clean
-          sh ./scripts/build.sh
+          sh ./scripts/build-circuit.sh
           yarn compile
       - name: Run Upgrade Tests
         run: |
@@ -69,7 +70,7 @@ jobs:
   upgradability-version:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0
       - uses: actions/setup-node@v1
@@ -81,28 +82,25 @@ jobs:
           yarn install --frozen-lockfile
           git submodule init
           git submodule update
-      - name: Compile and Lint
-        run: |
-          sh ./scripts/build.sh
       - name: Run Upgrade Tests
         run: |
-          sh ./scripts/test-upgradeability.sh
+          bash ./scripts/test-upgradeability.sh
         env:
           NODE_OPTIONS: "--max-old-space-size=7500"
 
   kovan-integration:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: actions/setup-node@v1
         with:
           node-version: '14.x'
       - name: Pre-install
         env:
-          ALCHEMY_TOKEN: ${{ secrets.KOVAN_ALCHEMY_TOKEN }}
+          KOVAN_ARCHIVE_RPC_ENDPOINT: ${{ secrets.KOVAN_ARCHIVE_RPC_ENDPOINT }}
         run: |
           yarn
-          yarn run hardhat node --port 18545 --fork https://eth-kovan.alchemyapi.io/v2/-$ALCHEMY_TOKEN --fork-block-number 28000000 &
+          yarn run hardhat node --port 18545 --fork "$KOVAN_ARCHIVE_RPC_ENDPOINT" --fork-block-number 28000000 &
       - name: Compile and Lint
         run: |
           yarn lint

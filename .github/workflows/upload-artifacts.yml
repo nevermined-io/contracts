@@ -12,6 +12,7 @@ on:
         options:
         - contracts
         - abis
+        - circuits
       network:
         type: choice
         description: Blockchain network for uploading the contracts
@@ -33,19 +34,44 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    container: amazon/aws-cli:latest
+    # container: amazon/aws-cli:latest
     permissions:
       id-token: write # required to use OIDC authentication
       contents: read # required to checkout the code from the repo
 
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v3
-
       # Install dependencies
       - name: Install missing dependencies
         run: |
-          yum install -y jq unzip
+          sudo apt update
+          sudo apt install -y jq unzip zip git tar
+      # Install awscli
+      - name: install-aws-cli-action
+        uses: unfor19/install-aws-cli-action@v1.0.3
+      # Install nodejs v14
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '14.x'
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+
+      # Checks-out your repository under $GITHUB_WORKSPACE, so the job can access it
+      - uses: actions/checkout@v3
+
+      # Compile contracts and run basic tests
+      - name: Pre-install
+        run: |
+          rm -rf node_modules
+          yarn install --frozen-lockfile
+          git submodule init
+          git submodule update
+      - name: Compile and Lint
+        run: |
+          yarn lint
+          yarn clean
+          sh ./scripts/build-circuit.sh
+          yarn compile
 
       # Impersonate AWS role
       - name: Configure AWS credentials from Test account
@@ -60,3 +86,15 @@ jobs:
           echo "asset: ${{ github.event.inputs.asset }}"
           echo "network: ${{ github.event.inputs.network }}"
           echo "tag: ${{ github.event.inputs.tag }}"
+
+      # Runs a set of commands using the runners shell
+      - name: Run upload script
+        working-directory: ./
+        run: |
+          if [[ "${{ github.event.inputs.asset }}" == "abis" ]]; then
+            bash -x ./scripts/upload_artifacts_s3.sh abis
+          elif [[ "${{ github.event.inputs.asset }}" == "contracts" ]]; then
+            bash -x ./scripts/upload_artifacts_s3.sh contracts "${{ github.event.inputs.network }}" "${{ github.event.inputs.tag }}"
+          elif [[ "${{ github.event.inputs.asset }}" == "circuits" ]]; then
+            bash -x ./scripts/upload_artifacts_s3.sh circuits
+          fi

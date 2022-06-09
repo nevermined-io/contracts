@@ -13,7 +13,7 @@ import '@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.
 /**
  * @title Interface that can implement different contracts implementing some kind of 
  * dynamic pricing functionality.
- * @author Keyko
+ * @author Nevermined
  */
 
 abstract contract AbstractAuction is 

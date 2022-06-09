@@ -38,7 +38,13 @@ contract NFTUpgradeable is ERC1155Upgradeable, NFTBase {
     }
 
     function burn(address to, uint256 id, uint256 amount) public {
-        require(hasRole(MINTER_ROLE, msg.sender), 'only minter can burn');
+        require(balanceOf(to, id) >= amount, 'ERC1155: burn amount exceeds balance');
+        require(
+            hasRole(MINTER_ROLE, _msgSender()) || // Or the DIDRegistry is burning the NFT 
+            to == _msgSender() || // Or the NFT owner is msg.sender 
+            isApprovedForAll(to, _msgSender()), // Or the msg.sender is approved
+            'ERC1155: caller is not owner nor approved'
+        );
         _burn(to, id, amount);
     }
 
@@ -46,7 +52,6 @@ contract NFTUpgradeable is ERC1155Upgradeable, NFTBase {
         AccessControlUpgradeable._setupRole(MINTER_ROLE, account);
     }
 
-//    function uri(uint256 id) external view returns (string memory)
     function uri(uint256 tokenId) public view override returns (string memory) {
         return _metadata[tokenId].nftURI;
     }

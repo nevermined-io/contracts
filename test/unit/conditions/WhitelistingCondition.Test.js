@@ -6,6 +6,7 @@ const { assert } = chai
 const chaiAsPromised = require('chai-as-promised')
 chai.use(chaiAsPromised)
 
+const NeverminedConfig = artifacts.require('NeverminedConfig')
 const HashLists = artifacts.require('HashLists')
 const EpochLibrary = artifacts.require('EpochLibrary')
 const HashListLibrary = artifacts.require('HashListLibrary')
@@ -18,6 +19,7 @@ const testUtils = require('../../helpers/utils.js')
 contract('Whitelisting Condition', (accounts) => {
     const owner = accounts[1]
     const createRole = accounts[0]
+    const governor = accounts[2]
     let hashList
     let conditionStoreManager
     let whitelistingCondition
@@ -40,6 +42,9 @@ contract('Whitelisting Condition', (accounts) => {
         owner = accounts[1]
     } = {}) {
         if (!whitelistingCondition) {
+            const nvmConfig = await NeverminedConfig.new()
+            await nvmConfig.initialize(owner, governor)
+
             hashList = await HashLists.new()
             await hashList.initialize(
                 owner,
@@ -51,6 +56,7 @@ contract('Whitelisting Condition', (accounts) => {
             await conditionStoreManager.initialize(
                 createRole,
                 owner,
+                nvmConfig.address,
                 { from: accounts[0] }
             )
 
@@ -67,6 +73,9 @@ contract('Whitelisting Condition', (accounts) => {
 
     describe('deploy and setup', () => {
         it('contract should deploy', async () => {
+            const nvmConfig = await NeverminedConfig.new()
+            await nvmConfig.initialize(owner, governor)
+
             const hashList = await HashLists.new()
             await hashList.initialize(
                 owner,
@@ -79,6 +88,7 @@ contract('Whitelisting Condition', (accounts) => {
             await conditionStoreManager.initialize(
                 createRole,
                 owner,
+                nvmConfig.address,
                 { from: owner }
             )
 

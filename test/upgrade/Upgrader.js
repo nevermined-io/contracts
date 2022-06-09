@@ -1,14 +1,3 @@
-/*
-const evaluateContracts = require('../../scripts/deploy/truffle-wrapper/evaluateContracts')
-const initializeContracts = require('../../scripts/deploy/truffle-wrapper/deploy/initializeContracts')
-const setupContracts = require('../../scripts/deploy/truffle-wrapper/deploy/setupContracts')
-
-const {
-    upgradeContracts,
-    deployContracts
-} = require('@nevermined-io/contract-tools')
-*/
-
 const { upgradeContracts } = require('../../scripts/deploy/truffle-wrapper/upgradeContracts')
 const { deployContracts } = require('../../scripts/deploy/truffle-wrapper/deployContracts')
 

@@ -1,14 +1,11 @@
 /* eslint-env mocha */
 /* eslint-disable no-console */
-/* global artifacts, contract, describe, it, expect */
+/* global contract, describe, it, expect */
 
 const chai = require('chai')
 const { assert } = chai
 const chaiAsPromised = require('chai-as-promised')
 chai.use(chaiAsPromised)
-
-const NFTAccessProofTemplate = artifacts.require('NFTAccessProofTemplate')
-const NFTHolderCondition = artifacts.require('NFTHolderCondition')
 
 const constants = require('../../helpers/constants.js')
 const deployConditions = require('../../helpers/deployConditions.js')
@@ -34,12 +31,15 @@ contract('NFT Access Proof Template integration test', (accounts) => {
         nftHolderCondition,
         accessProofCondition
     const [
-        owner,
-        deployer,
         artist,
         receiver,
         someone
     ] = accounts
+
+    const owner = accounts[8]
+    const deployer = accounts[8]
+    const governor = accounts[9]
+
     async function setupTest() {
         ({
             token,
@@ -50,7 +50,8 @@ contract('NFT Access Proof Template integration test', (accounts) => {
             templateStoreManager
         } = await deployManagers(
             deployer,
-            owner
+            owner,
+            governor
         ));
 
         ({
@@ -63,27 +64,24 @@ contract('NFT Access Proof Template integration test', (accounts) => {
             didRegistry,
             token
         ))
-        nftHolderCondition = await NFTHolderCondition.new({ from: deployer })
-        await nftHolderCondition.initialize(
+
+        nftHolderCondition = await testUtils.deploy('NFTHolderCondition', [
             owner,
             conditionStoreManager.address,
-            nft.address,
-            { from: deployer }
-        )
+            nft.address], deployer)
 
-        nftAccessTemplate = await NFTAccessProofTemplate.new()
-        await nftAccessTemplate.methods['initialize(address,address,address,address)'](
+        nftAccessTemplate = await testUtils.deploy('NFTAccessProofTemplate', [
             owner,
             agreementStoreManager.address,
             nftHolderCondition.address,
-            accessProofCondition.address,
-            { from: deployer }
-        )
+            accessProofCondition.address], deployer)
 
         // propose and approve template
         const templateId = nftAccessTemplate.address
-        await templateStoreManager.proposeTemplate(templateId)
-        await templateStoreManager.approveTemplate(templateId, { from: owner })
+        if (testUtils.deploying) {
+            await templateStoreManager.proposeTemplate(templateId)
+            await templateStoreManager.approveTemplate(templateId, { from: owner })
+        }
 
         return {
             templateId,
@@ -92,7 +90,7 @@ contract('NFT Access Proof Template integration test', (accounts) => {
     }
 
     async function prepareAgreement({
-        agreementId = testUtils.generateId(),
+        initAgreementId = testUtils.generateId(),
         sender = accounts[0],
         receivers = [accounts[2], accounts[3]],
         escrowAmounts = [11, 4],
@@ -111,13 +109,13 @@ contract('NFT Access Proof Template integration test', (accounts) => {
         const { origHash, buyerPub, providerPub } = data
 
         // construct agreement
-        const conditionIdNFTHolder = await nftHolderCondition.generateId(agreementId,
-            await nftHolderCondition.hashValues(did, receiver, 1))
-        const conditionIdAccess = await accessProofCondition.generateId(agreementId,
-            await accessProofCondition.hashValues(origHash, buyerPub, providerPub))
+        const conditionIdNFTHolder = await nftHolderCondition.hashValues(did, receiver, 1)
+        const conditionIdAccess = await accessProofCondition.hashValues(origHash, buyerPub, providerPub)
+        const agreementId = await agreementStoreManager.agreementId(initAgreementId, accounts[0])
 
         const agreement = {
-            did: did,
+            initAgreementId,
+            did,
             conditionIds: [
                 conditionIdNFTHolder,
                 conditionIdAccess
@@ -127,6 +125,10 @@ contract('NFT Access Proof Template integration test', (accounts) => {
             accessConsumer: receiver
         }
         return {
+            conditionIds: [
+                await nftHolderCondition.generateId(agreementId, conditionIdNFTHolder),
+                await accessProofCondition.generateId(agreementId, conditionIdAccess)
+            ],
             agreementId,
             did,
             data,
@@ -165,35 +167,32 @@ contract('NFT Access Proof Template integration test', (accounts) => {
     describe('create and fulfill access agreement', function() {
         this.timeout(100000)
         it('should create access agreement', async () => {
-            const { agreementId, data, agreement } = await prepareAgreement()
+            const { agreementId, data, agreement, conditionIds } = await prepareAgreement()
 
             // create agreement
-            await nftAccessTemplate.createAgreement(agreementId, ...Object.values(agreement))
+            await nftAccessTemplate.createAgreement(...Object.values(agreement))
 
             // check state of agreement and conditions
-            expect((await agreementStoreManager.getAgreement(agreementId)).did)
-                .to.equal(did)
+            // expect((await agreementStoreManager.getAgreement(agreementId)).did).to.equal(did)
 
             const conditionTypes = await nftAccessTemplate.getConditionTypes()
-            let storedCondition
-            agreement.conditionIds.forEach(async (conditionId, i) => {
-                storedCondition = await conditionStoreManager.getCondition(conditionId)
+            await Promise.all(conditionIds.map(async (conditionId, i) => {
+                const storedCondition = await conditionStoreManager.getCondition(conditionId)
                 expect(storedCondition.typeRef).to.equal(conditionTypes[i])
                 expect(storedCondition.state.toNumber()).to.equal(constants.condition.state.unfulfilled)
-            })
+            }))
 
             // fulfill holder
-            await nftHolderCondition.fulfill(
-                agreementId, did, receiver, 1, { from: someone })
+            await nftHolderCondition.fulfill(agreementId, did, receiver, 1, { from: someone })
             assert.strictEqual(
-                (await conditionStoreManager.getConditionState(agreement.conditionIds[0])).toNumber(),
+                (await conditionStoreManager.getConditionState(conditionIds[0])).toNumber(),
                 constants.condition.state.fulfilled)
 
             // fulfill access
             await accessProofCondition.fulfill(agreementId, ...Object.values(data), { from: artist })
 
             assert.strictEqual(
-                (await conditionStoreManager.getConditionState(agreement.conditionIds[1])).toNumber(),
+                (await conditionStoreManager.getConditionState(conditionIds[1])).toNumber(),
                 constants.condition.state.fulfilled)
         })
     })

@@ -1,13 +1,13 @@
 pragma solidity ^0.8.0;
-// Copyright 2020 Keyko GmbH.
-// This product includes software developed at BigchainDB GmbH and Ocean Protocol
+// Copyright 2022 Nevermined AG.
+
 // SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 // Code is Apache-2.0 and docs are CC-BY-4.0
 
 
 /**
  * @title Agreement Store Library
- * @author Keyko & Ocean Protocol
+ * @author Nevermined
  *
  * @dev Implementation of the Agreement Store Library.
  *      For more information: https://github.com/oceanprotocol/OEPs/issues/125    
@@ -20,18 +20,18 @@ pragma solidity ^0.8.0;
 library AgreementStoreLibrary {
 
     struct Agreement {
-        bytes32 did;
+        bytes32 did; // UNUSED
         address templateId;
-        bytes32[] conditionIds;
-        address lastUpdatedBy;
-        uint256 blockNumberUpdated;
+        bytes32[] conditionIds; // UNUSED
+        address lastUpdatedBy; // UNUSED
+        uint256 blockNumberUpdated; // UNUSED
     }
 
     struct AgreementList {
         mapping(bytes32 => Agreement) agreements;
         mapping(bytes32 => bytes32[]) didToAgreementIds;
         mapping(address => bytes32[]) templateIdToAgreementIds;
-        bytes32[] agreementIds;
+        bytes32[] agreementIds; // UNUSED
     }
 
     /**
@@ -40,37 +40,22 @@ library AgreementStoreLibrary {
      *      instance, including the template, conditions and DID.
      * @param _self is AgreementList storage pointer
      * @param _id agreement identifier
-     * @param _did asset decentralized identifier
      * @param _templateId template identifier
-     * @param _conditionIds array of condition identifiers
-     * @return size which is the index of the created agreement
      */
     function create(
         AgreementList storage _self,
         bytes32 _id,
-        bytes32 _did,
+        bytes32 /* _did */,
         address _templateId,
-        bytes32[] memory _conditionIds
+        bytes32[] memory /* _conditionIds */
     )
         internal
-        returns (uint size)
     {
         require(
-            _self.agreements[_id].blockNumberUpdated == 0,
+            _self.agreements[_id].templateId == address(0),
             'Id already exists'
         );
 
-        _self.agreements[_id] = Agreement({
-            did: _did,
-            templateId: _templateId,
-            conditionIds: _conditionIds,
-            lastUpdatedBy: msg.sender,
-            blockNumberUpdated: block.number
-        });
-
-        _self.agreementIds.push(_id);
-        _self.didToAgreementIds[_did].push(_id);
-        _self.templateIdToAgreementIds[_templateId].push(_id);
-        return _self.agreementIds.length;
+        _self.agreements[_id].templateId = _templateId;
     }
 }

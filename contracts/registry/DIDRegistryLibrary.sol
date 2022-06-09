@@ -1,13 +1,14 @@
 pragma solidity ^0.8.0;
-// Copyright 2020 Keyko GmbH.
+// Copyright 2022 Nevermined AG.
 // SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 // Code is Apache-2.0 and docs are CC-BY-4.0
 
 import '@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol';
+import '../interfaces/IRoyaltyScheme.sol';
 
 /**
  * @title DID Registry Library
- * @author Keyko
+ * @author Nevermined
  *
  * @dev All function calls are currently implemented without side effects
  */
@@ -43,12 +44,14 @@ library DIDRegistryLibrary {
         uint256 nftSupply;
         // The max number of NFTs associated to the DID that can be minted 
         uint256 mintCap;
+        address royaltyRecipient;
+        IRoyaltyScheme royaltyScheme;
     }
 
     // List of DID's registered in the system
     struct DIDRegisterList {
         mapping(bytes32 => DIDRegister) didRegisters;
-        bytes32[] didRegisterIds;
+        bytes32[] didRegisterIds; // UNUSED
     }
 
     /**
@@ -66,34 +69,22 @@ library DIDRegistryLibrary {
         string calldata _url
     )
     external
-    returns (uint size)
     {
         address didOwner = _self.didRegisters[_did].owner;
         address creator = _self.didRegisters[_did].creator;
         
         if (didOwner == address(0)) {
             didOwner = msg.sender;
-            _self.didRegisterIds.push(_did);
             creator = didOwner;
         }
 
-        _self.didRegisters[_did] = DIDRegister({
-            owner: didOwner,
-            creator: creator,
-            lastChecksum: _checksum,
-            url: _url,
-            lastUpdatedBy: msg.sender,
-            blockNumberUpdated: block.number,
-            providers: new address[](0),
-            delegates: new address[](0),
-            nftSupply: 0,
-            mintCap: 0,
-            royalties: 0,
-            nftInitialized: false,
-            nft721Initialized: false
-        });
-
-        return _self.didRegisterIds.length;
+        _self.didRegisters[_did].owner = didOwner;
+        _self.didRegisters[_did].creator = creator;
+        _self.didRegisters[_did].lastChecksum = _checksum;
+        _self.didRegisters[_did].url = _url;
+        _self.didRegisters[_did].lastUpdatedBy = msg.sender;
+        _self.didRegisters[_did].owner = didOwner;
+        _self.didRegisters[_did].blockNumberUpdated = block.number;
     }
 
     /**
@@ -160,12 +151,16 @@ library DIDRegistryLibrary {
         DIDRegisterList storage _self,
         bytes32 _did,
         uint256[] memory _amounts,
-        address[] memory _receivers
+        address[] memory _receivers,
+        address _tokenAddress
     )
     internal
     view
     returns (bool)
     {
+        if (address(_self.didRegisters[_did].royaltyScheme) != address(0)) {
+            return _self.didRegisters[_did].royaltyScheme.check(_did, _amounts, _receivers, _tokenAddress);
+        }
         // If there are no royalties everything is good
         if (_self.didRegisters[_did].royalties == 0) {
             return true;
@@ -181,10 +176,14 @@ library DIDRegistryLibrary {
         
         // If (_did.creator is not in _receivers) - It means the original creator is not included as part of the payment
         // return false;
+        address recipient = _self.didRegisters[_did].creator;
+        if (_self.didRegisters[_did].royaltyRecipient != address(0)) {
+            recipient = _self.didRegisters[_did].royaltyRecipient;
+        }
         bool found = false;
         uint256 index;
         for (index = 0; index < _receivers.length; index++) {
-            if (_self.didRegisters[_did].creator == _receivers[index])  {
+            if (recipient == _receivers[index])  {
                 found = true;
                 break;
             }

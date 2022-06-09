@@ -2,6 +2,7 @@ const { Report } = require('./report')
 const fs = require('fs')
 
 const contracts = [
+    'NeverminedConfig',
     'AccessCondition',
     'AccessTemplate',
     'AgreementStoreLibrary',

@@ -11,6 +11,7 @@ const DIDRegistryLibrary = artifacts.require('DIDRegistryLibrary')
 const DIDRegistry = artifacts.require('DIDRegistry')
 const ConditionStoreManager = artifacts.require('ConditionStoreManager')
 const NeverminedToken = artifacts.require('NeverminedToken')
+const NeverminedConfig = artifacts.require('NeverminedConfig')
 const LockPaymentCondition = artifacts.require('LockPaymentCondition')
 const EscrowPaymentCondition = artifacts.require('EscrowPaymentCondition')
 
@@ -37,6 +38,7 @@ function escrowTest(EscrowPaymentCondition, LockPaymentCondition, Token, nft, nf
         let lockPaymentCondition
         let escrowPayment
         let didRegistry
+        let nvmConfig
 
         const createRole = accounts[0]
         const owner = accounts[9]
@@ -62,10 +64,14 @@ function escrowTest(EscrowPaymentCondition, LockPaymentCondition, Token, nft, nf
             conditionType = testUtils.generateId()
         } = {}) {
             if (!escrowPayment) {
+                nvmConfig = await NeverminedConfig.new()
+                await nvmConfig.initialize(owner, owner)
+
                 conditionStoreManager = await ConditionStoreManager.new()
                 await conditionStoreManager.initialize(
                     createRole,
                     owner,
+                    nvmConfig.address,
                     { from: owner }
                 )
 
@@ -113,6 +119,7 @@ function escrowTest(EscrowPaymentCondition, LockPaymentCondition, Token, nft, nf
                 await conditionStoreManager.initialize(
                     createRole,
                     owner,
+                    nvmConfig.address,
                     { from: owner }
                 )
 
@@ -153,7 +160,7 @@ function escrowTest(EscrowPaymentCondition, LockPaymentCondition, Token, nft, nf
                         agreementId,
                         did,
                         amounts,
-                        receivers,
+                        receivers, sender,
                         sender,
                         token.address,
                         lockConditionId,
@@ -187,7 +194,7 @@ function escrowTest(EscrowPaymentCondition, LockPaymentCondition, Token, nft, nf
                 const hashValues = await escrowPayment.hashWrap(
                     did,
                     amounts,
-                    receivers,
+                    receivers, sender,
                     escrowPayment.address,
                     token.address,
                     lockConditionId,
@@ -214,7 +221,7 @@ function escrowTest(EscrowPaymentCondition, LockPaymentCondition, Token, nft, nf
                     agreementId,
                     did,
                     amounts,
-                    receivers,
+                    receivers, sender,
                     escrowPayment.address,
                     token.address,
                     lockConditionId,
@@ -253,7 +260,7 @@ function escrowTest(EscrowPaymentCondition, LockPaymentCondition, Token, nft, nf
 
                 assert.strictEqual(await token.getBalance(escrowPayment.address), totalAmount)
                 await assert.isRejected(
-                    escrowPayment.fulfillWrap(agreementId, did, amounts, receivers, escrowPayment.address, token.address, lockConditionId, multi(releaseConditionId)),
+                    escrowPayment.fulfillWrap(agreementId, did, amounts, receivers, sender, escrowPayment.address, token.address, lockConditionId, multi(releaseConditionId)),
                     undefined
                 )
             })
@@ -288,7 +295,7 @@ function escrowTest(EscrowPaymentCondition, LockPaymentCondition, Token, nft, nf
                 const hashValues = await escrowPayment.hashValuesMulti(
                     did,
                     amounts,
-                    receivers,
+                    receivers, sender,
                     escrowPayment.address,
                     constants.address.zero,
                     lockConditionId,
@@ -304,10 +311,6 @@ function escrowTest(EscrowPaymentCondition, LockPaymentCondition, Token, nft, nf
                 const balanceContractBefore = await getETHBalance(escrowPayment.address)
                 const balanceReceiverBefore = await getETHBalance(receivers[0])
 
-                //            console.log('Balance Sender Before: ' + balanceSenderBefore)
-                //            console.log('Balance Contract Before: ' + balanceContractBefore)
-                //            console.log('Balance Receiver Before: ' + balanceReceiverBefore)
-
                 assert(balanceSenderBefore >= totalAmount)
 
                 await lockPaymentCondition.fulfill(
@@ -316,11 +319,6 @@ function escrowTest(EscrowPaymentCondition, LockPaymentCondition, Token, nft, nf
 
                 const balanceSenderAfterLock = await getETHBalance(sender)
                 const balanceContractAfterLock = await getETHBalance(escrowPayment.address)
-                // const balanceReceiverAfterLock = await getETHBalance(receivers[0])
-
-                // console.log('Balance Sender Lock: ' + balanceSenderAfterLock)
-                // console.log('Balance Contract Lock: ' + balanceContractAfterLock)
-                // console.log('Balance Receiver Lock: ' + balanceReceiverAfterLock)
 
                 assert(balanceSenderAfterLock >= balanceSenderBefore - totalAmount)
                 assert(balanceContractAfterLock <= balanceContractBefore + totalAmount)
@@ -329,7 +327,7 @@ function escrowTest(EscrowPaymentCondition, LockPaymentCondition, Token, nft, nf
                     agreementId,
                     did,
                     amounts,
-                    receivers,
+                    receivers, sender,
                     escrowPayment.address,
                     constants.address.zero,
                     lockConditionId,
@@ -351,15 +349,11 @@ function escrowTest(EscrowPaymentCondition, LockPaymentCondition, Token, nft, nf
                 const balanceContractAfterEscrow = await getETHBalance(escrowPayment.address)
                 const balanceReceiverAfterEscrow = await getETHBalance(receivers[0])
 
-                // console.log('Balance Sender Escrow: ' + balanceSenderAfterEscrow)
-                // console.log('Balance Contract Escrow: ' + balanceContractAfterEscrow)
-                // console.log('Balance Receiver Escrow: ' + balanceReceiverAfterEscrow)
-
                 assert(balanceSenderAfterEscrow <= balanceSenderBefore - totalAmount)
                 assert(balanceContractAfterEscrow <= balanceContractBefore)
                 assert(balanceReceiverAfterEscrow >= balanceReceiverBefore + totalAmount)
                 await assert.isRejected(
-                    escrowPayment.fulfillMulti(agreementId, did, amounts, receivers, escrowPayment.address, constants.address.zero, lockConditionId, multi(releaseConditionId)),
+                    escrowPayment.fulfillMulti(agreementId, did, amounts, receivers, sender, escrowPayment.address, constants.address.zero, lockConditionId, multi(releaseConditionId)),
                     undefined
                 )
             })
@@ -394,7 +388,7 @@ function escrowTest(EscrowPaymentCondition, LockPaymentCondition, Token, nft, nf
                 const hashValues = await escrowPayment.hashValues(
                     did,
                     amounts,
-                    receivers,
+                    receivers, sender,
                     escrowPayment.address,
                     constants.address.zero,
                     lockConditionId,
@@ -422,7 +416,7 @@ function escrowTest(EscrowPaymentCondition, LockPaymentCondition, Token, nft, nf
                 assert(balanceContractAfterLock >= balanceContractBefore + totalAmount)
 
                 await assert.isRejected(
-                    escrowPayment.fulfill(agreementId, did, amounts, receivers, escrowPayment.address, constants.address.zero, lockConditionId, releaseConditionId),
+                    escrowPayment.fulfill(agreementId, did, amounts, receivers, sender, escrowPayment.address, constants.address.zero, lockConditionId, releaseConditionId),
                     undefined
                 )
             })
@@ -433,6 +427,7 @@ function escrowTest(EscrowPaymentCondition, LockPaymentCondition, Token, nft, nf
                 }
                 const agreementId = testUtils.generateId()
                 const did = testUtils.generateId()
+                const sender = accounts[0]
                 const receivers = [accounts[1]]
                 const amounts = [amount1]
                 const amounts2 = [amount1, amount2]
@@ -450,7 +445,7 @@ function escrowTest(EscrowPaymentCondition, LockPaymentCondition, Token, nft, nf
                 await assert.isRejected(escrowPayment.hashWrap(
                     did,
                     amounts2,
-                    receivers,
+                    receivers, sender,
                     escrowPayment.address,
                     token.address,
                     lockConditionId,
@@ -463,6 +458,7 @@ function escrowTest(EscrowPaymentCondition, LockPaymentCondition, Token, nft, nf
                 const did = await token.makeDID(accounts[0], didRegistry)
                 const receivers = [accounts[1]]
                 const amounts = [amount1]
+                const sender = accounts[0]
 
                 const hashValuesLock = await lockPaymentCondition.hashWrap(did, escrowPayment.address, token.address, amounts, receivers)
                 const conditionLockId = await lockPaymentCondition.generateId(agreementId, hashValuesLock)
@@ -477,7 +473,7 @@ function escrowTest(EscrowPaymentCondition, LockPaymentCondition, Token, nft, nf
                 const hashValues = await escrowPayment.hashWrap(
                     did,
                     amounts,
-                    receivers,
+                    receivers, sender,
                     escrowPayment.address,
                     token.address,
                     lockConditionId,
@@ -493,7 +489,7 @@ function escrowTest(EscrowPaymentCondition, LockPaymentCondition, Token, nft, nf
                     agreementId,
                     did,
                     amounts,
-                    receivers,
+                    receivers, sender,
                     escrowPayment.address,
                     token.address,
                     lockConditionId,
@@ -529,7 +525,7 @@ function escrowTest(EscrowPaymentCondition, LockPaymentCondition, Token, nft, nf
                 const hashValues = await escrowPayment.hashWrap(
                     did,
                     amounts,
-                    receivers,
+                    receivers, sender,
                     escrowPayment.address,
                     token.address,
                     lockConditionId,
@@ -556,7 +552,7 @@ function escrowTest(EscrowPaymentCondition, LockPaymentCondition, Token, nft, nf
                     agreementId,
                     did,
                     amounts,
-                    receivers,
+                    receivers, sender,
                     escrowPayment.address,
                     token.address,
                     lockConditionId,
@@ -590,14 +586,13 @@ function escrowTest(EscrowPaymentCondition, LockPaymentCondition, Token, nft, nf
                     releaseConditionId,
                     lockPaymentCondition.address,
                     1,
-                    2,
-                    sender
+                    2
                 )
 
                 const hashValues = await escrowPayment.hashWrap(
                     did,
                     amounts,
-                    receivers,
+                    receivers, sender,
                     escrowPayment.address,
                     token.address,
                     lockConditionId,
@@ -627,7 +622,7 @@ function escrowTest(EscrowPaymentCondition, LockPaymentCondition, Token, nft, nf
                     agreementId,
                     did,
                     amounts,
-                    receivers,
+                    receivers, sender,
                     escrowPayment.address,
                     token.address,
                     lockConditionId,
@@ -669,14 +664,13 @@ function escrowTest(EscrowPaymentCondition, LockPaymentCondition, Token, nft, nf
                     releaseConditionId,
                     lockPaymentCondition.address,
                     1,
-                    2,
-                    sender
+                    2
                 )
 
                 const hashValues = await escrowPayment.hashValues(
                     did,
                     amounts,
-                    receivers,
+                    receivers, sender,
                     escrowPayment.address,
                     constants.address.zero,
                     lockConditionId,
@@ -700,7 +694,7 @@ function escrowTest(EscrowPaymentCondition, LockPaymentCondition, Token, nft, nf
                     agreementId,
                     did,
                     amounts,
-                    receivers,
+                    receivers, sender,
                     escrowPayment.address,
                     constants.address.zero,
                     lockConditionId,
@@ -738,7 +732,7 @@ function escrowTest(EscrowPaymentCondition, LockPaymentCondition, Token, nft, nf
                 const hashValues = await escrowPayment.hashWrap(
                     did,
                     amounts,
-                    receivers,
+                    receivers, sender,
                     sender,
                     token.address,
                     lockConditionId,
@@ -769,7 +763,7 @@ function escrowTest(EscrowPaymentCondition, LockPaymentCondition, Token, nft, nf
                         agreementId,
                         did,
                         amounts,
-                        receivers,
+                        receivers, sender,
                         escrowPayment.address,
                         token.address,
                         lockConditionId,
@@ -800,7 +794,7 @@ function escrowTest(EscrowPaymentCondition, LockPaymentCondition, Token, nft, nf
                 const hashValues = await escrowPayment.hashWrap(
                     did,
                     amounts,
-                    receivers,
+                    receivers, sender,
                     sender,
                     token.address,
                     lockConditionId,
@@ -831,7 +825,7 @@ function escrowTest(EscrowPaymentCondition, LockPaymentCondition, Token, nft, nf
                         agreementId,
                         did,
                         amounts,
-                        receivers,
+                        receivers, sender,
                         escrowPayment.address,
                         token.address,
                         lockConditionId,
@@ -897,6 +891,7 @@ function escrowTest(EscrowPaymentCondition, LockPaymentCondition, Token, nft, nf
                         did,
                         amounts,
                         attacker,
+                        sender,
                         attacker[0],
                         token.address,
                         lockConditionId,
@@ -914,6 +909,7 @@ function escrowTest(EscrowPaymentCondition, LockPaymentCondition, Token, nft, nf
                             did,
                             amounts,
                             attacker,
+                            sender,
                             attacker[0],
                             token.address,
                             lockConditionId,
@@ -953,7 +949,7 @@ function escrowTest(EscrowPaymentCondition, LockPaymentCondition, Token, nft, nf
                 const hashValues = await escrowPayment.hashWrap(
                     did,
                     amounts,
-                    receivers,
+                    receivers, sender,
                     escrowPayment.address,
                     token.address,
                     lockConditionId,
@@ -980,7 +976,7 @@ function escrowTest(EscrowPaymentCondition, LockPaymentCondition, Token, nft, nf
                     agreementId,
                     did,
                     amounts,
-                    receivers,
+                    receivers, sender,
                     escrowPayment.address,
                     token.address,
                     lockConditionId,
@@ -998,7 +994,7 @@ function escrowTest(EscrowPaymentCondition, LockPaymentCondition, Token, nft, nf
                     agreementId,
                     did,
                     amounts,
-                    receivers,
+                    receivers, sender,
                     escrowPayment.address,
                     token.address,
                     lockConditionId,
@@ -1008,6 +1004,7 @@ function escrowTest(EscrowPaymentCondition, LockPaymentCondition, Token, nft, nf
                 assert.strictEqual(await token.getBalance(escrowPayment.address), balanceContractBefore)
                 assert.strictEqual(await token.getBalance(receivers[0]), balanceReceiverBefore + totalAmount)
             })
+            /*
             it('Should not be able to reuse the condition', async () => {
                 if (nft) {
                     return
@@ -1034,7 +1031,7 @@ function escrowTest(EscrowPaymentCondition, LockPaymentCondition, Token, nft, nf
                 const hashValues = await escrowPayment.hashValues(
                     did,
                     amounts,
-                    receivers,
+                    receivers, sender,
                     escrowPayment.address,
                     token.address,
                     lockConditionId,
@@ -1061,7 +1058,7 @@ function escrowTest(EscrowPaymentCondition, LockPaymentCondition, Token, nft, nf
                     agreementId,
                     did,
                     amounts,
-                    receivers,
+                    receivers, sender,
                     escrowPayment.address,
                     token.address,
                     lockConditionId,
@@ -1101,7 +1098,7 @@ function escrowTest(EscrowPaymentCondition, LockPaymentCondition, Token, nft, nf
                 const escrowConditionId2 = await escrowPayment.generateId(agreementId, await escrowPayment.hashValues(
                     did,
                     amounts,
-                    receivers,
+                    receivers, sender,
                     escrowPayment.address,
                     token.address,
                     lockConditionId,
@@ -1115,13 +1112,14 @@ function escrowTest(EscrowPaymentCondition, LockPaymentCondition, Token, nft, nf
                     agreementId,
                     did,
                     amounts,
-                    receivers,
+                    receivers, sender,
                     escrowPayment.address,
                     token.address,
                     lockConditionId,
                     releaseConditionId2),
                 /Lock condition already used/)
             })
+            */
         })
     })
 }

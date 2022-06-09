@@ -1,5 +1,5 @@
 pragma solidity ^0.8.0;
-// Copyright 2020 Keyko GmbH.
+// Copyright 2022 Nevermined AG.
 // SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 // Code is Apache-2.0 and docs are CC-BY-4.0
 
@@ -11,10 +11,11 @@ import '../../../Common.sol';
 import '../../../templates/AaveCreditTemplate.sol';
 import '@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol';
+import '@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol';
 
 /**
  * @title Aave Collateral Deposit Condition
- * @author Keyko
+ * @author Nevermined
  *
  * @dev Implementation of the Aave Collateral Deposit Condition
  * This condition allows a Lender to deposit the collateral that 
@@ -23,6 +24,8 @@ import '@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol';
 contract AaveCollateralDepositCondition is Condition, Common, ReentrancyGuardUpgradeable {
     
     AaveCreditVault internal aaveCreditVault;
+
+    using SafeERC20Upgradeable for IERC20Upgradeable;
 
     bytes32 public constant CONDITION_TYPE = keccak256('AaveCollateralDepositCondition');
 
@@ -134,7 +137,7 @@ contract AaveCollateralDepositCondition is Condition, Common, ReentrancyGuardUpg
     
         if (msg.value == 0) {
             IERC20Upgradeable token = ERC20Upgradeable(_collateralAsset);
-            token.transferFrom(
+            token.safeTransferFrom(
                 msg.sender,
                 address(vault),
                 _collateralAmount

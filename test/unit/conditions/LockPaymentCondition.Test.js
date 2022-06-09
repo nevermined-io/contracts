@@ -6,6 +6,7 @@ const { assert } = chai
 const chaiAsPromised = require('chai-as-promised')
 chai.use(chaiAsPromised)
 
+const NeverminedConfig = artifacts.require('NeverminedConfig')
 const EpochLibrary = artifacts.require('EpochLibrary')
 const ConditionStoreManager = artifacts.require('ConditionStoreManager')
 const DIDRegistryLibrary = artifacts.require('DIDRegistryLibrary')
@@ -20,6 +21,7 @@ const testUtils = require('../../helpers/utils.js')
 
 contract('LockPaymentCondition', (accounts) => {
     let epochLibrary
+    let nvmConfig
     let conditionStoreManager
     let token
     let lockPaymentCondition
@@ -37,6 +39,8 @@ contract('LockPaymentCondition', (accounts) => {
         await ConditionStoreManager.link(epochLibrary)
         didRegistryLibrary = await DIDRegistryLibrary.new()
         await DIDRegistry.link(didRegistryLibrary)
+        nvmConfig = await NeverminedConfig.new()
+        await nvmConfig.initialize(owner, owner)
     })
 
     beforeEach(async () => {
@@ -52,7 +56,7 @@ contract('LockPaymentCondition', (accounts) => {
             await nft.addMinter(didRegistry.address)
 
             conditionStoreManager = await ConditionStoreManager.new()
-            await conditionStoreManager.initialize(createRole, owner, { from: owner })
+            await conditionStoreManager.initialize(createRole, owner, nvmConfig.address, { from: owner })
 
             token = await NeverminedToken.new()
             await token.initialize(owner, owner)
@@ -77,7 +81,7 @@ contract('LockPaymentCondition', (accounts) => {
             await nft.addMinter(didRegistry.address)
 
             const conditionStoreManager = await ConditionStoreManager.new()
-            await conditionStoreManager.initialize(owner, owner, { from: owner })
+            await conditionStoreManager.initialize(owner, owner, nvmConfig.address, { from: owner })
 
             await conditionStoreManager.delegateCreateRole(
                 createRole,
@@ -159,14 +163,6 @@ contract('LockPaymentCondition', (accounts) => {
 
             assert.strictEqual(balanceSenderAfter, balanceSenderBefore - 10)
             assert.strictEqual(balanceReceiverAfter, balanceReceiverBefore + 10)
-
-            const mappingValue = await conditionStoreManager.getMappingValue(
-                conditionId,
-                testUtils.sha3('_assetReceiverAddress')
-            )
-
-            const addressInMapping = await conditionStoreManager.bytes32ToAddress(mappingValue)
-            assert.strictEqual(accounts[0], addressInMapping)
         })
 
         it('ETH: should fulfill if conditions exist and everything is okay', async () => {
@@ -457,6 +453,79 @@ contract('LockPaymentCondition', (accounts) => {
             await token.approve(lockPaymentCondition.address, 20, { from: current })
 
             await lockPaymentCondition.fulfill(agreementId, did, rewardAddress, token.address, amounts, receivers, { from: current })
+
+            assert.strictEqual(
+                (await conditionStoreManager.getConditionState(conditionId)).toNumber(),
+                constants.condition.state.fulfilled
+            )
+
+            assert.strictEqual(
+                await getBalance(token, rewardAddress),
+                20 + balanceBefore
+            )
+        })
+
+        it('should fail if market fees are not correct', async () => {
+            const agreementId = testUtils.generateId()
+            const didSeed = testUtils.generateId()
+            const did = await didRegistry.hashDID(didSeed, accounts[0])
+
+            const marketplaceFee = 2000 // 20%
+            const rewardAddress = accounts[3]
+            const marketplaceAddress = accounts[4]
+            const amounts = [9, 1]
+            const receivers = [rewardAddress, marketplaceAddress]
+
+            await nvmConfig.setMarketplaceFees(marketplaceFee, marketplaceAddress, { from: owner })
+
+            // register DID
+            await didRegistry.registerMintableDID(
+                didSeed, checksum, [], url, 10, 0, constants.activities.GENERATED, '')
+
+            const hashValues = await lockPaymentCondition.hashValues(did, rewardAddress, token.address, amounts, receivers)
+            const conditionId = await lockPaymentCondition.generateId(agreementId, hashValues)
+
+            await conditionStoreManager.createCondition(
+                conditionId,
+                lockPaymentCondition.address)
+
+            await assert.isRejected(
+                lockPaymentCondition.fulfill(agreementId, did, rewardAddress, token.address, amounts, receivers),
+                /Invalid marketplace fees/
+            )
+        })
+
+        it('should fulfill if marketplace fees are correct', async () => {
+            const agreementId = testUtils.generateId()
+            const didSeed = testUtils.generateId()
+            const did = await didRegistry.hashDID(didSeed, accounts[0])
+
+            const buyer = accounts[0]
+            const marketplaceFee = 1000 // 10%
+            const rewardAddress = accounts[3]
+            const marketplaceAddress = accounts[4]
+            const amounts = [18, 2]
+            const receivers = [rewardAddress, marketplaceAddress]
+
+            await nvmConfig.setMarketplaceFees(marketplaceFee, marketplaceAddress, { from: owner })
+
+            // register DID
+            await didRegistry.registerMintableDID(
+                didSeed, checksum, [], url, 10, 0, constants.activities.GENERATED, '', { from: rewardAddress })
+
+            const hashValues = await lockPaymentCondition.hashValues(did, rewardAddress, token.address, amounts, receivers)
+            const conditionId = await lockPaymentCondition.generateId(agreementId, hashValues)
+
+            await conditionStoreManager.createCondition(
+                conditionId,
+                lockPaymentCondition.address)
+
+            const balanceBefore = await getBalance(token, rewardAddress)
+
+            await token.mint(buyer, 20, { from: owner })
+            await token.approve(lockPaymentCondition.address, 20, { from: buyer })
+
+            await lockPaymentCondition.fulfill(agreementId, did, rewardAddress, token.address, amounts, receivers, { from: buyer })
 
             assert.strictEqual(
                 (await conditionStoreManager.getConditionState(conditionId)).toNumber(),

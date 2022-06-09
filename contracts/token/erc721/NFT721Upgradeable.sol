@@ -1,9 +1,11 @@
-// SPDX-License-Identifier: MIT
-
 pragma solidity ^0.8.0;
+// Copyright 2022 Nevermined AG.
+// SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
+// Code is Apache-2.0 and docs are CC-BY-4.0
 
 import '@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol';
 import '../NFTBase.sol';
+
 
 /**
  *
@@ -11,11 +13,12 @@ import '../NFTBase.sol';
  */
 contract NFT721Upgradeable is ERC721Upgradeable, NFTBase {
 
-    /**
-     * @dev See {_setURI}.
-     */
     // solhint-disable-next-line
-    function initialize() public initializer {
+    function initialize() 
+    public 
+    virtual 
+    initializer 
+    {
         __Context_init_unchained();
         __ERC165_init_unchained();
         __ERC721_init_unchained('', '');
@@ -27,25 +30,61 @@ contract NFT721Upgradeable is ERC721Upgradeable, NFTBase {
     /**
      * @dev See {IERC1155-isApprovedForAll}.
      */
-    function isApprovedForAll(address account, address operator) public view virtual override returns (bool) {
+    function isApprovedForAll(
+        address account, 
+        address operator
+    ) 
+    public 
+    view 
+    virtual 
+    override 
+    returns (bool) 
+    {
         return super.isApprovedForAll(account, operator) || _proxyApprovals[operator];
     }
     
-    function addMinter(address account) public onlyOwner {
+    function addMinter(
+        address account
+    ) 
+    public 
+    onlyOwner 
+    {
         AccessControlUpgradeable._setupRole(MINTER_ROLE, account);
     }    
     
-    function mint(address to, uint256 id) public {
+    function mint(
+        address to, 
+        uint256 id
+    ) 
+    public 
+    virtual 
+    {
         require(hasRole(MINTER_ROLE, msg.sender), 'only minter can mint');
         _mint(to, id);
     }
 
-    function burn(uint256 id) public {
-        require(hasRole(MINTER_ROLE, msg.sender), 'only minter can burn');
+    function burn(
+        uint256 id
+    ) 
+    public 
+    {
+        require(
+            hasRole(MINTER_ROLE, msg.sender) || // Or the DIDRegistry is burning the NFT 
+            balanceOf(msg.sender) > 0, // Or the msg.sender is owner and have balance
+            'ERC721: caller is not owner or not have balance'
+        );        
         _burn(id);
     }
     
-    function tokenURI(uint256 tokenId) public view override returns (string memory) {
+    function tokenURI(
+        uint256 tokenId
+    ) 
+    public 
+    virtual 
+    view 
+    override 
+    returns (string memory) 
+    {
         return _metadata[tokenId].nftURI;
     }
 

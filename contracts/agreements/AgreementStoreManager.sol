@@ -1,22 +1,26 @@
 pragma solidity ^0.8.0;
-// Copyright 2020 Keyko GmbH.
-// This product includes software developed at BigchainDB GmbH and Ocean Protocol
+// Copyright 2022 Nevermined AG.
+
 // SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 // Code is Apache-2.0 and docs are CC-BY-4.0
 
 
 import './AgreementStoreLibrary.sol';
 import '../conditions/ConditionStoreManager.sol';
-import '../conditions/LockPaymentCondition.sol';
+import '../conditions/ICondition.sol';
 import '../registry/DIDRegistry.sol';
 import '../templates/TemplateStoreManager.sol';
 
 import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol';
 
+interface Template {
+    function getConditionTypes() external view returns (address[] memory);
+}
+
 /**
  * @title Agreement Store Manager
- * @author Keyko & Ocean Protocol
+ * @author Nevermined
  *
  * @dev Implementation of the Agreement Store.
  *
@@ -90,37 +94,36 @@ contract AgreementStoreManager is OwnableUpgradeable, AccessControlUpgradeable {
 
     }
 
-    /**
-     * @dev Create a new agreement and associate the agreement created to the address originating the transaction.
-     *      The agreement will create conditions of conditionType with conditionId.
-     *      Only "approved" templates can access this function.
-     * @param _id is the ID of the new agreement. Must be unique.
-     * @param _did is the bytes32 DID of the asset. The DID must be registered beforehand.
-     * @param _conditionTypes is a list of addresses that point to Condition contracts.
-     * @param _conditionIds is a list of bytes32 content-addressed Condition IDs
-     * @param _timeLocks is a list of uint time lock values associated to each Condition
-     * @param _timeOuts is a list of uint time out values associated to each Condition
-     * @return size the size of the agreement list after the create action.
-     */
-    function createAgreement(
-        bytes32 _id,
-        bytes32 _did,
-        address[] memory _conditionTypes,
-        bytes32[] memory _conditionIds,
-        uint[] memory _timeLocks,
-        uint[] memory _timeOuts
+    function fullConditionId(
+        bytes32 _agreementId,
+        address _condType,
+        bytes32 _valueHash
     )
-    public
-    returns (uint size)
+        public
+        pure
+        returns (bytes32)
     {
-        return createAgreement(
-            _id,
-            _did,
-            _conditionTypes,
-            _conditionIds,
-            _timeLocks,
-            _timeOuts,
-            tx.origin // solhint-disable avoid-tx-origin
+        return keccak256(
+            abi.encode(
+                _agreementId,
+                _condType,
+                _valueHash
+            )
+        );
+    }
+    function agreementId(
+        bytes32 _agreementId,
+        address _creator
+    )
+        public
+        pure
+        returns (bytes32)
+    {
+        return keccak256(
+            abi.encode(
+                _agreementId,
+                _creator
+            )
         );
     }
     
@@ -134,8 +137,6 @@ contract AgreementStoreManager is OwnableUpgradeable, AccessControlUpgradeable {
      * @param _conditionIds is a list of bytes32 content-addressed Condition IDs
      * @param _timeLocks is a list of uint time lock values associated to each Condition
      * @param _timeOuts is a list of uint time out values associated to each Condition
-     * @param _creator address of the account associated as agreement and conditions creator
-     * @return size the size of the agreement list after the create action.
      */
     function createAgreement(
         bytes32 _id,
@@ -143,11 +144,9 @@ contract AgreementStoreManager is OwnableUpgradeable, AccessControlUpgradeable {
         address[] memory _conditionTypes,
         bytes32[] memory _conditionIds,
         uint[] memory _timeLocks,
-        uint[] memory _timeOuts,
-        address _creator
+        uint[] memory _timeOuts
     )
         public
-        returns (uint size)
     {
         require(
             templateStoreManager.isTemplateApproved(msg.sender) == true,
@@ -167,11 +166,10 @@ contract AgreementStoreManager is OwnableUpgradeable, AccessControlUpgradeable {
         // create the conditions in condition store. Fail if conditionId already exists.
         for (uint256 i = 0; i < _conditionTypes.length; i++) {
             conditionStoreManager.createCondition(
-                _conditionIds[i],
+                fullConditionId(_id, _conditionTypes[i], _conditionIds[i]),
                 _conditionTypes[i],
                 _timeLocks[i],
-                _timeOuts[i],
-                _creator
+                _timeOuts[i]
             );
         }
         agreementList.create(
@@ -180,146 +178,66 @@ contract AgreementStoreManager is OwnableUpgradeable, AccessControlUpgradeable {
             msg.sender,
             _conditionIds
         );
-
-        // same as above
-        return getAgreementListSize();
     }
 
-    function createAgreementAndPay(
+    struct CreateAgreementArgs {
+        bytes32 _id;
+        bytes32 _did;
+        address[] _conditionTypes;
+        bytes32[] _conditionIds;
+        uint[] _timeLocks;
+        uint[] _timeOuts;
+        address _creator;
+        uint _idx;
+        address payable _rewardAddress;
+        address _tokenAddress;
+        uint256[] _amounts;
+        address[] _receivers;
+    }
+
+    function createAgreementAndPay(CreateAgreementArgs memory args)
+        public payable
+    {
+        address[] memory _account = new address[](1);
+        _account[0] = args._creator;
+        uint[] memory indices = new uint[](1);
+        indices[0] = args._idx;
+        bytes[] memory params = new bytes[](1);
+        params[0] = abi.encode(args._did, args._rewardAddress, args._tokenAddress, args._amounts, args._receivers);
+        createAgreementAndFulfill(args._id, args._did, args._conditionTypes, args._conditionIds, args._timeLocks, args._timeOuts, _account, indices, params);
+    }
+
+    function createAgreementAndFulfill(
         bytes32 _id,
         bytes32 _did,
         address[] memory _conditionTypes,
         bytes32[] memory _conditionIds,
         uint[] memory _timeLocks,
         uint[] memory _timeOuts,
-        address _creator,
-        uint _idx,
-        address payable _rewardAddress,
-        address _tokenAddress,
-        uint256[] memory _amounts,
-        address[] memory _receivers
+        address[] memory _account,
+        uint[] memory _idx,
+        bytes[] memory params
     )
         public payable
     {
         require(hasRole(PROXY_ROLE, msg.sender), 'Invalid access role');
-        createAgreement(_id, _did, _conditionTypes, _conditionIds, _timeLocks, _timeOuts, _creator);
-        LockPaymentCondition(_conditionTypes[_idx]).fulfillProxy{value: msg.value}(_creator, _id, _did, _rewardAddress, _tokenAddress, _amounts, _receivers);
+        createAgreement(_id, _did, _conditionTypes, _conditionIds, _timeLocks, _timeOuts);
+        if (_idx.length > 0) {
+            ICondition(_conditionTypes[_idx[0]]).fulfillProxy{value: msg.value}(_account[0], _id, params[0]);
+        }
+        for (uint i = 1; i < _idx.length; i++) {
+            ICondition(_conditionTypes[_idx[i]]).fulfillProxy(_account[i], _id, params[i]);
+        }
     }
 
-
-    /**
-     * @dev Get agreement with _id.
-     *      The agreement will create conditions of conditionType with conditionId.
-     *      Only "approved" templates can access this function.
-     * @param _id is the ID of the agreement.
-     * @return did
-     * @return didOwner
-     * @return templateId
-     * @return conditionIds
-     * @return lastUpdatedBy
-     * @return blockNumberUpdated
-     */
-    function getAgreement(bytes32 _id)
+    function getAgreementTemplate(bytes32 _id)
         external
         view
-        returns (
-            bytes32 did,
-            address didOwner,
-            address templateId,
-            bytes32[] memory conditionIds,
-            address lastUpdatedBy,
-            uint256 blockNumberUpdated
-        )
+        returns (address)
     {
-        did = agreementList.agreements[_id].did;
-        didOwner = didRegistry.getDIDOwner(did);
-        templateId = agreementList.agreements[_id].templateId;
-        conditionIds = agreementList.agreements[_id].conditionIds;
-        lastUpdatedBy = agreementList.agreements[_id].lastUpdatedBy;
-        blockNumberUpdated = agreementList.agreements[_id].blockNumberUpdated;
+        return agreementList.agreements[_id].templateId;
     }
 
-    /**
-     * @dev get the DID owner for this agreement with _id.
-     * @param _id is the ID of the agreement.
-     * @return didOwner the DID owner associated with agreement.did from the DID registry.
-     */
-    function getAgreementDIDOwner(bytes32 _id)
-        external
-        view
-        returns (address didOwner)
-    {
-        bytes32 did = agreementList.agreements[_id].did;
-        return didRegistry.getDIDOwner(did);
-    }
-
-    /**
-     * @dev check the DID owner for this agreement with _id.
-     * @param _id is the ID of the agreement.
-     * @param _owner is the DID owner
-     * @return the DID owner associated with agreement.did from the DID registry.
-     */
-    function isAgreementDIDOwner(bytes32 _id, address _owner)
-        external
-        view
-        returns (bool)
-    {
-        bytes32 did = agreementList.agreements[_id].did;
-        return (_owner == didRegistry.getDIDOwner(did));
-    }
-
-    /**
-     * @dev isAgreementDIDProvider for a given agreement Id 
-     * and address check whether a DID provider is associated with this agreement
-     * @param _id is the ID of the agreement
-     * @param _provider is the DID provider
-     * @return true if a DID provider is associated with the agreement ID
-     */
-    function isAgreementDIDProvider(bytes32 _id, address _provider)
-        external
-        view
-        returns(bool)
-    {
-        bytes32 did = agreementList.agreements[_id].did;
-        return didRegistry.isDIDProvider(did, _provider);
-    }
-
-    /**
-     * @return size the length of the agreement list.
-     */
-    function getAgreementListSize()
-        public
-        view
-        virtual
-        returns (uint size)
-    {
-        return agreementList.agreementIds.length;
-    }
-
-    /**
-     * @param _did is the bytes32 DID of the asset.
-     * @return the agreement IDs for a given DID
-     */
-    function getAgreementIdsForDID(bytes32 _did)
-        public
-        view
-        returns (bytes32[] memory)
-    {
-        return agreementList.didToAgreementIds[_did];
-    }
-
-    /**
-     * @param _templateId is the address of the agreement template.
-     * @return the agreement IDs for a given DID
-     */
-    function getAgreementIdsForTemplateId(address _templateId)
-        public
-        view
-        returns (bytes32[] memory)
-    {
-        return agreementList.templateIdToAgreementIds[_templateId];
-    }
-    
     /**
      * @dev getDIDRegistryAddress utility function 
      * used by other contracts or any EOA.
@@ -327,6 +245,7 @@ contract AgreementStoreManager is OwnableUpgradeable, AccessControlUpgradeable {
      */
     function getDIDRegistryAddress()
         public
+        virtual
         view
         returns(address)
     {

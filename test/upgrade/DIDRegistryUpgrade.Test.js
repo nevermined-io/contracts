@@ -7,12 +7,6 @@ chai.use(chaiAsPromised)
 
 const testUtils = require('../helpers/utils.js')
 
-/*
-const {
-    confirmUpgrade
-} = require('@nevermined-io/contract-tools')
-*/
-
 function confirmUpgrade() {}
 
 const {
@@ -20,7 +14,6 @@ const {
     upgrade
 } = require('./Upgrader')
 
-// const DIDRegistryLibrary = artifacts.require('DIDRegistryLibrary')
 const DIDRegistry = artifacts.require('DIDRegistry')
 
 const DIDRegistryChangeFunctionSignature = artifacts.require('DIDRegistryChangeFunctionSignature')
@@ -43,9 +36,6 @@ contract('DIDRegistry', (accounts) => {
         checksum = testUtils.generateId(),
         value = 'https://nevermined.io/did/test.txt'
     } = {}) {
-        //        const didRegistryLibrary = await DIDRegistryLibrary.new()
-        //        await DIDRegistry.link('DIDRegistryLibrary', didRegistryLibrary.address)
-
         const DIDRegistryInstance = await DIDRegistry.at(DIDRegistryProxyAddress)
         const did = await DIDRegistryInstance.hashDID(didSeed, didOwner)
         const result = await DIDRegistryInstance.registerAttribute(

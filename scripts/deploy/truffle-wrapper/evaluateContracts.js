@@ -9,6 +9,7 @@ function evaluateContracts({
     testnet,
     verbose
 } = {}) {
+    console.log('testnet', testnet)
     if (!contracts || contracts.length === 0) {
         // contracts not supplied, loading from disc
         contracts = contractNames

@@ -6,6 +6,7 @@ const { assert } = chai
 const chaiAsPromised = require('chai-as-promised')
 chai.use(chaiAsPromised)
 
+const NeverminedConfig = artifacts.require('NeverminedConfig')
 const EpochLibrary = artifacts.require('EpochLibrary')
 const ConditionStoreManager = artifacts.require('ConditionStoreManager')
 const DIDRegistryLibrary = artifacts.require('DIDRegistryLibrary')
@@ -24,8 +25,11 @@ contract('NFT721HolderCondition', (accounts) => {
     let conditionStoreManager
     let nftHolderCondition
     let token
+    let nvmConfig
 
     before(async () => {
+        nvmConfig = await NeverminedConfig.new()
+        await nvmConfig.initialize(owner, owner)
         const epochLibrary = await EpochLibrary.new()
         await ConditionStoreManager.link(epochLibrary)
         const didRegistryLibrary = await DIDRegistryLibrary.new()
@@ -45,7 +49,7 @@ contract('NFT721HolderCondition', (accounts) => {
         }
         if (!conditionStoreManager) {
             conditionStoreManager = await ConditionStoreManager.new()
-            await conditionStoreManager.initialize(createRole, owner, { from: owner })
+            await conditionStoreManager.initialize(createRole, owner, nvmConfig.address, { from: owner })
 
             nftHolderCondition = await NFTHolderCondition.new()
             await nftHolderCondition.initialize(

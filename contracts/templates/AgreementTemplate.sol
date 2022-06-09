@@ -1,6 +1,6 @@
 pragma solidity ^0.8.0;
-// Copyright 2020 Keyko GmbH.
-// This product includes software developed at BigchainDB GmbH and Ocean Protocol
+// Copyright 2022 Nevermined AG.
+
 // SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 // Code is Apache-2.0 and docs are CC-BY-4.0
 
@@ -11,7 +11,7 @@ import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
 
 /**
  * @title Agreement Template
- * @author Keyko & Ocean Protocol
+ * @author Nevermined
  *
  * @dev Implementation of Agreement Template
  *
@@ -34,7 +34,6 @@ contract AgreementTemplate is OwnableUpgradeable {
      *          same condition that has the same index
      * @param _timeOuts list of time outs, each time out will be assigned to the 
      *          same condition that has the same index
-     * @return size the index of the created agreement
      */
     function createAgreement(
         bytes32 _id,
@@ -44,10 +43,9 @@ contract AgreementTemplate is OwnableUpgradeable {
         uint[] memory _timeOuts
     )
         public
-        returns (uint size)
     {
-        return agreementStoreManager.createAgreement(
-            _id,
+        agreementStoreManager.createAgreement(
+            keccak256(abi.encode(_id, msg.sender)),
             _did,
             getConditionTypes(),
             _conditionIds,
@@ -70,8 +68,8 @@ contract AgreementTemplate is OwnableUpgradeable {
     )
         public payable
     {
-        agreementStoreManager.createAgreementAndPay{value: msg.value}(
-            _id,
+        agreementStoreManager.createAgreementAndPay{value: msg.value}(AgreementStoreManager.CreateAgreementArgs(
+            keccak256(abi.encode(_id, msg.sender)),
             _did,
             getConditionTypes(),
             _conditionIds,
@@ -80,6 +78,31 @@ contract AgreementTemplate is OwnableUpgradeable {
             msg.sender,
             _idx,
             _rewardAddress, _tokenAddress, _amounts, _receivers
+        ));
+    }
+
+    function createAgreementAndFulfill(
+        bytes32 _id,
+        bytes32 _did,
+        bytes32[] memory _conditionIds,
+        uint[] memory _timeLocks,
+        uint[] memory _timeOuts,
+        uint[] memory _indices,
+        address[] memory _accounts,
+        bytes[] memory _params
+    )
+        internal
+    {
+        agreementStoreManager.createAgreementAndFulfill{value: msg.value}(
+            keccak256(abi.encode(_id, msg.sender)),
+            _did,
+            getConditionTypes(),
+            _conditionIds,
+            _timeLocks,
+            _timeOuts,
+            _accounts,
+            _indices,
+            _params
         );
     }
 

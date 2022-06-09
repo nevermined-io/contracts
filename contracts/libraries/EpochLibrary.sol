@@ -1,6 +1,6 @@
 pragma solidity ^0.8.0;
-// Copyright 2020 Keyko GmbH.
-// This product includes software developed at BigchainDB GmbH and Ocean Protocol
+// Copyright 2022 Nevermined AG.
+
 // SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 // Code is Apache-2.0 and docs are CC-BY-4.0
 
@@ -9,7 +9,7 @@ import '@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol';
 
 /**
  * @title Epoch Library
- * @author Keyko & Ocean Protocol
+ * @author Nevermined
  *
  * @dev Implementation of Epoch Library.
  *      For an arbitrary Epoch, this library manages the life
@@ -31,7 +31,7 @@ library EpochLibrary {
 
     struct EpochList {
         mapping(bytes32 => Epoch) epochs;
-        bytes32[] epochIds;
+        bytes32[] epochIds; // UNUSED
     }
 
    /**
@@ -72,7 +72,7 @@ library EpochLibrary {
             blockNumber : block.number
         });
 
-        _self.epochIds.push(_id);
+        // _self.epochIds.push(_id);
 
     }
 

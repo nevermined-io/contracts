@@ -107,17 +107,46 @@ contract('Mintable DIDRegistry', (accounts) => {
             let balance = await nft.balanceOf(owner, did)
             assert.strictEqual(20, balance.toNumber())
 
-            await didRegistry.burn(did, 5,
-                {
-                    from: owner
-                }
-            )
+            await didRegistry.burn(did, 5, { from: owner })
 
             balance = await nft.balanceOf(owner, did)
             assert.strictEqual(15, balance.toNumber())
 
             const _nftURI = await nft.uri(did)
             assert.strictEqual(nftMetadataURL, _nftURI)
+        })
+
+        it('Should only burn if is NFT holder', async () => {
+            const didSeed = testUtils.generateId()
+            const did = await didRegistry.hashDID(didSeed, owner)
+            const checksum = testUtils.generateId()
+
+            await didRegistry.registerMintableDID(
+                didSeed, checksum, [], value, 1, 0, constants.activities.GENERATED, nftMetadataURL, { from: owner })
+
+            await didRegistry.methods['mint(bytes32,uint256,address)'](
+                did,
+                1,
+                other,
+                { from: owner }
+            )
+
+            let balance = await nft.balanceOf(other, did)
+            assert.strictEqual(1, balance.toNumber())
+
+            const balanceOwner = await nft.balanceOf(owner, did)
+            assert.strictEqual(0, balanceOwner.toNumber())
+
+            await assert.isRejected(
+                // Must not allow to burn because owner is not holder
+                didRegistry.burn(did, 1, { from: owner }),
+                'ERC1155: burn amount exceeds balance'
+            )
+
+            await didRegistry.burn(did, 1, { from: other })
+
+            balance = await nft.balanceOf(other, did)
+            assert.strictEqual(0, balance.toNumber())
         })
 
         it('Should initialize the NFT in the registration', async () => {
@@ -233,19 +262,19 @@ contract('Mintable DIDRegistry', (accounts) => {
             assert.strictEqual(Number(storedDIDRegister.royalties), 10)
 
             assert.isNotOk( // MUST BE FALSE. Royalties for original creator are too low
-                await didRegistryLibraryProxy.areRoyaltiesValid(did, [91, 9], [consumer, owner]))
+                await didRegistryLibraryProxy.areRoyaltiesValid(did, [91, 9], [consumer, owner], constants.address.zero))
 
             assert.isOk( // MUST BE TRUE. There is not payment
-                await didRegistryLibraryProxy.areRoyaltiesValid(did, [], []))
+                await didRegistryLibraryProxy.areRoyaltiesValid(did, [], [], constants.address.zero))
 
             assert.isOk( // MUST BE TRUE. Original creator is getting 10% by royalties
-                await didRegistryLibraryProxy.areRoyaltiesValid(did, [90, 10], [other, owner]))
+                await didRegistryLibraryProxy.areRoyaltiesValid(did, [90, 10], [other, owner], constants.address.zero))
 
             assert.isOk( // MUST BE TRUE. Original creator is getting 10% by royalties
-                await didRegistryLibraryProxy.areRoyaltiesValid(did, [10, 90], [owner, other]))
+                await didRegistryLibraryProxy.areRoyaltiesValid(did, [10, 90], [owner, other], constants.address.zero))
 
             assert.isNotOk( // MUST BE FALSE. Original creator is not getting royalties
-                await didRegistryLibraryProxy.areRoyaltiesValid(did, [100], [other]))
+                await didRegistryLibraryProxy.areRoyaltiesValid(did, [100], [other], constants.address.zero))
         })
     })
 })

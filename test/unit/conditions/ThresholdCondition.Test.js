@@ -7,6 +7,7 @@ const chaiAsPromised = require('chai-as-promised')
 chai.use(chaiAsPromised)
 
 const EpochLibrary = artifacts.require('EpochLibrary')
+const NeverminedConfig = artifacts.require('NeverminedConfig')
 const ConditionStoreManager = artifacts.require('ConditionStoreManager')
 const ThresholdCondition = artifacts.require('ThresholdCondition')
 const HashLockCondition = artifacts.require('HashLockCondition')
@@ -21,9 +22,12 @@ contract('Threshold Condition', (accounts) => {
     let randomConditionID
     let conditionStoreManager
     let thresholdCondition
+    let nvmConfig
     const randomConditions = []
 
     before(async () => {
+        nvmConfig = await NeverminedConfig.new()
+        await nvmConfig.initialize(owner, owner)
         const epochLibrary = await EpochLibrary.new()
         await ConditionStoreManager.link(epochLibrary)
     })
@@ -42,6 +46,7 @@ contract('Threshold Condition', (accounts) => {
             await conditionStoreManager.initialize(
                 createRole,
                 owner,
+                nvmConfig.address,
                 { from: accounts[0] }
             )
 
@@ -135,10 +140,14 @@ contract('Threshold Condition', (accounts) => {
 
     describe('deploy and setup', () => {
         it('contract should deploy', async () => {
+            const nvmConfig = await NeverminedConfig.new()
+            await nvmConfig.initialize(owner, owner)
+
             const conditionStoreManager = await ConditionStoreManager.new()
             await conditionStoreManager.initialize(
                 createRole,
                 owner,
+                nvmConfig.address,
                 { from: owner }
             )
 

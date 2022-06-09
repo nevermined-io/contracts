@@ -178,12 +178,13 @@ contract('DIDRegistry', (accounts) => {
                 blockNumber.toNumber() + 1
             )
 
+            /*
             const getDIDRegisterIds = await didRegistry.getDIDRegisterIds()
             assert.isAtLeast(getDIDRegisterIds.length, 1)
             assert.strictEqual(
                 getDIDRegisterIds[getDIDRegisterIds.length - 1],
                 did
-            )
+            ) */
         })
     })
 
@@ -638,11 +639,18 @@ contract('DIDRegistry', (accounts) => {
                 'hi there'
             )
 
-            didRegistry.addDIDProvenanceDelegate(did, someone)
+            await didRegistry.addDIDProvenanceDelegate(did, someone)
 
             await didRegistry.used(testUtils.generateId(), did, owner, Activities.USED, [], '', {
                 from: someone
             })
+
+            await didRegistry.removeDIDProvenanceDelegate(did, someone)
+
+            await assert.isRejected(
+                didRegistry.used(testUtils.generateId(), did, owner, Activities.USED, [], '', { from: someone }),
+                ''
+            )
         })
 
         it('should fail to use an entity from someone', async () => {

@@ -7,6 +7,7 @@ const { assert } = chai
 const chaiAsPromised = require('chai-as-promised')
 chai.use(chaiAsPromised)
 
+const NeverminedConfig = artifacts.require('NeverminedConfig')
 const EpochLibrary = artifacts.require('EpochLibrary')
 const ConditionStoreManager = artifacts.require('ConditionStoreManager')
 const HashLockCondition = artifacts.require('HashLockCondition')
@@ -17,6 +18,7 @@ const testUtils = require('../../helpers/utils.js')
 contract('HashLockCondition constructor', (accounts) => {
     let conditionStoreManager
     let hashLockCondition
+    let nvmConfig
 
     //    let conditionType = constants.address.dummy
     const conditionId = constants.bytes32.one
@@ -26,6 +28,8 @@ contract('HashLockCondition constructor', (accounts) => {
     before(async () => {
         const epochLibrary = await EpochLibrary.new()
         await ConditionStoreManager.link(epochLibrary)
+        nvmConfig = await NeverminedConfig.new()
+        await nvmConfig.initialize(owner, owner)
     })
 
     beforeEach(async () => {
@@ -38,6 +42,7 @@ contract('HashLockCondition constructor', (accounts) => {
             await conditionStoreManager.initialize(
                 createRole,
                 owner,
+                nvmConfig.address,
                 { from: owner }
             )
 
@@ -47,7 +52,6 @@ contract('HashLockCondition constructor', (accounts) => {
                 conditionStoreManager.address,
                 { from: owner }
             )
-            //            conditionType = hashLockCondition.address
         }
     }
 

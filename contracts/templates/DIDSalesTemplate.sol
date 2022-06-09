@@ -1,5 +1,5 @@
 pragma solidity ^0.8.0;
-// Copyright 2020 Keyko GmbH.
+// Copyright 2022 Nevermined AG.
 // SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 // Code is Apache-2.0 and docs are CC-BY-4.0
 
@@ -12,7 +12,7 @@ import '../registry/DIDRegistry.sol';
 
 /**
  * @title Agreement Template
- * @author Keyko
+ * @author Nevermined
  *
  * @dev Implementation of DID Sales Template
  *
@@ -36,6 +36,11 @@ contract DIDSalesTemplate is BaseEscrowTemplate {
     LockPaymentCondition internal lockPaymentCondition;
     TransferDIDOwnershipCondition internal transferCondition;
     EscrowPaymentCondition internal rewardCondition;
+
+    // Force to have different bytecode from other templates
+    function id() public pure returns (uint) {
+        return 2;
+    }
 
    /**
     * @notice initialize init the 

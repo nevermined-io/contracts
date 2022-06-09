@@ -1,5 +1,5 @@
 pragma solidity ^0.8.0;
-// Copyright 2020 Keyko GmbH.
+// Copyright 2022 Nevermined AG.
 // SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 // Code is Apache-2.0 and docs are CC-BY-4.0
 
@@ -16,7 +16,7 @@ interface IDisputeManager {
 
 /**
  * @title Access Condition with transfer proof
- * @author Keyko
+ * @author Nevermined
  *
  * @dev Implementation of the Access Condition with transfer proof.
  * The idea is that the hash of the decryption key is known before hand, and the key matching this hash

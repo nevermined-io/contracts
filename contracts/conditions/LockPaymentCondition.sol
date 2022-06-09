@@ -1,9 +1,10 @@
 pragma solidity ^0.8.0;
-// Copyright 2020 Keyko GmbH.
+// Copyright 2022 Nevermined AG.
 // SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 // Code is Apache-2.0 and docs are CC-BY-4.0
 
 import './Condition.sol';
+import './ICondition.sol';
 import '../registry/DIDRegistry.sol';
 import '../Common.sol';
 import './ILockPayment.sol';
@@ -12,21 +13,24 @@ import '@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol';
+import 'hardhat/console.sol';
 
 /**
  * @title Lock Payment Condition
- * @author Keyko
+ * @author Nevermined
  *
  * @dev Implementation of the Lock Payment Condition
  * This condition allows to lock payment for multiple receivers taking
  * into account the royalties to be paid to the original creators in a secondary market.  
  */
-contract LockPaymentCondition is ILockPayment, ReentrancyGuardUpgradeable, Condition, Common, AccessControlUpgradeable {
+contract LockPaymentCondition is ILockPayment, ReentrancyGuardUpgradeable, Condition, Common, AccessControlUpgradeable, ICondition {
 
     using SafeERC20Upgradeable for IERC20Upgradeable;
-
+    using SafeMathUpgradeable for uint256;
+    
     DIDRegistry internal didRegistry;
-
+    INVMConfig internal nvmConfig;
+    
     bytes32 constant public CONDITION_TYPE = keccak256('LockPaymentCondition');
     bytes32 constant public KEY_ASSET_RECEIVER = keccak256('_assetReceiverAddress');
 
@@ -79,9 +83,21 @@ contract LockPaymentCondition is ILockPayment, ReentrancyGuardUpgradeable, Condi
         didRegistry = DIDRegistry(
             _didRegistryAddress
         );
+        nvmConfig = INVMConfig(
+            conditionStoreManager.getNvmConfigAddress()
+        );
         
         _setupRole(DEFAULT_ADMIN_ROLE, _owner);
-  }
+    }
+
+    /**
+     * Should be called when the contract has been upgraded.
+     */
+    function reinitialize() external reinitializer(2) {
+        nvmConfig = INVMConfig(
+            conditionStoreManager.getNvmConfigAddress()
+        );
+    }
 
    /**
     * @notice hashValues generates the hash of condition inputs 
@@ -140,53 +156,12 @@ contract LockPaymentCondition is ILockPayment, ReentrancyGuardUpgradeable, Condi
     nonReentrant
     returns (ConditionStoreLibrary.ConditionState)
     {
-        require(
-            _amounts.length == _receivers.length,
-            'Amounts and Receivers arguments have wrong length'
-        );
-
-        require(
-            didRegistry.areRoyaltiesValid(_did, _amounts, _receivers),
-            'Royalties are not satisfied'
-        );
-
-        if (_tokenAddress != address(0))
-            _transferERC20(_rewardAddress, _tokenAddress, calculateTotalAmount(_amounts));
-        else
-            _transferETH(_rewardAddress, calculateTotalAmount(_amounts));
-
-        bytes32 _id = generateId(
-            _agreementId,
-            hashValues(_did, _rewardAddress, _tokenAddress, _amounts, _receivers)
-        );
-        ConditionStoreLibrary.ConditionState state = super.fulfill(
-            _id,
-            ConditionStoreLibrary.ConditionState.Fulfilled
-        );
-
-        if (state == ConditionStoreLibrary.ConditionState.Fulfilled)    {
-            conditionStoreManager.updateConditionMapping(
-                _id,
-                KEY_ASSET_RECEIVER,
-                Common.addressToBytes32(msg.sender)
-            );
-        }
-        
-        emit Fulfilled(
-            _agreementId, 
-            _did,
-            _id,
-            _rewardAddress,
-            _tokenAddress,
-            _receivers, 
-            _amounts
-        );
-        return state;
+        return fulfillInternal(msg.sender, _agreementId, _did, _rewardAddress, _tokenAddress, _amounts, _receivers);
     }
 
     /**
      * @notice fulfill lock condition using the funds locked in an external contract 
-     *          (auction, bonding courve, lottery, etc) 
+     *          (auction, bonding curve, lottery, etc) 
     * @param _agreementId the agreement identifier
     * @param _did the asset decentralized identifier
     * @param _rewardAddress the contract address where the reward is locked
@@ -211,42 +186,42 @@ contract LockPaymentCondition is ILockPayment, ReentrancyGuardUpgradeable, Condi
     nonReentrant
     returns (ConditionStoreLibrary.ConditionState)
     {
+        address tokenAddress = IDynamicPricing(_externalContract).getTokenAddress(_remoteId);
         require(
             _amounts.length == _receivers.length,
             'Amounts and Receivers arguments have wrong length'
         );
         require(
-            didRegistry.areRoyaltiesValid(_did, _amounts, _receivers),
+            didRegistry.areRoyaltiesValid(_did, _amounts, _receivers, tokenAddress),
             'Royalties are not satisfied'
         );
 
-        (IDynamicPricing.DynamicPricingState externalState, uint256 externalAmount, address whoCanClaim) =
-            IDynamicPricing(_externalContract).getStatus(_remoteId);
+        require(
+            areMarketplaceFeesIncluded(_amounts, _receivers),
+            'Invalid marketplace fees'
+        );        
 
-        require(msg.sender == whoCanClaim, 'No allowed');
-        require(externalState != IDynamicPricing.DynamicPricingState.NotStarted &&
-            externalState != IDynamicPricing.DynamicPricingState.Aborted, 'Invalid external state');
-        require(calculateTotalAmount(_amounts) == externalAmount, 'Amounts dont match');
+        {
+            (IDynamicPricing.DynamicPricingState externalState, uint256 externalAmount, address whoCanClaim) =
+                IDynamicPricing(_externalContract).getStatus(_remoteId);
 
-        require(IDynamicPricing(_externalContract).withdraw(_remoteId, _rewardAddress), 'Unable to withdraw');
+            require(msg.sender == whoCanClaim, 'No allowed');
+            require(externalState != IDynamicPricing.DynamicPricingState.NotStarted &&
+                externalState != IDynamicPricing.DynamicPricingState.Aborted, 'Invalid external state');
+            require(calculateTotalAmount(_amounts) == externalAmount, 'Amounts dont match');
+
+            require(IDynamicPricing(_externalContract).withdraw(_remoteId, _rewardAddress), 'Unable to withdraw');
+        }
     
         bytes32 _id = generateId(
             _agreementId,
-            hashValues(_did, _rewardAddress, IDynamicPricing(_externalContract).getTokenAddress(_remoteId), _amounts, _receivers)
+            hashValues(_did, _rewardAddress, tokenAddress, _amounts, _receivers)
         );
         
         ConditionStoreLibrary.ConditionState state = super.fulfill(
             _id,
             ConditionStoreLibrary.ConditionState.Fulfilled
         );
-
-        if (state == ConditionStoreLibrary.ConditionState.Fulfilled)    {
-            conditionStoreManager.updateConditionMapping(
-                _id,
-                KEY_ASSET_RECEIVER,
-                Common.addressToBytes32(msg.sender)
-            );            
-        }
 
         emit Fulfilled(
             _agreementId,
@@ -258,9 +233,19 @@ contract LockPaymentCondition is ILockPayment, ReentrancyGuardUpgradeable, Condi
             _amounts
         );
         return state;
-    }    
-    
-    function fulfillProxy(
+    }
+
+    function encodeParams(
+        bytes32 _did,
+        address payable _rewardAddress,
+        address _tokenAddress,
+        uint256[] memory _amounts,
+        address[] memory _receivers
+    ) external pure returns (bytes memory) {
+        return abi.encode(_did, _rewardAddress, _tokenAddress, _amounts, _receivers);
+    }
+
+    function fulfillInternal(
         address _account,
         bytes32 _agreementId,
         bytes32 _did,
@@ -269,20 +254,22 @@ contract LockPaymentCondition is ILockPayment, ReentrancyGuardUpgradeable, Condi
         uint256[] memory _amounts,
         address[] memory _receivers
     )
-    external
-    payable
-    nonReentrant
+    internal
     returns (ConditionStoreLibrary.ConditionState)
     {
-        require(hasRole(PROXY_ROLE, msg.sender), 'Invalid access role');
         require(
             _amounts.length == _receivers.length,
             'Amounts and Receivers arguments have wrong length'
         );
 
         require(
-            didRegistry.areRoyaltiesValid(_did, _amounts, _receivers),
+            didRegistry.areRoyaltiesValid(_did, _amounts, _receivers, _tokenAddress),
             'Royalties are not satisfied'
+        );
+        
+        require(
+            areMarketplaceFeesIncluded(_amounts, _receivers), 
+            'Invalid marketplace fees'
         );
 
         if (_tokenAddress != address(0))
@@ -294,19 +281,12 @@ contract LockPaymentCondition is ILockPayment, ReentrancyGuardUpgradeable, Condi
             _agreementId,
             hashValues(_did, _rewardAddress, _tokenAddress, _amounts, _receivers)
         );
+        
         ConditionStoreLibrary.ConditionState state = super.fulfill(
             _id,
             ConditionStoreLibrary.ConditionState.Fulfilled
         );
 
-        if (state == ConditionStoreLibrary.ConditionState.Fulfilled)    {
-            conditionStoreManager.updateConditionMapping(
-                _id,
-                KEY_ASSET_RECEIVER,
-                Common.addressToBytes32(_account)
-            );
-        }
-        
         emit Fulfilled(
             _agreementId, 
             _did,
@@ -318,25 +298,34 @@ contract LockPaymentCondition is ILockPayment, ReentrancyGuardUpgradeable, Condi
         );
         return state;
     }
+
+    function fulfillProxy(
+        address _account,
+        bytes32 _agreementId,
+        bytes memory params
+    )
+    external
+    payable
+    nonReentrant
+    {
+        bytes32 _did;
+        address payable _rewardAddress;
+        address _tokenAddress;
+        uint256[] memory _amounts;
+        address[] memory _receivers;
+        (_did, _rewardAddress, _tokenAddress, _amounts, _receivers) = abi.decode(params, (bytes32, address, address, uint256[], address[]));
+        require(hasRole(PROXY_ROLE, msg.sender), 'Invalid access role');
+        fulfillInternal(_account, _agreementId, _did, _rewardAddress, _tokenAddress, _amounts, _receivers);
+    }
  
    /**
-    * @notice _transferERC20 transfer ERC20 tokens 
+    * @notice _transferERC20Proxy transfer ERC20 tokens 
+    * @param _senderAddress the address to send the tokens from
     * @param _rewardAddress the address to receive the tokens
     * @param _tokenAddress the ERC20 contract address to use during the payment
     * @param _amount token amount to be locked/released
     * @dev Will throw if transfer fails
     */
-    function _transferERC20(
-        address _rewardAddress,
-        address _tokenAddress,
-        uint256 _amount
-    )
-    internal
-    {
-        IERC20Upgradeable token = ERC20Upgradeable(_tokenAddress);
-        token.safeTransferFrom(msg.sender, _rewardAddress, _amount);
-    }
-
     function _transferERC20Proxy(
         address _senderAddress,
         address _rewardAddress,
@@ -375,6 +364,33 @@ contract LockPaymentCondition is ILockPayment, ReentrancyGuardUpgradeable, Condi
                 'Invalid external contract'
         );
         _;
-    }    
-    
+    }
+
+    function areMarketplaceFeesIncluded(
+        uint256[] memory _amounts, 
+        address[] memory _receivers
+    )
+    internal
+    view
+    returns (bool)
+    {
+        if (nvmConfig.getMarketplaceFee() == 0)
+            return true;
+
+        bool marketplaceReceiverIsIncluded = false;
+        uint receiverIndex = 0;
+        
+        for(uint i = 0; i < _receivers.length; i++)    {
+            if (_receivers[i] == nvmConfig.getFeeReceiver())    {
+                marketplaceReceiverIsIncluded = true;
+                receiverIndex = i;
+            }
+        }
+        if (!marketplaceReceiverIsIncluded) // Marketplace receiver not included as part of the fees
+            return false;
+        
+        // Return if fee calculation is correct
+        return nvmConfig.getMarketplaceFee().mul(calculateTotalAmount(_amounts)).div(10000) == _amounts[receiverIndex];
+    }
+
 }

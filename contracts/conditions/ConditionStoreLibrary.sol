@@ -1,13 +1,13 @@
 pragma solidity ^0.8.0;
-// Copyright 2020 Keyko GmbH.
-// This product includes software developed at BigchainDB GmbH and Ocean Protocol
+// Copyright 2022 Nevermined AG.
+
 // SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 // Code is Apache-2.0 and docs are CC-BY-4.0
 
 
 /**
  * @title Condition Store Library
- * @author Keyko & Ocean Protocol
+ * @author Nevermined
  *
  * @dev Implementation of the Condition Store Library.
  *      
@@ -24,15 +24,15 @@ library ConditionStoreLibrary {
     struct Condition {
         address typeRef;
         ConditionState state;
-        address createdBy;
-        address lastUpdatedBy;
-        uint256 blockNumberUpdated;
+        address createdBy; // UNUSED
+        address lastUpdatedBy; // UNUSED
+        uint256 blockNumberUpdated; // UNUSED
     }
 
     struct ConditionList {
         mapping(bytes32 => Condition) conditions;
-        mapping(bytes32 => mapping(bytes32 => bytes32)) map; 
-        bytes32[] conditionIds;
+        mapping(bytes32 => mapping(bytes32 => bytes32)) map;
+        bytes32[] conditionIds; // UNUSED
     }
     
     
@@ -44,34 +44,21 @@ library ConditionStoreLibrary {
     * @param _self is the ConditionList storage pointer
     * @param _id valid condition identifier
     * @param _typeRef condition contract address
-    * @param _creator address of the condition creator
-    * @return size is the condition index
     */
     function create(
         ConditionList storage _self,
         bytes32 _id,
-        address _typeRef,
-        address _creator
+        address _typeRef
     )
         internal
-        returns (uint size)
     {
         require(
-            _self.conditions[_id].blockNumberUpdated == 0,
+            _self.conditions[_id].typeRef == address(0),
             'Id already exists'
         );
 
-        _self.conditions[_id] = Condition({
-            typeRef: _typeRef,
-            state: ConditionState.Unfulfilled,
-            createdBy: _creator,
-            lastUpdatedBy: msg.sender,
-            blockNumberUpdated: block.number
-        });
-
-        _self.conditionIds.push(_id);
-
-        return _self.conditionIds.length;
+        _self.conditions[_id].typeRef = _typeRef;
+        _self.conditions[_id].state = ConditionState.Unfulfilled;
     }
 
     /**
@@ -97,9 +84,6 @@ library ConditionStoreLibrary {
         );
 
         _self.conditions[_id].state = _newState;
-        _self.conditions[_id].lastUpdatedBy = msg.sender;
-        _self.conditions[_id].blockNumberUpdated = block.number;
-
     }
     
     function updateKeyValue(

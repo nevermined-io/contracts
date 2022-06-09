@@ -1,5 +1,5 @@
 pragma solidity ^0.8.0;
-// Copyright 2020 Keyko GmbH.
+// Copyright 2022 Nevermined AG.
 // SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 // Code is Apache-2.0 and docs are CC-BY-4.0
 
@@ -11,7 +11,7 @@ import '@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol'
 
 /**
  * @title Transfer NFT Condition
- * @author Keyko
+ * @author Nevermined
  *
  * @dev Implementation of condition allowing to transfer an NFT
  *      between the original owner and a receiver
@@ -24,7 +24,20 @@ contract TransferNFT721Condition is Condition, ITransferNFT, ReentrancyGuardUpgr
     bytes32 private constant MARKET_ROLE = keccak256('MARKETPLACE_ROLE');
 
     NFT721Upgradeable private erc721;
+
     address private _lockConditionAddress;
+
+    bytes32 public constant PROXY_ROLE = keccak256('PROXY_ROLE');
+
+    DIDRegistry internal didRegistry;
+
+    function grantProxyRole(address _address) public onlyOwner {
+        _grantRole(PROXY_ROLE, _address);
+    }
+
+    function revokeProxyRole(address _address) public onlyOwner {
+        _revokeRole(PROXY_ROLE, _address);
+    }
 
    /**
     * @notice initialize init the contract with the following parameters
@@ -32,11 +45,13 @@ contract TransferNFT721Condition is Condition, ITransferNFT, ReentrancyGuardUpgr
     *       initialization.
     * @param _owner contract's owner account address
     * @param _conditionStoreManagerAddress condition store manager address    
+    * @param _didRegistryAddress DID Registry address           
     * @param _ercAddress Nevermined ERC-721 address
     */
     function initialize(
         address _owner,
         address _conditionStoreManagerAddress,
+        address _didRegistryAddress,
         address _ercAddress,
         address _lockNFTConditionAddress
     )
@@ -58,12 +73,29 @@ contract TransferNFT721Condition is Condition, ITransferNFT, ReentrancyGuardUpgr
             _conditionStoreManagerAddress
         );
 
+        didRegistry = DIDRegistry(
+            _didRegistryAddress
+        );
+        
         erc721 = NFT721Upgradeable(
             _ercAddress
         );
         _lockConditionAddress = _lockNFTConditionAddress;
+
+        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        _setupRole(DEFAULT_ADMIN_ROLE, _owner);
+
     }
 
+    function getNFTDefaultAddress()
+        override
+        external
+        view
+        returns (address)
+    {
+        return address(erc721);
+    }
+    
    /**
     * @notice hashValues generates the hash of condition inputs 
     *        with the following parameters
@@ -80,14 +112,40 @@ contract TransferNFT721Condition is Condition, ITransferNFT, ReentrancyGuardUpgr
         address _nftReceiver,
         uint256 _nftAmount,
         bytes32 _lockCondition,
-        address _contract
+        address _contract,
+        bool _transfer
     )
         public
         pure
         override
         returns (bytes32)
     {
-        return keccak256(abi.encode(_did, _nftHolder, _nftReceiver, _nftAmount, _lockCondition, _contract));
+        return keccak256(abi.encode(_did, _nftHolder, _nftReceiver, _nftAmount, _lockCondition, _contract, _transfer));
+    }
+
+
+    /**
+     * @notice Encodes/serialize all the parameters received
+     *
+     * @param _did refers to the DID in which secret store will issue the decryption keys
+     * @param _nftHolder is the address of the account to receive the NFT
+     * @param _nftReceiver is the address of the account to receive the NFT
+     * @param _nftAmount amount of NFTs to transfer  
+     * @param _lockPaymentCondition lock payment condition identifier
+     * @param _nftContractAddress the NFT contract to use     
+     * @param _transfer if yes it does a transfer if false it mints the NFT
+     * @return the encoded parameters
+     */    
+    function encodeParams(
+        bytes32 _did,
+        address _nftHolder,
+        address _nftReceiver,
+        uint256 _nftAmount,
+        bytes32 _lockPaymentCondition,
+        address _nftContractAddress,
+        bool _transfer
+    ) external pure returns (bytes memory) {
+        return abi.encode(_did, _nftHolder, _nftReceiver, _nftAmount, _lockPaymentCondition, _nftContractAddress, _transfer);
     }
 
     /**
@@ -101,6 +159,7 @@ contract TransferNFT721Condition is Condition, ITransferNFT, ReentrancyGuardUpgr
      * @param _nftAmount amount of NFTs to transfer  
      * @param _lockPaymentCondition lock payment condition identifier
      * @param _contract NFT contract to use
+     * @param _transfer Indicates if the NFT will be transferred (true) or minted (false)          
      * @return condition state (Fulfilled/Aborted)
      */
     function fulfill(
@@ -109,46 +168,93 @@ contract TransferNFT721Condition is Condition, ITransferNFT, ReentrancyGuardUpgr
         address _nftReceiver,
         uint256 _nftAmount,
         bytes32 _lockPaymentCondition,
-        address _contract
+        address _contract,
+        bool _transfer
     )
         public
         override
         nonReentrant
         returns (ConditionStoreLibrary.ConditionState)
     {
+        return fulfillInternal(msg.sender, _agreementId, _did, _nftReceiver, _nftAmount, _lockPaymentCondition, _contract, _transfer);
+    }
+
+
+    /**
+     * @notice fulfill the transfer NFT condition by a proxy
+     * @dev Fulfill method transfer a certain amount of NFTs 
+     *
+     * @param _account NFT Holder
+     * @param _agreementId agreement identifier
+     * @param _params encoded parameters
+     */    
+    function fulfillProxy(
+        address _account,
+        bytes32 _agreementId,
+        bytes memory _params
+    )
+    external
+    payable
+    nonReentrant
+    {
+        bytes32 _did;
+        address _nftReceiver;
+        address _nftHolder;
+        uint256 _nftAmount;
+        bytes32 _lockPaymentCondition;
+        address _nftContractAddress;
+        bool _transfer;
+        (_did, _nftHolder, _nftReceiver, _nftAmount, _lockPaymentCondition, _nftContractAddress, _transfer) = abi.decode(_params, (bytes32, address, address, uint256, bytes32, address, bool));
+
+        require(hasRole(PROXY_ROLE, msg.sender), 'Invalid access role');
+        fulfillInternal(_account, _agreementId, _did, _nftReceiver, _nftAmount, _lockPaymentCondition, _nftContractAddress, _transfer);
+    }
+
+    function fulfillInternal(
+        address _account,
+        bytes32 _agreementId,
+        bytes32 _did,
+        address _nftReceiver,
+        uint256 _nftAmount,
+        bytes32 _lockPaymentCondition,
+        address _contract,
+        bool _transfer
+    )
+        internal
+        returns (ConditionStoreLibrary.ConditionState)
+    {
 
         bytes32 _id = generateId(
             _agreementId,
-            hashValues(_did, msg.sender, _nftReceiver, _nftAmount, _lockPaymentCondition, _contract)
+            hashValues(_did, _account, _nftReceiver, _nftAmount, _lockPaymentCondition, _contract, _transfer)
         );
 
-        address lockConditionTypeRef;
-        ConditionStoreLibrary.ConditionState lockConditionState;
-        (lockConditionTypeRef,lockConditionState,,,,,,) = conditionStoreManager
-        .getCondition(_lockPaymentCondition);
-
         require(
-            lockConditionState == ConditionStoreLibrary.ConditionState.Fulfilled,
+            conditionStoreManager.getConditionState(_lockPaymentCondition) == ConditionStoreLibrary.ConditionState.Fulfilled,
             'LockCondition needs to be Fulfilled'
         );
-
-        // Check that nft receiver is the same enabled in the lock payment condition
-        require(
-            conditionStoreManager.bytes32ToAddress(
-                conditionStoreManager.getMappingValue(_lockPaymentCondition, keccak256('_assetReceiverAddress'))
-            ) == _nftReceiver,
-            'Invalid receiver'
-        );
         
-        IERC721Upgradeable token = IERC721Upgradeable(_contract);
-        address nftOwner = token.ownerOf(uint256(_did));
-        require(
-            _nftAmount == 0 || (_nftAmount == 1 && nftOwner == msg.sender),        
-            'Not enough balance'
-        );
+        NFT721Upgradeable token = NFT721Upgradeable(_contract);
+        
+        if (_transfer)  {
+            require(
+                _nftAmount == 0 || (_nftAmount == 1 && token.ownerOf(uint256(_did)) == _account),
+                'Not enough balance'
+            );
 
-        if (_nftAmount == 1) {
-            token.safeTransferFrom(nftOwner, _nftReceiver, uint256(_did));
+            if (_nftAmount == 1)
+                token.safeTransferFrom(
+                    token.ownerOf(uint256(_did)), 
+                    _nftReceiver, 
+                    uint256(_did)
+                );
+            
+        }   else {
+            require(
+                didRegistry.isDIDProviderOrOwner(_did, _account), 
+                'Only owner or provider'
+            );
+            token.mint(_nftReceiver, uint256(_did));
         }
 
         ConditionStoreLibrary.ConditionState state = super.fulfill(
@@ -166,62 +272,39 @@ contract TransferNFT721Condition is Condition, ITransferNFT, ReentrancyGuardUpgr
         );
 
         return state;
-    }    
+    }
 
+
+
+    /**
+     * @notice fulfill the transfer NFT condition
+     * @dev Fulfill method transfer a certain amount of NFTs 
+     *       to the _nftReceiver address in the DIDRegistry contract. 
+     *       When true then fulfill the condition
+     * @param _agreementId agreement identifier
+     * @param _did refers to the DID in which secret store will issue the decryption keys
+     * @param _nftHolder is the address of the account to receive the NFT
+     * @param _nftReceiver is the address of the account to receive the NFT
+     * @param _nftAmount amount of NFTs to transfer  
+     * @param _lockPaymentCondition lock payment condition identifier     
+     * @param _transfer if yes it does a transfer if false it mints the NFT
+     * @return condition state (Fulfilled/Aborted)
+     */    
     function fulfillForDelegate(
         bytes32 _agreementId,
         bytes32 _did,
         address _nftHolder,
         address _nftReceiver,
         uint256 _nftAmount,
-        bytes32 _lockPaymentCondition
+        bytes32 _lockPaymentCondition,
+        bool _transfer
     )
         public
     
     returns (ConditionStoreLibrary.ConditionState)
     {
         require(hasRole(MARKET_ROLE, msg.sender) || erc721.isApprovedForAll(_nftHolder, msg.sender), 'Invalid access role');
-        
-        bytes32 _id = generateId(
-            _agreementId,
-            hashValues(_did, _nftHolder, _nftReceiver, _nftAmount, _lockPaymentCondition, address(erc721))
-        );
-
-        address lockConditionTypeRef;
-        ConditionStoreLibrary.ConditionState lockConditionState;
-        (lockConditionTypeRef,lockConditionState,,,,,,) = conditionStoreManager
-        .getCondition(_lockPaymentCondition);
-
-        require(
-            lockConditionState == ConditionStoreLibrary.ConditionState.Fulfilled,
-            'LockCondition needs to be Fulfilled'
-        );
-        
-        address nftOwner = erc721.ownerOf(uint256(_did));
-        require(
-            _nftAmount == 0 || (_nftAmount == 1 && nftOwner == msg.sender),        
-            'Not enough balance'
-        );
-
-        if (_nftAmount == 1) {
-            erc721.safeTransferFrom(nftOwner, _nftReceiver, uint256(_did));
-        }
-
-        ConditionStoreLibrary.ConditionState state = super.fulfill(
-            _id,
-            ConditionStoreLibrary.ConditionState.Fulfilled
-        );
-
-        emit Fulfilled(
-            _agreementId,
-            _did,
-            _nftReceiver,
-            _nftAmount,
-            _id,
-            address(erc721)
-        );
-
-        return state;
-    }
+        return fulfillInternal(_nftHolder, _agreementId, _did, _nftReceiver, _nftAmount, _lockPaymentCondition, address(erc721), _transfer);
+    }        
 }
 

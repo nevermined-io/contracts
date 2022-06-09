@@ -1,6 +1,6 @@
 {
   "name": "@nevermined-io/contracts",
-  "version": "1.3.12",
+  "version": "2.0.0",
   "description": "Nevermined implementation of Nevermined in Solidity",
   "bugs": {
     "url": "https://github.com/nevermined-io/contracts/issues"
@@ -62,7 +62,7 @@
     "test:kovan-integration": "hardhat test --network external $(find test/external/kovan -name '*.*s')",
     "test:fast": "hardhat test $(find test/unit -name '*.*s') $(find test/int -name '*.*s')",
     "test:upgrade": "hardhat test $(find test/upgrade -name '*.*s')",
-    "test:cover": "truffle run coverage",
+    "test:cover": "hardhat coverage --testfiles 'test'",
     "test:manticore": "./test/verification/manticore/run.sh",
     "doc:contracts": "solidity-docgen -i contracts -o docs/contracts/ -t docs/docgen_template/ ",
     "doc:addresses": "node scripts/contracts/get-addresses.js",
@@ -77,7 +77,7 @@
     "lint:fix": "yarn lint:eslint --fix && yarn lint:ethlint --fix",
     "security:mythril": "truffle compile&&myth -x --truffle --max-depth 12 --outform markdown 2>&1 | tee mythrilReport.md",
     "security:securify": "docker run -v $(pwd):/project chainsecurity/securify -t 2>&1 | tee securifyReport.txt",
-    "security:slither": "slither . 2>&1 | tee slitherReport.txt",
+    "security:slither": "export DISABLE_DEPENDENCIES=true && rm -rf build && slither . --hardhat-artifacts-directory build 2>&1 | tee slitherReport.txt",
     "security:upgradeability": "yarn clean&&yarn compile&&./scripts/upgradeability_checks.sh"
   },
   "directories": {
@@ -85,10 +85,9 @@
     "test": "test"
   },
   "files": [
-    "artifacts/**/*",
-    "docs/**/*",
-    "circuits/*.zkey",
-    "circuits/*.wasm",
+    "artifacts/**/*development.json",
+	  "circuits/keytransfer.wasm",
+    "circuits/keytransfer.zkey",
     "README.md"
   ],
   "repository": {
@@ -98,43 +97,46 @@
   "author": "Nevermined",
   "license": "Apache-2.0",
   "devDependencies": {
-    "@gnosis.pm/safe-contracts": "1.2.0",
+    "@gnosis.pm/safe-contracts": "1.3.0",
+    "@gnosis.pm/safe-core-sdk": "^2.1.0",
+    "@gnosis.pm/safe-deployments": "^1.4.0",
+    "@gnosis.pm/safe-ethers-lib": "^1.1.0",
     "@nomiclabs/hardhat-ethers": "^2.0.4",
     "@nomiclabs/hardhat-truffle5": "^2.0.3",
     "@nomiclabs/hardhat-web3": "^2.0.0",
-    "@openzeppelin/contracts-upgradeable": "^4.3.0",
-    "@openzeppelin/hardhat-upgrades": "^1.13.0",
+    "@openzeppelin/hardhat-upgrades": "^1.17.0",
     "bignumber.js": "^9.0.0",
     "chai": "^4.3.4",
     "chai-as-promised": "^7.1.1",
-    "circom": "^0.5.45",
-    "circomlib": "^0.5.3",
-    "eslint": "^7.0.0",
+    "circomlibjs": "^0.1.1",
+    "circomlib": "^2.0.3",
+    "eslint": "^8.14.0",
     "eslint-config-oceanprotocol": "^1.5.0",
-    "eslint-plugin-import": "^2.20.2",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-no-only-tests": "^2.6.0",
     "eslint-plugin-node": "^11.1.0",
-    "eslint-plugin-standard": "^4.0.1",
+    "eslint-plugin-standard": "^5.0.0",
     "eth-gas-reporter": "^0.2.22",
-    "ethers": "^5.5.3",
-    "ffjavascript": "^0.2.38",
+    "ethers": "^5.6.5",
+    "ffjavascript": "^0.2.50",
     "findit": "^2.0.0",
-    "glob": "^7.2.0",
-    "hardhat": "^2.8.3",
+    "glob": "^8.0.1",
+    "hardhat": "^2.9.3",
     "hardhat-dependency-compiler": "^1.1.2",
+    "hardhat-gas-reporter": "^1.0.7",
     "mathjs": "~7.5.1",
-    "prettier": "^2.1.2",
-    "snarkjs": "^0.4.6",
-    "solhint": "^3.2.0",
+    "prettier": "^2.6.2",
+    "snarkjs": "0.4.14",
+    "solhint": "^3.3.7",
     "solidity-coverage": "^0.7.16",
     "solidity-docgen": "^0.5.11",
-    "web3": "^1.6.0",
+    "web3": "^1.7.3",
     "yargs": "~15.3.1"
   },
   "resolutions": {
     "web3-eth-accounts/scrypt.js": "0.3.0"
   },
   "dependencies": {
-    "@gnosis.pm/safe-core-sdk": "^1.0.0",
-    "@gnosis.pm/safe-deployments": "^1.4.0"
+    "@openzeppelin/contracts-upgradeable": "^4.6.0"
   }
 }

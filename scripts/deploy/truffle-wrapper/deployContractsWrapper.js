@@ -13,6 +13,8 @@ async function main() {
         } catch (e) {
             addresses = {}
         }
+        // read addresses from artifacts
+
         await deployContracts({
             contracts: argv._.splice(2),
             verbose,

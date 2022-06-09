@@ -4,6 +4,7 @@ const evaluateContracts = require('./evaluateContracts.js')
 const { ethers, upgrades, web3 } = require('hardhat')
 const { exportArtifacts, exportLibraryArtifacts } = require('./artifacts')
 const { loadWallet } = require('./wallets.js')
+const { readArtifact } = require('./artifacts')
 
 async function deployLibrary(name, addresses) {
     if (addresses[name]) {
@@ -20,14 +21,26 @@ async function deployLibrary(name, addresses) {
     }
 }
 
-async function deployContracts({ contracts: origContracts, verbose, testnet, makeWallet, addresses }) {
+async function deployContracts({ contracts: origContracts, verbose, testnet, makeWallet, addresses, deeperClean }) {
     const contracts = evaluateContracts({
         contracts: origContracts,
         verbose,
         testnet
     })
 
+    if (!deeperClean) {
+        for (const el of contracts.concat(['DIDRegistryLibrary', 'EpochLibrary'])) {
+            const afact = readArtifact(el)
+            if (afact.address) {
+                console.log(`Using existing artifact for ${el}`)
+                addresses[el] = afact.address
+            }
+        }
+    }
+
     const { roles } = await loadWallet({ makeWallet })
+
+    console.log('wallet', roles)
 
     const didRegistryLibraryAddress = await deployLibrary('DIDRegistryLibrary', addresses)
     console.log('Registry library', didRegistryLibraryAddress)
@@ -55,22 +68,34 @@ async function deployContracts({ contracts: origContracts, verbose, testnet, mak
     })
 
     // Move proxy admin to upgrader wallet
-    await upgrades.admin.transferProxyAdminOwnership(roles.upgraderWallet)
+    try {
+        await upgrades.admin.transferProxyAdminOwnership(roles.upgraderWallet)
+    } catch (err) {
+        console.log('Cannot move proxy admin ownership')
+    }
 
     addressBook.DIDRegistryLibrary = didRegistryLibraryAddress
     addressBook.EpochLibrary = epochLibraryAddress
     if (cache.PlonkVerifier) {
         addressBook.PlonkVerifier = proxies.PlonkVerifier
     }
+    if (cache.AaveCreditVault) {
+        addressBook.AaveCreditVault = proxies.AaveCreditVault
+    }
     const libraries = {
         DIDRegistry: { DIDRegistryLibrary: didRegistryLibraryAddress },
         ConditionStoreManager: { EpochLibrary: epochLibraryAddress }
     }
-    await exportArtifacts(contracts.filter(a => a !== 'AaveCreditVault' && a !== 'PlonkVerifier'), addressBook, libraries)
-    await exportLibraryArtifacts(['EpochLibrary', 'DIDRegistryLibrary', 'PlonkVerifier'], addressBook)
 
-    if (contracts.indexOf('AaveCreditVault') > -1) {
-        await exportLibraryArtifacts(['AaveCreditVault'], addressBook)
+    if (process.env.NO_PROXY === 'true') {
+        await exportLibraryArtifacts(contracts, addressBook)
+    } else {
+        await exportArtifacts(contracts.filter(a => a !== 'AaveCreditVault' && a !== 'PlonkVerifier'), addressBook, libraries)
+        await exportLibraryArtifacts(['EpochLibrary', 'DIDRegistryLibrary', 'PlonkVerifier'], addressBook)
+
+        if (contracts.indexOf('AaveCreditVault') > -1) {
+            await exportLibraryArtifacts(['AaveCreditVault'], addressBook)
+        }
     }
 
     return addressBook

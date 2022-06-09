@@ -21,11 +21,25 @@ We define four roles:
 - `upgrader`: represented as `accounts[1]`
 - `upgraderWallet`: represented as the `upgrader` from `wallets.json`
 - `ownerWallet`: represented as the `owner` from `wallets.json`
+- `governorWallet`: represented as the `governor` from `wallets.json`
 
 ### Flags
 
 - `--testnet` Deploys the Dispenser, the NeverminedToken and the contracts from `contracts.json`
 - `--with-token` Deploys the NeverminedToken and the contracts from `contracts.json`
+
+### Nevermined Configuration
+
+The set of Nevermined contracts can be deployed in different networks and interact with several use cases.
+Each of these different scenarios could require different configurations so to facilitate that Nevermined provides an
+on-chain configuration mechanism allowing the governance (via DAO or similar) of a Nevermined deployment.
+To see all the available possibilities please see the `INeverminedConfig` interface.
+
+During the deployment of Nevermined all of these parameters can be specified allowing a bespoke environment configuration.
+This can be done via the definition of the following environment variables:
+
+* `NVM_MARKETPLACE_FEE`. It refers to the fee charged by Nevermined for using the Service Agreements. It uses an integer number representing a 2 decimal number. It means 1450 means 14.50% fee. The value must be beteen 0 and 10000 (100%). See `marketplaceFee` variable.
+* `NVM_RECEIVER_FEE`. It refers to the address that will receive the fee charged by Nevermined per transaction. See `feeReceiver` variable
 
 #### Deployer
 
@@ -140,6 +154,26 @@ All upgrades of the contracts have to be approved by the `upgrader` wallet confi
 - Select the transaction you want to confirm (the upgrade script will tell you which transactions have to be approved in which wallets)
 - Click Confirm
 
+## Upload the artifacts (abis/contracts) to Contract Repository
+
+Once the contracts are deployed to a public network or a new contract version whose contract abis has to been uploaded, use `scripts/upload_artifacts_s3.sh` to upload
+the contracts or artifacts to repository https://artifacts-nevermined-rocks.s3.amazonaws.com.
+
+*Your environment has to be configured and authorized to use aws cli to upload files to `artifacts-nevermined-rocks` bucketi*.
+
+The script has the next variables:
+
+- `branch` is the branch from where the workflow and artifacts will be used.
+- `asset` can be `abis`/`contracts`. Use abis if you want to upload the contract ABIs that not contain deployment information. Contracts for uploading abis with deployment information to `network`.
+- `network` refers to network name, based on filename/hardhat config. Not used if `abis` is selected.
+- `tag` refers to deployment tag. Defaults to common. Not used if `abis` is selected.
+
+This workflows uses the script `scripts/upload_artifacts_s3.sh` that can be used using the next syntax:
+
+```bash
+./scripts/upload_artifacts_s3.sh abis
+./scripts/upload_artifacts_s3.sh contracts mumbai awesome_tag
+```
 
 ## Document
 
@@ -148,26 +182,6 @@ All upgrades of the contracts have to be approved by the `upgrader` wallet confi
 - Update the contracts documentation
 - run `yarn doc:contracts`
 - Commit the changes in `docs/contracts` folder
-
-### Address Documentation
-
-- Update the addresses in the `README.md`
-- run `node ./scripts/contracts/get-addresses.js <network name>`
-
-It will output the current proxy addresses in the `README` friendly format.
-
-```text
-| AccessCondition                   | v0.9.0 | 0x45DE141F8Efc355F1451a102FB6225F1EDd2921d |
-| AgreementStoreManager             | v0.9.0 | 0x62f84700b1A0ea6Bfb505aDC3c0286B7944D247C |
-| ConditionStoreManager             | v0.9.0 | 0x39b0AA775496C5ebf26f3B81C9ed1843f09eE466 |
-| DIDRegistry                       | v0.9.0 | 0x4A0f7F763B1A7937aED21D63b2A78adc89c5Db23 |
-| DIDRegistryLibrary                | v0.9.0 | 0x3B3504908Db36f5D5f07CD420ee2BBBbDfB674cF |
-| Dispenser                         | v0.9.0 | 0x865396b7ddc58C693db7FCAD1168E3BD95Fe3368 |
-....
-
-```
-
-- Copy this to the `README.md`
 
 ## Trigger CI
 

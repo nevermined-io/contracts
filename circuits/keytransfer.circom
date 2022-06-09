@@ -1,25 +1,35 @@
-include "circomlib/circuits/pointbits.circom";
-include "circomlib/circuits/escalarmulany.circom";
-include "circomlib/circuits/escalarmulfix.circom";
+pragma circom 2.0.0;
 
-include "circomlib/circuits/mimcsponge.circom"
-include "circomlib/circuits/poseidon.circom"
-include "circomlib/circuits/gates.circom"
-include "circomlib/circuits/comparators.circom"
+include "../node_modules/circomlib/circuits/pointbits.circom";
+include "../node_modules/circomlib/circuits/escalarmulany.circom";
+include "../node_modules/circomlib/circuits/escalarmulfix.circom";
+
+include "../node_modules/circomlib/circuits/mimcsponge.circom";
+include "../node_modules/circomlib/circuits/poseidon.circom";
+include "../node_modules/circomlib/circuits/gates.circom";
+include "../node_modules/circomlib/circuits/comparators.circom";
 
 template Main() {
+	signal input provider_k;
+
+	signal input xL_in; // plain text part 1
+	signal input xR_in; // plain text part 2
+
 	signal input buyer_x;
-	// buyer_x === 0;
 	signal input buyer_y;
 	signal input provider_x;
 	signal input provider_y;
-	signal private input provider_k;
-
-	signal private input xL_in; // plain text part 1
-	signal private input xR_in; // plain text part 2
 	signal input cipher_xL_in; // cipher text part 1
 	signal input cipher_xR_in; // cipher text part 2
 	signal input hash_plain; // hash of plain text
+
+	signal output buyer_x_out;
+	signal output buyer_y_out;
+	signal output provider_x_out;
+	signal output provider_y_out;
+	signal output cipher_xL_in_out; // cipher text part 1
+	signal output cipher_xR_in_out; // cipher text part 2
+	signal output hash_plain_out; // hash of plain text
 	var i;
 
 	component snum2bits = Num2Bits(253);
@@ -62,6 +72,14 @@ template Main() {
 	encrypt.xL_out - cipher_xL_in === 0;
 	encrypt.xR_out - cipher_xR_in === 0;
 	hashplain.out === hash_plain;
+
+	buyer_x_out <== buyer_x;
+	buyer_y_out <== buyer_y;
+	provider_x_out <== provider_x;
+	provider_y_out <== provider_y;
+	cipher_xL_in_out <== cipher_xL_in;
+	cipher_xR_in_out <== cipher_xR_in;
+	hash_plain_out <== hash_plain;
 }
 
 component main = Main();

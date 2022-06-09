@@ -11,15 +11,12 @@ if [ "${DEPLOY_CONTRACTS}" = "true" ]
 then
     cd /polygon-sdk
     rm -rf test-chain
-    cat genesis.json
-    polygon-sdk server --dev --chain genesis.json &
+    polygon-edge server --dev --chain genesis.json --data-dir test-chain &
 
     until curl --data '{"method":"web3_clientVersion","params":[],"id":1,"jsonrpc":"2.0"}' -H "Content-Type: application/json" -X POST localhost:8545
     do
         sleep 1
     done
-
-    cat genesis.json
 
     # remove ready flag if we deploy contracts
     rm -f /nevermined-contracts/artifacts/*
@@ -35,13 +32,18 @@ then
     touch /nevermined-contracts/artifacts/ready
 fi
 
+# more gracefully shutdown the node
+pkill polygon-edge
+
 # Fix file permissions
 EXECUTION_UID=$(id -u)
 EXECUTION_GID=$(id -g)
 USER_ID=${LOCAL_USER_ID:-$EXECUTION_UID}
 GROUP_ID=${LOCAL_GROUP_ID:-$EXECUTION_GID}
 chown -R $USER_ID:$GROUP_ID /nevermined-contracts/artifacts
+chown -R $USER_ID:$GROUP_ID /nevermined-contracts/circuits
 
 # We move the artifact directory as this path will be mounted in dockercompose
 mv /nevermined-contracts/artifacts /artifacts
+mv /nevermined-contracts/circuits /circuits
 rm -rf /nevermined-contracts

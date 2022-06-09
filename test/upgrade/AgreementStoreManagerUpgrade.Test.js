@@ -7,12 +7,6 @@ chai.use(chaiAsPromised)
 
 const constants = require('../helpers/constants.js')
 
-/*
-const {
-    confirmUpgrade
-} = require('@nevermined-io/contract-tools')
-*/
-
 function confirmUpgrade() {}
 
 const {
@@ -63,6 +57,7 @@ contract('AgreementStoreManager', (accounts) => {
                 web3,
                 artifacts,
                 contracts: [
+                    'NeverminedConfig',
                     'DIDRegistry',
                     'ConditionStoreManager',
                     'TemplateStoreManager',
@@ -94,9 +89,9 @@ contract('AgreementStoreManager', (accounts) => {
                 await AgreementStoreManagerWithBug.at(agreementStoreManagerAddress)
 
             assert.strictEqual(
-                (await AgreementStoreManagerWithBugInstance.getAgreementListSize()).toNumber(),
-                0,
-                'agreement list size should return zero (according to bug)'
+                await AgreementStoreManagerWithBugInstance.getDIDRegistryAddress(),
+                constants.address.zero,
+                'did registry should return zero (according to bug)'
             )
         })
 

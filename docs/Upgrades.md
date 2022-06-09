@@ -26,16 +26,22 @@ Roles are defined as follows:
 ```
 deployer: represented as accounts[0]
 upgrader: represented as accounts[1]
+governor: represented as accounts[1]
 upgraderWallet: represented as the upgrader from wallets.json
 ownerWallet: represented as the owner from wallets.json
+governorWallet: represented as the owner from wallets.json
 ```
 - **Deployer**: Can be any account. It is used for deploying the initial `proxy contracts` and the `logic contracts`.
 
 - **Upgrader**: Has to be an `owner` of the `upgrader` multi sig wallet. It is used for issuing upgrade requests against the upgrader multi sig wallet.
 
+- **Governor**: Has to have the `GOVERNOR_ROLE` in the contracts. It is used for issuing upgrade config requests.
+-
 - **UpgraderWallet**: One instance of the multi sig wallet, defined as `upgrader`. This wallet will be assigned as zos admin and is required to do upgrades.
 
 - **OwnerWallet**: One instance of the multi sig wallet, defined as `owner`. This wallet will be assigned as the owner of all the contracts. It can be used to call specific functions in the contracts ie. change the configuration.
+
+- **GovernorWallet**: One instance of the multi sig wallet, defined as `governor`. This wallet will be assigned as zos admin and is required to do config updates in a Nevermined deployment.
 
 ## Deploy & Upgrade
 `zos` does not support migrations, hence all the initial configuration should be performed with
@@ -79,6 +85,10 @@ The following configuration should be an example for `wallets-<NETWORK_NAME>.jso
     {
         "name": "owner",
         "address": "0xd02d68c62401472ce35ba3c7e505deae62db2b8b"
+    },
+    {
+        "name": "governor",
+        "address": "0xeeff68c62401472ce35ba3c7e505deae62db2b8b"
     }
 ]
 ```

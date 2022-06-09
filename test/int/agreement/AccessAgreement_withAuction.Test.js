@@ -30,7 +30,8 @@ contract('Access with Auction integration test', (accounts) => {
     const bidder3 = accounts[6]
 
     const auctionId = testUtils.generateId()
-    const agreementId = testUtils.generateId()
+    const initAgreementId = testUtils.generateId()
+    let agreementId
     const escrowAmounts = [10, 4]
     const totalAmount = escrowAmounts[0] + escrowAmounts[1]
     const receivers = [creator, manager]
@@ -44,6 +45,7 @@ contract('Access with Auction integration test', (accounts) => {
         agreementStoreManager,
         conditionStoreManager,
         templateStoreManager,
+        conditionIds,
         accessTemplate,
         accessCondition,
         lockPaymentCondition,
@@ -131,26 +133,34 @@ contract('Access with Auction integration test', (accounts) => {
         checksum = constants.bytes32.one
     } = {}) {
         did = await didRegistry.hashDID(didSeed, creator)
+        agreementId = await agreementStoreManager.agreementId(initAgreementId, accounts[0])
         // generate IDs from attributes
         //        console.log('Whats my agreement id: ', agreementId)
-        const conditionIdLock = await lockPaymentCondition.generateId(agreementId,
-            await lockPaymentCondition.hashValues(
-                did,
-                escrowPaymentCondition.address,
-                token.address,
-                escrowAmounts,
-                receivers))
-        const conditionIdAccess = await accessCondition.generateId(agreementId,
-            await accessCondition.hashValues(did, receivers[0]))
-        const conditionIdEscrow = await escrowPaymentCondition.generateId(agreementId,
-            await escrowPaymentCondition.hashValues(
-                did,
-                escrowAmounts,
-                receivers,
-                escrowPaymentCondition.address,
-                token.address,
-                conditionIdLock,
-                conditionIdAccess))
+        const conditionIdLock = await lockPaymentCondition.hashValues(
+            did,
+            escrowPaymentCondition.address,
+            token.address,
+            escrowAmounts,
+            receivers)
+        const fullConditionIdLock = await lockPaymentCondition.generateId(agreementId, conditionIdLock)
+        const conditionIdAccess = await accessCondition.hashValues(did, receivers[0])
+        const fullConditionIdAccess = await accessCondition.generateId(agreementId, conditionIdAccess)
+        const conditionIdEscrow = await escrowPaymentCondition.hashValues(
+            did,
+            escrowAmounts,
+            receivers,
+            bidder1,
+            escrowPaymentCondition.address,
+            token.address,
+            fullConditionIdLock,
+            fullConditionIdAccess)
+        const fullConditionIdEscrow = await escrowPaymentCondition.generateId(agreementId, conditionIdEscrow)
+
+        conditionIds = [
+            fullConditionIdAccess,
+            fullConditionIdLock,
+            fullConditionIdEscrow
+        ]
 
         // construct agreement
         agreement = {
@@ -187,7 +197,7 @@ contract('Access with Auction integration test', (accounts) => {
                 didSeed, checksum, [], url, 10, 0, constants.activities.GENERATED, '', { from: creator })
 
             // create agreement
-            await accessTemplate.createAgreement(agreementId, ...Object.values(agreement))
+            await accessTemplate.createAgreement(initAgreementId, ...Object.values(agreement))
         })
 
         it('the auction takes place', async () => {
@@ -249,7 +259,7 @@ contract('Access with Auction integration test', (accounts) => {
             )
 
             assert.strictEqual(
-                (await conditionStoreManager.getConditionState(agreement.conditionIds[1])).toNumber(),
+                (await conditionStoreManager.getConditionState(conditionIds[1])).toNumber(),
                 constants.condition.state.fulfilled)
 
             assert.strictEqual(await getBalance(token, auctionContract.address), auctionBalanceBefore - totalAmount)
@@ -285,10 +295,10 @@ contract('Access with Auction integration test', (accounts) => {
                 agreementId, did, creator, { from: creator })
 
             assert.strictEqual( // Lock Condition
-                (await conditionStoreManager.getConditionState(agreement.conditionIds[1])).toNumber(),
+                (await conditionStoreManager.getConditionState(conditionIds[1])).toNumber(),
                 constants.condition.state.fulfilled)
             assert.strictEqual( // Access Condition
-                (await conditionStoreManager.getConditionState(agreement.conditionIds[0])).toNumber(),
+                (await conditionStoreManager.getConditionState(conditionIds[0])).toNumber(),
                 constants.condition.state.fulfilled)
         })
 
@@ -300,14 +310,15 @@ contract('Access with Auction integration test', (accounts) => {
                 did,
                 escrowAmounts,
                 receivers,
+                bidder1,
                 escrowPaymentCondition.address,
                 token.address,
-                agreement.conditionIds[1],
-                agreement.conditionIds[0],
+                conditionIds[1],
+                conditionIds[0],
                 { from: creator }
             )
             assert.strictEqual(
-                (await conditionStoreManager.getConditionState(agreement.conditionIds[2])).toNumber(),
+                (await conditionStoreManager.getConditionState(conditionIds[2])).toNumber(),
                 constants.condition.state.fulfilled
             )
 

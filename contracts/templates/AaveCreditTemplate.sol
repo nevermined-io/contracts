@@ -1,7 +1,9 @@
 pragma solidity ^0.8.0;
-// Copyright 2020 Keyko GmbH.
+// Copyright 2022 Nevermined AG.
 // SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 // Code is Apache-2.0 and docs are CC-BY-4.0
+
+import '../libraries/CloneFactory.sol';
 
 import './BaseEscrowTemplate.sol';
 import '../conditions/rewards/EscrowPaymentCondition.sol';
@@ -16,7 +18,7 @@ import '../conditions/defi/aave/AaveCreditVault.sol';
 
 /**
  * @title Aaven Credit Agreement Template
- * @author Keyko
+ * @author Nevermined
  *
  * @dev Implementation of the Aaven Credit Agreement Template
  *  0. Initialize the agreement
@@ -30,18 +32,20 @@ import '../conditions/defi/aave/AaveCreditVault.sol';
  *      5.a if AaveRepayCondition was fulfilled, it will allow transfer back to the Delegatee or Borrower
  *      5.b if AaveRepayCondition was aborted, it will allow transfer the NFT to the Delegator or Lender
  */
-contract AaveCreditTemplate is BaseEscrowTemplate {
+contract AaveCreditTemplate is BaseEscrowTemplate, CloneFactory {
     DIDRegistry internal didRegistry;
-    
+
     INFTLock internal nftLockCondition;
     AaveCollateralDepositCondition internal depositCondition;
     AaveBorrowCondition internal borrowCondition;
     AaveRepayCondition internal repayCondition;
     DistributeNFTCollateralCondition internal transferCondition;
     AaveCollateralWithdrawCondition internal withdrawCondition;
-    
+
     mapping(bytes32 => address) internal vaultAddress;
     uint256 private nvmFee;
+
+    address public vaultLibrary;
 
     event VaultCreated(
         address indexed _vaultAddress,
@@ -72,7 +76,8 @@ contract AaveCreditTemplate is BaseEscrowTemplate {
         address _borrowConditionAddress,
         address _repayConditionAddress,
         address _withdrawCollateralAddress,
-        address _transferConditionAddress
+        address _transferConditionAddress,
+        address _vaultLibrary
     )
     external
     initializer
@@ -95,7 +100,7 @@ contract AaveCreditTemplate is BaseEscrowTemplate {
         agreementStoreManager = AgreementStoreManager(
           _agreementStoreManagerAddress
         );
-        
+        vaultLibrary = _vaultLibrary;
           
         didRegistry = DIDRegistry(agreementStoreManager.getDIDRegistryAddress());
         
@@ -129,19 +134,17 @@ contract AaveCreditTemplate is BaseEscrowTemplate {
         address _vaultAddress
     )
     public
-    returns (uint256 size)
     {
-        vaultAddress[_id] = address(_vaultAddress);
+        vaultAddress[keccak256(abi.encode(_id, msg.sender))] = address(_vaultAddress);
 
-        return
-            super.createAgreement(
-                _id,
-                _did,
-                _conditionIds,
-                _timeLocks,
-                _timeOuts,
-                msg.sender // borrower
-            );
+        super.createAgreement(
+            _id,
+            _did,
+            _conditionIds,
+            _timeLocks,
+            _timeOuts,
+            msg.sender // borrower
+        );
     }
     
     function createAgreement(
@@ -158,9 +161,9 @@ contract AaveCreditTemplate is BaseEscrowTemplate {
         address _lender
     ) 
     public 
-    returns (uint256 size) 
     {
-        AaveCreditVault _vault = new AaveCreditVault(
+        AaveCreditVault _vault = AaveCreditVault(createClone(vaultLibrary));
+        _vault.initialize(
             _lendingPool,
             _dataProvider,
             _weth,
@@ -171,20 +174,19 @@ contract AaveCreditTemplate is BaseEscrowTemplate {
             _lender,
             conditionTypes
         );
-        vaultAddress[_id] = address(_vault);
+        vaultAddress[keccak256(abi.encode(_id, msg.sender))] = address(_vault);
         emit VaultCreated(address(_vault), msg.sender, _lender, msg.sender);
-        
-        return
-            super.createAgreement(
-                _id,
-                _did,
-                _conditionIds,
-                _timeLocks,
-                _timeOuts,
-                msg.sender // borrower
-            );
+
+        super.createAgreement(
+            _id,
+            _did,
+            _conditionIds,
+            _timeLocks,
+            _timeOuts,
+            msg.sender // borrower
+        );
     }
-    
+
     function deployVault(
         address _lendingPool,
         address _dataProvider,
@@ -197,7 +199,8 @@ contract AaveCreditTemplate is BaseEscrowTemplate {
     public
     returns (address)
     {
-        AaveCreditVault _vault = new AaveCreditVault(
+        AaveCreditVault _vault = AaveCreditVault(createClone(vaultLibrary));
+        _vault.initialize(
             _lendingPool,
             _dataProvider,
             _weth,
@@ -211,7 +214,7 @@ contract AaveCreditTemplate is BaseEscrowTemplate {
         emit VaultCreated(address(_vault), msg.sender, _lender, _borrower);
         return address(_vault);
     }
-    
+
     function getVaultForAgreement(
         bytes32 _agreementId
     )
@@ -232,5 +235,9 @@ contract AaveCreditTemplate is BaseEscrowTemplate {
     public onlyOwner
     {
         nvmFee = _newFee;
+    }
+
+    function changeCreditVaultLibrary(address _vaultLibrary) public onlyOwner {
+        vaultLibrary = _vaultLibrary;
     }
 }

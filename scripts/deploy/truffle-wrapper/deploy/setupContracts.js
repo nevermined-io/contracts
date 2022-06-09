@@ -1,29 +1,31 @@
 /* eslint-disable no-console */
+const ZeroAddress = '0x0000000000000000000000000000000000000000'
+
+const { ethers } = require('hardhat')
+
+async function callContract(instance, f) {
+    // console.log('Calling contract ...')
+    const contractOwner = await instance.owner()
+    // console.log('Contract Owner: ', contractOwner)
+    let tx
+    try {
+        const signer = await ethers.provider.getSigner(contractOwner)
+        tx = await f(instance.connect(signer).populateTransaction)
+        // console.log('Got tx', tx)
+        const res = await signer.sendTransaction(tx)
+        await res.wait()
+    } catch (err) {
+        console.log('Warning: TX fail')
+        console.log(err)
+        console.log(tx)
+    }
+}
 
 async function approveTemplate({
     TemplateStoreManagerInstance,
-    roles,
     templateAddress
 } = {}) {
-    const contractOwner = await TemplateStoreManagerInstance.owner()
-    if (contractOwner === roles.deployer) {
-        try {
-            const tx = await TemplateStoreManagerInstance.approveTemplate(
-                templateAddress,
-                { from: roles.deployer, gasLimit: 100000 }
-            )
-            await tx.wait()
-        } catch (e) {
-            console.log(e)
-            console.log('Approve failed for', templateAddress, roles.deployer, TemplateStoreManagerInstance.address)
-        }
-    } else {
-        // todo: make call to multi sig wallet here instead of warning!
-        console.log('=====================================================================================')
-        console.log(`WARNING: Template ${templateAddress} could not be approved!`)
-        console.log('The deployer is not anymore the owner of the TemplateStoreManager ')
-        console.log('=====================================================================================')
-    }
+    await callContract(TemplateStoreManagerInstance, a => a.approveTemplate(templateAddress, { gasLimit: 100000 }))
 }
 
 async function setupTemplate({ verbose, TemplateStoreManagerInstance, templateName, addressBook, roles } = {}) {
@@ -37,8 +39,7 @@ async function setupTemplate({ verbose, TemplateStoreManagerInstance, templateNa
 
         try {
             const tx = await TemplateStoreManagerInstance.proposeTemplate(
-                templateAddress,
-                { from: roles.deployer }
+                templateAddress
             )
             await tx.wait()
         } catch (err) {
@@ -72,9 +73,16 @@ async function transferOwnership({
         )
     }
 
-    const contractOwner = await ContractInstance.owner()
+    console.log('Getting Contract Owner from contract: ', name)
+    let contractOwner = ZeroAddress
+    try {
+        contractOwner = await ContractInstance.owner()
+    } catch {
+        console.log('Error getting contract owner from contract')
+    }
+    console.log(contractOwner, roles.deployer)
     if (contractOwner === roles.deployer) {
-        const tx = await ContractInstance.transferOwnership(
+        const tx = await ContractInstance.connect(ethers.provider.getSigner(roles.deployer)).transferOwnership(
             roles.ownerWallet,
             { from: roles.deployer }
         )
@@ -157,6 +165,54 @@ async function setupContracts({
         await setupTemplate({
             verbose,
             TemplateStoreManagerInstance,
+            templateName: 'NFTSalesWithAccessTemplate',
+            addressBook,
+            roles
+        })
+
+        await setupTemplate({
+            verbose,
+            TemplateStoreManagerInstance,
+            templateName: 'NFTAccessProofTemplate',
+            addressBook,
+            roles
+        })
+
+        await setupTemplate({
+            verbose,
+            TemplateStoreManagerInstance,
+            templateName: 'NFTAccessSwapTemplate',
+            addressBook,
+            roles
+        })
+
+        await setupTemplate({
+            verbose,
+            TemplateStoreManagerInstance,
+            templateName: 'NFT721SalesWithAccessTemplate',
+            addressBook,
+            roles
+        })
+
+        await setupTemplate({
+            verbose,
+            TemplateStoreManagerInstance,
+            templateName: 'NFT721AccessProofTemplate',
+            addressBook,
+            roles
+        })
+
+        await setupTemplate({
+            verbose,
+            TemplateStoreManagerInstance,
+            templateName: 'NFT721AccessSwapTemplate',
+            addressBook,
+            roles
+        })
+
+        await setupTemplate({
+            verbose,
+            TemplateStoreManagerInstance,
             templateName: 'NFT721SalesTemplate',
             addressBook,
             roles
@@ -197,11 +253,21 @@ async function setupContracts({
                 )
             }
 
-            const tx = await ConditionStoreManagerInstance.delegateCreateRole(
-                addressBook.AgreementStoreManager,
-                { from: roles.deployer }
-            )
-            await tx.wait()
+            await callContract(ConditionStoreManagerInstance, a => a.delegateCreateRole(
+                addressBook.AgreementStoreManager
+            ))
+        }
+
+        if (addressBook.NeverminedConfig) {
+            if (verbose) {
+                console.log(
+                    `Setting nevermined config ${addressBook.NeverminedConfig}`
+                )
+            }
+
+            await callContract(ConditionStoreManagerInstance, a => a.setNvmConfigAddress(
+                addressBook.NeverminedConfig
+            ))
         }
 
         if (addressBook.EscrowPaymentCondition) {
@@ -211,11 +277,9 @@ async function setupContracts({
                 )
             }
 
-            const tx = await ConditionStoreManagerInstance.grantProxyRole(
-                addressBook.EscrowPaymentCondition,
-                { from: roles.deployer }
-            )
-            await tx.wait()
+            await callContract(ConditionStoreManagerInstance, a => a.grantProxyRole(
+                addressBook.EscrowPaymentCondition
+            ))
         }
 
         await transferOwnership({
@@ -228,27 +292,19 @@ async function setupContracts({
     }
 
     if (addressBook.NFTUpgradeable && addressBook.DIDRegistry && addresses.stage < 3) {
-        const NFTInstance = artifacts.NFTUpgradeable
-
         console.log('Set NFT minter : ' + addressBook.NFTUpgradeable)
-        const tx = await NFTInstance.addMinter(
-            addressBook.DIDRegistry, { from: roles.deployer })
-        await tx.wait()
-        const tx2 = await NFTInstance.setProxyApproval(
-            addressBook.DIDRegistry, true, { from: roles.deployer })
-        await tx2.wait()
+        await callContract(artifacts.NFTUpgradeable, a => a.addMinter(addressBook.DIDRegistry))
+        await callContract(artifacts.NFTUpgradeable, a => a.setProxyApproval(addressBook.DIDRegistry, true))
         addresses.stage = 3
     }
 
     if (addressBook.LockPaymentCondition && addressBook.AgreementStoreManager && addresses.stage < 4) {
         console.log('Set lock payment condition proxy : ' + addressBook.LockPaymentCondition)
-        const tx = await artifacts.LockPaymentCondition.grantProxyRole(
-            addressBook.AgreementStoreManager, { from: roles.deployer })
-        await tx.wait()
+        await callContract(artifacts.LockPaymentCondition, a => a.grantProxyRole(addressBook.AgreementStoreManager))
         addresses.stage = 4
     }
 
-    if (addresses.stage < 5 && addresses.stage < 5) {
+    if (addressBook.AgreementStoreManager && addresses.stage < 5) {
         const agreements = [
             'NFTAccessTemplate',
             'NFTSalesTemplate',
@@ -264,15 +320,14 @@ async function setupContracts({
         for (const a of agreements) {
             if (addressBook[a] && addressBook.AgreementStoreManager) {
                 console.log('Set agreement manager proxy : ' + addressBook[a])
-                const tx = await artifacts.AgreementStoreManager.grantProxyRole(
-                    addressBook[a], { from: roles.deployer })
-                await tx.wait()
+                await callContract(artifacts.AgreementStoreManager, c => c.grantProxyRole(addressBook[a]))
             }
         }
         addresses.stage = 5
     }
 
     if (addressBook.LockPaymentCondition && addresses.stage < 6) {
+        await callContract(artifacts.LockPaymentCondition, a => a.reinitialize())
         await transferOwnership({
             ContractInstance: artifacts.LockPaymentCondition,
             name: 'LockPaymentCondition',
@@ -293,52 +348,34 @@ async function setupContracts({
     }
 
     if (addressBook.NFT721Upgradeable && addressBook.DIDRegistry && addresses.stage < 8) {
-        const NFT721Instance = artifacts.NFT721Upgradeable
-
         console.log('Set NFT721 minter : ' + addressBook.NFT721Upgradeable)
-        const tx = await NFT721Instance.addMinter(
-            addressBook.DIDRegistry, { from: roles.deployer })
-        await tx.wait()
+        await callContract(artifacts.NFT721Upgradeable, a => a.addMinter(addressBook.DIDRegistry))
         addresses.stage = 8
     }
 
     if (addressBook.TransferDIDOwnershipCondition && addressBook.DIDRegistry && addresses.stage < 9) {
-        const DIDRegistryInstance = artifacts.DIDRegistry
-
         console.log('TransferDIDOwnershipCondition : ' + addressBook.TransferDIDOwnershipCondition)
-        const tx = await DIDRegistryInstance.setManager(
-            addressBook.TransferDIDOwnershipCondition, { from: roles.deployer })
-        await tx.wait()
+        await callContract(artifacts.DIDRegistry, a => a.setManager(addressBook.TransferDIDOwnershipCondition))
         addresses.stage = 9
     }
 
     if (addressBook.TransferNFTCondition && addressBook.NFTUpgradeable && addresses.stage < 10) {
-        const NFTInstance = artifacts.NFTUpgradeable
-
         console.log('TransferNFTCondition : ' + addressBook.TransferNFTCondition)
-        const tx = await NFTInstance.setProxyApproval(
-            addressBook.TransferNFTCondition, true, { from: roles.deployer })
-        await tx.wait()
+        await callContract(artifacts.NFTUpgradeable, a => a.setProxyApproval(addressBook.TransferNFTCondition, true))
         addresses.stage = 10
     }
 
     if (addressBook.TransferNFTCondition && addressBook.DIDRegistry && addresses.stage < 11) {
-        const NFTInstance = artifacts.NFTUpgradeable
-
         console.log('DIDRegistry : ' + addressBook.DIDRegistry)
-        const tx = await NFTInstance.setProxyApproval(
-            addressBook.DIDRegistry, true, { from: roles.deployer })
-        await tx.wait()
+        await callContract(artifacts.NFTUpgradeable, a => a.setProxyApproval(addressBook.DIDRegistry, true))
+        await callContract(artifacts.NFTUpgradeable, a => a.addMinter(addressBook.TransferNFTCondition))
         addresses.stage = 11
     }
 
     if (addressBook.TransferNFT721Condition && addressBook.NFT721Upgradeable && addresses.stage < 12) {
-        const NFT721Instance = artifacts.NFT721Upgradeable
-
         console.log('TransferNFT721Condition : ' + addressBook.TransferNFT721Condition)
-        const tx = await NFT721Instance.setProxyApproval(
-            addressBook.TransferNFT721Condition, true, { from: roles.deployer })
-        await tx.wait()
+        await callContract(artifacts.NFT721Upgradeable, a => a.setProxyApproval(addressBook.TransferNFT721Condition, true))
+        await callContract(artifacts.NFT721Upgradeable, a => a.addMinter(addressBook.TransferNFT721Condition))
         addresses.stage = 12
     }
 
@@ -364,7 +401,7 @@ async function setupContracts({
                 )
             }
 
-            const tx = await token.grantRole(
+            const tx = await token.connect(ethers.provider.getSigner(roles.deployer)).grantRole(
                 web3.utils.toHex('minter').padEnd(66, '0'),
                 addressBook.Dispenser,
                 { from: roles.deployer }
@@ -378,13 +415,86 @@ async function setupContracts({
             )
         }
 
-        const tx = await token.revokeRole(
+        const tx = await token.connect(ethers.provider.getSigner(roles.deployer)).revokeRole(
             web3.utils.toHex('minter').padEnd(66, '0'),
             roles.deployer,
             { from: roles.deployer }
         )
         await tx.wait()
+
+        const tx2 = await token.connect(ethers.provider.getSigner(roles.deployer)).grantRole(
+            web3.utils.toHex('minter').padEnd(66, '0'),
+            roles.ownerWallet,
+            { from: roles.deployer }
+        )
+        await tx2.wait()
+
         addresses.stage = 14
+    }
+
+    if (addressBook.NeverminedConfig && addresses.stage < 15) {
+        const nvmConfig = artifacts.NeverminedConfig
+        console.log('NeverminedConfig : ' + addressBook.NeverminedConfig)
+
+        const configMarketplaceFee = Number(process.env.NVM_MARKETPLACE_FEE || '0')
+        const configFeeReceiver = process.env.NVM_RECEIVER_FEE || ZeroAddress
+
+        await callContract(nvmConfig, a => a.setMarketplaceFees(configMarketplaceFee, configFeeReceiver))
+        console.log('[NeverminedConfig] Marketplace Fees set to : ' + configMarketplaceFee)
+
+        await callContract(nvmConfig, a => a.setGovernor(roles.governorWallet))
+
+        const isGovernor = await nvmConfig.isGovernor(roles.governorWallet)
+        console.log('Is governorWallet NeverminedConfig governor? ' + isGovernor)
+
+        await transferOwnership({
+            ContractInstance: nvmConfig,
+            name: 'NeverminedConfig',
+            roles,
+            verbose
+        })
+
+        addresses.stage = 15
+    }
+
+    if (addressBook.TransferNFTCondition && addressBook.AgreementStoreManager && addresses.stage < 16) {
+        console.log('Set TransferNFTCondition proxy : ' + addressBook.TransferNFTCondition)
+        console.log('Grant proxy role to AgreementStoreManager: ' + addressBook.AgreementStoreManager)
+
+        await callContract(artifacts.TransferNFTCondition, a => a.grantProxyRole(addressBook.AgreementStoreManager))
+
+        await transferOwnership({
+            ContractInstance: artifacts.TransferNFTCondition,
+            name: 'TransferNFTCondition',
+            roles,
+            verbose
+        })
+
+        addresses.stage = 16
+    }
+
+    if (addressBook.TransferNFT721Condition && addressBook.AgreementStoreManager && addresses.stage < 17) {
+        console.log('Set transfer nft721 condition proxy : ' + addressBook.TransferNFT721Condition)
+        await callContract(artifacts.TransferNFT721Condition, a => a.grantProxyRole(addressBook.AgreementStoreManager))
+        await transferOwnership({
+            ContractInstance: artifacts.TransferNFT721Condition,
+            name: 'TransferNFT721Condition',
+            roles,
+            verbose
+        })
+        addresses.stage = 17
+    }
+
+    if (addressBook.AccessCondition && addresses.stage < 18) {
+        console.log('Reinit Access condition: ' + addressBook.AccessCondition)
+        await callContract(artifacts.AccessCondition, a => a.reinitialize())
+        addresses.stage = 18
+    }
+
+    if (addressBook.DIDRegistry && addressBook.StandardRoyalties && addresses.stage < 19) {
+        console.log('Setup royalty manager: ' + addressBook.StandardRoyalties)
+        await callContract(artifacts.DIDRegistry, a => a.registerRoyaltiesChecker(addressBook.StandardRoyalties))
+        addresses.stage = 19
     }
 }
 

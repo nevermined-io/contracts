@@ -1,6 +1,6 @@
 pragma solidity ^0.8.0;
-// Copyright 2020 Keyko GmbH.
-// This product includes software developed at BigchainDB GmbH and Ocean Protocol
+// Copyright 2022 Nevermined AG.
+
 // SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 // Code is Apache-2.0 and docs are CC-BY-4.0
 
@@ -8,13 +8,14 @@ pragma solidity ^0.8.0;
 import '../Common.sol';
 import '../libraries/EpochLibrary.sol';
 import './ConditionStoreLibrary.sol';
+import '../governance/INVMConfig.sol';
 
 import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol';
 
 /**
  * @title Condition Store Manager
- * @author Keyko & Ocean Protocol
+ * @author Nevermined
  *
  * @dev Implementation of the Condition Store Manager.
  *
@@ -38,6 +39,8 @@ contract ConditionStoreManager is OwnableUpgradeable, AccessControlUpgradeable, 
     ConditionStoreLibrary.ConditionList internal conditionList;
     EpochLibrary.EpochList internal epochList;
 
+    address internal nvmConfigAddress;
+    
     event ConditionCreated(
         bytes32 indexed _id,
         address indexed _typeRef,
@@ -84,12 +87,15 @@ contract ConditionStoreManager is OwnableUpgradeable, AccessControlUpgradeable, 
 
     /**
      * @dev initialize ConditionStoreManager Initializer
-     *      Initialize Ownable. Only on contract creation, 
-     * @param _owner refers to the owner of the contract
+     *      Initialize Ownable. Only on contract creation,
+     * @param _creator refers to the creator of the contract
+     * @param _owner refers to the owner of the contract           
+     * @param _nvmConfigAddress refers to the contract address of `NeverminedConfig`
      */
     function initialize(
         address _creator,
-        address _owner
+        address _owner,
+        address _nvmConfigAddress
     )
         public
         initializer
@@ -103,10 +109,17 @@ contract ConditionStoreManager is OwnableUpgradeable, AccessControlUpgradeable, 
             'Role already assigned'
         );
 
+        require(
+            _nvmConfigAddress != address(0), 
+                'Invalid Address'
+        );
+        
         OwnableUpgradeable.__Ownable_init();
         transferOwnership(_owner);
         createRole = _creator;
         _setupRole(DEFAULT_ADMIN_ROLE, _owner);
+        
+        nvmConfigAddress= _nvmConfigAddress;
     }
 
     /**
@@ -122,6 +135,25 @@ contract ConditionStoreManager is OwnableUpgradeable, AccessControlUpgradeable, 
         return createRole;
     }
 
+    /**
+     * @dev getNvmConfigAddress get the address of the NeverminedConfig contract
+     * @return NeverminedConfig contract address
+     */
+    function getNvmConfigAddress()
+    external
+    view
+    returns (address)
+    {
+        return nvmConfigAddress;
+    }    
+    
+    function setNvmConfigAddress(address _addr)
+    external
+    onlyOwner
+    {
+        nvmConfigAddress = _addr;
+    }    
+    
     /**
      * @dev delegateCreateRole only owner can delegate the 
      *      create condition role to a different address
@@ -180,21 +212,32 @@ contract ConditionStoreManager is OwnableUpgradeable, AccessControlUpgradeable, 
      *      Uninitialized to Unfulfilled.
      * @param _id unique condition identifier
      * @param _typeRef condition contract address
-     * @return size the index of the created condition 
      */
     function createCondition(
         bytes32 _id,
         address _typeRef
     )
     external
-    returns (uint size)
     {
-        return createCondition(
+        createCondition(
             _id,
             _typeRef,
             uint(0),
+            uint(0)
+        );
+    }
+    
+    function createCondition2(
+        bytes32 _id,
+        address _typeRef
+    )
+    external
+    {
+        createCondition(
+            _id,
+            _typeRef,
             uint(0),
-            msg.sender
+            uint(0)
         );
     }
     
@@ -206,62 +249,28 @@ contract ConditionStoreManager is OwnableUpgradeable, AccessControlUpgradeable, 
      *      Uninitialized to Unfulfilled.
      * @param _id unique condition identifier
      * @param _typeRef condition contract address
-     * @param _creator address of the condition creator    
-     * @return size the index of the created condition 
-     */
-    function createCondition(
-        bytes32 _id,
-        address _typeRef,
-        address _creator
-    )
-        external
-        returns (uint size)
-    {
-        return createCondition(
-            _id,
-            _typeRef,
-            uint(0),
-            uint(0),
-            _creator
-        );
-    }
-
-    /**
-     * @dev createCondition only called by create role address 
-     *      the condition should use a valid condition contract 
-     *      address, valid time lock and timeout. Moreover, it 
-     *      enforce the condition state transition from 
-     *      Uninitialized to Unfulfilled.
-     * @param _id unique condition identifier
-     * @param _typeRef condition contract address
      * @param _timeLock start of the time window
      * @param _timeOut end of the time window
-     * @param _creator address of the condition creator     
-     * @return size the index of the created condition 
      */
     function createCondition(
         bytes32 _id,
         address _typeRef,
         uint _timeLock,
-        uint _timeOut,
-        address _creator
+        uint _timeOut
     )
         public
         onlyCreateRole
         onlyValidType(_typeRef)
-        returns (uint size)
     {
         epochList.create(_id, _timeLock, _timeOut);
 
-        uint listSize = conditionList.create(_id, _typeRef, _creator);
+        conditionList.create(_id, _typeRef);
 
         emit ConditionCreated(
             _id,
             _typeRef,
             msg.sender
         );
-
-        return listSize;
     }
 
     /**
@@ -335,27 +344,12 @@ contract ConditionStoreManager is OwnableUpgradeable, AccessControlUpgradeable, 
     }
     
     /**
-     * @dev getConditionListSize 
-     * @return size the length of the condition list 
-     */
-    function getConditionListSize()
-        external
-        view
-        returns (uint size)
-    {
-        return conditionList.conditionIds.length;
-    }
-
-    /**
      * @dev getCondition  
      * @return typeRef the type reference
      * @return state condition state
      * @return timeLock the time lock
      * @return timeOut time out
      * @return blockNumber block number
-     * @return createdBy address
-     * @return lastUpdatedBy address
-     * @return blockNumberUpdated block number updated
      */
     function getCondition(bytes32 _id)
         external
@@ -365,10 +359,7 @@ contract ConditionStoreManager is OwnableUpgradeable, AccessControlUpgradeable, 
             ConditionStoreLibrary.ConditionState state,
             uint timeLock,
             uint timeOut,
-            uint blockNumber,
-            address createdBy,
-            address lastUpdatedBy,
-            uint blockNumberUpdated
+            uint blockNumber
         )
     {
         typeRef = conditionList.conditions[_id].typeRef;
@@ -376,9 +367,6 @@ contract ConditionStoreManager is OwnableUpgradeable, AccessControlUpgradeable, 
         timeLock = epochList.epochs[_id].timeLock;
         timeOut = epochList.epochs[_id].timeOut;
         blockNumber = epochList.epochs[_id].blockNumber;
-        createdBy = conditionList.conditions[_id].createdBy;
-        lastUpdatedBy = conditionList.conditions[_id].lastUpdatedBy;
-        blockNumberUpdated = conditionList.conditions[_id].blockNumberUpdated;
     }
 
     /**
@@ -406,19 +394,6 @@ contract ConditionStoreManager is OwnableUpgradeable, AccessControlUpgradeable, 
     {
         return conditionList.conditions[_id].typeRef;
     }    
-
-    /**
-     * @dev getConditionCreatedBy  
-     * @return condition createdBy address
-     */
-    function getConditionCreatedBy(bytes32 _id)
-    external
-    view
-    virtual
-    returns (address)
-    {
-        return conditionList.conditions[_id].createdBy;
-    }
 
     /**
      * @dev getConditionState  

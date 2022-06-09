@@ -6,7 +6,7 @@ pragma solidity ^0.8.0;
 /**
  * @title Interface that can implement different contracts implementing some kind of 
  * dynamic pricing functionality.
- * @author Keyko
+ * @author Nevermined
  */
 interface IDynamicPricing {
 

@@ -10,6 +10,7 @@ const EpochLibrary = artifacts.require('EpochLibrary')
 const DIDRegistryLibrary = artifacts.require('DIDRegistryLibrary')
 const DIDRegistry = artifacts.require('DIDRegistry')
 const NeverminedToken = artifacts.require('NeverminedToken')
+const NeverminedConfig = artifacts.require('NeverminedConfig')
 const ConditionStoreManager = artifacts.require('ConditionStoreManager')
 const TemplateStoreManager = artifacts.require('TemplateStoreManager')
 const AgreementStoreManager = artifacts.require('AgreementStoreManager')
@@ -62,6 +63,9 @@ contract('TransferNFT721 Condition constructor', (accounts) => {
             token = await NeverminedToken.new()
             await token.initialize(owner, owner)
 
+            const nvmConfig = await NeverminedConfig.new()
+            await nvmConfig.initialize(owner, owner)
+
             nft = await ERC721.new()
             await nft.initialize()
 
@@ -87,6 +91,7 @@ contract('TransferNFT721 Condition constructor', (accounts) => {
             await conditionStoreManager.initialize(
                 owner,
                 owner,
+                nvmConfig.address,
                 { from: owner }
             )
 
@@ -101,10 +106,11 @@ contract('TransferNFT721 Condition constructor', (accounts) => {
 
             transferCondition = await TransferNFTCondition.new()
 
-            await transferCondition.methods['initialize(address,address,address,address)'](
+            await transferCondition.methods['initialize(address,address,address,address,address)'](
                 owner,
                 conditionStoreManager.address,
                 didRegistry.address,
+                nft.address,
                 lockPaymentCondition.address
             )
 
@@ -152,6 +158,9 @@ contract('TransferNFT721 Condition constructor', (accounts) => {
             const token = await NeverminedToken.new()
             await token.initialize(owner, owner)
 
+            const nvmConfig = await NeverminedConfig.new()
+            await nvmConfig.initialize(owner, owner)
+
             const didRegistry = await DIDRegistry.new()
             didRegistry.initialize(owner, constants.address.zero, constants.address.zero)
 
@@ -174,12 +183,13 @@ contract('TransferNFT721 Condition constructor', (accounts) => {
             await conditionStoreManager.initialize(
                 owner,
                 owner,
+                nvmConfig.address,
                 { from: owner }
             )
 
             const transferCondition = await TransferNFTCondition.new()
 
-            await assert.isRejected(transferCondition.methods['initialize(address,address,address,address)'](
+            await assert.isRejected(transferCondition.methods['initialize(address,address,address,address,address)'](
                 owner,
                 constants.address.zero,
                 agreementStoreManager.address,
@@ -220,7 +230,7 @@ contract('TransferNFT721 Condition constructor', (accounts) => {
                 constants.condition.state.fulfilled)
 
             const hashValues = await transferCondition.hashValues(
-                did, seller, buyer, numberNFTs, conditionIdPayment, nft.address)
+                did, seller, buyer, numberNFTs, conditionIdPayment, nft.address, true)
 
             const conditionId = await transferCondition.generateId(agreementId, hashValues)
 
@@ -232,7 +242,7 @@ contract('TransferNFT721 Condition constructor', (accounts) => {
 
             const result = await transferCondition.fulfill(
                 agreementId, did, buyer, numberNFTs,
-                conditionIdPayment, nft.address,
+                conditionIdPayment, nft.address, true,
                 { from: seller }
             )
 
@@ -280,7 +290,7 @@ contract('TransferNFT721 Condition constructor', (accounts) => {
                 constants.condition.state.fulfilled)
 
             const hashValues = await transferCondition.hashValues(
-                did, other, buyer, numberNFTs, conditionIdPayment, nft.address)
+                did, other, buyer, numberNFTs, conditionIdPayment, nft.address, true)
 
             const conditionId = await transferCondition.generateId(agreementId, hashValues)
 
@@ -294,7 +304,7 @@ contract('TransferNFT721 Condition constructor', (accounts) => {
             await nft.setApprovalForAll(transferCondition.address, true, { from: other })
             const result = await transferCondition.fulfill(
                 agreementId, did, buyer, numberNFTs,
-                conditionIdPayment, nft.address,
+                conditionIdPayment, nft.address, true,
                 { from: other }
             )
 
@@ -337,7 +347,7 @@ contract('TransferNFT721 Condition constructor', (accounts) => {
                 constants.condition.state.fulfilled)
 
             const hashValues = await transferCondition.hashValues(
-                did, seller, buyer, numberNFTs, conditionIdPayment, nft.address)
+                did, seller, buyer, numberNFTs, conditionIdPayment, nft.address, true)
 
             const conditionId = await transferCondition.generateId(agreementId, hashValues)
 
@@ -347,21 +357,15 @@ contract('TransferNFT721 Condition constructor', (accounts) => {
                 { from: owner }
             )
 
-            // Invalid reward address
-            await assert.isRejected(
-                transferCondition.fulfill(agreementId, did, other, numberNFTs, conditionIdPayment, nft.address, { from: seller }),
-                /Invalid receiver/
-            )
-
             // Invalid conditionId
             await assert.isRejected(
-                transferCondition.fulfill(agreementId, did, buyer, numberNFTs, testUtils.generateId(), nft.address, { from: seller }),
+                transferCondition.fulfill(agreementId, did, buyer, numberNFTs, testUtils.generateId(), nft.address, true, { from: seller }),
                 /LockCondition needs to be Fulfilled/
             )
 
             // Invalid agreementID
             await assert.isRejected(
-                transferCondition.fulfill(testUtils.generateId(), did, buyer, numberNFTs, conditionIdPayment, nft.address, { from: seller }),
+                transferCondition.fulfill(testUtils.generateId(), did, buyer, numberNFTs, conditionIdPayment, nft.address, true, { from: seller }),
                 /Invalid UpdateRole/
             )
         })
@@ -397,7 +401,7 @@ contract('TransferNFT721 Condition constructor', (accounts) => {
                 constants.condition.state.fulfilled)
 
             const hashValues = await transferCondition.hashValues(
-                did, seller, buyer, numberNFTs, conditionIdPayment, nft.address)
+                did, seller, buyer, numberNFTs, conditionIdPayment, nft.address, true)
 
             const conditionId = await transferCondition.generateId(agreementId, hashValues)
 
@@ -409,7 +413,7 @@ contract('TransferNFT721 Condition constructor', (accounts) => {
 
             const result = await transferCondition.fulfill(
                 agreementId, did, buyer, numberNFTs,
-                conditionIdPayment, nft.address,
+                conditionIdPayment, nft.address, true,
                 { from: seller }
             )
 
@@ -422,7 +426,7 @@ contract('TransferNFT721 Condition constructor', (accounts) => {
 
             await assert.isRejected(
                 transferCondition.fulfill(agreementId, did, buyer, numberNFTs,
-                    conditionIdPayment, nft.address, { from: seller }),
+                    conditionIdPayment, nft.address, true, { from: seller }),
                 /Invalid state transition/
             )
         })

@@ -1,6 +1,6 @@
 pragma solidity ^0.8.0;
-// Copyright 2020 Keyko GmbH.
-// This product includes software developed at BigchainDB GmbH and Ocean Protocol
+// Copyright 2022 Nevermined AG.
+
 // SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 // Code is Apache-2.0 and docs are CC-BY-4.0
 
@@ -9,7 +9,7 @@ import './Condition.sol';
 
 /**
  * @title Threshold Condition
- * @author Keyko & Ocean Protocol
+ * @author Nevermined
  *
  * @dev Implementation of the Threshold Condition
  *
@@ -133,7 +133,7 @@ contract ThresholdCondition is Condition {
         
         for(uint i = 0; i < _inputConditions.length; i++)
         { 
-            (,inputConditionState,,,,,,) = conditionStoreManager.
+            (,inputConditionState,,,) = conditionStoreManager.
             getCondition(_inputConditions[i]);
             
             if(inputConditionState == Fulfilled)

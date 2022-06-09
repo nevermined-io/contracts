@@ -1,5 +1,5 @@
 pragma solidity ^0.8.0;
-// Copyright 2020 Keyko GmbH.
+// Copyright 2022 Nevermined AG.
 // SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 // Code is Apache-2.0 and docs are CC-BY-4.0
 
@@ -17,12 +17,13 @@ contract DIDRegistryLibraryProxy {
     function areRoyaltiesValid(
         bytes32 _did,
         uint256[] memory _amounts,
-        address[] memory _receivers
+        address[] memory _receivers,
+        address _tokenAddress
     )
     public
     view
     returns (bool) {
-        return didRegisterList.areRoyaltiesValid(_did, _amounts, _receivers);
+        return didRegisterList.areRoyaltiesValid(_did, _amounts, _receivers, _tokenAddress);
     }
 
     function updateDIDOwner(
@@ -40,9 +41,8 @@ contract DIDRegistryLibraryProxy {
         string calldata _url
     )
     public
-    returns (uint size)
     {
-        return didRegisterList.update(_did, _checksum, _url);
+        didRegisterList.update(_did, _checksum, _url);
     }
 
     function initializeNftConfig(

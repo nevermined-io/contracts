@@ -18,7 +18,7 @@ setup(
     author="nevermined-io",
     author_email='root@nevermined.io',
     classifiers=[
-        'Development Status :: 2 - Pre-Alpha',
+        'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: Apache Software License',
         'Natural Language :: English',
@@ -39,6 +39,6 @@ setup(
     test_suite='tests',
     tests_require=test_requirements,
     url='https://github.com/nevermined-io/contracts',
-    version='1.3.12',
+    version='2.0.0',
     zip_safe=False,
 )

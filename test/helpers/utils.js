@@ -1,7 +1,13 @@
 /* eslint-env mocha */
-/* global assert, web3 */
+/* global artifacts, assert, web3 */
+
+const { hardhatArguments } = require('hardhat')
+const network = hardhatArguments.network || 'hardhat'
+const deploying = network === 'hardhat' || network === 'coverage'
 
 const utils = {
+    deploying,
+
     generateId: () => {
         return web3.utils.sha3(Math.random().toString())
     },
@@ -43,10 +49,32 @@ const utils = {
         return signature.slice(0, 130) + vHex
     },
 
+    getAgreementConditionIds: async (template, agreementId) => {
+        const evs = await template.getPastEvents('AgreementCreated', { fromBlock: 0, filter: { agreementId } })
+        return evs.length > 0 ? evs[0].returnValues._conditionIdSeeds : []
+    },
+
     toEthSignedMessageHash: (messageHex) => {
         const messageBuffer = Buffer.from(messageHex.substring(2), 'hex')
         const prefix = Buffer.from(`\u0019Ethereum Signed Message:\n${messageBuffer.length}`)
         return web3.utils.sha3(Buffer.concat([prefix, messageBuffer]))
+    },
+
+    deploy: async (name, args, deployer, libs = []) => {
+        if (deploying) {
+            const afact = artifacts.require(name)
+            for (const e of libs) {
+                afact.link(e)
+            }
+            const c = await afact.new()
+            await c.initialize(...args, { from: deployer })
+            return c
+        } else {
+            const afact = artifacts.require(name)
+            // eslint-disable-next-line security/detect-non-literal-require
+            const addr = require(`../../artifacts/${name}.external.json`).address
+            return afact.at(addr)
+        }
     }
 
 }

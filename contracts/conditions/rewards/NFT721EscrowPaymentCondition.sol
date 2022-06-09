@@ -1,5 +1,5 @@
 pragma solidity ^0.8.0;
-// Copyright 2020 Keyko GmbH.
+// Copyright 2022 Nevermined AG.
 // SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 // Code is Apache-2.0 and docs are CC-BY-4.0
 
@@ -12,7 +12,7 @@ import '@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.
 import '@openzeppelin/contracts-upgradeable/token/ERC721/IERC721ReceiverUpgradeable.sol';
 /**
  * @title Escrow Payment Condition
- * @author Keyko
+ * @author Nevermined
  *
  * @dev Implementation of the Escrow Payment Condition
  *
@@ -74,6 +74,7 @@ contract NFT721EscrowPaymentCondition is Reward, INFTEscrow, Common, IERC721Rece
         bytes32 _did,
         uint256 _amounts,
         address _receivers,
+        address _returnAddress,
         address _lockPaymentAddress,
         address _tokenAddress,
         bytes32 _lockCondition,
@@ -87,6 +88,7 @@ contract NFT721EscrowPaymentCondition is Reward, INFTEscrow, Common, IERC721Rece
                 _did,
                 _amounts,
                 _receivers,
+                _returnAddress,
                 _lockPaymentAddress, 
                 _tokenAddress,
                 _lockCondition,
@@ -147,6 +149,7 @@ contract NFT721EscrowPaymentCondition is Reward, INFTEscrow, Common, IERC721Rece
         bytes32 _did,
         uint256 _amount,
         address _receiver,
+        address _returnAddress,
         address _lockPaymentAddress,
         address _tokenAddress,
         bytes32 _lockCondition,
@@ -156,27 +159,54 @@ contract NFT721EscrowPaymentCondition is Reward, INFTEscrow, Common, IERC721Rece
     nonReentrant
     returns (ConditionStoreLibrary.ConditionState)
     {
+        return fulfillKludge(Args(_agreementId,
+        _did,
+         _amount,
+         _receiver,
+         _returnAddress,
+         _lockPaymentAddress,
+         _tokenAddress,
+         _lockCondition,
+         _releaseConditions));
+    }
+
+    struct Args {
+        bytes32 _agreementId;
+        bytes32 _did;
+        uint256 _amount;
+        address _receiver;
+        address _returnAddress;
+        address _lockPaymentAddress;
+        address _tokenAddress;
+        bytes32 _lockCondition;
+        bytes32[] _releaseConditions;
+    }
+
+    function fulfillKludge(Args memory a)
+    internal
+    returns (ConditionStoreLibrary.ConditionState)
+    {
 
         require(keccak256(
             abi.encode(
-                _agreementId,
-                conditionStoreManager.getConditionTypeRef(_lockCondition),
-                hashValuesLockPayment(_did, _lockPaymentAddress, _tokenAddress, _amount, _receiver)
+                a._agreementId,
+                conditionStoreManager.getConditionTypeRef(a._lockCondition),
+                hashValuesLockPayment(a._did, a._lockPaymentAddress, a._tokenAddress, a._amount, a._receiver)
             )
-        ) == _lockCondition,
+        ) == a._lockCondition,
             'LockCondition ID does not match'
         );
         
         require(
-            conditionStoreManager.getConditionState(_lockCondition) ==
+            conditionStoreManager.getConditionState(a._lockCondition) ==
             ConditionStoreLibrary.ConditionState.Fulfilled,
             'LockCondition needs to be Fulfilled'
         );
 
         bool allFulfilled = true;
         bool someAborted = false;
-        for (uint i = 0; i < _releaseConditions.length; i++) {
-            ConditionStoreLibrary.ConditionState cur = conditionStoreManager.getConditionState(_releaseConditions[i]);
+        for (uint i = 0; i < a._releaseConditions.length; i++) {
+            ConditionStoreLibrary.ConditionState cur = conditionStoreManager.getConditionState(a._releaseConditions[i]);
             if (cur != ConditionStoreLibrary.ConditionState.Fulfilled) {
                 allFulfilled = false;
             }
@@ -187,26 +217,27 @@ contract NFT721EscrowPaymentCondition is Reward, INFTEscrow, Common, IERC721Rece
 
         require(someAborted || allFulfilled, 'Release conditions unresolved');
 
-        require(_receiver != address(this), 'Escrow contract can not be a receiver');
+        require(a._receiver != address(this), 'Escrow contract can not be a receiver');
         bytes32 id = generateId(
-            _agreementId,
+            a._agreementId,
             hashValues(
-                _did,
-                _amount,
-                _receiver,
-                _lockPaymentAddress,
-                _tokenAddress,
-                _lockCondition,
-                _releaseConditions
+                a._did,
+                a._amount,
+                a._receiver,
+                a._returnAddress,
+                a._lockPaymentAddress,
+                a._tokenAddress,
+                a._lockCondition,
+                a._releaseConditions
             )
         );        
         
         if (allFulfilled) {
-            return _transferAndFulfillNFT(_agreementId, id, _did, _tokenAddress, _receiver, _amount);
+            return _transferAndFulfillNFT(a._agreementId, id, a._did, a._tokenAddress, a._receiver, a._amount);
 
         } else {
             assert(someAborted == true);
-            return _transferAndFulfillNFT(_agreementId, id, _did, _tokenAddress, conditionStoreManager.getConditionCreatedBy(_lockCondition), _amount);
+            return _transferAndFulfillNFT(a._agreementId, id, a._did, a._tokenAddress, a._returnAddress, a._amount);
         }
 
     }

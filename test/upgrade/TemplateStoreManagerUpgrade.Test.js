@@ -6,12 +6,6 @@ const chaiAsPromised = require('chai-as-promised')
 chai.use(chaiAsPromised)
 const constants = require('../helpers/constants.js')
 
-/*
-const {
-    confirmUpgrade
-} = require('@nevermined-io/contract-tools')
-*/
-
 function confirmUpgrade() {}
 
 const {

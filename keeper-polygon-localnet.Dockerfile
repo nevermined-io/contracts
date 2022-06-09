@@ -1,8 +1,8 @@
-FROM 0xpolygon/polygon-sdk:0.1.0 as polygon
+FROM 0xpolygon/polygon-edge:0.4.1 as polygon
 
 FROM node:14-alpine as deploy
 
-COPY --from=polygon /usr/local/bin/polygon-sdk /usr/local/bin/polygon-sdk
+COPY --from=polygon /usr/local/bin/polygon-edge /usr/local/bin/polygon-edge
 
 RUN apk add --no-cache --update\
       bash\
@@ -16,12 +16,16 @@ RUN apk add --no-cache --update\
       python3\
       curl
 
+RUN curl https://sh.rustup.rs -sSf | bash -s -- -y
+ENV PATH="/root/.cargo/bin:${PATH}"
+
 COPY networks/polygon-localnet/genesis.json /polygon-sdk/genesis.json
 
 COPY . /nevermined-contracts
 WORKDIR /nevermined-contracts
 
 RUN yarn
+RUN sh ./scripts/build-circuit.sh
 
 ENV MNEMONIC="taxi music thumb unique chat sand crew more leg another off lamp"
 ENV DEPLOY_CONTRACTS=true
@@ -33,11 +37,12 @@ ENV KEEPER_RPC_PORT=8545
 
 RUN /nevermined-contracts/scripts/keeper_deploy_polygon_dockerfile.sh
 
-FROM 0xpolygon/polygon-sdk:0.1.0
-LABEL maintainer="Keyko <root@keyko.io>"
+FROM 0xpolygon/polygon-edge:0.4.1
+LABEL maintainer="Nevermined <root@nevermined.io>"
 
 COPY scripts/keeper_entrypoint_polygon.sh /
 COPY --from=deploy /artifacts /artifacts
+COPY --from=deploy /circuits /circuits
 COPY --from=deploy /polygon-sdk /polygon-sdk
 
 ENTRYPOINT ["/keeper_entrypoint_polygon.sh"]
