@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 // Code is Apache-2.0 and docs are CC-BY-4.0
 
 import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
+import '../governance/INVMConfig.sol';
 
 /**
  * @title Provenance Registry Library
@@ -13,8 +14,9 @@ import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
  */
 /* solium-disable-next-line */
 abstract contract ProvenanceRegistry is OwnableUpgradeable {
-//library ProvenanceRegistry {
-    
+
+    INVMConfig public nvmConfig;
+
     // solhint-disable-next-line
     function __ProvenanceRegistry_init() internal initializer {
         __Context_init_unchained();
@@ -162,8 +164,11 @@ abstract contract ProvenanceRegistry is OwnableUpgradeable {
         string memory _attributes
     )
     internal
-    returns (bool)
     {
+
+        if (address(nvmConfig) != address(0) && !nvmConfig.getProvenanceStorage()) {
+            return;
+        }
 
         require(
             provenanceRegistry.list[_provId].createdBy == address(0x0),
@@ -195,7 +200,6 @@ abstract contract ProvenanceRegistry is OwnableUpgradeable {
             block.number
         );
         
-        return true;
     }
 
 

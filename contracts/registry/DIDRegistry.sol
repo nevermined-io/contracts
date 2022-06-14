@@ -35,7 +35,8 @@ contract DIDRegistry is DIDFactory {
     function initialize(
         address _owner,
         address _erc1155,
-        address _erc721
+        address _erc721,
+        address _config
     )
     public
     initializer
@@ -45,6 +46,7 @@ contract DIDRegistry is DIDFactory {
         erc721 = NFT721Upgradeable(_erc721);
         transferOwnership(_owner);
         manager = _owner;
+        nvmConfig = INVMConfig(_config);
     }
 
     function registerRoyaltiesChecker(address _addr) public onlyOwner {

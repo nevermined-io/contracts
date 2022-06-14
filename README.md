@@ -63,7 +63,7 @@ Compile the solidity contracts:
 yarn compile
 ```
 
-In a new terminal, launch an Ethereum RPC client, e.g. [ganache-cli](https://github.com/trufflesuite/ganache-cli):
+In a new terminal, launch an Ethereum RPC client, e.g. hardhat:
 
 ```bash
 npx hardhat node --port 18545

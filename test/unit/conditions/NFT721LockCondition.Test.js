@@ -23,7 +23,6 @@ contract('NFT721LockCondition', (accounts) => {
     let lockCondition
     let erc721
     let nftTokenAddress
-    let nvmConfig
 
     const owner = accounts[1]
     const createRole = accounts[0]
@@ -31,32 +30,13 @@ contract('NFT721LockCondition', (accounts) => {
     const checksum = constants.bytes32.one
     const amount = 1
 
-    before(async () => {
-        nvmConfig = await NeverminedConfig.new()
-        await nvmConfig.initialize(owner, owner)
-        const epochLibrary = await EpochLibrary.new()
-        await ConditionStoreManager.link(epochLibrary)
-        const didRegistryLibrary = await DIDRegistryLibrary.new()
-        await DIDRegistry.link(didRegistryLibrary)
-    })
-
     beforeEach(async () => {
         await setupTest()
     })
 
     async function setupTest() {
-        if (!didRegistry) {
-            didRegistry = await DIDRegistry.new()
-            await didRegistry.initialize(owner, constants.address.zero, constants.address.zero)
-        }
         if (!conditionStoreManager) {
-            conditionStoreManager = await ConditionStoreManager.new()
-            await conditionStoreManager.initialize(
-                createRole,
-                owner,
-                nvmConfig.address,
-                { from: owner }
-            )
+            ({ didRegistry, conditionStoreManager } = await testUtils.deployManagers(owner, createRole))
 
             lockCondition = await NFTLockCondition.new()
 
