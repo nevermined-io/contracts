@@ -23,7 +23,6 @@ contract('NFTLockCondition', (accounts) => {
     const checksum = constants.bytes32.one
     const amount = 10
 
-
     beforeEach(async () => {
         await setupTest()
     })

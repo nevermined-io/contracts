@@ -6,11 +6,6 @@ const { assert } = chai
 const chaiAsPromised = require('chai-as-promised')
 chai.use(chaiAsPromised)
 
-const NeverminedConfig = artifacts.require('NeverminedConfig')
-const EpochLibrary = artifacts.require('EpochLibrary')
-const ConditionStoreManager = artifacts.require('ConditionStoreManager')
-const DIDRegistryLibrary = artifacts.require('DIDRegistryLibrary')
-const DIDRegistry = artifacts.require('DIDRegistry')
 const NFTLockCondition = artifacts.require('NFT721LockCondition')
 const TestERC721 = artifacts.require('TestERC721')
 
