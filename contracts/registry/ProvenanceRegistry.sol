@@ -15,8 +15,6 @@ import '../governance/INVMConfig.sol';
 /* solium-disable-next-line */
 abstract contract ProvenanceRegistry is OwnableUpgradeable {
 
-    INVMConfig public nvmConfig;
-
     // solhint-disable-next-line
     function __ProvenanceRegistry_init() internal initializer {
         __Context_init_unchained();
@@ -56,6 +54,18 @@ abstract contract ProvenanceRegistry is OwnableUpgradeable {
     
     ProvenanceRegistryList internal provenanceRegistry;
     
+    INVMConfig public nvmConfig;
+    address public conditionManager;
+
+    modifier onlyConditionManager
+    {
+        require(
+            msg.sender == conditionManager,
+            'Only condition store manager'
+        );
+        _;
+    }
+
     // W3C Provenance Methods
     enum ProvenanceMethod {
         ENTITY,
@@ -450,5 +460,9 @@ abstract contract ProvenanceRegistry is OwnableUpgradeable {
 
         return true;
     }
-    
+
+    function condition(bytes32 _did, bytes32 _cond, string memory name, address user) public onlyConditionManager {
+        _used(_cond, _did, user, keccak256(bytes(name)), '', name);
+    }
+
 }

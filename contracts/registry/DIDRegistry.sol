@@ -53,6 +53,10 @@ contract DIDRegistry is DIDFactory {
         royaltiesCheckers[_addr] = true;
     }
 
+    function setConditionManager(address _manager) public onlyOwner {
+        conditionManager = _manager;
+    }
+
     event DIDRoyaltiesAdded(bytes32 indexed did, address indexed addr);
     event DIDRoyaltyRecipientChanged(bytes32 indexed did, address indexed addr);
 
