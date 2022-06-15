@@ -54,18 +54,6 @@ abstract contract ProvenanceRegistry is OwnableUpgradeable {
     
     ProvenanceRegistryList internal provenanceRegistry;
     
-    INVMConfig public nvmConfig;
-    address public conditionManager;
-
-    modifier onlyConditionManager
-    {
-        require(
-            msg.sender == conditionManager,
-            'Only condition store manager'
-        );
-        _;
-    }
-
     // W3C Provenance Methods
     enum ProvenanceMethod {
         ENTITY,
@@ -148,6 +136,8 @@ abstract contract ProvenanceRegistry is OwnableUpgradeable {
         uint256 _blockNumberUpdated
     );
 
+    function _provenanceStorage() virtual internal returns (bool);
+
     /**
      * @notice create an event in the Provenance store
      * @dev access modifiers and storage pointer should be implemented in ProvenanceRegistry
@@ -176,7 +166,7 @@ abstract contract ProvenanceRegistry is OwnableUpgradeable {
     internal
     {
 
-        if (address(nvmConfig) != address(0) && !nvmConfig.getProvenanceStorage()) {
+        if (!_provenanceStorage()) {
             return;
         }
 
@@ -459,10 +449,6 @@ abstract contract ProvenanceRegistry is OwnableUpgradeable {
         );
 
         return true;
-    }
-
-    function condition(bytes32 _did, bytes32 _cond, string memory name, address user) public onlyConditionManager {
-        _used(_cond, _did, user, keccak256(bytes(name)), '', name);
     }
 
 }

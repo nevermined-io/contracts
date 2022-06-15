@@ -8,7 +8,7 @@ pragma solidity ^0.8.0;
 import '../Common.sol';
 import '../libraries/EpochLibrary.sol';
 import './ConditionStoreLibrary.sol';
-import '../registry/ProvenanceRegistry.sol';
+import '../registry/DIDRegistry.sol';
 import '../governance/INVMConfig.sol';
 
 import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
@@ -42,7 +42,7 @@ contract ConditionStoreManager is OwnableUpgradeable, AccessControlUpgradeable, 
 
     address internal nvmConfigAddress;
 
-    ProvenanceRegistry public didRegistry;
+    DIDRegistry public didRegistry;
     
     event ConditionCreated(
         bytes32 indexed _id,
@@ -130,7 +130,7 @@ contract ConditionStoreManager is OwnableUpgradeable, AccessControlUpgradeable, 
      * @param _didAddress did registry address. can be zero
      */
     function setProvenanceRegistry(address _didAddress) public {
-        didRegistry = ProvenanceRegistry(_didAddress);
+        didRegistry = DIDRegistry(_didAddress);
     }
 
     /**
