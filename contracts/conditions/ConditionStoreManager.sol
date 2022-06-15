@@ -345,10 +345,11 @@ contract ConditionStoreManager is OwnableUpgradeable, AccessControlUpgradeable, 
         onlyUpdateRole(_id)
         returns (ConditionStoreLibrary.ConditionState)
     {
+        ConditionStoreLibrary.ConditionState state = _updateConditionState(_id, _newState);
         if (address(didRegistry) != address(0)) {
             didRegistry.condition(_did, _id, name, user);
         }
-        return _updateConditionState(_id, _newState);
+        return state;
     }
 
     function updateConditionMapping(
