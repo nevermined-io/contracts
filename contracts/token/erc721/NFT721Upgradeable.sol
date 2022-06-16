@@ -6,7 +6,6 @@ pragma solidity ^0.8.0;
 import '@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol';
 import '../NFTBase.sol';
 
-
 /**
  *
  * @dev Implementation of the basic standard multi-token.
@@ -36,7 +35,12 @@ contract NFT721Upgradeable is ERC721Upgradeable, NFTBase {
     virtual
     initializer
     {
-        initialize('', '');
+        __Context_init_unchained();
+        __ERC165_init_unchained();
+        __ERC721_init_unchained('', '');
+        __Ownable_init_unchained();
+        AccessControlUpgradeable.__AccessControl_init();
+        AccessControlUpgradeable._setupRole(MINTER_ROLE, msg.sender);
     }    
     
     /**

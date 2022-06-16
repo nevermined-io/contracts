@@ -853,7 +853,7 @@ function escrowTest(EscrowPaymentCondition, LockPaymentCondition, Token, nft, nf
                 const conditionLockId = await lockPaymentCondition.generateId(agreementId, hashValuesLock)
 
                 await conditionStoreManager.createCondition(
-                    conditionLockId,
+                    conditionLockId,Minta
                     lockPaymentCondition.address)
 
                 await conditionStoreManager.createCondition(
