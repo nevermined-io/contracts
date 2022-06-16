@@ -14,18 +14,30 @@ import '../NFTBase.sol';
 contract NFT721Upgradeable is ERC721Upgradeable, NFTBase {
 
     // solhint-disable-next-line
-    function initialize() 
+    function initialize(
+        string memory name, 
+        string memory symbol
+    ) 
     public 
     virtual 
     initializer 
     {
         __Context_init_unchained();
         __ERC165_init_unchained();
-        __ERC721_init_unchained('', '');
+        __ERC721_init_unchained(name, symbol);
         __Ownable_init_unchained();
         AccessControlUpgradeable.__AccessControl_init();
         AccessControlUpgradeable._setupRole(MINTER_ROLE, msg.sender);
     }
+
+    // solhint-disable-next-line
+    function initialize()
+    public
+    virtual
+    initializer
+    {
+        initialize('', '');
+    }    
     
     /**
      * @dev See {IERC1155-isApprovedForAll}.

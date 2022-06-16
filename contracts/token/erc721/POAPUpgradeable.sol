@@ -24,9 +24,22 @@ contract POAPUpgradeable is NFT721Upgradeable, ERC721URIStorageUpgradeable, ERC7
     override 
     initializer 
     {
+        initialize('', '');
+    }
+
+    // solhint-disable-next-line
+    function initialize(
+        string memory name,
+        string memory symbol
+    )
+    public
+    override
+    virtual
+    initializer
+    {
         __Context_init_unchained();
         __ERC165_init_unchained();
-        __ERC721_init_unchained('', '');
+        __ERC721_init_unchained(name, symbol);
         __ERC721URIStorage_init_unchained();
         __ERC721Enumerable_init_unchained();
         __Ownable_init_unchained();
