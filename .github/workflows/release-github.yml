@@ -31,7 +31,7 @@ jobs:
       - name: Compile and Lint
         run: |
           yarn clean
-          sh ./scripts/build.sh
+          sh ./scripts/build-circuit.sh
           yarn compile
 
       # Add the artifacts to include in the release
