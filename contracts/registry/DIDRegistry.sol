@@ -23,6 +23,18 @@ contract DIDRegistry is DIDFactory {
 
     mapping (address => bool) public royaltiesCheckers;
 
+    INVMConfig public nvmConfig;
+    address public conditionManager;
+
+    modifier onlyConditionManager
+    {
+        require(
+            msg.sender == conditionManager,
+            'Only condition store manager'
+        );
+        _;
+    }
+
     //////////////////////////////////////////////////////////////
     ////////  EVENTS  ////////////////////////////////////////////
     //////////////////////////////////////////////////////////////
@@ -35,7 +47,8 @@ contract DIDRegistry is DIDFactory {
     function initialize(
         address _owner,
         address _erc1155,
-        address _erc721
+        address _erc721,
+        address _config
     )
     public
     initializer
@@ -45,10 +58,15 @@ contract DIDRegistry is DIDFactory {
         erc721 = NFT721Upgradeable(_erc721);
         transferOwnership(_owner);
         manager = _owner;
+        nvmConfig = INVMConfig(_config);
     }
 
     function registerRoyaltiesChecker(address _addr) public onlyOwner {
         royaltiesCheckers[_addr] = true;
+    }
+
+    function setConditionManager(address _manager) public onlyOwner {
+        conditionManager = _manager;
     }
 
     event DIDRoyaltiesAdded(bytes32 indexed did, address indexed addr);
@@ -386,6 +404,14 @@ contract DIDRegistry is DIDFactory {
         super._used(
             keccak256(abi.encode(_did, msg.sender, 'burn721', 1, block.number)),
             _did, msg.sender, keccak256('burn721'), '', 'burn721');
+    }
+
+    function _provenanceStorage() override internal view returns (bool) {
+        return address(nvmConfig) == address(0) || nvmConfig.getProvenanceStorage();
+    }
+
+    function condition(bytes32 _did, bytes32 _cond, string memory name, address user) public onlyConditionManager {
+        _used(_cond, _did, user, keccak256(bytes(name)), '', name);
     }
 
 }

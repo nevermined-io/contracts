@@ -66,13 +66,13 @@ contract('TransferNFT Condition constructor', (accounts) => {
             await token.initialize(owner, owner)
 
             const nvmConfig = await NeverminedConfig.new()
-            await nvmConfig.initialize(owner, owner)
+            await nvmConfig.initialize(owner, owner, false)
 
             nft = await NFT.new()
             await nft.initialize('')
 
             didRegistry = await DIDRegistry.new()
-            await didRegistry.initialize(owner, nft.address, constants.address.zero)
+            await didRegistry.initialize(owner, nft.address, constants.address.zero, constants.address.zero)
 
             conditionStoreManager = await ConditionStoreManager.new()
 
@@ -174,7 +174,7 @@ contract('TransferNFT Condition constructor', (accounts) => {
             await token.initialize(owner, owner)
 
             const nvmConfig = await NeverminedConfig.new()
-            await nvmConfig.initialize(owner, owner)
+            await nvmConfig.initialize(owner, owner, false)
 
             const didRegistry = await DIDRegistry.new()
             didRegistry.initialize(owner, constants.address.zero, constants.address.zero)

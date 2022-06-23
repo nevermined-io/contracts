@@ -265,9 +265,12 @@ contract NFTEscrowPaymentCondition is Reward, INFTEscrow, Common, ReentrancyGuar
         nft.safeTransferFrom(address(this), _receiver, uint256(_did), _amount, '');
         emit Fulfilled(_agreementId, _tokenAddress, _did, _receiver, _id, _amount);
 
-        return super.fulfill(
+        return super.fulfillWithProvenance(
             _id,
-            ConditionStoreLibrary.ConditionState.Fulfilled
+            ConditionStoreLibrary.ConditionState.Fulfilled,
+            _did,
+            'NFTEscrowPaymentCondition',
+            msg.sender
         );
     }
 

@@ -8,6 +8,7 @@ pragma solidity ^0.8.0;
 import '../Common.sol';
 import '../libraries/EpochLibrary.sol';
 import './ConditionStoreLibrary.sol';
+import '../registry/DIDRegistry.sol';
 import '../governance/INVMConfig.sol';
 
 import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
@@ -40,6 +41,8 @@ contract ConditionStoreManager is OwnableUpgradeable, AccessControlUpgradeable, 
     EpochLibrary.EpochList internal epochList;
 
     address internal nvmConfigAddress;
+
+    DIDRegistry public didRegistry;
     
     event ConditionCreated(
         bytes32 indexed _id,
@@ -120,6 +123,14 @@ contract ConditionStoreManager is OwnableUpgradeable, AccessControlUpgradeable, 
         _setupRole(DEFAULT_ADMIN_ROLE, _owner);
         
         nvmConfigAddress= _nvmConfigAddress;
+    }
+
+    /**
+     * @dev Set provenance registry
+     * @param _didAddress did registry address. can be zero
+     */
+    function setProvenanceRegistry(address _didAddress) public {
+        didRegistry = DIDRegistry(_didAddress);
     }
 
     /**
@@ -288,6 +299,16 @@ contract ConditionStoreManager is OwnableUpgradeable, AccessControlUpgradeable, 
         onlyUpdateRole(_id)
         returns (ConditionStoreLibrary.ConditionState)
     {
+        return _updateConditionState(_id, _newState);
+    }
+
+    function _updateConditionState(
+        bytes32 _id,
+        ConditionStoreLibrary.ConditionState _newState
+    )
+        internal
+        returns (ConditionStoreLibrary.ConditionState)
+    {
         // no update before time lock
         require(
             !isConditionTimeLocked(_id),
@@ -311,6 +332,24 @@ contract ConditionStoreManager is OwnableUpgradeable, AccessControlUpgradeable, 
         );
 
         return updateState;
+    }
+
+    function updateConditionStateWithProvenance(
+        bytes32 _id,
+        bytes32 _did,
+        string memory name,
+        address user,
+        ConditionStoreLibrary.ConditionState _newState
+    )
+        external
+        onlyUpdateRole(_id)
+        returns (ConditionStoreLibrary.ConditionState)
+    {
+        ConditionStoreLibrary.ConditionState state = _updateConditionState(_id, _newState);
+        if (address(didRegistry) != address(0)) {
+            didRegistry.condition(_did, _id, name, user);
+        }
+        return state;
     }
 
     function updateConditionMapping(

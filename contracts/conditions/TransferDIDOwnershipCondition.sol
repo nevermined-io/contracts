@@ -107,9 +107,12 @@ contract TransferDIDOwnershipCondition is Condition {
             hashValues(_did, _receiver)
         );
 
-        ConditionStoreLibrary.ConditionState state = super.fulfill(
+        ConditionStoreLibrary.ConditionState state = super.fulfillWithProvenance(
             _id,
-            ConditionStoreLibrary.ConditionState.Fulfilled
+            ConditionStoreLibrary.ConditionState.Fulfilled,
+            _did,
+            'TransferDIDOwnershipCondition',
+            msg.sender
         );
         
         emit Fulfilled(

@@ -161,8 +161,13 @@ contract AaveCollateralDepositCondition is Condition, Common, ReentrancyGuardUpg
             )
         );
 
-        ConditionStoreLibrary.ConditionState state =
-            super.fulfill(_id, ConditionStoreLibrary.ConditionState.Fulfilled);
+        ConditionStoreLibrary.ConditionState state = super.fulfillWithProvenance(
+            _id,
+            ConditionStoreLibrary.ConditionState.Fulfilled,
+            _did,
+            'AaveCollateralDepositCondition',
+            msg.sender
+        );
 
         return state;
     }
