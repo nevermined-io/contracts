@@ -33,10 +33,10 @@
   </properties>
   <developers>
     <developer>
-      <name>Keyko</name>
-      <email>root@keyko.io</email>
-      <organization>Keyko</organization>
-      <organizationUrl>https://www.keyko.io</organizationUrl>
+      <name>Nevermined</name>
+      <email>root@nevermined.io</email>
+      <organization>Nevermined</organization>
+      <organizationUrl>https://www.nevermined.io</organizationUrl>
     </developer>
   </developers>
   <scm>

@@ -9,7 +9,7 @@ import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
 import './NeverminedToken.sol';
 
 /**
- * @title Ocean Protocol Dispenser Contract
+ * @title Dispenser Contract
  * @author Nevermined
  */
 contract Dispenser is OwnableUpgradeable {

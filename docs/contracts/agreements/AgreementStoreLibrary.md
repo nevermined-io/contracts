@@ -1,9 +1,7 @@
 
 Implementation of the Agreement Store Library.
-     For more information: https://github.com/oceanprotocol/OEPs/issues/125    
-     TODO: update the OEP link 
      The agreement store library holds the business logic
-     in which manages the life cycle of SEA agreement, each 
+     in which manages the life cycle of SEA agreement, each
      agreement is linked to the DID of an asset, template, and
      condition IDs.
 
@@ -20,7 +18,7 @@ Implementation of the Agreement Store Library.
 ```
 
 create new agreement
-     checks whether the agreement Id exists, creates new agreement 
+     checks whether the agreement Id exists, creates new agreement
      instance, including the template, conditions and DID.
 
 #### Parameters:

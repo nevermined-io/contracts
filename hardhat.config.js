@@ -113,18 +113,18 @@ module.exports = {
             deploymentPollingInterval: 8000,
             from: '0xB6d47415AfCDD06c5155d0E191530027FD51CCfD'
         },
-        // integration the ocean testnet
+        // integration
         integration: {
-            url: url || 'https://integration.keyko.com',
+            url: url || 'https://integration.nevermined.io',
             accounts,
             chainId: 0x897, // 2199
             gas: 6000000,
             gasPrice: 10000,
             from: '0x90eE7A30339D05E07d9c6e65747132933ff6e624'
         },
-        // staging the ocean beta network
+        // staging
         staging: {
-            url: url || 'https://staging.keyko.com',
+            url: url || 'https://staging.nevermined.io',
             accounts,
             chainId: 0x2323, // 8995
             gas: 6000000,
