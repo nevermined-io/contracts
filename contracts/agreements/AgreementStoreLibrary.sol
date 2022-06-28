@@ -10,8 +10,6 @@ pragma solidity ^0.8.0;
  * @author Nevermined
  *
  * @dev Implementation of the Agreement Store Library.
- *      For more information: https://github.com/oceanprotocol/OEPs/issues/125    
- *      TODO: update the OEP link 
  *      The agreement store library holds the business logic
  *      in which manages the life cycle of SEA agreement, each 
  *      agreement is linked to the DID of an asset, template, and

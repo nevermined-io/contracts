@@ -591,17 +591,17 @@ contract DIDFactory is OwnableUpgradeable, ProvenanceRegistry {
     }
 
     /**
-     * @param _did refers to decentralized identifier (a bytes32 length ID).
-     * @return owner the did owner
-     * @return lastChecksum 
-     * @return url 
-     * @return lastUpdatedBy 
-     * @return blockNumberUpdated 
-     * @return providers
-     * @return nftSupply
-     * @return mintCap
-     * @return royalties
-     */
+    * @param _did refers to decentralized identifier (a bytes32 length ID).
+    * @return owner the did owner
+    * @return lastChecksum last checksum
+    * @return url URL to the DID metadata
+    * @return lastUpdatedBy who was the last updating the DID
+    * @return blockNumberUpdated In which block was the DID updated
+    * @return providers the list of providers
+    * @return nftSupply the supply of nfts
+    * @return mintCap the maximum number of nfts that can be minted
+    * @return royalties the royalties amount
+    */
     function getDIDRegister(
         bytes32 _did
     )
@@ -766,15 +766,15 @@ contract DIDFactory is OwnableUpgradeable, ProvenanceRegistry {
     /**
      * Fetch the complete provenance entry attributes
      * @param _provId refers to the provenance identifier
-     * @return did 
-     * @return relatedDid 
-     * @return agentId
-     * @return activityId 
-     * @return agentInvolvedId 
-     * @return method
-     * @return createdBy 
-     * @return blockNumberUpdated 
-     * @return signature 
+     * @return did to what DID refers this entry
+     * @return relatedDid DID related with the entry
+     * @return agentId the agent identifier
+     * @return activityId referring to the id of the activity
+     * @return agentInvolvedId agent involved with the action
+     * @return method the w3c provenance method
+     * @return createdBy who is creating this entry
+     * @return blockNumberUpdated in which block was updated
+     * @return signature digital signature 
      * 
      */
     function getProvenanceEntry(
