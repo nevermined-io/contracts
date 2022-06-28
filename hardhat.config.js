@@ -6,7 +6,7 @@ require('@nomiclabs/hardhat-truffle5')
 require('hardhat-dependency-compiler')
 require('hardhat-gas-reporter')
 require('solidity-coverage')
-require('solidity-docgen');
+require('solidity-docgen')
 
 const utils = require('web3-utils')
 
@@ -44,10 +44,10 @@ module.exports = {
         ]
     },
     docgen: {
-        outputDir: 'docs/generated/',
-// Following lines are commented until solidity-docgen v0.6 provides a proper templates support
-//        pages: 'files',
-//        templates: 'docs/docgen_template/'
+        outputDir: 'docs/generated/'
+        // Following lines are commented until solidity-docgen v0.6 provides a proper templates support
+        //        pages: 'files',
+        //        templates: 'docs/docgen_template/'
     },
     networks: {
         hardhat: {
