@@ -31,4 +31,5 @@ jobs:
     with:
       path-to-push: docs/architecture/components/contracts
       repo-to-push: nvm-docs
+      branch-to-clone: main
     secrets: inherit
