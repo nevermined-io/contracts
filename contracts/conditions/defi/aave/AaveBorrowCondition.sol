@@ -119,7 +119,13 @@ contract AaveBorrowCondition is Condition, Common {
         );
 
         ConditionStoreLibrary.ConditionState state =
-        super.fulfill(_id, ConditionStoreLibrary.ConditionState.Fulfilled);
+        super.fulfillWithProvenance(
+            _id,
+            ConditionStoreLibrary.ConditionState.Fulfilled,
+            _did,
+            'AaveBorrowCondition',
+            msg.sender
+        );
 
         return state;
     }

@@ -25,7 +25,7 @@ contract('NeverminedConfig', (accounts) => {
     async function setupTest() {
         if (!nvmConfig) {
             nvmConfig = await NeverminedConfig.new({ from: deployer })
-            await nvmConfig.initialize(owner, governor, { from: deployer })
+            await nvmConfig.initialize(owner, governor, false, { from: deployer })
         }
     }
 

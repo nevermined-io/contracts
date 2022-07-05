@@ -4,6 +4,7 @@
 const { hardhatArguments } = require('hardhat')
 const network = hardhatArguments.network || 'hardhat'
 const deploying = network === 'hardhat' || network === 'coverage'
+const constants = require('./constants')
 
 const utils = {
     deploying,
@@ -74,6 +75,35 @@ const utils = {
             // eslint-disable-next-line security/detect-non-literal-require
             const addr = require(`../../artifacts/${name}.external.json`).address
             return afact.at(addr)
+        }
+    },
+
+    deployManagers: async (owner, createRole) => {
+        const DIDRegistry = artifacts.require('DIDRegistry')
+        const NeverminedConfig = artifacts.require('NeverminedConfig')
+        const ConditionStoreManager = artifacts.require('ConditionStoreManager')
+        const EpochLibrary = artifacts.require('EpochLibrary')
+        const DIDRegistryLibrary = artifacts.require('DIDRegistryLibrary')
+        const NFT = artifacts.require('NFTUpgradeable')
+
+        const epochLibrary = await EpochLibrary.new()
+        await ConditionStoreManager.link(epochLibrary)
+        const didRegistryLibrary = await DIDRegistryLibrary.new()
+        await DIDRegistry.link(didRegistryLibrary)
+        const nvmConfig = await NeverminedConfig.new()
+        await nvmConfig.initialize(owner, owner, false)
+        const nft = await NFT.new()
+        await nft.initialize('')
+        const didRegistry = await DIDRegistry.new()
+        await didRegistry.initialize(owner, nft.address, constants.address.zero, nvmConfig.address)
+        const conditionStoreManager = await ConditionStoreManager.new()
+        await conditionStoreManager.initialize(createRole, owner, nvmConfig.address, { from: owner })
+        await nft.addMinter(didRegistry.address)
+        return {
+            didRegistry,
+            nvmConfig,
+            conditionStoreManager,
+            nft
         }
     }
 

@@ -128,9 +128,12 @@ contract NFTHolderCondition is Condition, INFTHolder {
             _agreementId,
             hashValues(_did, _holderAddress, _amount, _contractAddress)
         );
-        ConditionStoreLibrary.ConditionState state = super.fulfill(
+        ConditionStoreLibrary.ConditionState state = super.fulfillWithProvenance(
             _id,
-            ConditionStoreLibrary.ConditionState.Fulfilled
+            ConditionStoreLibrary.ConditionState.Fulfilled,
+            _did,
+            'NFTHolderCondition',
+            msg.sender
         );
 
         emit Fulfilled(

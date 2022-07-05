@@ -296,9 +296,9 @@ contract EscrowPaymentCondition is Reward, Common, ReentrancyGuardUpgradeable {
         ConditionStoreLibrary.ConditionState state;
         if (allFulfilled) {
             if (a._tokenAddress != address(0))
-                state = _transferAndFulfillERC20(id, a._tokenAddress, a._receivers, a._amounts);
+                state = _transferAndFulfillERC20(id, a._tokenAddress, a._receivers, a._amounts, a._did);
             else
-                state = _transferAndFulfillETH(id, a._receivers, a._amounts);
+                state = _transferAndFulfillETH(id, a._receivers, a._amounts, a._did);
             
             emit Fulfilled(a._agreementId, a._tokenAddress, a._receivers, id, a._amounts);
 
@@ -309,9 +309,9 @@ contract EscrowPaymentCondition is Reward, Common, ReentrancyGuardUpgradeable {
             _originalSender[0] = a._returnAddress;
             
             if (a._tokenAddress != address(0))
-                state = _transferAndFulfillERC20(id, a._tokenAddress, _originalSender, _totalAmounts);
+                state = _transferAndFulfillERC20(id, a._tokenAddress, _originalSender, _totalAmounts, a._did);
             else
-                state = _transferAndFulfillETH(id, _originalSender, _totalAmounts);
+                state = _transferAndFulfillETH(id, _originalSender, _totalAmounts, a._did);
             
             emit Fulfilled(a._agreementId, a._tokenAddress, _originalSender, id, _totalAmounts);
             
@@ -353,7 +353,8 @@ contract EscrowPaymentCondition is Reward, Common, ReentrancyGuardUpgradeable {
         bytes32 _id,
         address _tokenAddress,
         address[] memory _receivers,
-        uint256[] memory _amounts
+        uint256[] memory _amounts,
+        bytes32 _did
     )
     private
     returns (ConditionStoreLibrary.ConditionState)
@@ -369,9 +370,12 @@ contract EscrowPaymentCondition is Reward, Common, ReentrancyGuardUpgradeable {
             token.safeTransfer(_receivers[i], _amounts[i]);
         }
 
-        return super.fulfill(
+        return super.fulfillWithProvenance(
             _id,
-            ConditionStoreLibrary.ConditionState.Fulfilled
+            ConditionStoreLibrary.ConditionState.Fulfilled,
+            _did,
+            'EscrowPaymentCondition',
+            msg.sender
         );
     }
 
@@ -386,7 +390,8 @@ contract EscrowPaymentCondition is Reward, Common, ReentrancyGuardUpgradeable {
     function _transferAndFulfillETH(
         bytes32 _id,
         address[] memory _receivers,
-        uint256[] memory _amounts
+        uint256[] memory _amounts,
+        bytes32 _did
     )
     private
     returns (ConditionStoreLibrary.ConditionState)
@@ -407,9 +412,12 @@ contract EscrowPaymentCondition is Reward, Common, ReentrancyGuardUpgradeable {
             require(sent, 'Failed to send Ether');
         }
 
-        return super.fulfill(
+        return super.fulfillWithProvenance(
             _id,
-            ConditionStoreLibrary.ConditionState.Fulfilled
+            ConditionStoreLibrary.ConditionState.Fulfilled,
+            _did,
+            'EscrowPaymentCondition',
+            msg.sender
         );
     }    
     

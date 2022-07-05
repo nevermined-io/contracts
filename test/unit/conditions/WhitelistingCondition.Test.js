@@ -43,7 +43,7 @@ contract('Whitelisting Condition', (accounts) => {
     } = {}) {
         if (!whitelistingCondition) {
             const nvmConfig = await NeverminedConfig.new()
-            await nvmConfig.initialize(owner, governor)
+            await nvmConfig.initialize(owner, governor, false)
 
             hashList = await HashLists.new()
             await hashList.initialize(
@@ -74,7 +74,7 @@ contract('Whitelisting Condition', (accounts) => {
     describe('deploy and setup', () => {
         it('contract should deploy', async () => {
             const nvmConfig = await NeverminedConfig.new()
-            await nvmConfig.initialize(owner, governor)
+            await nvmConfig.initialize(owner, governor, false)
 
             const hashList = await HashLists.new()
             await hashList.initialize(
