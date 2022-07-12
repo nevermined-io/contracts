@@ -30,8 +30,8 @@ jobs:
           NODE_OPTIONS: "--max-old-space-size=7500"
 
   slither:
-    runs-on: ubuntu-latest
     needs: build
+    runs-on: ubuntu-latest
     steps:
       - name: Run Slither
         uses: crytic/slither-action@v0.1.1
