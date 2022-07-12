@@ -177,7 +177,7 @@ contract('TransferNFT Condition constructor', (accounts) => {
             await nvmConfig.initialize(owner, owner)
 
             const didRegistry = await DIDRegistry.new()
-            await didRegistry.initialize(owner, constants.address.zero, constants.address.zero, constants.address.zero, constants.address.zero)
+            await didRegistry.initialize(owner, constants.address.zero, constants.address.zero, constants.address.zero)
 
             const conditionStoreManager = await ConditionStoreManager.new()
 
