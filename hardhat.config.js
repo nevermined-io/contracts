@@ -6,6 +6,7 @@ require('@nomiclabs/hardhat-truffle5')
 require('hardhat-dependency-compiler')
 require('hardhat-gas-reporter')
 require('solidity-coverage')
+require('solidity-docgen')
 
 const utils = require('web3-utils')
 
@@ -41,6 +42,12 @@ module.exports = {
             '@gnosis.pm/safe-contracts/contracts/libraries/MultiSend.sol',
             '@gnosis.pm/safe-contracts/contracts/proxies/GnosisSafeProxyFactory.sol'
         ]
+    },
+    docgen: {
+        outputDir: 'docs/generated/'
+        // Following lines are commented until solidity-docgen v0.6 provides a proper templates support
+        //        pages: 'files',
+        //        templates: 'docs/docgen_template/'
     },
     networks: {
         hardhat: {
@@ -113,18 +120,18 @@ module.exports = {
             deploymentPollingInterval: 8000,
             from: '0xB6d47415AfCDD06c5155d0E191530027FD51CCfD'
         },
-        // integration the ocean testnet
+        // integration
         integration: {
-            url: url || 'https://integration.keyko.com',
+            url: url || 'https://integration.nevermined.io',
             accounts,
             chainId: 0x897, // 2199
             gas: 6000000,
             gasPrice: 10000,
             from: '0x90eE7A30339D05E07d9c6e65747132933ff6e624'
         },
-        // staging the ocean beta network
+        // staging
         staging: {
-            url: url || 'https://staging.keyko.com',
+            url: url || 'https://staging.nevermined.io',
             accounts,
             chainId: 0x2323, // 8995
             gas: 6000000,

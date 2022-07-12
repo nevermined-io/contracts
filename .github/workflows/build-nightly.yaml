@@ -22,7 +22,7 @@ jobs:
         run: |
           yarn lint
           yarn clean
-          sh ./scripts/build.sh
+          sh ./scripts/build-circuit.sh
           yarn compile
       - name: Run Unit Tests
         run: |
@@ -50,7 +50,7 @@ jobs:
         run: |
           yarn lint
           yarn clean
-          sh ./scripts/build.sh
+          sh ./scripts/build-circuit.sh
           yarn compile
       - name: Run Upgrade Tests
         run: |
@@ -78,7 +78,7 @@ jobs:
           git submodule update
       - name: Compile and Lint
         run: |
-          sh ./scripts/build.sh
+          sh ./scripts/build-circuit.sh
       - name: Run Upgrade Tests
         run: |
           bash ./scripts/test-upgradeability.sh

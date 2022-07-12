@@ -1,14 +1,37 @@
 name: Push documentation to docs repo
 
+#on:
+#  workflow_dispatch:
+#  push:
+#    tags:
+#      - v*
 on:
-  workflow_dispatch:
   push:
-    tags:
-      - v*
+    branches:
+      - master
+      - main
 
 jobs:
+  build-doc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.API_TOKEN_GITHUB }}
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '14'
+      - name: Install dependencies
+        run: |
+          yarn install
+          yarn doc:contracts
   push-to-docs:
+    needs: build-doc
     uses: nevermined-io/reusable-workflows/.github/workflows/push-to-docs.yml@main
     with:
-      path-to-push: external/contracts
+      path-to-push: docs/architecture/components/contracts
+      path-to-copy: docs/generated/
+      repo-to-push: nvm-docs
+      branch-to-clone: main
     secrets: inherit

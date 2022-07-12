@@ -157,7 +157,7 @@ function nftTokenWrapper(contract) {
 
 function nft721TokenWrapper(contract) {
     contract.initWrap = async (_a, _b, registry, _owner) => {
-        await contract.initialize()
+        await contract.initialize('', '')
         await contract.addMinter(registry.address)
         await contract.setProxyApproval(registry.address, true)
     }
