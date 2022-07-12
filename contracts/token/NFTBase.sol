@@ -70,7 +70,7 @@ abstract contract NFTBase is IERC2981Upgradeable, OwnableUpgradeable, AccessCont
     )
     internal
     {
-        require(royaltyAmount <= 100, 'ERC2981Royalties: Too high');
+        require(royaltyAmount <= 1000000, 'ERC2981Royalties: Too high');
         _royalties[tokenId] = RoyaltyInfo(receiver, royaltyAmount);
     }    
     
