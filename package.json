@@ -1,6 +1,6 @@
 {
   "name": "@nevermined-io/contracts",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Nevermined implementation of Nevermined in Solidity",
   "bugs": {
     "url": "https://github.com/nevermined-io/contracts/issues"
@@ -64,7 +64,7 @@
     "test:upgrade": "hardhat test $(find test/upgrade -name '*.*s')",
     "test:cover": "hardhat coverage --testfiles 'test'",
     "test:manticore": "./test/verification/manticore/run.sh",
-    "doc:contracts": "solidity-docgen -i contracts -o docs/contracts/ -t docs/docgen_template/ ",
+    "doc:contracts": "hardhat docgen && mv docs/generated/index.md docs/generated/solidity-api.md",
     "doc:addresses": "node scripts/contracts/get-addresses.js",
     "doc:copyright": "scripts/add-spdx.sh",
     "clean": "yarn clean:build&&yarn clean:coverage&&yarn clean:zos",
@@ -86,7 +86,7 @@
   },
   "files": [
     "artifacts/**/*development.json",
-	  "circuits/keytransfer.wasm",
+    "circuits/keytransfer.wasm",
     "circuits/keytransfer.zkey",
     "README.md"
   ],
@@ -108,8 +108,8 @@
     "bignumber.js": "^9.0.0",
     "chai": "^4.3.4",
     "chai-as-promised": "^7.1.1",
-    "circomlibjs": "^0.1.1",
     "circomlib": "^2.0.3",
+    "circomlibjs": "^0.1.1",
     "eslint": "^8.14.0",
     "eslint-config-oceanprotocol": "^1.5.0",
     "eslint-plugin-import": "^2.26.0",
@@ -129,7 +129,7 @@
     "snarkjs": "0.4.14",
     "solhint": "^3.3.7",
     "solidity-coverage": "^0.7.16",
-    "solidity-docgen": "^0.5.11",
+    "solidity-docgen": "^0.6.0-beta.17",
     "web3": "^1.7.3",
     "yargs": "~15.3.1"
   },

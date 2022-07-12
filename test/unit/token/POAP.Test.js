@@ -31,7 +31,7 @@ contract('POAP', (accounts) => {
 
     async function setupTest() {
         nft = await POAPUpgradeable.new({ from: deployer })
-        await nft.initialize({ from: owner })
+        await nft.initialize('TestPOAP', 'TEST', { from: owner })
         await nft.addMinter(minter)
     }
 

@@ -15,9 +15,6 @@ import '@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol';
  *      For an arbitrary Epoch, this library manages the life
  *      cycle of an Epoch. Usually this library is used for 
  *      handling the time window between conditions in an agreement.
- *      For more information about Epoch checkout the below link
- *      https://github.com/oceanprotocol/OEPs/issues/119   
- *      TODO: update to the OEP link
  */
 library EpochLibrary {
 
