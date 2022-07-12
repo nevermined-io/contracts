@@ -145,7 +145,13 @@ contract DistributeNFTCollateralCondition is Condition, ReentrancyGuardUpgradeab
             require(false, 'Still not fulfilled or aborted');
         }
         
-        return super.fulfill(_id, ConditionStoreLibrary.ConditionState.Fulfilled);
+        return super.fulfillWithProvenance(
+            _id,
+            ConditionStoreLibrary.ConditionState.Fulfilled,
+            _did,
+            'DistributeNFTCollateralCondition',
+            msg.sender
+        );
 
     }    
     

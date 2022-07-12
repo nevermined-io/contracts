@@ -25,6 +25,18 @@ contract DIDRegistry is DIDFactory {
     mapping (address => bool) public royaltiesCheckers;
     StandardRoyalties public defaultRoyalties;
 
+    INVMConfig public nvmConfig;
+    address public conditionManager;
+
+    modifier onlyConditionManager
+    {
+        require(
+            msg.sender == conditionManager,
+            'Only condition store manager'
+        );
+        _;
+    }
+
     //////////////////////////////////////////////////////////////
     ////////  EVENTS  ////////////////////////////////////////////
     //////////////////////////////////////////////////////////////
@@ -38,6 +50,7 @@ contract DIDRegistry is DIDFactory {
         address _owner,
         address _erc1155,
         address _erc721,
+        address _config,
         address _royalties
     )
     public
@@ -49,6 +62,7 @@ contract DIDRegistry is DIDFactory {
         transferOwnership(_owner);
         manager = _owner;
         defaultRoyalties = StandardRoyalties(_royalties);
+        nvmConfig = INVMConfig(_config);
     }
 
     function setDefaultRoyalties(address _royalties) public onlyOwner {
@@ -57,6 +71,10 @@ contract DIDRegistry is DIDFactory {
 
     function registerRoyaltiesChecker(address _addr) public onlyOwner {
         royaltiesCheckers[_addr] = true;
+    }
+
+    function setConditionManager(address _manager) public onlyOwner {
+        conditionManager = _manager;
     }
 
     event DIDRoyaltiesAdded(bytes32 indexed did, address indexed addr);
@@ -398,6 +416,14 @@ contract DIDRegistry is DIDFactory {
         super._used(
             keccak256(abi.encode(_did, msg.sender, 'burn721', 1, block.number)),
             _did, msg.sender, keccak256('burn721'), '', 'burn721');
+    }
+
+    function _provenanceStorage() override internal view returns (bool) {
+        return address(nvmConfig) == address(0) || nvmConfig.getProvenanceStorage();
+    }
+
+    function condition(bytes32 _did, bytes32 _cond, string memory name, address user) public onlyConditionManager {
+        _used(_cond, _did, user, keccak256(bytes(name)), '', name);
     }
 
 }

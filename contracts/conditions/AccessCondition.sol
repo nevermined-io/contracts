@@ -145,9 +145,12 @@ ISecretStore, ISecretStorePermission {
             hashValues(_documentId, _grantee)
         );
 
-        ConditionStoreLibrary.ConditionState state = super.fulfill(
+        ConditionStoreLibrary.ConditionState state = super.fulfillWithProvenance(
             _id,
-            ConditionStoreLibrary.ConditionState.Fulfilled
+            ConditionStoreLibrary.ConditionState.Fulfilled,
+            _documentId,
+            'AccessCondition',
+            msg.sender
         );
         
         emit Fulfilled(

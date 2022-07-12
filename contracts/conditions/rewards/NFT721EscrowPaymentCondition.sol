@@ -268,9 +268,12 @@ contract NFT721EscrowPaymentCondition is Reward, INFTEscrow, Common, IERC721Rece
         }
         emit Fulfilled(_agreementId, _tokenAddress, _did, _receiver, _id, _amount);
 
-        return super.fulfill(
+        return super.fulfillWithProvenance(
             _id,
-            ConditionStoreLibrary.ConditionState.Fulfilled
+            ConditionStoreLibrary.ConditionState.Fulfilled,
+            _did,
+            'NFT721EscrowPaymentCondition',
+            msg.sender
         );
     }
     

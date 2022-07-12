@@ -6,15 +6,11 @@ const { assert } = chai
 const chaiAsPromised = require('chai-as-promised')
 chai.use(chaiAsPromised)
 
-const NeverminedConfig = artifacts.require('NeverminedConfig')
-const EpochLibrary = artifacts.require('EpochLibrary')
-const ConditionStoreManager = artifacts.require('ConditionStoreManager')
-const DIDRegistryLibrary = artifacts.require('DIDRegistryLibrary')
 const ERC721 = artifacts.require('TestERC721')
-const DIDRegistry = artifacts.require('DIDRegistry')
 const NFTHolderCondition = artifacts.require('NFT721HolderCondition')
 
 const constants = require('../../helpers/constants.js')
+const { deployManagers } = require('../../helpers/utils.js')
 const testUtils = require('../../helpers/utils.js')
 
 contract('NFT721HolderCondition', (accounts) => {
@@ -25,32 +21,17 @@ contract('NFT721HolderCondition', (accounts) => {
     let conditionStoreManager
     let nftHolderCondition
     let token
-    let nvmConfig
-
-    before(async () => {
-        nvmConfig = await NeverminedConfig.new()
-        await nvmConfig.initialize(owner, owner)
-        const epochLibrary = await EpochLibrary.new()
-        await ConditionStoreManager.link(epochLibrary)
-        const didRegistryLibrary = await DIDRegistryLibrary.new()
-        await DIDRegistry.link(didRegistryLibrary)
-    })
 
     beforeEach(async () => {
         await setupTest()
     })
 
     async function setupTest() {
-        if (!didRegistry) {
-            didRegistry = await DIDRegistry.new()
-            await didRegistry.initialize(owner, constants.address.zero, constants.address.zero, constants.address.zero)
+        if (!conditionStoreManager) {
+            ({ didRegistry, conditionStoreManager } = await deployManagers(owner, createRole))
+
             token = await ERC721.new()
             await token.initialize()
-        }
-        if (!conditionStoreManager) {
-            conditionStoreManager = await ConditionStoreManager.new()
-            await conditionStoreManager.initialize(createRole, owner, nvmConfig.address, { from: owner })
-
             nftHolderCondition = await NFTHolderCondition.new()
             await nftHolderCondition.initialize(
                 accounts[0],

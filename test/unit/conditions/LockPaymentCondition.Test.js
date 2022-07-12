@@ -6,42 +6,24 @@ const { assert } = chai
 const chaiAsPromised = require('chai-as-promised')
 chai.use(chaiAsPromised)
 
-const NeverminedConfig = artifacts.require('NeverminedConfig')
-const EpochLibrary = artifacts.require('EpochLibrary')
-const ConditionStoreManager = artifacts.require('ConditionStoreManager')
-const DIDRegistryLibrary = artifacts.require('DIDRegistryLibrary')
-const DIDRegistry = artifacts.require('DIDRegistry')
 const NeverminedToken = artifacts.require('NeverminedToken')
 const LockPaymentCondition = artifacts.require('LockPaymentCondition')
-const NFT = artifacts.require('NFTUpgradeable')
 
 const constants = require('../../helpers/constants.js')
 const { getBalance, getETHBalance } = require('../../helpers/getBalance.js')
 const testUtils = require('../../helpers/utils.js')
 
 contract('LockPaymentCondition', (accounts) => {
-    let epochLibrary
     let nvmConfig
     let conditionStoreManager
     let token
     let lockPaymentCondition
     let didRegistry
-    let didRegistryLibrary
-    let nft
 
     const owner = accounts[1]
     const createRole = accounts[0]
     const checksum = testUtils.generateId()
     const url = 'https://nevermined.io/did/test-attr-example.txt'
-
-    before(async () => {
-        epochLibrary = await EpochLibrary.new()
-        await ConditionStoreManager.link(epochLibrary)
-        didRegistryLibrary = await DIDRegistryLibrary.new()
-        await DIDRegistry.link(didRegistryLibrary)
-        nvmConfig = await NeverminedConfig.new()
-        await nvmConfig.initialize(owner, owner)
-    })
 
     beforeEach(async () => {
         await setupTest()
@@ -49,18 +31,7 @@ contract('LockPaymentCondition', (accounts) => {
 
     async function setupTest() {
         if (!conditionStoreManager) {
-            nft = await NFT.new()
-            await nft.initialize('')
-            const StandardRoyalties = artifacts.require('StandardRoyalties')
-            const standardRoyalties = await StandardRoyalties.new()
-
-            didRegistry = await DIDRegistry.new()
-            await didRegistry.initialize(owner, nft.address, constants.address.zero, standardRoyalties.address, { from: owner })
-            await standardRoyalties.initialize(didRegistry.address)
-            await nft.addMinter(didRegistry.address)
-
-            conditionStoreManager = await ConditionStoreManager.new()
-            await conditionStoreManager.initialize(createRole, owner, nvmConfig.address, { from: owner })
+            ({ didRegistry, conditionStoreManager, nvmConfig } = await testUtils.deployManagers(owner, createRole))
 
             token = await NeverminedToken.new()
             await token.initialize(owner, owner)
@@ -78,25 +49,7 @@ contract('LockPaymentCondition', (accounts) => {
 
     describe('init failure', () => {
         it('needed contract addresses cannot be 0', async () => {
-            const nft = await NFT.new()
-            await nft.initialize('')
-
-            const StandardRoyalties = artifacts.require('StandardRoyalties')
-            const standardRoyalties = await StandardRoyalties.new()
-
-            const didRegistry = await DIDRegistry.new()
-            await didRegistry.initialize(owner, nft.address, constants.address.zero, standardRoyalties.address, { from: owner })
-            await standardRoyalties.initialize(didRegistry.address)
-            await nft.addMinter(didRegistry.address)
-
-            const conditionStoreManager = await ConditionStoreManager.new()
-            await conditionStoreManager.initialize(owner, owner, nvmConfig.address, { from: owner })
-
-            await conditionStoreManager.delegateCreateRole(
-                createRole,
-                { from: owner }
-            )
-
+            const { didRegistry, conditionStoreManager } = await testUtils.deployManagers(owner, createRole)
             const token = await NeverminedToken.new()
             await token.initialize(owner, owner)
 

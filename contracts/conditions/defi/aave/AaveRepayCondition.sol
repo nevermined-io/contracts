@@ -123,9 +123,12 @@ contract AaveRepayCondition is Condition, Common {
             hashValues(_did, _vaultAddress, _assetToRepay, _amountToRepay, _interestRateMode)
         );
 
-        ConditionStoreLibrary.ConditionState state = super.fulfill(
+        ConditionStoreLibrary.ConditionState state = super.fulfillWithProvenance(
             _id,
-            ConditionStoreLibrary.ConditionState.Fulfilled
+            ConditionStoreLibrary.ConditionState.Fulfilled,
+            _did,
+            'AaveRepayCondition',
+            msg.sender
         );
         
         if (state == ConditionStoreLibrary.ConditionState.Fulfilled)    {

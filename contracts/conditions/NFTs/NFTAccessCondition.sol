@@ -162,10 +162,12 @@ contract NFTAccessCondition is Condition, INFTAccess {
             _agreementId,
             hashValues(_documentId, _grantee, _contractAddress)
         );
-
-        ConditionStoreLibrary.ConditionState state = super.fulfill(
+        ConditionStoreLibrary.ConditionState state = super.fulfillWithProvenance(
             _id,
-            ConditionStoreLibrary.ConditionState.Fulfilled
+            ConditionStoreLibrary.ConditionState.Fulfilled,
+            _documentId,
+            'NFTAccessCondition',
+            msg.sender
         );
         
         emit Fulfilled(

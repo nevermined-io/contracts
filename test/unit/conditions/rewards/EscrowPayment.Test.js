@@ -65,7 +65,7 @@ function escrowTest(EscrowPaymentCondition, LockPaymentCondition, Token, nft, nf
         } = {}) {
             if (!escrowPayment) {
                 nvmConfig = await NeverminedConfig.new()
-                await nvmConfig.initialize(owner, owner)
+                await nvmConfig.initialize(owner, owner, false)
 
                 conditionStoreManager = await ConditionStoreManager.new()
                 await conditionStoreManager.initialize(

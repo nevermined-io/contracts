@@ -37,7 +37,7 @@ contract('Mintable DIDRegistry (ERC-721)', (accounts) => {
             const standardRoyalties = await StandardRoyalties.new()
 
             didRegistry = await DIDRegistry.new()
-            await didRegistry.initialize(owner, constants.address.zero, nft.address, standardRoyalties.address)
+            await didRegistry.initialize(owner, constants.address.zero, nft.address, constants.address.zero, standardRoyalties.address)
             await standardRoyalties.initialize(didRegistry.address)
             await nft.addMinter(didRegistry.address)
         }
@@ -246,7 +246,7 @@ contract('Mintable DIDRegistry (ERC-721)', (accounts) => {
             const checksum = testUtils.generateId()
 
             await didRegistry.registerAttribute(didSeed, checksum, [], value, { from: owner })
-            await didRegistry.enableAndMintDidNft721(did, 100000, false, "", { from: owner })
+            await didRegistry.enableAndMintDidNft721(did, 100000, false, '', { from: owner })
             await didRegistry.transferDIDOwnership(did, other, { from: owner })
 
             assert.isNotOk( // MUST BE FALSE. Royalties for original creator are too low

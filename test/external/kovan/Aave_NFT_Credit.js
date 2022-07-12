@@ -78,7 +78,7 @@ contract('End to End NFT Collateral Scenario [@skip-on-coverage]', (accounts) =>
         await token.initialize(owner, owner)
 
         const nvmConfig = await NeverminedConfig.new()
-        await nvmConfig.initialize(owner, governor)
+        await nvmConfig.initialize(owner, governor, false)
 
         const didRegistryLibrary = await DIDRegistryLibrary.new()
         await DIDRegistry.link(didRegistryLibrary)

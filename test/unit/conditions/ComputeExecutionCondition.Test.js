@@ -78,8 +78,6 @@ contract('ComputeExecutionCondition constructor', (accounts) => {
             const epochLibrary = await EpochLibrary.new()
             await ConditionStoreManager.link(epochLibrary)
             const conditionStoreManager = await ConditionStoreManager.new()
-            //            const agreementStoreLibrary = await AgreementStoreLibrary.new()
-            //            await AgreementStoreManager.link(agreementStoreLibrary)
             const agreementStoreManager = await AgreementStoreManager.new()
             const didRegistryLibrary = await DIDRegistryLibrary.new()
             await DIDRegistry.link(didRegistryLibrary)

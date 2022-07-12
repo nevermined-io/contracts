@@ -128,9 +128,12 @@ contract AaveCollateralWithdrawCondition is
             hashValues(_did, _vaultAddress, _collateralAsset)
         );
         
-        ConditionStoreLibrary.ConditionState state = super.fulfill(
+        ConditionStoreLibrary.ConditionState state = super.fulfillWithProvenance(
             _id,
-            ConditionStoreLibrary.ConditionState.Fulfilled
+            ConditionStoreLibrary.ConditionState.Fulfilled,
+            _did,
+            'AaveCollateralWithdrawCondition',
+            msg.sender
         );
         
         return state;
