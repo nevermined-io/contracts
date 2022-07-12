@@ -31,7 +31,7 @@ contract('StandardRoyalties', (accounts) => {
             await DIDRegistry.link(didRegistryLibrary)
 
             didRegistry = await DIDRegistry.new()
-            await didRegistry.initialize(owner, constants.address.zero, constants.address.zero)
+            await didRegistry.initialize(owner, constants.address.zero, constants.address.zero, constants.address.zero)
 
             royalties = await StandardRoyalties.new()
             await royalties.initialize(didRegistry.address)

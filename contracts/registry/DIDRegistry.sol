@@ -7,6 +7,7 @@ pragma solidity ^0.8.0;
 import './DIDFactory.sol';
 import '../token/erc1155/NFTUpgradeable.sol';
 import '../token/erc721/NFT721Upgradeable.sol';
+import '../royalties/StandardRoyalties.sol';
 
 /**
  * @title Mintable DID Registry
@@ -20,6 +21,7 @@ contract DIDRegistry is DIDFactory {
 
     NFTUpgradeable public erc1155;
     NFT721Upgradeable public erc721;
+    StandardRoyalties public defaultRoyalties;
 
     mapping (address => bool) public royaltiesCheckers;
 
@@ -35,7 +37,8 @@ contract DIDRegistry is DIDFactory {
     function initialize(
         address _owner,
         address _erc1155,
-        address _erc721
+        address _erc721,
+        address _royalties
     )
     public
     initializer
@@ -45,6 +48,11 @@ contract DIDRegistry is DIDFactory {
         erc721 = NFT721Upgradeable(_erc721);
         transferOwnership(_owner);
         manager = _owner;
+        defaultRoyalties = StandardRoyalties(_royalties);
+    }
+
+    function setDefaultRoyalties(address _royalties) public onlyOwner {
+        defaultRoyalties = StandardRoyalties(_royalties);
     }
 
     function registerRoyaltiesChecker(address _addr) public onlyOwner {

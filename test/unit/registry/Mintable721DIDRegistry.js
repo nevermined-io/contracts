@@ -39,7 +39,7 @@ contract('Mintable DIDRegistry (ERC-721)', (accounts) => {
             await nft.initialize('', '')
 
             didRegistry = await DIDRegistry.new()
-            await didRegistry.initialize(owner, constants.address.zero, nft.address)
+            await didRegistry.initialize(owner, constants.address.zero, nft.address, constants.address.zero)
             await nft.addMinter(didRegistry.address)
         }
     }

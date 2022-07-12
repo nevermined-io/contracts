@@ -50,7 +50,7 @@ contract('NFTMarkedLockCondition', (accounts) => {
             await nft.initialize('')
 
             didRegistry = await DIDRegistry.new()
-            await didRegistry.initialize(owner, nft.address, constants.address.zero)
+            await didRegistry.initialize(owner, nft.address, constants.address.zero, constants.address.zero)
             await nft.addMinter(didRegistry.address)
         }
         if (!conditionStoreManager) {
