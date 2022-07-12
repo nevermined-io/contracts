@@ -4,11 +4,7 @@ name: Security Tests Run Nightly
 #on:
 #  schedule:
 #    - cron:  '30 2 * * *'
-on:
-  push:
-    branches:
-      - master
-      - main
+on: push
 
 jobs:
   build:
