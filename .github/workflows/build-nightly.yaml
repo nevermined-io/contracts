@@ -85,27 +85,27 @@ jobs:
         env:
           NODE_OPTIONS: "--max-old-space-size=7500"
 
-  kovan-integration:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v1
-        with:
-          node-version: '14.x'
-      - name: Pre-install
-        env:
-          KOVAN_ARCHIVE_RPC_ENDPOINT: ${{ secrets.KOVAN_ARCHIVE_RPC_ENDPOINT }}
-        run: |
-          yarn
-          yarn run hardhat node --port 18545 --fork KOVAN_ARCHIVE_RPC_ENDPOINT --fork-block-number 28000000 &
-      - name: Compile and Lint
-        run: |
-          yarn lint
-          yarn clean
-          yarn compile
-      - name: Run Kovan Tests
-        run: |
-          yarn test:kovan-integration
-        env:
-          NODE_OPTIONS: "--max-old-space-size=7500"
-
+#  kovan-integration:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: actions/checkout@v3
+#      - uses: actions/setup-node@v1
+#        with:
+#          node-version: '14.x'
+#      - name: Pre-install
+#        env:
+#          KOVAN_ARCHIVE_RPC_ENDPOINT: ${{ secrets.KOVAN_ARCHIVE_RPC_ENDPOINT }}
+#        run: |
+#          yarn
+#          yarn run hardhat node --port 18545 --fork KOVAN_ARCHIVE_RPC_ENDPOINT --fork-block-number 28000000 &
+#      - name: Compile and Lint
+#        run: |
+#          yarn lint
+#          yarn clean
+#          yarn compile
+#      - name: Run Kovan Tests
+#        run: |
+#          yarn test:kovan-integration
+#        env:
+#          NODE_OPTIONS: "--max-old-space-size=7500"
+#
