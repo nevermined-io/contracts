@@ -77,7 +77,7 @@ function escrowTest(EscrowPaymentCondition, LockPaymentCondition, Token, nft, nf
 
                 token = tokenWrapper(await Token.new())
                 didRegistry = await DIDRegistry.new()
-                await didRegistry.initialize(owner, token.address, token.address, constants.address.zero)
+                await didRegistry.initialize(owner, token.address, token.address, constants.address.zero, constants.address.zero)
 
                 await token.initWrap(owner, owner, didRegistry)
                 lockPaymentCondition = lockWrapper(await LockPaymentCondition.new())
@@ -124,7 +124,7 @@ function escrowTest(EscrowPaymentCondition, LockPaymentCondition, Token, nft, nf
                 )
 
                 const didRegistry = await DIDRegistry.new()
-                await didRegistry.initialize(owner, constants.address.zero, constants.address.zero, constants.address.zero)
+                await didRegistry.initialize(owner, constants.address.zero, constants.address.zero, constants.address.zero, constants.address.zero)
 
                 const token = tokenWrapper(await Token.new())
                 await token.initWrap(owner, owner, didRegistry)

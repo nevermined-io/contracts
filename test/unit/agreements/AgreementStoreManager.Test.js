@@ -57,7 +57,7 @@ contract('AgreementStoreManager', (accounts) => {
             const didRegistryLibrary = await DIDRegistryLibrary.new()
             await DIDRegistry.link(didRegistryLibrary)
             didRegistry = await DIDRegistry.new()
-            await didRegistry.initialize(owner, constants.address.zero, constants.address.zero, constants.address.zero)
+            await didRegistry.initialize(owner, constants.address.zero, constants.address.zero, constants.address.zero, constants.address.zero)
 
             conditionStoreManager = await ConditionStoreManager.new({ from: deployer })
 

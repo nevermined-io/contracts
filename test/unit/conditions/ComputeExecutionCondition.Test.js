@@ -82,7 +82,7 @@ contract('ComputeExecutionCondition constructor', (accounts) => {
             const didRegistryLibrary = await DIDRegistryLibrary.new()
             await DIDRegistry.link(didRegistryLibrary)
             const didRegistry = await DIDRegistry.new()
-            await didRegistry.initialize(accounts[0], constants.address.zero, constants.address.zero, constants.address.zero)
+            await didRegistry.initialize(accounts[0], constants.address.zero, constants.address.zero, constants.address.zero, constants.address.zero)
             const computeExecutionCondition = await ComputeExecutionCondition.new()
 
             await computeExecutionCondition.methods['initialize(address,address,address)'](
