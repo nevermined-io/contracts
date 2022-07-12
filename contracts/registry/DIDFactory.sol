@@ -144,7 +144,7 @@ abstract contract DIDFactory is OwnableUpgradeable, ProvenanceRegistry {
         bytes32 _did,
         address _delegate
     );
-    
+
     /**
      * Sets the manager role. Should be the TransferCondition contract address
      */

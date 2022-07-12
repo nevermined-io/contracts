@@ -7,6 +7,7 @@ pragma solidity ^0.8.0;
 import './DIDFactory.sol';
 import '../token/erc1155/NFTUpgradeable.sol';
 import '../token/erc721/NFT721Upgradeable.sol';
+import '../royalties/StandardRoyalties.sol';
 
 /**
  * @title Mintable DID Registry
@@ -22,6 +23,7 @@ contract DIDRegistry is DIDFactory {
     NFT721Upgradeable public erc721;
 
     mapping (address => bool) public royaltiesCheckers;
+    StandardRoyalties public defaultRoyalties;
 
     INVMConfig public nvmConfig;
     address public conditionManager;
@@ -48,7 +50,8 @@ contract DIDRegistry is DIDFactory {
         address _owner,
         address _erc1155,
         address _erc721,
-        address _config
+        address _config,
+        address _royalties
     )
     public
     initializer
@@ -58,7 +61,12 @@ contract DIDRegistry is DIDFactory {
         erc721 = NFT721Upgradeable(_erc721);
         transferOwnership(_owner);
         manager = _owner;
+        defaultRoyalties = StandardRoyalties(_royalties);
         nvmConfig = INVMConfig(_config);
+    }
+
+    function setDefaultRoyalties(address _royalties) public onlyOwner {
+        defaultRoyalties = StandardRoyalties(_royalties);
     }
 
     function registerRoyaltiesChecker(address _addr) public onlyOwner {
@@ -125,7 +133,7 @@ contract DIDRegistry is DIDFactory {
         address[] memory _providers,
         string memory _url,
         uint256 _cap,
-        uint8 _royalties,
+        uint256 _royalties,
         bool _mint,
         bytes32 _activityId,
         string memory _nftMetadata
@@ -163,7 +171,7 @@ contract DIDRegistry is DIDFactory {
         bytes32 _checksum,
         address[] memory _providers,
         string memory _url,
-        uint8 _royalties,
+        uint256 _royalties,
         bool _mint,
         bytes32 _activityId,
         string memory _nftMetadata
@@ -203,7 +211,7 @@ contract DIDRegistry is DIDFactory {
         address[] memory _providers,
         string memory _url,
         uint256 _cap,
-        uint8 _royalties,
+        uint256 _royalties,
         bytes32 _activityId,
         string memory _nftMetadata
     )
@@ -231,7 +239,7 @@ contract DIDRegistry is DIDFactory {
     function enableAndMintDidNft(
         bytes32 _did,
         uint256 _cap,
-        uint8 _royalties,
+        uint256 _royalties,
         bool _mint,
         string memory _nftMetadata
     )
@@ -239,13 +247,15 @@ contract DIDRegistry is DIDFactory {
     onlyDIDOwner(_did)
     returns (bool success)
     {
-        didRegisterList.initializeNftConfig(_did, _cap, _royalties);
+        didRegisterList.initializeNftConfig(_did, _cap, _royalties > 0 ? defaultRoyalties : IRoyaltyScheme(address(0)));
         
         if (bytes(_nftMetadata).length > 0)
             erc1155.setNFTMetadata(uint256(_did), _nftMetadata);
         
-        if (_royalties > 0)
+        if (_royalties > 0) {
             erc1155.setTokenRoyalty(uint256(_did), msg.sender, _royalties);
+            if (address(defaultRoyalties) != address(0)) defaultRoyalties.setRoyalty(_did, _royalties);
+        }
         
         if (_mint)
             mint(_did, _cap);
@@ -269,7 +279,7 @@ contract DIDRegistry is DIDFactory {
      */    
     function enableAndMintDidNft721(
         bytes32 _did,
-        uint8 _royalties,
+        uint256 _royalties,
         bool _mint,
         string memory _nftMetadata
     )
@@ -277,14 +287,16 @@ contract DIDRegistry is DIDFactory {
     onlyDIDOwner(_did)
     returns (bool success)
     {
-        didRegisterList.initializeNft721Config(_did, _royalties);
+        didRegisterList.initializeNft721Config(_did, _royalties > 0 ? defaultRoyalties : IRoyaltyScheme(address(0)));
 
         if (bytes(_nftMetadata).length > 0)
             erc721.setNFTMetadata(uint256(_did), _nftMetadata);
         
-        if (_royalties > 0)
+        if (_royalties > 0) {
+            if (address(defaultRoyalties) != address(0)) defaultRoyalties.setRoyalty(_did, _royalties);
             erc721.setTokenRoyalty(uint256(_did), msg.sender, _royalties);
-        
+        }
+
         if (_mint)
             mint721(_did, msg.sender);
         

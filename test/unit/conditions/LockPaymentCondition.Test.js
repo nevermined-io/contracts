@@ -369,7 +369,7 @@ contract('LockPaymentCondition', (accounts) => {
 
             // register DID
             await didRegistry.registerMintableDID(
-                didSeed, checksum, [], url, amounts[0], 20, constants.activities.GENERATED, '')
+                didSeed, checksum, [], url, amounts[0], 200000, constants.activities.GENERATED, '')
 
             await didRegistry.transferDIDOwnership(did, accounts[4])
 
