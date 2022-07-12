@@ -12,7 +12,7 @@ const deployManagers = async function(deployer, owner, governor = owner) {
     const token = await testUtils.deploy('NeverminedToken', [owner, owner], deployer)
     const nvmConfig = await testUtils.deploy('NeverminedConfig', [owner, governor], deployer)
     const nft = await testUtils.deploy('NFTUpgradeable', [''], deployer)
-    const nft721 = await testUtils.deploy('NFT721Upgradeable', ['NFT721', 'NVM'], deployer)
+    const nft721 = await testUtils.deploy('NFT721Upgradeable', [], deployer)
 
     const didRegistry = await testUtils.deploy('DIDRegistry', [owner, nft.address, nft721.address, constants.address.zero], deployer, [didRegistryLibrary])
     const royaltyManager = await testUtils.deploy('StandardRoyalties', [didRegistry.address], deployer)
@@ -48,6 +48,7 @@ const deployManagers = async function(deployer, owner, governor = owner) {
             { from: owner }
         )
         await didRegistry.registerRoyaltiesChecker(royaltyManager.address, { from: owner })
+        await didRegistry.setDefaultRoyalties(royaltyManager.address, { from: owner })
     }
 
     return {

@@ -21,9 +21,9 @@ contract DIDRegistry is DIDFactory {
 
     NFTUpgradeable public erc1155;
     NFT721Upgradeable public erc721;
-    StandardRoyalties public defaultRoyalties;
 
     mapping (address => bool) public royaltiesCheckers;
+    StandardRoyalties public defaultRoyalties;
 
     //////////////////////////////////////////////////////////////
     ////////  EVENTS  ////////////////////////////////////////////
@@ -229,7 +229,7 @@ contract DIDRegistry is DIDFactory {
     onlyDIDOwner(_did)
     returns (bool success)
     {
-        didRegisterList.initializeNftConfig(_did, _cap, defaultRoyalties);
+        didRegisterList.initializeNftConfig(_did, _cap, _royalties > 0 ? defaultRoyalties : IRoyaltyScheme(address(0)));
         
         if (bytes(_nftMetadata).length > 0)
             erc1155.setNFTMetadata(uint256(_did), _nftMetadata);
@@ -269,7 +269,7 @@ contract DIDRegistry is DIDFactory {
     onlyDIDOwner(_did)
     returns (bool success)
     {
-        didRegisterList.initializeNft721Config(_did, defaultRoyalties);
+        didRegisterList.initializeNft721Config(_did, _royalties > 0 ? defaultRoyalties : IRoyaltyScheme(address(0)));
 
         if (bytes(_nftMetadata).length > 0)
             erc721.setNFTMetadata(uint256(_did), _nftMetadata);

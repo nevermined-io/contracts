@@ -136,7 +136,7 @@ async function initializeContracts({
         addressBook.DIDRegistry = await zosCreate({
             contract: 'DIDRegistry',
             ctx,
-            args: [roles.deployer, addressBook.NFTUpgradeable || ZeroAddress, addressBook.NFT721Upgradeable || ZeroAddress],
+            args: [roles.deployer, addressBook.NFTUpgradeable || ZeroAddress, addressBook.NFT721Upgradeable || ZeroAddress, ZeroAddress],
             libraries: { DIDRegistryLibrary: didRegistryLibrary },
             verbose
         })

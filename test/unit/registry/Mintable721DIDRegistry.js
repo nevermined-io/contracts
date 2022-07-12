@@ -31,7 +31,7 @@ contract('Mintable DIDRegistry (ERC-721)', (accounts) => {
             await DIDRegistry.link(didRegistryLibrary)
 
             nft = await NFT.new()
-            await nft.initialize('', '')
+            await nft.initialize()
 
             const StandardRoyalties = artifacts.require('StandardRoyalties')
             const standardRoyalties = await StandardRoyalties.new()

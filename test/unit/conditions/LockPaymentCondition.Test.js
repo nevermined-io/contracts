@@ -51,8 +51,12 @@ contract('LockPaymentCondition', (accounts) => {
         if (!conditionStoreManager) {
             nft = await NFT.new()
             await nft.initialize('')
+            const StandardRoyalties = artifacts.require('StandardRoyalties')
+            const standardRoyalties = await StandardRoyalties.new()
+
             didRegistry = await DIDRegistry.new()
-            await didRegistry.initialize(owner, nft.address, constants.address.zero, constants.address.zero, { from: owner })
+            await didRegistry.initialize(owner, nft.address, constants.address.zero, standardRoyalties.address, { from: owner })
+            await standardRoyalties.initialize(didRegistry.address)
             await nft.addMinter(didRegistry.address)
 
             conditionStoreManager = await ConditionStoreManager.new()
@@ -76,8 +80,13 @@ contract('LockPaymentCondition', (accounts) => {
         it('needed contract addresses cannot be 0', async () => {
             const nft = await NFT.new()
             await nft.initialize('')
+
+            const StandardRoyalties = artifacts.require('StandardRoyalties')
+            const standardRoyalties = await StandardRoyalties.new()
+
             const didRegistry = await DIDRegistry.new()
-            await didRegistry.initialize(owner, nft.address, constants.address.zero, constants.address.zero, { from: owner })
+            await didRegistry.initialize(owner, nft.address, constants.address.zero, standardRoyalties.address, { from: owner })
+            await standardRoyalties.initialize(didRegistry.address)
             await nft.addMinter(didRegistry.address)
 
             const conditionStoreManager = await ConditionStoreManager.new()
@@ -407,7 +416,7 @@ contract('LockPaymentCondition', (accounts) => {
 
             // register DID
             await didRegistry.registerMintableDID(
-                didSeed, checksum, [], url, amounts[0], 20, constants.activities.GENERATED, '')
+                didSeed, checksum, [], url, amounts[0], 200000, constants.activities.GENERATED, '')
 
             await didRegistry.transferDIDOwnership(did, accounts[4])
 
