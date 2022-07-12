@@ -40,10 +40,10 @@ jobs:
         with:
           node-version: 14
           sarif: results.sarif
-       - name: Upload SARIF file
-         uses: github/codeql-action/upload-sarif@v2
-         with:
-            sarif_file: ${{ steps.slither.outputs.sarif }}
+      - name: Upload SARIF file
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: ${{ steps.slither.outputs.sarif }}
 
 #  mythril:
 #      runs-on: ubuntu-latest
