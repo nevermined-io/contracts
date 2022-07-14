@@ -31,6 +31,7 @@ jobs:
             - name: Flattening contracts
               run: |
                   sh ./scripts/hardhat-flattener.sh
+                  cd
               env:
                   NODE_OPTIONS: "--max-old-space-size=7500"
 
