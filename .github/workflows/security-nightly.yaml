@@ -31,40 +31,63 @@ jobs:
             - name: Flattening contracts
               run: |
                   sh ./scripts/hardhat-flattener.sh
-              env:
-                  NODE_OPTIONS: "--max-old-space-size=7500"
-
-    slither:
-        needs: build
-        runs-on: ubuntu-latest
-        steps:
             - name: Run Slither
               run: |
                   pip install slither-analyzer
                   yarn clean
-                  cd ..
                   yarn security:slither
                   echo '\n## SLITHER REPORT :rocket:\n\n' >> $GITHUB_STEP_SUMMARY
                   cat slitherReport.txt >> $GITHUB_STEP_SUMMARY
-            - name: Archive report
+            - name: Archive Slyther report
               uses: actions/upload-artifact@v3
               with:
                   name: slither-report
                   path: slitherReport.txt
-
-    mythril:
-        needs: build
-        runs-on: ubuntu-latest
-        steps:
             - name: Run Mythril
               run: |
                   pip install mythril
-                  cd ..
                   yarn security:mythril
                   echo '\n## MYTHRIL REPORT :rocket:\n\n' >> $GITHUB_STEP_SUMMARY
                   cat mythrilReport.txt >> $GITHUB_STEP_SUMMARY
-            - name: Archive report
+            - name: Archive Mythril report
               uses: actions/upload-artifact@v3
               with:
                   name: mythril-report
                   path: mythrilReport.txt
+              env:
+                  NODE_OPTIONS: "--max-old-space-size=7500"
+#
+#    slither:
+#        needs: build
+#        runs-on: ubuntu-latest
+#        steps:
+#            - name: Run Slither
+#              run: |
+#                  pip install slither-analyzer
+#                  yarn clean
+#                  cd ..
+#                  yarn security:slither
+#                  echo '\n## SLITHER REPORT :rocket:\n\n' >> $GITHUB_STEP_SUMMARY
+#                  cat slitherReport.txt >> $GITHUB_STEP_SUMMARY
+#            - name: Archive report
+#              uses: actions/upload-artifact@v3
+#              with:
+#                  name: slither-report
+#                  path: slitherReport.txt
+#
+#    mythril:
+#        needs: build
+#        runs-on: ubuntu-latest
+#        steps:
+#            - name: Run Mythril
+#              run: |
+#                  pip install mythril
+#                  cd ..
+#                  yarn security:mythril
+#                  echo '\n## MYTHRIL REPORT :rocket:\n\n' >> $GITHUB_STEP_SUMMARY
+#                  cat mythrilReport.txt >> $GITHUB_STEP_SUMMARY
+#            - name: Archive report
+#              uses: actions/upload-artifact@v3
+#              with:
+#                  name: mythril-report
+#                  path: mythrilReport.txt
