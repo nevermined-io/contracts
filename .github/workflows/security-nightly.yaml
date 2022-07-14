@@ -26,7 +26,6 @@ jobs:
                   git submodule update
             - name: Compile and Lint
               run: |
-                  yarn lint
                   yarn clean
                   yarn compile
             - name: Flattening contracts
@@ -42,8 +41,16 @@ jobs:
             - name: Run Slither
               run: |
                   pip install slither-analyzer
+                  yarn clean
                   yarn security:slither
-                  cat slitherReport.txt
+                  echo '\n## SLITHER REPORT :rocket:\n\n' >> $GITHUB_STEP_SUMMARY
+                  cat slitherReport.txt >> $GITHUB_STEP_SUMMARY
+            - name: Archive report
+              uses: actions/upload-artifact@v3
+              with:
+                  name: slither-report
+                  path: slitherReport.txt
+
     mythril:
         needs: build
         runs-on: ubuntu-latest
@@ -51,7 +58,11 @@ jobs:
             - name: Run Mythril
               run: |
                   pip install mythril
-                  myth --version
                   yarn security:mythril
-                  cat mythrilReport.txt
-
+                  echo '\n## MYTHRIL REPORT :rocket:\n\n' >> $GITHUB_STEP_SUMMARY
+                  cat mythrilReport.txt >> $GITHUB_STEP_SUMMARY
+            - name: Archive report
+              uses: actions/upload-artifact@v3
+              with:
+                  name: mythril-report
+                  path: mythrilReport.txt
