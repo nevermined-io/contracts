@@ -24,13 +24,6 @@ jobs:
                   yarn install --frozen-lockfile
                   git submodule init
                   git submodule update
-            - name: Compile and Lint
-              run: |
-                  yarn clean
-                  yarn compile
-            - name: Flattening contracts
-              run: |
-                  sh ./scripts/hardhat-flattener.sh
             - name: Run Slither
               run: |
                   pip install slither-analyzer
@@ -43,6 +36,13 @@ jobs:
               with:
                   name: slither-report
                   path: slitherReport.txt
+            - name: Compile
+              run: |
+                  yarn clean
+                  yarn compile
+            - name: Flattening contracts
+              run: |
+                  sh ./scripts/hardhat-flattener.sh
             - name: Run Mythril
               run: |
                   pip install mythril
