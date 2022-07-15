@@ -1,111 +1,112 @@
 name: Build and Tests Nightly
 
 on:
-  schedule:
-    - cron:  '30 5 * * *'
+    schedule:
+        - cron:  '30 5 * * *'
 
 jobs:
-  tests:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v1
-        with:
-          node-version: '14.x'
-      - name: Pre-install
-        run: |
-          rm -rf node_modules
-          yarn install --frozen-lockfile
-          git submodule init
-          git submodule update
-      - name: Compile and Lint
-        run: |
-          yarn lint
-          yarn clean
-          sh ./scripts/build-circuit.sh
-          yarn compile
-      - name: Run Unit Tests
-        run: |
-          yarn test:unit
-      - name: Run Integration Tests
-        run: |
-          yarn test:integration
-        env:
-          NODE_OPTIONS: "--max-old-space-size=7500"
+    tests:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+            - uses: actions/setup-node@v1
+              with:
+                  node-version: '14.x'
+            - name: Pre-install
+              run: |
+                  rm -rf node_modules
+                  yarn install --frozen-lockfile
+                  git submodule init
+                  git submodule update
+            - name: Compile and Lint
+              run: |
+                  yarn lint
+                  yarn clean
+                  sh ./scripts/build-circuit.sh
+                  yarn compile
+            - name: Run Unit Tests
+              run: |
+                  yarn test:unit
+            - name: Run Integration Tests
+              run: |
+                  yarn test:integration
+              env:
+                  NODE_OPTIONS: "--max-old-space-size=7500"
 
-  upgradability:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v1
-        with:
-          node-version: '14.x'
-      - name: Pre-install
-        run: |
-          yarn install --frozen-lockfile
-          npx hardhat node --port 18545 &
-          git submodule init
-          git submodule update
-      - name: Compile and Lint
-        run: |
-          yarn lint
-          yarn clean
-          sh ./scripts/build-circuit.sh
-          yarn compile
-      - name: Run Upgrade Tests
-        run: |
-          yarn test:upgrade
-          yarn deploy:external
-          yarn upgrade:external
-          git status
-        env:
-          NODE_OPTIONS: "--max-old-space-size=7500"
+    upgradability:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+            - uses: actions/setup-node@v1
+              with:
+                  node-version: '14.x'
+            - name: Pre-install
+              run: |
+                  yarn install --frozen-lockfile
+                  npx hardhat node --port 18545 &
+                  git submodule init
+                  git submodule update
+            - name: Compile and Lint
+              run: |
+                  yarn lint
+                  yarn clean
+                  sh ./scripts/build-circuit.sh
+                  yarn compile
+            - name: Run Upgrade Tests
+              run: |
+                  yarn test:upgrade
+                  yarn deploy:external
+                  yarn upgrade:external
+                  git status
+              env:
+                  NODE_OPTIONS: "--max-old-space-size=7500"
 
-  upgradability-version:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-      - uses: actions/setup-node@v1
-        with:
-          node-version: '14.x'
-      - name: Pre-install
-        run: |
-          export
-          yarn install --frozen-lockfile
-          git submodule init
-          git submodule update
-      - name: Compile and Lint
-        run: |
-          sh ./scripts/build-circuit.sh
-      - name: Run Upgrade Tests
-        run: |
-          bash ./scripts/test-upgradeability.sh
-        env:
-          NODE_OPTIONS: "--max-old-space-size=7500"
+    upgradability-version:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+              with:
+                  fetch-depth: 0
+            - uses: actions/setup-node@v1
+              with:
+                  node-version: '14.x'
+            - name: Pre-install
+              run: |
+                  export
+                  yarn install --frozen-lockfile
+                  git submodule init
+                  git submodule update
+            - name: Compile and Lint
+              run: |
+                  sh ./scripts/build-circuit.sh
+            - name: Run Upgrade Tests
+              run: |
+                  bash ./scripts/test-upgradeability.sh
+              env:
+                  NODE_OPTIONS: "--max-old-space-size=7500"
 
-  kovan-integration:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v1
-        with:
-          node-version: '14.x'
-      - name: Pre-install
-        env:
-          KOVAN_ARCHIVE_RPC_ENDPOINT: ${{ secrets.KOVAN_ARCHIVE_RPC_ENDPOINT }}
-        run: |
-          yarn
-          yarn run hardhat node --port 18545 --fork KOVAN_ARCHIVE_RPC_ENDPOINT --fork-block-number 28000000 &
-      - name: Compile and Lint
-        run: |
-          yarn lint
-          yarn clean
-          yarn compile
-      - name: Run Kovan Tests
-        run: |
-          yarn test:kovan-integration
-        env:
-          NODE_OPTIONS: "--max-old-space-size=7500"
+    kovan-integration:
+        if: ${{ false }}
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+            - uses: actions/setup-node@v1
+              with:
+                  node-version: '14.x'
+            - name: Pre-install
+              env:
+                  KOVAN_ARCHIVE_RPC_ENDPOINT: ${{ secrets.KOVAN_ARCHIVE_RPC_ENDPOINT }}
+              run: |
+                  yarn
+                  yarn run hardhat node --port 18545 --fork KOVAN_ARCHIVE_RPC_ENDPOINT --fork-block-number 28000000 &
+            - name: Compile and Lint
+              run: |
+                  yarn lint
+                  yarn clean
+                  yarn compile
+            - name: Run Kovan Tests
+              run: |
+                  yarn test:kovan-integration
+              env:
+                  NODE_OPTIONS: "--max-old-space-size=7500"
 
