@@ -11,5 +11,3 @@ for i in artifacts/*.external.json; do
   echo $i
   myth a -a $(jq -r .address $i) --rpc localhost:18545 -o text --execution-timeout 30 -t 5 2>> mythril_report.txt
 done
-
-#myth a flattened/AgreementStoreManager.sol -o text --execution-timeout 30 -t 5 2>> mythril_report.txt
