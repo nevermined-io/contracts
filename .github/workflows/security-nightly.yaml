@@ -1,13 +1,11 @@
 name: Security Tests Run Nightly
 
-# TODO: ENABLE NIGHTLY EXECUTION WHEN TESTS ARE OKAY
-#on:
-#  schedule:
-#    - cron:  '30 2 * * *'
-on: push
+on:
+  schedule:
+    - cron:  '30 2 * * *'
 
 jobs:
-    build:
+    analysis:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v3
@@ -29,7 +27,7 @@ jobs:
                   pip install slither-analyzer
                   yarn clean
                   yarn security:slither
-                  echo '\n## SLITHER REPORT :rocket:\n\n' >> $GITHUB_STEP_SUMMARY
+                  echo '\n\nSLITHER REPORT :rocket:\n\n' >> $GITHUB_STEP_SUMMARY
                   cat slitherReport.txt >> $GITHUB_STEP_SUMMARY
             - name: Archive Slyther report
               uses: actions/upload-artifact@v3
@@ -47,7 +45,7 @@ jobs:
               run: |
                   pip install mythril
                   yarn security:mythril
-                  echo '\n## MYTHRIL REPORT :rocket:\n\n' >> $GITHUB_STEP_SUMMARY
+                  echo '\n\nMYTHRIL REPORT :rocket:\n\n' >> $GITHUB_STEP_SUMMARY
                   cat mythrilReport.txt >> $GITHUB_STEP_SUMMARY
             - name: Archive Mythril report
               uses: actions/upload-artifact@v3
@@ -56,38 +54,3 @@ jobs:
                   path: mythrilReport.txt
               env:
                   NODE_OPTIONS: "--max-old-space-size=7500"
-#
-#    slither:
-#        needs: build
-#        runs-on: ubuntu-latest
-#        steps:
-#            - name: Run Slither
-#              run: |
-#                  pip install slither-analyzer
-#                  yarn clean
-#                  cd ..
-#                  yarn security:slither
-#                  echo '\n## SLITHER REPORT :rocket:\n\n' >> $GITHUB_STEP_SUMMARY
-#                  cat slitherReport.txt >> $GITHUB_STEP_SUMMARY
-#            - name: Archive report
-#              uses: actions/upload-artifact@v3
-#              with:
-#                  name: slither-report
-#                  path: slitherReport.txt
-#
-#    mythril:
-#        needs: build
-#        runs-on: ubuntu-latest
-#        steps:
-#            - name: Run Mythril
-#              run: |
-#                  pip install mythril
-#                  cd ..
-#                  yarn security:mythril
-#                  echo '\n## MYTHRIL REPORT :rocket:\n\n' >> $GITHUB_STEP_SUMMARY
-#                  cat mythrilReport.txt >> $GITHUB_STEP_SUMMARY
-#            - name: Archive report
-#              uses: actions/upload-artifact@v3
-#              with:
-#                  name: mythril-report
-#                  path: mythrilReport.txt
