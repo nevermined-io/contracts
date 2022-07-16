@@ -44,7 +44,7 @@ module.exports = {
         ]
     },
     gasReporter: {
-        enabled: (process.env.REPORT_GAS) ? true : false,
+        enabled: !!(process.env.REPORT_GAS),
         showTimeSpent: true,
         currency: 'EUR'
     },
