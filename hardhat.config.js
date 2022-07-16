@@ -43,6 +43,11 @@ module.exports = {
             '@gnosis.pm/safe-contracts/contracts/proxies/GnosisSafeProxyFactory.sol'
         ]
     },
+    gasReporter: {
+        enabled: (process.env.REPORT_GAS) ? true : false,
+        showTimeSpent: true,
+        currency: 'EUR'
+    },
     docgen: {
         outputDir: 'docs/generated/'
         // Following lines are commented until solidity-docgen v0.6 provides a proper templates support
