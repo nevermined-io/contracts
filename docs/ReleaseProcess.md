@@ -122,7 +122,7 @@ One instance of the multi sig wallet, defined as `owner`. This wallet will be as
 Once the contracts are deployed to a public network or a new contract version whose contract abis has to been uploaded, use `scripts/upload_artifacts_s3.sh` to upload
 the contracts or artifacts to repository https://artifacts-nevermined-rocks.s3.amazonaws.com.
 
-*Your environment has to be configured and authorized to use aws cli to upload files to `artifacts-nevermined-rocks` bucketi*.
+*Your environment has to be configured and authorized to use aws cli to upload files to `artifacts-nevermined-rocks` bucket.*.
 
 The script has the next variables:
 
