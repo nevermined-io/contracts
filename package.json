@@ -75,9 +75,9 @@
     "lint:eslint": "eslint --ignore-path .gitignore --ignore-pattern circuits --ext .js .",
     "lint:ethlint": "solhint --max-warnings 0 'contracts/**/*.sol'",
     "lint:fix": "yarn lint:eslint --fix && yarn lint:ethlint --fix",
-    "security:mythril": "truffle compile&&myth -x --truffle --max-depth 12 --outform markdown 2>&1 | tee mythrilReport.md",
+    "security:mythril": "./scripts/run-mythril-local.sh | tee mythrilReport.txt",
     "security:securify": "docker run -v $(pwd):/project chainsecurity/securify -t 2>&1 | tee securifyReport.txt",
-    "security:slither": "export DISABLE_DEPENDENCIES=true && rm -rf build && slither . --hardhat-artifacts-directory build 2>&1 | tee slitherReport.txt",
+    "security:slither": "export DISABLE_DEPENDENCIES=true && slither . --hardhat-artifacts-directory build 2>&1 | tee slitherReport.txt",
     "security:upgradeability": "yarn clean&&yarn compile&&./scripts/upgradeability_checks.sh"
   },
   "directories": {
