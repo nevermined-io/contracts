@@ -18,16 +18,6 @@ abstract contract INVMConfig {
     );
 
     /**
-     * @notice Used to initialize the contract during delegator constructor
-     * @param _owner The owner of the contract
-     * @param _governor The address to be granted with the `GOVERNOR_ROLE`
-     */
-    function initialize(
-        address _owner,
-        address _governor
-    ) virtual external;
-
-    /**
      * @notice The governor can update the Nevermined Marketplace fees
      * @param _marketplaceFee new marketplace fee 
      * @param _feeReceiver The address receiving the fee      
@@ -59,4 +49,11 @@ abstract contract INVMConfig {
      */    
     function getFeeReceiver()
     external view virtual returns (address);
+
+    /**
+     * @notice Returns true if provenance should be stored in storage
+     * @return true if provenance should be stored in storage
+     */    
+    function getProvenanceStorage()
+    external view virtual returns (bool);
 }

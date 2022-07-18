@@ -23,7 +23,7 @@ contract('SignCondition constructor', (accounts) => {
 
     before(async () => {
         nvmConfig = await NeverminedConfig.new()
-        await nvmConfig.initialize(owner, owner)
+        await nvmConfig.initialize(owner, owner, false)
         const epochLibrary = await EpochLibrary.new()
         await ConditionStoreManager.link(epochLibrary)
     })

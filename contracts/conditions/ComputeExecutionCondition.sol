@@ -123,9 +123,12 @@ contract ComputeExecutionCondition is Condition {
             hashValues(_did, _computeConsumer)
         );
 
-        ConditionStoreLibrary.ConditionState state = super.fulfill(
+        ConditionStoreLibrary.ConditionState state = super.fulfillWithProvenance(
             _id,
-            ConditionStoreLibrary.ConditionState.Fulfilled
+            ConditionStoreLibrary.ConditionState.Fulfilled,
+            _did,
+            'ComputeExecutionCondition',
+            msg.sender
         );
         
         computeExecutionStatus[_did][_computeConsumer] = true;

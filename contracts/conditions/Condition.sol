@@ -64,6 +64,20 @@ contract Condition is OwnableUpgradeable {
         return conditionStoreManager.updateConditionState(_id, _newState);
     }
 
+    function fulfillWithProvenance(
+        bytes32 _id,
+        ConditionStoreLibrary.ConditionState _newState,
+        bytes32 _did,
+        string memory _name,
+        address _user
+    )
+        internal
+        returns (ConditionStoreLibrary.ConditionState)
+    {
+        // _newState can be Fulfilled or Aborted
+        return conditionStoreManager.updateConditionStateWithProvenance(_id, _did, _name, _user, _newState);
+    }
+
 
     /**
     * @notice abortByTimeOut set condition state to Aborted 

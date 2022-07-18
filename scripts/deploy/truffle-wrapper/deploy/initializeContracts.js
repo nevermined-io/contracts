@@ -109,7 +109,7 @@ async function initializeContracts({
         addressBook.NeverminedConfig = await zosCreate({
             contract: 'NeverminedConfig',
             ctx,
-            args: [roles.deployer, roles.deployer],
+            args: [roles.deployer, roles.deployer, false],
             verbose
         })
     }
@@ -136,7 +136,7 @@ async function initializeContracts({
         addressBook.DIDRegistry = await zosCreate({
             contract: 'DIDRegistry',
             ctx,
-            args: [roles.deployer, addressBook.NFTUpgradeable || ZeroAddress, addressBook.NFT721Upgradeable || ZeroAddress],
+            args: [roles.deployer, addressBook.NFTUpgradeable || ZeroAddress, addressBook.NFT721Upgradeable || ZeroAddress, addressBook.NeverminedConfig || ZeroAddress, ZeroAddress],
             libraries: { DIDRegistryLibrary: didRegistryLibrary },
             verbose
         })

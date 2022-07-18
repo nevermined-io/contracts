@@ -96,14 +96,13 @@ library DIDRegistryLibrary {
      * @param _self refers to storage pointer
      * @param _did refers to decentralized identifier (a byte32 length ID)
      * @param _cap refers to the mint cap
-     * @param _royalties refers to the royalties to reward to the DID creator in the secondary market
-     *        The royalties in secondary market for the creator should be between 0% >= x < 100%
+     * @param _royaltyHandler contract for handling royalties
      */
     function initializeNftConfig(
         DIDRegisterList storage _self,
         bytes32 _did,
         uint256 _cap,
-        uint8 _royalties
+        IRoyaltyScheme _royaltyHandler
     )
     internal
     {
@@ -111,18 +110,15 @@ library DIDRegistryLibrary {
         
         require(!_self.didRegisters[_did].nftInitialized, 'NFT already initialized');
         
-        require(_royalties <= 100, 'Invalid royalties number');
-        require(_royalties >= _self.didRegisters[_did].royalties, 'Cannot decrease royalties');
-
         _self.didRegisters[_did].mintCap = _cap;
-        _self.didRegisters[_did].royalties = _royalties;
+        _self.didRegisters[_did].royaltyScheme = _royaltyHandler;
         _self.didRegisters[_did].nftInitialized = true;
     }
 
     function initializeNft721Config(
         DIDRegisterList storage _self,
         bytes32 _did,
-        uint8 _royalties
+        IRoyaltyScheme _royaltyHandler
     )
     internal
     {
@@ -130,10 +126,7 @@ library DIDRegistryLibrary {
         
         require(!_self.didRegisters[_did].nft721Initialized, 'NFT already initialized');
         
-        require(_royalties < 100, 'Invalid royalties number');
-        require(_royalties >= _self.didRegisters[_did].royalties, 'Cannot decrease royalties');
-
-        _self.didRegisters[_did].royalties = _royalties;
+        _self.didRegisters[_did].royaltyScheme = _royaltyHandler;
         _self.didRegisters[_did].nft721Initialized = true;
     }
 

@@ -494,6 +494,7 @@ async function setupContracts({
     if (addressBook.DIDRegistry && addressBook.StandardRoyalties && addresses.stage < 19) {
         console.log('Setup royalty manager: ' + addressBook.StandardRoyalties)
         await callContract(artifacts.DIDRegistry, a => a.registerRoyaltiesChecker(addressBook.StandardRoyalties))
+        await callContract(artifacts.DIDRegistry, a => a.setDefaultRoyalties(addressBook.StandardRoyalties))
         addresses.stage = 19
     }
 }

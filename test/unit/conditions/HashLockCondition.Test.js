@@ -29,7 +29,7 @@ contract('HashLockCondition constructor', (accounts) => {
         const epochLibrary = await EpochLibrary.new()
         await ConditionStoreManager.link(epochLibrary)
         nvmConfig = await NeverminedConfig.new()
-        await nvmConfig.initialize(owner, owner)
+        await nvmConfig.initialize(owner, owner, false)
     })
 
     beforeEach(async () => {
