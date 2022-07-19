@@ -27,6 +27,8 @@ contract LockPaymentCondition is ILockPayment, ReentrancyGuardUpgradeable, Condi
 
     using SafeERC20Upgradeable for IERC20Upgradeable;
     using SafeMathUpgradeable for uint256;
+
+    uint256 constant DENOMINATOR = 1000000;
     
     DIDRegistry internal didRegistry;
     INVMConfig internal nvmConfig;
@@ -396,7 +398,7 @@ contract LockPaymentCondition is ILockPayment, ReentrancyGuardUpgradeable, Condi
             return false;
         
         // Return if fee calculation is correct
-        return nvmConfig.getMarketplaceFee().mul(calculateTotalAmount(_amounts)).div(10000) == _amounts[receiverIndex];
+        return nvmConfig.getMarketplaceFee().mul(calculateTotalAmount(_amounts)).div(DENOMINATOR) == _amounts[receiverIndex];
     }
 
 }

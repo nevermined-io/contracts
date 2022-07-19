@@ -86,8 +86,8 @@ async function initializeContracts({
     const configMarketplaceFee = Number(process.env.NVM_MARKETPLACE_FEE || '0')
     const configFeeReceiver = process.env.NVM_RECEIVER_FEE || ZeroAddress
 
-    if (configMarketplaceFee < 0 || configMarketplaceFee > 10000) {
-        console.error('NVM_MARKETPLACE_FEE can not be lower than 0 or higher than 10000 (100%)\nPlease refer to the ReleaseProcess.md documentation')
+    if (configMarketplaceFee < 0 || configMarketplaceFee > 1000000) {
+        console.error('NVM_MARKETPLACE_FEE can not be lower than 0 or higher than 1000000 (100%)\nPlease refer to the ReleaseProcess.md documentation')
         process.exit(1)
     }
 
