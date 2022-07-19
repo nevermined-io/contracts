@@ -28,7 +28,7 @@ contract LockPaymentCondition is ILockPayment, ReentrancyGuardUpgradeable, Condi
     using SafeERC20Upgradeable for IERC20Upgradeable;
     using SafeMathUpgradeable for uint256;
 
-    uint256 constant DENOMINATOR = 1000000;
+    uint256 constant public DENOMINATOR = 1000000;
     
     DIDRegistry internal didRegistry;
     INVMConfig internal nvmConfig;
