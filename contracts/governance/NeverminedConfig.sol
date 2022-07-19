@@ -65,7 +65,7 @@ INVMConfig
     onlyGovernor(msg.sender)
     {
         require(
-            _marketplaceFee >=0 && _marketplaceFee <= 10000,
+            _marketplaceFee >=0 && _marketplaceFee <= 1000000,
             'NeverminedConfig: Fee must be between 0 and 100 percent'
         );
         

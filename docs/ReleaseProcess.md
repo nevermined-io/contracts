@@ -38,7 +38,7 @@ To see all the available possibilities please see the `INeverminedConfig` interf
 During the deployment of Nevermined all of these parameters can be specified allowing a bespoke environment configuration.
 This can be done via the definition of the following environment variables:
 
-* `NVM_MARKETPLACE_FEE`. It refers to the fee charged by Nevermined for using the Service Agreements. It uses an integer number representing a 2 decimal number. It means 1450 means 14.50% fee. The value must be beteen 0 and 10000 (100%). See `marketplaceFee` variable.
+* `NVM_MARKETPLACE_FEE`. It refers to the fee charged by Nevermined for using the Service Agreements. It uses an integer number representing a 4 decimal number. It means 145000 means 14.50% fee. The value must be beteen 0 and 10000 (100%). See `marketplaceFee` variable.
 * `NVM_RECEIVER_FEE`. It refers to the address that will receive the fee charged by Nevermined per transaction. See `feeReceiver` variable
 
 #### Deployer
