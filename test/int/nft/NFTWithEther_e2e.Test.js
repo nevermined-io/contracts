@@ -46,7 +46,7 @@ contract('End to End NFT Scenarios (with Ether)', (accounts) => {
     // Artist -> Collector1, the gallery get a cut (25%)
     const numberNFTs = 1
 
-    const marketplaceFee = 2000
+    const marketplaceFee = 200000
     const marketplaceAddress = owner
     let nftPrice = 2
     let amounts = [1.1, 0.5, 0.4]

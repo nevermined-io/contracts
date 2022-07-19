@@ -432,7 +432,7 @@ contract('LockPaymentCondition', (accounts) => {
             const didSeed = testUtils.generateId()
             const did = await didRegistry.hashDID(didSeed, accounts[0])
 
-            const marketplaceFee = 2000 // 20%
+            const marketplaceFee = 200000 // 20%
             const rewardAddress = accounts[3]
             const marketplaceAddress = accounts[4]
             const amounts = [9, 1]
@@ -463,7 +463,7 @@ contract('LockPaymentCondition', (accounts) => {
             const did = await didRegistry.hashDID(didSeed, accounts[0])
 
             const buyer = accounts[0]
-            const marketplaceFee = 1000 // 10%
+            const marketplaceFee = 100000 // 10%
             const rewardAddress = accounts[3]
             const marketplaceAddress = accounts[4]
             const amounts = [18, 2]
