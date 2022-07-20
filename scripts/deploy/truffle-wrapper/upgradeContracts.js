@@ -25,6 +25,8 @@ async function upgradeContracts({ contracts: origContracts, verbose, testnet, fa
         testnet
     })
 
+    const success = JSON.parse(fs.readFileSync('upgrade-cache.json'))
+
     const taskBook = {}
 
     const transactions = []
@@ -32,6 +34,10 @@ async function upgradeContracts({ contracts: origContracts, verbose, testnet, fa
     const { roles, contractNetworks } = await loadWallet({})
 
     for (const c of contracts) {
+        if (success[c]) {
+            console.log(`Already upgraded ${c}`)
+            continue
+        }
         if (c === 'PlonkVerifier') {
             console.log('Update PlonkVerifier with specific script')
             continue
@@ -53,6 +59,8 @@ async function upgradeContracts({ contracts: origContracts, verbose, testnet, fa
             const contract = await upgrades.upgradeProxy(afact.address, C, { unsafeAllowLinkedLibraries: true })
             await contract.deployed()
             taskBook[c] = await writeArtifact(c, contract, afact.libraries)
+            success[c] = true
+            fs.writeFileSync('upgrade-cache.json', JSON.stringify(success, undefined, 2))
         } catch (e) {
             console.log('Cannot upgrade', e)
             if (fail) {
