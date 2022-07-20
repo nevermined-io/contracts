@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export BASE=fix/change-deployer
+export BASE=master
 export BRANCH=$(git rev-parse --abbrev-ref HEAD)
 
 export TESTNET=true
