@@ -6,7 +6,7 @@ const { loadWallet } = require('./wallets')
 const EthersAdapter = require('@gnosis.pm/safe-ethers-lib').default
 const fs = require('fs')
 
-async function upgradeContracts({ contracts: origContracts, verbose, testnet, fail }) {
+async function upgradeContracts({ contracts: origContracts, verbose, testnet, fail, strict }) {
     const table = {}
     let contracts = []
     for (const e of origContracts) {
@@ -25,7 +25,12 @@ async function upgradeContracts({ contracts: origContracts, verbose, testnet, fa
         testnet
     })
 
-    const success = JSON.parse(fs.readFileSync('upgrade-cache.json'))
+    let success
+    try {
+        success = JSON.parse(fs.readFileSync('upgrade-cache.json'))
+    } catch (err) {
+        success = {}
+    }
 
     const taskBook = {}
 
@@ -60,7 +65,9 @@ async function upgradeContracts({ contracts: origContracts, verbose, testnet, fa
             await contract.deployed()
             taskBook[c] = await writeArtifact(c, contract, afact.libraries)
             success[c] = true
-            fs.writeFileSync('upgrade-cache.json', JSON.stringify(success, undefined, 2))
+            if (!strict) {
+                fs.writeFileSync('upgrade-cache.json', JSON.stringify(success, undefined, 2))
+            }
         } catch (e) {
             console.log('Cannot upgrade', e)
             if (fail) {
