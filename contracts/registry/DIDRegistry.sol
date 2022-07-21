@@ -331,7 +331,7 @@ contract DIDRegistry is DIDFactory {
         address _receiver
     )
     public
-    onlyDIDOwner(_did)
+    onlyDIDOwnerOrProvider(_did)
     nft721IsInitialized(_did)
     {
         super.used(
@@ -341,6 +341,29 @@ contract DIDRegistry is DIDFactory {
         erc721.mint(_receiver, uint256(_did));
     }
 
+    /**
+     * @notice Mints a ERC-721 NFT associated to the DID with a pre-defined expiration
+     *
+     * @param _did refers to decentralized identifier (a bytes32 length ID).
+     * @param _receiver the address that will receive the new nfts minted
+     * @param _expirationBlock the number of the block when the NFT will expire
+     */
+    function mint721(
+        bytes32 _did,
+        address _receiver,
+        uint256 _expirationBlock
+    )
+    public
+    onlyDIDOwnerOrProvider(_did)
+    nft721IsInitialized(_did)
+    {
+        super.used(
+            keccak256(abi.encode(_did, msg.sender, 'mint721', 1, block.number)),
+            _did, msg.sender, keccak256('mint721'), '', 'mint721');
+
+        erc721.mint(_receiver, uint256(_did), _expirationBlock);
+    }    
+    
     function mint721(
         bytes32 _did
     )
