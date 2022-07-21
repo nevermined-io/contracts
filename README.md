@@ -37,6 +37,10 @@ For local development of `nevermined-contracts` you can either use Docker, or se
 The simplest way to get started with is using the [Nevermined Tools](https://github.com/nevermined-io/tools),
 a docker compose application to run all the Nevermined stack.
 
+### Public Network development
+
+For deploying in a public network check [ReleaseProcess.md](./docs/ReleaseProcess.md) first.
+
 ### Local development
 
 As a pre-requisite, you need:
@@ -110,7 +114,7 @@ yarn lint
 ## Networks
 
 When Nevermined contracts are deployed into different networks, the ABIs referring to the specific
-version deployed are copied into the [Artifacts repository](https://artifacts.nevermined.rocks/). 
+version deployed are copied into the [Artifacts repository](https://artifacts.nevermined.rocks/).
 You can find more information about the this into the [Release Process documentation](docs/ReleaseProcess.md).
 
 You can browse the different artifacts deployed here: http://artifacts-nevermined-rocks.s3-website-us-east-1.amazonaws.com/

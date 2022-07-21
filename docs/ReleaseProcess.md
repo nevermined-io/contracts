@@ -15,13 +15,14 @@ The steps to build a new version are the following:
 
 ### Roles
 
-We define four roles:
+We define four roles (check code configuration in [wallets.js](../scripts/deploy/truffle-wrapper/wallets.js)):
 
-- `deployer`: represented as `accounts[0]`
-- `upgrader`: represented as `accounts[1]`
-- `upgraderWallet`: represented as the `upgrader` from `wallets.json`
-- `ownerWallet`: represented as the `owner` from `wallets.json`
-- `governorWallet`: represented as the `governor` from `wallets.json`
+- `deployer`: represented as `accounts[8]`
+- `upgrader`: represented as `accounts[8]`
+- `governor`: represented as `accounts[9]`
+- `ownerWallet`: represented as the `owner` from `wallets.json` or `accounts[8]`
+- `upgraderWallet`: represented as the `upgrader` from `wallets.json` or `accounts[8]`
+- `governorWallet`: represented as the `governor` from `wallets.json` or `accounts[9]`
 
 ### Flags
 
@@ -113,7 +114,29 @@ One instance of the multi sig wallet, defined as `owner`. This wallet will be as
 ##### Persist artifacts
 
 - Commit all changes in `artifacts/*.mumbai.json`
+- Rename the file in [`.openzeppelin/`](../.openzeppelin/) folder corresponding to this network for adding the contracts tag as suffix, and commit the file.
+  (i.e.: cp -rp .openzeppelin/unknown-80001.json .openzeppelin/unknown-80001.json.mytag)
 
+## Upload the artifacts (abis/contracts) to Contract Repository
+
+Once the contracts are deployed to a public network or a new contract version whose contract abis has to been uploaded, use `scripts/upload_artifacts_s3.sh` to upload
+the contracts or artifacts to repository https://artifacts-nevermined-rocks.s3.amazonaws.com.
+
+*Your environment has to be configured and authorized to use aws cli to upload files to `artifacts-nevermined-rocks` bucket.*.
+
+The script has the next variables:
+
+- `branch` is the branch from where the workflow and artifacts will be used.
+- `asset` can be `abis`/`contracts`. Use abis if you want to upload the contract ABIs that not contain deployment information. Contracts for uploading abis with deployment information to `network`.
+- `network` refers to network name, based on filename/hardhat config. Not used if `abis` is selected.
+- `tag` refers to deployment tag. Defaults to common. Not used if `abis` is selected.
+
+This workflows uses the script `scripts/upload_artifacts_s3.sh` that can be used using the next syntax:
+
+```bash
+./scripts/upload_artifacts_s3.sh abis
+./scripts/upload_artifacts_s3.sh contracts mumbai awesome_tag
+```
 
 #### Kovan (Testnet)
 
@@ -141,39 +164,6 @@ One instance of the multi sig wallet, defined as `owner`. This wallet will be as
 
 - Commit all changes in `artifacts/*.kovan.json`
 
-#### Approve upgrades
-
-All upgrades of the contracts have to be approved by the `upgrader` wallet configured in the `wallets.json` file.
-
-- go to https://wallet.gnosis.pm
-- Load `upgrader` wallet
-- Select an Ethereum Account that is an `owner` of the multi sig wallet, but not the one who issued the upgrade request. This can be done in the following ways:
-  - Connect to a local Blockchain node that holds the private key.
-  - Connect to MetaMask and select the owner account from the multi sig wallet.
-  - Connect a hardware wallet like ledger or trezor.
-- Select the transaction you want to confirm (the upgrade script will tell you which transactions have to be approved in which wallets)
-- Click Confirm
-
-## Upload the artifacts (abis/contracts) to Contract Repository
-
-Once the contracts are deployed to a public network or a new contract version whose contract abis has to been uploaded, use `scripts/upload_artifacts_s3.sh` to upload
-the contracts or artifacts to repository https://artifacts-nevermined-rocks.s3.amazonaws.com.
-
-*Your environment has to be configured and authorized to use aws cli to upload files to `artifacts-nevermined-rocks` bucketi*.
-
-The script has the next variables:
-
-- `branch` is the branch from where the workflow and artifacts will be used.
-- `asset` can be `abis`/`contracts`. Use abis if you want to upload the contract ABIs that not contain deployment information. Contracts for uploading abis with deployment information to `network`.
-- `network` refers to network name, based on filename/hardhat config. Not used if `abis` is selected.
-- `tag` refers to deployment tag. Defaults to common. Not used if `abis` is selected.
-
-This workflows uses the script `scripts/upload_artifacts_s3.sh` that can be used using the next syntax:
-
-```bash
-./scripts/upload_artifacts_s3.sh abis
-./scripts/upload_artifacts_s3.sh contracts mumbai awesome_tag
-```
 
 ## Document
 
