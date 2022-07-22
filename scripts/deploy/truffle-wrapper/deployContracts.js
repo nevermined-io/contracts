@@ -1,10 +1,52 @@
 const initializeContracts = require('./deploy/initializeContracts.js')
 const setupContracts = require('./deploy/setupContracts.js')
 const evaluateContracts = require('./evaluateContracts.js')
-const { ethers, upgrades, web3 } = require('hardhat')
+const { ethers, web3 } = require('hardhat')
 const { exportArtifacts, exportLibraryArtifacts } = require('./artifacts')
 const { loadWallet } = require('./wallets.js')
 const { readArtifact } = require('./artifacts')
+
+const PROXY_ADMIN_ABI = `[{
+    "inputs": [],
+    "name": "owner",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  }, {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "newOwner",
+        "type": "address"
+      }
+    ],
+    "name": "transferOwnership",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+}]`
+
+const PROXY_ABI = `[{
+    "inputs": [],
+    "name": "admin",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "admin_",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+}]`
 
 async function deployLibrary(name, addresses) {
     if (addresses[name]) {
@@ -69,9 +111,16 @@ async function deployContracts({ contracts: origContracts, verbose, testnet, mak
 
     // Move proxy admin to upgrader wallet
     try {
-        await upgrades.admin.transferProxyAdminOwnership(roles.upgraderWallet)
+        const addr = await ethers.provider.getStorageAt(addressBook.DIDRegistry, '0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103')
+        console.log('got admin', addr)
+        const admin = new ethers.Contract('0x' + addr.substring(26), PROXY_ADMIN_ABI, ethers.provider)
+        const adminOwner = await admin.owner()
+        console.log('admin owner', adminOwner)
+        const signer = ethers.provider.getSigner(adminOwner)
+        await admin.connect(signer).transferOwnership(roles.upgraderWallet)
+        // await upgrades.admin.transferProxyAdminOwnership(roles.upgraderWallet)
     } catch (err) {
-        console.log('Cannot move proxy admin ownership')
+        console.log('Cannot move proxy admin ownership', err)
     }
 
     addressBook.DIDRegistryLibrary = didRegistryLibraryAddress
