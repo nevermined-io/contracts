@@ -22,7 +22,7 @@ contract('End to End NFT721 Scenarios', (accounts) => {
     let agreementId
     const checksum = testUtils.generateId()
     const url = 'https://raw.githubusercontent.com/nevermined-io/assets/main/images/logo/banner_logo.png'
-    const transfer_nft = false // If true the NFT is transferred but if false is minted
+    const transferNft = false // If true the NFT is transferred but if false is minted
 
     const [
         artist,
@@ -155,14 +155,14 @@ contract('End to End NFT721 Scenarios', (accounts) => {
         const agreementId = await agreementStoreManager.agreementId(initAgreementId, _from)
         const conditionIdLockPayment = await lockPaymentCondition.hashValues(did, escrowCondition.address, token.address, _amounts, _receivers)
         const fullIdLockPayment = await lockPaymentCondition.generateId(agreementId, conditionIdLockPayment)
-        const conditionIdTransferNFT = await transferCondition.hashValues(did, _seller, _buyer, _numberNFTs, fullIdLockPayment, nft.address, transfer_nft)
+        const conditionIdTransferNFT = await transferCondition.hashValues(did, _seller, _buyer, _numberNFTs, fullIdLockPayment, nft.address, transferNft)
         const fullIdTransferNFT = await transferCondition.generateId(agreementId, conditionIdTransferNFT)
 
         const conditionIdEscrow = await escrowCondition.hashValues(did, _amounts, _receivers, _buyer, escrowCondition.address, token.address, fullIdLockPayment, fullIdTransferNFT)
         const fullIdEscrow = await escrowCondition.generateId(agreementId, conditionIdEscrow)
 
         const lockParams = await lockPaymentCondition.encodeParams(did, escrowCondition.address, token.address, _amounts, _receivers)
-        const transferParams = await transferCondition.encodeParams(did, _seller, _buyer, _numberNFTs, fullIdLockPayment, nft.address, transfer_nft)
+        const transferParams = await transferCondition.encodeParams(did, _seller, _buyer, _numberNFTs, fullIdLockPayment, nft.address, transferNft)
         const escrowParams = await escrowCondition.encodeParams(did, _amounts, _receivers, _buyer, escrowCondition.address, token.address, fullIdLockPayment, [fullIdTransferNFT])
 
         const nftSalesAgreement = {
@@ -260,7 +260,7 @@ contract('End to End NFT721 Scenarios', (accounts) => {
                 collector1,
                 numberNFTs,
                 conditionIds[0],
-                transfer_nft,
+                transferNft,
                 nftSubscriptionAddress,
                 currentBlockNumber + blocksDuration,
                 { from: market }
