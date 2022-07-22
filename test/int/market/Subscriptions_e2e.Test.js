@@ -72,7 +72,8 @@ contract('End to End NFT721 Scenarios', (accounts) => {
         } = await deployManagers(
             deployer,
             owner,
-            governor
+            governor,
+            true
         ))
         nft = nft721;
         ({
