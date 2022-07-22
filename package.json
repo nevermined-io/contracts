@@ -64,7 +64,7 @@
     "test:upgrade": "hardhat test $(find test/upgrade -name '*.*s')",
     "test:cover": "hardhat coverage --testfiles 'test'",
     "test:manticore": "./test/verification/manticore/run.sh",
-    "doc:contracts": "hardhat docgen && mv docs/generated/index.md docs/generated/solidity-api.md",
+    "doc:contracts": "hardhat docgen && cat docs/generated/index.md >> docs/generated/solidity-api.md",
     "doc:addresses": "node scripts/contracts/get-addresses.js",
     "doc:copyright": "scripts/add-spdx.sh",
     "clean": "yarn clean:build&&yarn clean:coverage&&yarn clean:zos",
