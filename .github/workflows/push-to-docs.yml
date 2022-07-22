@@ -1,12 +1,10 @@
 name: Push documentation to docs repo
 
-on: push
-# TODO: Change to tag after testing
-#on:
-#  workflow_dispatch:
-#  push:
-#    tags:
-#      - v*
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - v*
 
 jobs:
   build-doc:
