@@ -23,20 +23,13 @@ jobs:
         run: |
           yarn install
           yarn doc:contracts
-      - uses: nevermined-io/reusable-workflows/.github/workflows/push-to-docs.yml@main
-        with:
-          path-to-push: docs/architecture/components/contracts
-          path-to-copy: docs/generated/
-          repo-to-push: nvm-docs
-          branch-to-clone: main
-        secrets: inherit
-
-#  push-to-docs:
-#    needs: build-doc
-#    uses: nevermined-io/reusable-workflows/.github/workflows/push-to-docs.yml@main
-#    with:
-#      path-to-push: docs/architecture/components/contracts
-#      path-to-copy: docs/generated/
-#      repo-to-push: nvm-docs
-#      branch-to-clone: main
-#    secrets: inherit
+      - name: Push to Docs
+  push-to-docs:
+    needs: build-doc
+    uses: nevermined-io/reusable-workflows/.github/workflows/push-to-docs.yml@main
+    with:
+      path-to-push: docs/architecture/components/contracts
+      path-to-copy: docs/generated/
+      repo-to-push: nvm-docs
+      branch-to-clone: main
+    secrets: inherit
