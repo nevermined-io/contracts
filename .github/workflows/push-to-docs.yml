@@ -23,8 +23,7 @@ jobs:
         run: |
           yarn install
           yarn doc:contracts
-      - name: Push to Docs
-        uses: nevermined-io/reusable-workflows/.github/workflows/push-to-docs.yml@main
+      - uses: nevermined-io/reusable-workflows/.github/workflows/push-to-docs.yml@main
         with:
           path-to-push: docs/architecture/components/contracts
           path-to-copy: docs/generated/
