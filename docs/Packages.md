@@ -1,4 +1,8 @@
-# Packaging
+---
+sidebar_position: 3
+---
+
+# Packages
 
 The following package describes how to package the Keeper Contracts in different formats.
 It is helpful to distribute the compiled smart contracts ABI's in different "flavours".

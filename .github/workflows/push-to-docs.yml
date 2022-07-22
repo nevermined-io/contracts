@@ -1,10 +1,12 @@
 name: Push documentation to docs repo
 
-on:
-  workflow_dispatch:
-  push:
-    tags:
-      - v*
+on: push
+# TODO: Change to tag after testing
+#on:
+#  workflow_dispatch:
+#  push:
+#    tags:
+#      - v*
 
 jobs:
   build-doc:
@@ -21,12 +23,21 @@ jobs:
         run: |
           yarn install
           yarn doc:contracts
-  push-to-docs:
-    needs: build-doc
-    uses: nevermined-io/reusable-workflows/.github/workflows/push-to-docs.yml@main
-    with:
-      path-to-push: docs/architecture/components/contracts
-      path-to-copy: docs/generated/
-      repo-to-push: nvm-docs
-      branch-to-clone: main
-    secrets: inherit
+      - name: Push to Docs
+        uses: nevermined-io/reusable-workflows/.github/workflows/push-to-docs.yml@main
+        with:
+          path-to-push: docs/architecture/components/contracts
+          path-to-copy: docs/generated/
+          repo-to-push: nvm-docs
+          branch-to-clone: main
+        secrets: inherit
+
+#  push-to-docs:
+#    needs: build-doc
+#    uses: nevermined-io/reusable-workflows/.github/workflows/push-to-docs.yml@main
+#    with:
+#      path-to-push: docs/architecture/components/contracts
+#      path-to-copy: docs/generated/
+#      repo-to-push: nvm-docs
+#      branch-to-clone: main
+#    secrets: inherit

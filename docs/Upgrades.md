@@ -1,3 +1,7 @@
+---
+sidebar_position: 5
+---
+
 # Upgrade Process
 
 This documents explains in detail how [nevermined-contracts](https://github.com/nevermined-io/contracts) should be
