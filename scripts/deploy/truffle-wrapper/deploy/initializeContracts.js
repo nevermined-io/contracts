@@ -2,15 +2,33 @@
 const ZeroAddress = '0x0000000000000000000000000000000000000000'
 const { ethers, upgrades, web3 } = require('hardhat')
 
+function getSignatureOfMethod(
+    contractInstace,
+    methodName,
+    args
+) {
+    const methods = contractInstace.interface.fragments.filter(
+        f => f.name === methodName
+    )
+    const foundMethod =
+        methods.find(f => f.inputs.length === args.length) || methods[0]
+    if (!foundMethod) {
+        throw new Error(`Method "${methodName}" not found in contract`)
+    }
+    return foundMethod.format()
+}
+
 async function doDeploy(signer, args) {
+    const methodSignature = getSignatureOfMethod(signer, 'initialize', args)
+
     if (process.env.NO_PROXY === 'true') {
         const c = await signer.deploy()
         await c.deployed()
-        const tx = await c.initialize(...args)
+        const tx = await c[methodSignature](...args)
         await tx.wait()
         return c
     } else {
-        const c = await upgrades.deployProxy(signer, args, { unsafeAllowLinkedLibraries: true })
+        const c = await upgrades.deployProxy(signer, args, { unsafeAllowLinkedLibraries: true, initializer: methodSignature })
         await c.deployed()
         return c
     }
