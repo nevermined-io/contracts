@@ -31,6 +31,7 @@ async function zosCreate({ contract, args, libraries, verbose, ctx }) {
             console.log(`${contract}: ${c.address}`)
         }
         addresses[contract] = c.address
+        console.log(await ethers.provider.getStorageAt(c.address, '0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103'))
         return c.address
     }
 }
