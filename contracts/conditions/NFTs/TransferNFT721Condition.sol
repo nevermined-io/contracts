@@ -253,7 +253,7 @@ contract TransferNFT721Condition is Condition, ITransferNFT, ReentrancyGuardUpgr
             
         }   else {
             require(
-                didRegistry.isDIDProviderOrOwner(_did, _account), 
+                didRegistry.isDIDProviderOrOwner(_did, msg.sender), 
                 'Only owner or provider'
             );
             if (_expirationBlock > 0)  {
