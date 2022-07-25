@@ -15,7 +15,9 @@ The steps to build a new version are the following:
 
 ### Roles
 
-We define four roles (check code configuration in [wallets.js](../scripts/deploy/truffle-wrapper/wallets.js)):
+> :warning: wallets.json file is needed if using a MultiSig Wallet for the deployment. Currently none of the Nevermined contract deployments is using Multisig wallets.
+
+We define six roles (check code configuration in [wallets.js](../scripts/deploy/truffle-wrapper/wallets.js)):
 
 - `deployer`: represented as `accounts[8]`
 - `upgrader`: represented as `accounts[8]`
@@ -39,8 +41,8 @@ To see all the available possibilities please see the `INeverminedConfig` interf
 During the deployment of Nevermined all of these parameters can be specified allowing a bespoke environment configuration.
 This can be done via the definition of the following environment variables:
 
-* `NVM_MARKETPLACE_FEE`. It refers to the fee charged by Nevermined for using the Service Agreements. It uses an integer number representing a 4 decimal number. It means 145000 means 14.50% fee. The value must be beteen 0 and 10000 (100%). See `marketplaceFee` variable.
-* `NVM_RECEIVER_FEE`. It refers to the address that will receive the fee charged by Nevermined per transaction. See `feeReceiver` variable
+- `NVM_MARKETPLACE_FEE`. It refers to the fee charged by Nevermined for using the Service Agreements. It uses an integer number representing a 4 decimal number. It means 145000 means 14.50% fee. The value must be beteen 0 and 10000 (100%). See `marketplaceFee` variable.
+- `NVM_RECEIVER_FEE`. It refers to the address that will receive the fee charged by Nevermined per transaction. See `feeReceiver` variable
 
 #### Deployer
 
@@ -63,64 +65,36 @@ One instance of the multi sig wallet, defined as `owner`. This wallet will be as
 - run `yarn clean` to clean the work dir.
 - run `yarn compile` to compile the contracts.
 
-#### Rinkeby (Testnet)
+The following steps shows how to perform contracts deployment for new deployments (check `[Upgrades.md](./Upgrades.md)` for upgrading details)
 
-- Copy the wallet file for `rinkeby`
-  - `cp wallets_rinkeby.json wallets.json`
-- run `export MNEMONIC=<your rinkeby mnemonic>`. You will find them in the password manager.
+#### Copy the files and artifacts
 
-##### Deploy the whole application
+- Export the `NETWORK_ID` (check in https://chainlist.org/) and contract's tag `TAG`:
 
-- To deploy all contracts run `yarn deploy:rinkeby`
+```bash
+export NETWORK=mumbai
+export TAG=common
+```
 
-##### Deploy a single contracts
+- run `export MNEMONIC=<deployment's mnemonic>`. You will find them in the password manager.
 
-- To deploy a single contract you need to specify the contracts to deploy as a parameter to the deploy script: ie. `yarn deploy:rinkeby -- NeverminedToken Dispenser`will deploy `NeverminedToken` and `Dispenser`.
+##### Deploy and initialize the conracts
 
-##### Upgrade the whole application
+- To deploy and initialize all contracts run `yarn deploy:$NETWORK`
 
-- To upgrade all contracts run `yarn upgrade:rinkeby`
+##### Upload the artifacts to the repository and persist any change in `openzeppelin/` file
 
-##### Upgrade a single contract
+- To upload the artifacts to the repository run `./scripts/upload_artifacts_s3.sh contracts $NETWORK $TAG`. You need to have access to S3.
 
-- To upgrade a single contract run `yarn upgrade:rinkeby -- NeverminedToken`. For upgrading the `NeverminedToken` contract.
+- Copy the openzeppeling file adding the deployment's tag: `cp -rp .openzeppelin/unknown-$NETWORK_ID.json .openzeppelin/unknown-$NETWORK_ID.json.$TAG`
 
-##### Persist artifacts
+- Commit all changes in `.openzeppelin/unknown-$NETWORK_ID.json.$TAG` file
 
-- Commit all changes in `artifacts/*.rinkeby.json`
 
-#### Mumbai (PolygonTestnet)
-
-- Copy the wallet file for `mumbai`
-    - `cp wallets_mumbai.json wallets.json`
-- run `export MNEMONIC=<your mumbai mnemonic>`. You will find them in the password manager.
-
-##### Deploy the whole application
-
-- To deploy all contracts run `yarn deploy:mumbai`
-
-##### Deploy a single contracts
-
-- To deploy a single contract you need to specify the contracts to deploy as a parameter to the deploy script: ie. `yarn deploy:mumbai -- NeverminedToken Dispenser`will deploy `NeverminedToken` and `Dispenser`.
-
-##### Upgrade the whole application
-
-- To upgrade all contracts run `yarn upgrade:mumbai`
-
-##### Upgrade a single contract
-
-- To upgrade a single contract run `yarn upgrade:mumbai -- NeverminedToken`. For upgrading the `NeverminedToken` contract.
-
-##### Persist artifacts
-
-- Commit all changes in `artifacts/*.mumbai.json`
-- Rename the file in [`.openzeppelin/`](../.openzeppelin/) folder corresponding to this network for adding the contracts tag as suffix, and commit the file.
-  (i.e.: cp -rp .openzeppelin/unknown-80001.json .openzeppelin/unknown-80001.json.mytag)
-
-## Upload the artifacts (abis/contracts) to Contract Repository
+## Script for uploading the artifacts (abis/contracts) to Contract Repository
 
 Once the contracts are deployed to a public network or a new contract version whose contract abis has to been uploaded, use `scripts/upload_artifacts_s3.sh` to upload
-the contracts or artifacts to repository https://artifacts-nevermined-rocks.s3.amazonaws.com.
+the contracts or artifacts to [nevermined repository](https://artifacts-nevermined-rocks.s3.amazonaws.com).
 
 *Your environment has to be configured and authorized to use aws cli to upload files to `artifacts-nevermined-rocks` bucket.*.
 
@@ -137,33 +111,6 @@ This workflows uses the script `scripts/upload_artifacts_s3.sh` that can be used
 ./scripts/upload_artifacts_s3.sh abis
 ./scripts/upload_artifacts_s3.sh contracts mumbai awesome_tag
 ```
-
-#### Kovan (Testnet)
-
-- Copy the wallet file for `kovan` > `cp wallets_kovan.json wallets.json`
-- run `export MNEMONIC=<your kovan mnemonic>`. You will find them in the password manager.
-- run `export INFURA_TOKEN=<your infura token>`. You will get it from `infura`.
-
-##### Deploy the whole application
-
-- To deploy all the contracts run `yarn deploy:kovan`
-
-##### Deploy a single contracts
-
-- To deploy a single contracts you need to specify the contracts to deploy as a parameter to the deploy script: ie. `yarn deploy:kovan -- NeverminedToken Dispenser` will deploy `NeverminedToken` and `Dispenser`.
-
-##### Upgrade the whole application
-
-- To upgrade all contracts run `yarn upgrade:kovan`
-
-##### Upgrade a single contract
-
-- To upgrade a single contract run `yarn upgrade:kovan -- NeverminedToken`. For upgrading the `NeverminedToken` contract.
-
-##### Persist artifacts
-
-- Commit all changes in `artifacts/*.kovan.json`
-
 
 ## Document
 
