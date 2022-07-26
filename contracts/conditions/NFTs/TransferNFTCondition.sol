@@ -371,7 +371,7 @@ contract TransferNFTCondition is Condition, ITransferNFT, ReentrancyGuardUpgrade
 
     returns (ConditionStoreLibrary.ConditionState)
     {
-        require(hasRole(MARKET_ROLE, msg.sender) || erc1155.isApprovedForAll(_nftHolder, msg.sender), 'Invalid access role');
+        require(hasRole(MARKET_ROLE, msg.sender) || NFTUpgradeable(_nftContractAddress).isApprovedForAll(_nftHolder, msg.sender), 'Invalid access role');
         return fulfillInternal(_nftHolder, _agreementId, _did, _nftReceiver, _nftAmount, _lockPaymentCondition, _nftContractAddress, _transfer);
     }
 
