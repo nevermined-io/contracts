@@ -134,7 +134,7 @@ tar xvzf artifacts.tar.gz -C artifacts/
 
 ##### Upgrade already deployed contracts
 
-- To upgrade the contracts run `yarn deploy:$NETWORK`
+- To upgrade the contracts run `yarn upgrade:$NETWORK`
 
 ##### Deploy and initialize any new contract not present in the old deployed version
 
