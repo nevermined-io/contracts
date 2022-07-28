@@ -1,15 +1,22 @@
+---
+sidebar_position: 4
+---
+
 # Release Process
 
 ## Build a new version
 
-The steps to build a new version are the following:
+We follow the standard Nevermined release pattern:
 
-- Create a new local feature branch, e.g. `git checkout -b release/v0.2.5`
-- Use the `bumpversion.sh` script to bump the project version. You can execute the script using {major|minor|patch} as first argument to bump the version accordingly:
-  - To bump the patch version: `./bumpversion.sh patch`
-  - To bump the minor version: `./bumpversion.sh minor`
-  - To bump the major version: `./bumpversion.sh major`
-- assuming we are on version `v0.2.4` and the desired version is `v0.2.5` `./bumpversion.sh patch` has to be run.
+- Make sure the versions are up to date: `package.json`, `setup.py`, `pom.xml`
+- Create a tag:
+  ```
+  $ git tag v2.0.0
+  ```
+- Push the tag:
+  ```
+  $ git push origin v2.0.0
+  ```
 
 ## Interact with networks
 
@@ -59,8 +66,12 @@ One instance of the multi sig wallet, defined as `owner`. This wallet will be as
 
 ### Deploy & Upgrade
 
+All deployment configurations are on `hardhat.config.js`.
+
 - run `yarn clean` to clean the work dir.
 - run `yarn compile` to compile the contracts.
+
+This step will create `cache/` and `deploy-cache.json` used to resume the deployment in case something fails.
 
 #### Rinkeby (Testnet)
 
@@ -70,7 +81,11 @@ One instance of the multi sig wallet, defined as `owner`. This wallet will be as
 
 ##### Deploy the whole application
 
-- To deploy all contracts run `yarn deploy:rinkeby`
+> Remove the deploy file related to the network in `.openzeppelin/` for a clean deployment
+
+- To deploy all contracts run `yarn deploy:rinkeby`. If the deployment fails at any point just retry the command and it will make use of the `cache/` to resume the deployment
+
+This step will create a `unknown-<chainId>.json`. Rename this file to `<tag>-<version>-<chainId>.json`
 
 ##### Deploy a single contracts
 

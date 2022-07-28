@@ -8,6 +8,12 @@ import '@openzeppelin/contracts-upgradeable/utils/introspection/ERC165StorageUpg
 
 contract NFT721SubscriptionUpgradeable is NFT721Upgradeable {
 
+    /**
+     * @dev This mint function allows to define when the NFT expires. 
+     * The minter should calculate this block number depending on the network velocity
+     * 
+     * @dev TransferNFT721Condition needs to have the `MINTER_ROLE`
+     */
     function mint(address to, uint256 id, uint256 expirationBlock) public {
         require(hasRole(MINTER_ROLE, msg.sender), 'only minter can mint');
         _safeMint(to, id);
