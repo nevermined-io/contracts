@@ -142,7 +142,7 @@ contract NFT721Upgradeable is ERC721Upgradeable, NFTBase {
     public 
     view 
     virtual 
-    override(ERC721Upgradeable, IERC165Upgradeable, AccessControlUpgradeable) 
+    override(ERC721Upgradeable, IERC165Upgradeable) 
     returns (bool) 
     {
         return AccessControlUpgradeable.supportsInterface(interfaceId)
