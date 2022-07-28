@@ -3,8 +3,8 @@ name: Push documentation to docs repo
 on:
   workflow_dispatch:
   push:
-    tags:
-      - v*
+    # tags:
+    #   - v*
 
 jobs:
   build-doc:
@@ -23,7 +23,7 @@ jobs:
           yarn doc:contracts
   push-to-docs:
     needs: build-doc
-    uses: nevermined-io/reusable-workflows/.github/workflows/push-to-docs.yml@main
+    uses: nevermined-io/reusable-workflows/.github/workflows/push-to-docs.yml@test/jcortejoso
     with:
       path-to-push: docs/architecture/components/contracts
       path-to-copy: docs/generated/
