@@ -36,7 +36,7 @@ contract('Mintable DIDRegistry (ERC-721)', (accounts) => {
             await DIDRegistry.link(didRegistryLibrary)
 
             nft = await NFT.new()
-            await nft.initialize('', '')
+            await nft.initialize()
 
             didRegistry = await DIDRegistry.new()
             await didRegistry.initialize(owner, constants.address.zero, nft.address)

@@ -34,7 +34,7 @@ contract POAPUpgradeable is NFT721Upgradeable, ERC721URIStorageUpgradeable, ERC7
         AccessControlUpgradeable._setupRole(MINTER_ROLE, msg.sender);    }
 
     // solhint-disable-next-line
-    function initialize(
+    function initializeWithName(
         string memory name,
         string memory symbol
     )

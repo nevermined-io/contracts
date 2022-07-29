@@ -60,14 +60,14 @@ const utils = {
         return web3.utils.sha3(Buffer.concat([prefix, messageBuffer]))
     },
 
-    deploy: async (name, args, deployer, libs = []) => {
+    deploy: async (name, args, deployer, libs = [], initMethod = 'initialize') => {
         if (deploying) {
             const afact = artifacts.require(name)
             for (const e of libs) {
                 afact.link(e)
             }
             const c = await afact.new()
-            await c.initialize(...args, { from: deployer })
+            await c[initMethod](...args, { from: deployer })
             return c
         } else {
             const afact = artifacts.require(name)
