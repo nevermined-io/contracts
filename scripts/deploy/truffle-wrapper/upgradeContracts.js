@@ -6,7 +6,7 @@ const { loadWallet } = require('./wallets')
 const EthersAdapter = require('@gnosis.pm/safe-ethers-lib').default
 const fs = require('fs')
 
-async function upgradeContracts({ contracts: origContracts, verbose, testnet, fail }) {
+async function upgradeContracts({ contracts: origContracts, verbose, testnet, fail, strict }) {
     const table = {}
     let contracts = []
     for (const e of origContracts) {
@@ -25,6 +25,13 @@ async function upgradeContracts({ contracts: origContracts, verbose, testnet, fa
         testnet
     })
 
+    let success
+    try {
+        success = JSON.parse(fs.readFileSync('upgrade-cache.json'))
+    } catch (err) {
+        success = {}
+    }
+
     const taskBook = {}
 
     const transactions = []
@@ -32,6 +39,10 @@ async function upgradeContracts({ contracts: origContracts, verbose, testnet, fa
     const { roles, contractNetworks } = await loadWallet({})
 
     for (const c of contracts) {
+        if (success[c]) {
+            console.log(`Already upgraded ${c}`)
+            continue
+        }
         if (c === 'PlonkVerifier') {
             console.log('Update PlonkVerifier with specific script')
             continue
@@ -53,6 +64,10 @@ async function upgradeContracts({ contracts: origContracts, verbose, testnet, fa
             const contract = await upgrades.upgradeProxy(afact.address, C, { unsafeAllowLinkedLibraries: true })
             await contract.deployed()
             taskBook[c] = await writeArtifact(c, contract, afact.libraries)
+            success[c] = true
+            if (!strict) {
+                fs.writeFileSync('upgrade-cache.json', JSON.stringify(success, undefined, 2))
+            }
         } catch (e) {
             console.log('Cannot upgrade', e)
             if (fail) {

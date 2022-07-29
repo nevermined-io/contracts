@@ -13,7 +13,7 @@ import '../NFTBase.sol';
 contract NFT721Upgradeable is ERC721Upgradeable, NFTBase {
 
     // solhint-disable-next-line
-    function initialize(
+    function initializeWithName(
         string memory name, 
         string memory symbol
     ) 
