@@ -7,6 +7,8 @@ sidebar_position: 5
 This documents explains in detail how [nevermined-contracts](https://github.com/nevermined-io/contracts) should be
 deployed using zeppelinOS and how the contracts can be upgraded. The latest section describes the test procedure.
 
+
+
 ## Quickstart
 
 The first step to work with `zos` is to install dependencies then initialize the project. Then compile contracts and add contracts to the project.
@@ -19,22 +21,24 @@ any future deployments/upgrades.
 
 Here we provide more details into each step of the initial deploy and the approach of upgradeability and governance.
 
-
 ## Roles
+
+> :warning: wallets.json file is needed if using a Gnosis MultiSig Wallet for the deployment. Currently none of the Nevermined contract deployments is using Gnosis Multisig wallets.
 
 Before going into more details about the deployment. We should differentiate between different roles in the system which
 govern the upgradeability in nevermined-contracts.
 
-Roles are defined as follows:
+Roles are defined as follows (check code configuration in [wallets.js](../scripts/deploy/truffle-wrapper/wallets.js)):
 
+```text
+deployer: represented as accounts[8]
+upgrader: represented as accounts[8]
+governor: represented as accounts[9]
+ownerWallet: represented as the owner from wallets.json or accounts[8]
+upgraderWallet: represented as the upgrader from wallets.json or accounts[8]
+governorWallet: represented as the governor from wallets.json or accounts[9]
 ```
-deployer: represented as accounts[0]
-upgrader: represented as accounts[1]
-governor: represented as accounts[1]
-upgraderWallet: represented as the upgrader from wallets.json
-ownerWallet: represented as the owner from wallets.json
-governorWallet: represented as the owner from wallets.json
-```
+
 - **Deployer**: Can be any account. It is used for deploying the initial `proxy contracts` and the `logic contracts`.
 
 - **Upgrader**: Has to be an `owner` of the `upgrader` multi sig wallet. It is used for issuing upgrade requests against the upgrader multi sig wallet.
@@ -48,6 +52,7 @@ governorWallet: represented as the owner from wallets.json
 - **GovernorWallet**: One instance of the multi sig wallet, defined as `governor`. This wallet will be assigned as zos admin and is required to do config updates in a Nevermined deployment.
 
 ## Deploy & Upgrade
+
 `zos` does not support migrations, hence all the initial configuration should be performed with
 [Nevermined Contract Tools](https://github.com/nevermined-io/contract-tools).
 Contract constructors are ignored so the initial setup of the contract should be made in a
@@ -100,73 +105,66 @@ The following configuration should be an example for `wallets-<NETWORK_NAME>.jso
 ### 2. Preparation
 
 The following commands clean, install dependencies and compile the contracts:
+
 ```console
-$ yarn clean #to clean the work dir
-$ yarn #install dependencies
-$ yarn compile #to compile the contracts
+yarn clean #to clean the work dir
+yarn #install dependencies
+yarn compile #to compile the contracts
 ```
 
 ### 3. Deploy & Upgrade
 
-The following steps shows how to perform contracts deployment and upgrade on `Rinkeby` and `Kovan` networks.
-#### Nile
+The following steps shows how to perform contracts deployment and upgrade on `Mumbai` and `<Polygon>` networks.
 
-- Copy the wallet file for `rinkeby`
-  - `cp wallets_rinkeby.json wallets.json`
-- run `export MNEMONIC=<your staging mnemonic>`. You will find them in the password manager.
+#### Copy the files and artifacts
 
-##### Deploy the whole application
+- Export the `NETWORK_ID` (check in https://chainlist.org/) and contract's tag `TAG`, and latest version deployed `VERSION` for this contract release:
 
-- To deploy all contracts run `yarn deploy:rinkeby`
+```bash
+export NETWORK_ID=80001 # Network_ID for mumbai
+export NETWORK=mumbai
+export TAG=common
+export VERSION='2.0.0'
+```
 
-##### Deploy a single contracts
+- Copy the .openzeppelin file for the `<NETWORK_ID>` and `<TAG>`(like `common` or `public`) deployment you want to upgrade:
+  - `cp .openzeppelin/unknown-$NETWORK_ID.json.$TAG .openzeppelin/unknown-$NETWORK_ID.json`
+- Unpack the latest version of the artifacts for the `<NETWORK_ID>` and `<TAG>` in `artifacts`:
 
-- To deploy a single contract you need to specify the contracts to deploy as a parameter to the deploy script:
-  ie. `yarn deploy:rinkeby -- NeverminedToken Dispenser`will deploy `NeverminedToken` and `Dispenser`.
+```bash
+wget -O artifacts.tar.gz "http://artifacts-nevermined-rocks.s3.amazonaws.com/$NETWORK_ID/$TAG/contracts_v$VERSION.tar.gz"
+tar xvzf artifacts.tar.gz -C artifacts/
+```
 
-##### Upgrade the whole application
+- run `export MNEMONIC=<deployment's mnemonic>`. You will find them in the password manager.
 
-- To upgrade all contracts run `yarn upgrade:rinkeby`
+##### Upgrade already deployed contracts
 
-##### Upgrade a single contract
+- To upgrade the contracts run `yarn upgrade:$NETWORK`
 
-- To upgrade a single contract run `yarn upgrade:rinkeby -- NeverminedToken`. For upgrading the `NeverminedToken` contract.
+##### Deploy and initialize any new contract not present in the old deployed version
 
-##### Persist artifacts
+- To deploy and initialize all contracts run `yarn deploy:$NETWORK`
 
-- Commit all changes in `artifacts/*.rinkeby.json`
+This process will show multiple errors for the contracts that are being upgraded. You can ignore those messages.
 
-#### Kovan
+##### Upgrade the plonk verifier contract to the new version
 
-- Copy the wallet file for `kovan` > `cp wallets_kovan.json wallets.json`
-- run `export MNEMONIC=<your kovan mnemonic>`. You will find them in the password manager.
-- run `export INFURA_TOKEN=<your infura token>`. You will get it from `infura`.
+- To upgrade the plonk verifier contract to the new version run `npx hardhat run ./scripts/deploy/truffle-wrapper/upgradePlonkVerifier.js --network $NETWORK`
 
-##### Deploy the whole application
+##### Upload the artifacts to the repository and persist any change in `openzeppelin/` file
 
-- To deploy all the contracts run `yarn deploy:kovan`
+- To upload the artifacts to the repository run `./scripts/upload_artifacts_s3.sh contracts $NETWORK $TAG`. You need to have access to S3.
 
-##### Deploy a single contracts
+- Copy the openzeppeling file base on tag: `cp -rp .openzeppelin/unknown-$NETWORK_ID.json .openzeppelin/unknown-$NETWORK_ID.json.$TAG`
 
-- To deploy a single contracts you need to specify the contracts to deploy as a parameter to the deploy script: ie. `yarn deploy:kovan -- NeverminedToken Dispenser` will deploy `NeverminedToken` and `Dispenser`.
+- Commit all changes in `.openzeppelin/unknown-$NETWORK_ID.json.$TAG` file
 
-##### Upgrade the whole application
-
-- To upgrade all contracts run `yarn upgrade:kovan`
-
-##### Upgrade a single contract
-
-- To upgrade a single contract run `yarn upgrade:kovan -- NeverminedToken`. For upgrading the `NeverminedToken` contract.
-
-##### Persist artifacts
-
-- Commit all changes in `artifacts/*.kovan.json`
-
-### 4. Approve Upgrade(s)
+### 4. Approve Upgrade(s) -no applicable for current deployments-
 
 All upgrades of the contracts have to be approved by the `upgrader` wallet configured in the `wallets.json` file.
 
-- go to https://wallet.gnosis.pm
+- go to <https://wallet.gnosis.pm>
 - Load `upgrader` wallet
 - Select an Ethereum Account that is an `owner` of the multi sig wallet, but not the one who issued the upgrade request. This can be done in the following ways:
   - Connect to a local Blockchain node that holds the private key.
@@ -175,8 +173,7 @@ All upgrades of the contracts have to be approved by the `upgrader` wallet confi
 - Select the transaction you want to confirm (the upgrade script will tell you which transactions have to be approved in which wallets)
 - Click Confirm
 
-
-### 5. Audit Contracts
+### 5. Audit Contracts -no applicable for current deployments-
 
 To check or document that all transactions have been approved in the multi sig wallet you can run `yarn audit:rinkeby` to get a list of all the current transactions and their current status.
 
@@ -190,22 +187,3 @@ To check or document that all transactions have been approved in the multi sig w
  Confirmed from: 0x7A13E1aD23546c9b804aDFd13e9AcB184EfCAF58
  Executed: false
 ```
-
-### 6. Documentation
-- Update the addresses in the `README.md`
-- run `node ./scripts/contracts/get-addresses.js <network name>`
-
-It will output the current proxy addresses in the `README` friendly format.
-
-```text
-| AccessCondition        | v0.9.0 | 0x45DE141F8Efc355F1451a102FB6225F1EDd2921d |
-| AgreementStoreManager             | v0.9.0 | 0x62f84700b1A0ea6Bfb505aDC3c0286B7944D247C |
-| ConditionStoreManager             | v0.9.0 | 0x39b0AA775496C5ebf26f3B81C9ed1843f09eE466 |
-| DIDRegistry                       | v0.9.0 | 0x4A0f7F763B1A7937aED21D63b2A78adc89c5Db23 |
-| DIDRegistryLibrary                | v0.9.0 | 0x3B3504908Db36f5D5f07CD420ee2BBBbDfB674cF |
-| Dispenser                         | v0.9.0 | 0x865396b7ddc58C693db7FCAD1168E3BD95Fe3368 |
-....
-
-```
-
-- Copy this to the `README.md`
