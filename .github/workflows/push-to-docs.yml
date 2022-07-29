@@ -23,7 +23,7 @@ jobs:
           yarn doc:contracts
   push-to-docs:
     needs: build-doc
-    uses: nevermined-io/reusable-workflows/.github/workflows/push-to-docs.yml@main
+    uses: nevermined-io/reusable-workflows/.github/workflows/push-to-docs-no-widdershins.yml@main
     with:
       path-to-push: docs/architecture/components/contracts
       path-to-copy: docs/generated/
