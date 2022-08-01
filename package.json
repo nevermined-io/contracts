@@ -84,12 +84,6 @@
     "doc": "docs",
     "test": "test"
   },
-  "files": [
-    "artifacts/**/*development.json",
-    "circuits/keytransfer.wasm",
-    "circuits/keytransfer.zkey",
-    "README.md"
-  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/nevermined-io/contracts.git"
