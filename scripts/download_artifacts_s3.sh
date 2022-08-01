@@ -23,8 +23,9 @@ declare -A NETWORKS_MAP
 NETWORKS_MAP=( ["mainnet"]="1" ["rinkeby"]="4" ["kovan"]="42" ["matic"]="137" ["mumbai"]="80001" ["celo-alfajores"]="44787" ["celo"]="42220" ["aurora"]="1313161554" ["aurora-testnet"]="1313161555" )
 
 SCRIPT_DIR=$(cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd)
-UNPACK_DIR="$SCRIPT_DIR/../artifacts"
-mkdir -p $UNPACK_DIR
+UNPACK_DIR_ARTIFACTS="$SCRIPT_DIR/../artifacts"
+UNPACK_DIR_OPENZEPPELIN="$SCRIPT_DIR/../.openzeppelin"
+mkdir -p "$UNPACK_DIR_ARTIFACTS" "$UNPACK_DIR_OPENZEPPELIN"
 
 # Return numerical chainId given a network name (considering networks names from our hardhat config)
 function get_network_id_from_name {
@@ -38,7 +39,10 @@ function get_network_id_from_name {
 }
 
 NETWORK_ID=$(get_network_id_from_name)
-DOWNLOAD_URL=$REPO_URL/$NETWORK_ID/$TAG/contracts_$VERSION.tar.gz
-curl -s -L -o /tmp/nvm_temp_artifacts.tar.gz $DOWNLOAD_URL
-tar xzf /tmp/nvm_temp_artifacts.tar.gz --directory $UNPACK_DIR
+DOWNLOAD_URL_ARTIFACTS="$REPO_URL/$NETWORK_ID/$TAG/contracts_$VERSION.tar.gz"
+DOWNLOAD_URL_OPENZEPPELIN="$REPO_URL/$NETWORK_ID/$TAG/unknown-$NETWORK_ID.json"
+curl -s -L -o /tmp/nvm_temp_artifacts.tar.gz "$DOWNLOAD_URL_ARTIFACTS"
+tar xzf /tmp/nvm_temp_artifacts.tar.gz --directory "$UNPACK_DIR_ARTIFACTS"
 rm -f /tmp/nvm_temp_artifacts.tar.gz
+
+curl -s -L -o "$UNPACK_DIR_OPENZEPPELIN/unknown-$NETWORK_ID.json" "$DOWNLOAD_URL_OPENZEPPELIN"
