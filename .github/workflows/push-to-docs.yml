@@ -23,8 +23,8 @@ jobs:
           yarn doc:contracts
       - name: Install envsubst
         run: |
-          apt update
-          apt install -y gettext
+          sudo apt update
+          sudo apt install -y gettext
       - name: Download push-to-docs script template
         run: |
           curl -o push-to-docs.sh https://raw.githubusercontent.com/nevermined-io/reusable-workflows/main/scripts/push-to-docs.sh
