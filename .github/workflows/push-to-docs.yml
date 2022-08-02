@@ -21,12 +21,25 @@ jobs:
         run: |
           yarn install
           yarn doc:contracts
-  push-to-docs:
-    needs: build-doc
-    uses: nevermined-io/reusable-workflows/.github/workflows/push-to-docs-no-widdershins.yml@main
-    with:
-      path-to-push: docs/architecture/components/contracts
-      path-to-copy: docs/generated/
-      repo-to-push: nvm-docs
-      branch-to-clone: main
-    secrets: inherit
+      - name: Install envsubst
+        run: |
+          apt update
+          apt install -y gettext
+      - name: Download push-to-docs script template
+        run: |
+          curl -o push-to-docs.sh https://raw.githubusercontent.com/nevermined-io/reusable-workflows/main/scripts/push-to-docs.sh
+      - name: Replace env vars in push-to-docs script
+        env:
+          BRANCH_TO_CLONE: main
+          REPO_TO_PUSH: nvm-docs
+          PATH_TO_COPY: docs/generated/
+          PATH_TO_PUSH: docs/architecture/components/contracts
+          REPOSITORY_NAME: ${{ github.repository }}
+          API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
+        run: |
+          export REPOSITORY_NAME=$(echo $REPOSITORY_NAME | awk -F '/' '{print $2}')
+          envsubst < push-to-docs.sh > push-to-docs.sh
+          #chmod +x push-to-docs.sh
+          #./push-to-docs.sh
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
