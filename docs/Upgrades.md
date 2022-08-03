@@ -199,7 +199,7 @@ Workarounds for some of the operational problems suffered to the date. For these
 
 - Execute the next snippet replacing the `<DIDRegistryAddress>` with the DIDRegistry contract address:
 
-```javascript
+```typescript
 const PROXY_ADMIN_ABI = `[{
     "inputs": [],
     "name": "owner",
@@ -271,7 +271,7 @@ info Visit https://yarnpkg.com/en/docs/cli/run for documentation about this comm
 
 To fix it you can run the next commands in `hardhat` console, replacing the contract name and the proxy address (`npx hardhat console --network mumbai`):
 
-```javascript
+```typescript
 const { ethers, upgrades, web3 } = require('hardhat')
 const factory = await ethers.getContractFactory('NFT721EscrowPaymentCondition')
 const update = await upgrades.forceImport("0x7fF506C7148a46e57b8A349C1F848F0cC6d9Cfa8", factory, {kind: "transparent"})
