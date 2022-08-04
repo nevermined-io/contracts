@@ -40,7 +40,5 @@ jobs:
           export REPOSITORY_NAME=$(echo $REPOSITORY_NAME | awk -F '/' '{print $2}')
           envsubst < push-to-docs.sh.template > push-to-docs.sh
           env > env.file
-          #chmod +x push-to-docs.sh
-          #./push-to-docs.sh
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
+          chmod +x push-to-docs.sh
+          ./push-to-docs.sh
