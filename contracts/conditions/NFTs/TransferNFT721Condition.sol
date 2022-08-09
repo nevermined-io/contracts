@@ -256,11 +256,12 @@ contract TransferNFT721Condition is Condition, ITransferNFT, ReentrancyGuardUpgr
                 didRegistry.isDIDProviderOrOwner(_did, msg.sender), 
                 'Only owner or provider'
             );
+            uint256 _tokenId = uint256(keccak256(abi.encode(_did, _agreementId)));
             if (_expirationBlock > 0)  {
                 NFT721SubscriptionUpgradeable(_contract)
-                .mint(_nftReceiver, uint256(_did), _expirationBlock);
+                .mint(_nftReceiver, _tokenId, _expirationBlock);
             }   else {
-                token.mint(_nftReceiver, uint256(_did));    
+                token.mint(_nftReceiver, _tokenId);    
             }
             
         }
