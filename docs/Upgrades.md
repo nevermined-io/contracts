@@ -105,7 +105,7 @@ The following configuration should be an example for `wallets-<NETWORK_NAME>.jso
 
 The following commands clean, install dependencies and compile the contracts:
 
-```console
+```bash
 yarn clean #to clean the work dir
 yarn #install dependencies
 yarn compile #to compile the contracts
@@ -123,17 +123,16 @@ The following steps shows how to perform contracts deployment and upgrade on `Mu
 export NETWORK_ID=80001 # Network_ID for mumbai
 export NETWORK=mumbai
 export TAG=common
-export VERSION='2.0.0'
+export VERSION='v2.0.0'
 ```
 
-- Copy the .openzeppelin file for the `<NETWORK_ID>` and `<TAG>`(like `common` or `public`) deployment you want to upgrade:
-  - `cp .openzeppelin/unknown-$NETWORK_ID.json.$TAG .openzeppelin/unknown-$NETWORK_ID.json`
-- Unpack the latest version of the artifacts for the `<NETWORK_ID>` and `<TAG>` in `artifacts`:
+- Unpack the latest version of the artifacts for the `<NETWORK_ID>` and `<TAG>` in `artifacts`. You can execute the following command to download the artifacts and correct `.openzeppelin/` file:
 
 ```bash
-wget -O artifacts.tar.gz "http://artifacts-nevermined-rocks.s3.amazonaws.com/$NETWORK_ID/$TAG/contracts_v$VERSION.tar.gz"
-tar xvzf artifacts.tar.gz -C artifacts/
+bash -x ./scripts/download_artifacts_s3.sh $VERSION $NETWORK $TAG`
 ```
+
+Confirm that the correct artifacts and `.openzeppelin/` file were downloaded reading the script output.
 
 - run `export MNEMONIC=<deployment's mnemonic>`. You will find them in the password manager.
 
@@ -153,11 +152,9 @@ This process will show multiple errors for the contracts that are being upgraded
 
 ##### Upload the artifacts to the repository and persist any change in `openzeppelin/` file
 
-- To upload the artifacts to the repository run `./scripts/upload_artifacts_s3.sh contracts $NETWORK $TAG`. You need to have access to S3.
+- To upload the artifacts to the repository run `./scripts/upload_artifacts_s3.sh contracts $NETWORK $TAG`. You need to have access to S3. This will upload the artifacts and `.openzeppelin/unknown-$NETWORK_ID.json` to the S3 bucket, and also will copy the file `.openzeppelin/unknown-$NETWORK_ID.json` to `.openzeppelin/unknown-$NETWORK_ID.json.$TAG` (confirm manually this)
 
-- Copy the openzeppeling file base on tag: `cp -rp .openzeppelin/unknown-$NETWORK_ID.json .openzeppelin/unknown-$NETWORK_ID.json.$TAG`
-
-- Commit all changes in `.openzeppelin/unknown-$NETWORK_ID.json.$TAG` file
+- Commit the changes in `.openzeppelin/unknown-$NETWORK_ID.json.$TAG` file
 
 ### 4. Approve Upgrade(s) -no applicable for current deployments-
 

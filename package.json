@@ -1,6 +1,6 @@
 {
   "name": "@nevermined-io/contracts",
-  "version": "2.0.4",
+  "version": "2.0.3",
   "description": "Nevermined implementation of Nevermined in Solidity",
   "bugs": {
     "url": "https://github.com/nevermined-io/contracts/issues"
@@ -41,6 +41,8 @@
     "deploy:production": "export NETWORK=production&&yarn deploy --network production",
     "deploy:mainnet": "export NETWORK=mainnet&&yarn deploy --network mainnet",
     "deploy:matic": "export NETWORK=matic&&export TESTNET=false&&yarn deploy --network matic",
+    "download-artifacts": "./scripts/download_artifacts_s3.sh",
+    "upload-artifacts": "./scripts/upload_artifacts_s3.sh",
     "upgrade": "npx hardhat run ./scripts/deploy/truffle-wrapper/upgradeContractsWrapper.js",
     "upgrade:development": "export NETWORK=development&&yarn run upgrade --network development --testnet true",
     "upgrade:external": "export NETWORK=external&&export TESTNET=true&&yarn run upgrade --network external",
@@ -67,8 +69,9 @@
     "doc:contracts": "hardhat docgen && cat docs/generated/index.md >> docs/generated/solidity-api.md",
     "doc:addresses": "node scripts/contracts/get-addresses.js",
     "doc:copyright": "scripts/add-spdx.sh",
-    "clean": "yarn clean:build&&yarn clean:coverage&&yarn clean:zos",
+    "clean": "yarn clean:build&&yarn clean:cache&&yarn clean:coverage&&yarn clean:zos",
     "clean:build": "rm -rf ./build/ ./artifacts/*.development.json ./artifacts/*.spree.json",
+    "clean:cache": "rm -rf ./cache/ ./deploy-cache.json ./upgrade-cache.json ./transactions.json",
     "clean:coverage": "rm -rf ./coverage/ ./coverageEnv/ ./coverage.json",
     "clean:zos": "rm -rf ./zos.json ./zos.dev-8996.json ./zos.dev-8997.json ./.zos.session ./wallets.json zos/",
     "lint": "yarn lint:eslint&&yarn lint:ethlint",
