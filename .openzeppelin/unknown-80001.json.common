@@ -11325,7 +11325,7 @@
             "label": "_royalties",
             "offset": 0,
             "slot": "252",
-            "type": "t_mapping(t_uint256,t_struct(RoyaltyInfo)31026_storage)",
+            "type": "t_mapping(t_uint256,t_struct(RoyaltyInfo)31033_storage)",
             "contract": "NFTBase",
             "src": "contracts/token/NFTBase.sol:33"
           },
@@ -11333,7 +11333,7 @@
             "label": "_metadata",
             "offset": 0,
             "slot": "253",
-            "type": "t_mapping(t_uint256,t_struct(NFTMetadata)31029_storage)",
+            "type": "t_mapping(t_uint256,t_struct(NFTMetadata)31036_storage)",
             "contract": "NFTBase",
             "src": "contracts/token/NFTBase.sol:35"
           },
@@ -11391,11 +11391,11 @@
             "label": "mapping(uint256 => mapping(address => uint256))",
             "numberOfBytes": "32"
           },
-          "t_mapping(t_uint256,t_struct(NFTMetadata)31029_storage)": {
+          "t_mapping(t_uint256,t_struct(NFTMetadata)31036_storage)": {
             "label": "mapping(uint256 => struct NFTBase.NFTMetadata)",
             "numberOfBytes": "32"
           },
-          "t_mapping(t_uint256,t_struct(RoyaltyInfo)31026_storage)": {
+          "t_mapping(t_uint256,t_struct(RoyaltyInfo)31033_storage)": {
             "label": "mapping(uint256 => struct NFTBase.RoyaltyInfo)",
             "numberOfBytes": "32"
           },
@@ -11403,7 +11403,7 @@
             "label": "string",
             "numberOfBytes": "32"
           },
-          "t_struct(NFTMetadata)31029_storage": {
+          "t_struct(NFTMetadata)31036_storage": {
             "label": "struct NFTBase.NFTMetadata",
             "members": [
               {
@@ -11433,7 +11433,7 @@
             ],
             "numberOfBytes": "64"
           },
-          "t_struct(RoyaltyInfo)31026_storage": {
+          "t_struct(RoyaltyInfo)31033_storage": {
             "label": "struct NFTBase.RoyaltyInfo",
             "members": [
               {
@@ -11600,7 +11600,7 @@
             "label": "_royalties",
             "offset": 0,
             "slot": "252",
-            "type": "t_mapping(t_uint256,t_struct(RoyaltyInfo)31026_storage)",
+            "type": "t_mapping(t_uint256,t_struct(RoyaltyInfo)31033_storage)",
             "contract": "NFTBase",
             "src": "contracts/token/NFTBase.sol:33"
           },
@@ -11608,7 +11608,7 @@
             "label": "_metadata",
             "offset": 0,
             "slot": "253",
-            "type": "t_mapping(t_uint256,t_struct(NFTMetadata)31029_storage)",
+            "type": "t_mapping(t_uint256,t_struct(NFTMetadata)31036_storage)",
             "contract": "NFTBase",
             "src": "contracts/token/NFTBase.sol:35"
           },
@@ -11666,11 +11666,11 @@
             "label": "mapping(uint256 => address)",
             "numberOfBytes": "32"
           },
-          "t_mapping(t_uint256,t_struct(NFTMetadata)31029_storage)": {
+          "t_mapping(t_uint256,t_struct(NFTMetadata)31036_storage)": {
             "label": "mapping(uint256 => struct NFTBase.NFTMetadata)",
             "numberOfBytes": "32"
           },
-          "t_mapping(t_uint256,t_struct(RoyaltyInfo)31026_storage)": {
+          "t_mapping(t_uint256,t_struct(RoyaltyInfo)31033_storage)": {
             "label": "mapping(uint256 => struct NFTBase.RoyaltyInfo)",
             "numberOfBytes": "32"
           },
@@ -11678,7 +11678,7 @@
             "label": "string",
             "numberOfBytes": "32"
           },
-          "t_struct(NFTMetadata)31029_storage": {
+          "t_struct(NFTMetadata)31036_storage": {
             "label": "struct NFTBase.NFTMetadata",
             "members": [
               {
@@ -11708,7 +11708,7 @@
             ],
             "numberOfBytes": "64"
           },
-          "t_struct(RoyaltyInfo)31026_storage": {
+          "t_struct(RoyaltyInfo)31033_storage": {
             "label": "struct NFTBase.RoyaltyInfo",
             "members": [
               {
@@ -12080,7 +12080,7 @@
             "label": "templateList",
             "offset": 0,
             "slot": "101",
-            "type": "t_struct(TemplateList)29404_storage",
+            "type": "t_struct(TemplateList)29411_storage",
             "contract": "TemplateStoreManager",
             "src": "contracts/templates/TemplateStoreManager.sol:26"
           }
@@ -12106,7 +12106,7 @@
             "label": "bool",
             "numberOfBytes": "1"
           },
-          "t_enum(TemplateState)29385": {
+          "t_enum(TemplateState)29392": {
             "label": "enum TemplateStoreLibrary.TemplateState",
             "members": [
               "Uninitialized",
@@ -12116,16 +12116,16 @@
             ],
             "numberOfBytes": "1"
           },
-          "t_mapping(t_address,t_struct(Template)29395_storage)": {
+          "t_mapping(t_address,t_struct(Template)29402_storage)": {
             "label": "mapping(address => struct TemplateStoreLibrary.Template)",
             "numberOfBytes": "32"
           },
-          "t_struct(Template)29395_storage": {
+          "t_struct(Template)29402_storage": {
             "label": "struct TemplateStoreLibrary.Template",
             "members": [
               {
                 "label": "state",
-                "type": "t_enum(TemplateState)29385",
+                "type": "t_enum(TemplateState)29392",
                 "offset": 0,
                 "slot": "0"
               },
@@ -12150,12 +12150,12 @@
             ],
             "numberOfBytes": "96"
           },
-          "t_struct(TemplateList)29404_storage": {
+          "t_struct(TemplateList)29411_storage": {
             "label": "struct TemplateStoreLibrary.TemplateList",
             "members": [
               {
                 "label": "templates",
-                "type": "t_mapping(t_address,t_struct(Template)29395_storage)",
+                "type": "t_mapping(t_address,t_struct(Template)29402_storage)",
                 "offset": 0,
                 "slot": "0"
               },
@@ -12269,7 +12269,7 @@
             "label": "templateStoreManager",
             "offset": 0,
             "slot": "206",
-            "type": "t_contract(TemplateStoreManager)29750",
+            "type": "t_contract(TemplateStoreManager)29757",
             "contract": "AgreementStoreManager",
             "src": "contracts/agreements/AgreementStoreManager.sol:54"
           },
@@ -12277,7 +12277,7 @@
             "label": "didRegistry",
             "offset": 0,
             "slot": "207",
-            "type": "t_contract(DIDRegistry)24080",
+            "type": "t_contract(DIDRegistry)24087",
             "contract": "AgreementStoreManager",
             "src": "contracts/agreements/AgreementStoreManager.sol:55"
           }
@@ -12311,11 +12311,11 @@
             "label": "contract ConditionStoreManager",
             "numberOfBytes": "20"
           },
-          "t_contract(DIDRegistry)24080": {
+          "t_contract(DIDRegistry)24087": {
             "label": "contract DIDRegistry",
             "numberOfBytes": "20"
           },
-          "t_contract(TemplateStoreManager)29750": {
+          "t_contract(TemplateStoreManager)29757": {
             "label": "contract TemplateStoreManager",
             "numberOfBytes": "20"
           },
@@ -12706,7 +12706,7 @@
             "label": "didRegistry",
             "offset": 0,
             "slot": "252",
-            "type": "t_contract(DIDRegistry)24080",
+            "type": "t_contract(DIDRegistry)24087",
             "contract": "LockPaymentCondition",
             "src": "contracts/conditions/LockPaymentCondition.sol:31"
           },
@@ -12714,7 +12714,7 @@
             "label": "nvmConfig",
             "offset": 0,
             "slot": "253",
-            "type": "t_contract(INVMConfig)17812",
+            "type": "t_contract(INVMConfig)17819",
             "contract": "LockPaymentCondition",
             "src": "contracts/conditions/LockPaymentCondition.sol:32"
           }
@@ -12744,11 +12744,11 @@
             "label": "contract ConditionStoreManager",
             "numberOfBytes": "20"
           },
-          "t_contract(DIDRegistry)24080": {
+          "t_contract(DIDRegistry)24087": {
             "label": "contract DIDRegistry",
             "numberOfBytes": "20"
           },
-          "t_contract(INVMConfig)17812": {
+          "t_contract(INVMConfig)17819": {
             "label": "contract INVMConfig",
             "numberOfBytes": "20"
           },
@@ -13291,7 +13291,7 @@
             "label": "erc1155",
             "offset": 0,
             "slot": "252",
-            "type": "t_contract(NFTUpgradeable)31401",
+            "type": "t_contract(NFTUpgradeable)31408",
             "contract": "TransferNFTCondition",
             "src": "contracts/conditions/NFTs/TransferNFTCondition.sol:27"
           },
@@ -13299,7 +13299,7 @@
             "label": "didRegistry",
             "offset": 0,
             "slot": "253",
-            "type": "t_contract(DIDRegistry)24080",
+            "type": "t_contract(DIDRegistry)24087",
             "contract": "TransferNFTCondition",
             "src": "contracts/conditions/NFTs/TransferNFTCondition.sol:29"
           }
@@ -13329,11 +13329,11 @@
             "label": "contract ConditionStoreManager",
             "numberOfBytes": "20"
           },
-          "t_contract(DIDRegistry)24080": {
+          "t_contract(DIDRegistry)24087": {
             "label": "contract DIDRegistry",
             "numberOfBytes": "20"
           },
-          "t_contract(NFTUpgradeable)31401": {
+          "t_contract(NFTUpgradeable)31408": {
             "label": "contract NFTUpgradeable",
             "numberOfBytes": "20"
           },
@@ -13637,7 +13637,7 @@
             "label": "didRegistry",
             "offset": 0,
             "slot": "104",
-            "type": "t_contract(DIDRegistry)24080",
+            "type": "t_contract(DIDRegistry)24087",
             "contract": "AccessCondition",
             "src": "contracts/conditions/AccessCondition.sol:39"
           }
@@ -13671,7 +13671,7 @@
             "label": "contract ConditionStoreManager",
             "numberOfBytes": "20"
           },
-          "t_contract(DIDRegistry)24080": {
+          "t_contract(DIDRegistry)24087": {
             "label": "contract DIDRegistry",
             "numberOfBytes": "20"
           },
@@ -13889,7 +13889,7 @@
             "label": "didRegistry",
             "offset": 0,
             "slot": "103",
-            "type": "t_contract(DIDRegistry)24080",
+            "type": "t_contract(DIDRegistry)24087",
             "contract": "NFTAccessCondition",
             "src": "contracts/conditions/NFTs/NFTAccessCondition.sol:29"
           }
@@ -13919,7 +13919,7 @@
             "label": "contract ConditionStoreManager",
             "numberOfBytes": "20"
           },
-          "t_contract(DIDRegistry)24080": {
+          "t_contract(DIDRegistry)24087": {
             "label": "contract DIDRegistry",
             "numberOfBytes": "20"
           },
@@ -14469,7 +14469,7 @@
             "label": "didRegistry",
             "offset": 0,
             "slot": "102",
-            "type": "t_contract(DIDRegistry)24080",
+            "type": "t_contract(DIDRegistry)24087",
             "contract": "TransferDIDOwnershipCondition",
             "src": "contracts/conditions/TransferDIDOwnershipCondition.sol:22"
           }
@@ -14495,7 +14495,7 @@
             "label": "contract ConditionStoreManager",
             "numberOfBytes": "20"
           },
-          "t_contract(DIDRegistry)24080": {
+          "t_contract(DIDRegistry)24087": {
             "label": "contract DIDRegistry",
             "numberOfBytes": "20"
           },
@@ -14869,7 +14869,7 @@
             "label": "agreementData",
             "offset": 0,
             "slot": "103",
-            "type": "t_struct(AgreementData)27251_storage",
+            "type": "t_struct(AgreementData)27258_storage",
             "contract": "BaseEscrowTemplate",
             "src": "contracts/templates/BaseEscrowTemplate.sol:13"
           },
@@ -14877,7 +14877,7 @@
             "label": "didRegistry",
             "offset": 0,
             "slot": "105",
-            "type": "t_contract(DIDRegistry)24080",
+            "type": "t_contract(DIDRegistry)24087",
             "contract": "AccessTemplate",
             "src": "contracts/templates/AccessTemplate.sol:39"
           },
@@ -14901,7 +14901,7 @@
             "label": "escrowReward",
             "offset": 0,
             "slot": "108",
-            "type": "t_contract(EscrowPaymentCondition)16723",
+            "type": "t_contract(EscrowPaymentCondition)16730",
             "contract": "AccessTemplate",
             "src": "contracts/templates/AccessTemplate.sol:42"
           }
@@ -14943,11 +14943,11 @@
             "label": "contract AgreementStoreManager",
             "numberOfBytes": "20"
           },
-          "t_contract(DIDRegistry)24080": {
+          "t_contract(DIDRegistry)24087": {
             "label": "contract DIDRegistry",
             "numberOfBytes": "20"
           },
-          "t_contract(EscrowPaymentCondition)16723": {
+          "t_contract(EscrowPaymentCondition)16730": {
             "label": "contract EscrowPaymentCondition",
             "numberOfBytes": "20"
           },
@@ -14955,16 +14955,16 @@
             "label": "contract LockPaymentCondition",
             "numberOfBytes": "20"
           },
-          "t_mapping(t_bytes32,t_struct(AgreementDataModel)27242_storage)": {
+          "t_mapping(t_bytes32,t_struct(AgreementDataModel)27249_storage)": {
             "label": "mapping(bytes32 => struct BaseEscrowTemplate.AgreementDataModel)",
             "numberOfBytes": "32"
           },
-          "t_struct(AgreementData)27251_storage": {
+          "t_struct(AgreementData)27258_storage": {
             "label": "struct BaseEscrowTemplate.AgreementData",
             "members": [
               {
                 "label": "agreementDataItems",
-                "type": "t_mapping(t_bytes32,t_struct(AgreementDataModel)27242_storage)",
+                "type": "t_mapping(t_bytes32,t_struct(AgreementDataModel)27249_storage)",
                 "offset": 0,
                 "slot": "0"
               },
@@ -14977,7 +14977,7 @@
             ],
             "numberOfBytes": "64"
           },
-          "t_struct(AgreementDataModel)27242_storage": {
+          "t_struct(AgreementDataModel)27249_storage": {
             "label": "struct BaseEscrowTemplate.AgreementDataModel",
             "members": [
               {
@@ -15078,7 +15078,7 @@
             "label": "agreementData",
             "offset": 0,
             "slot": "103",
-            "type": "t_struct(AgreementData)27251_storage",
+            "type": "t_struct(AgreementData)27258_storage",
             "contract": "BaseEscrowTemplate",
             "src": "contracts/templates/BaseEscrowTemplate.sol:13"
           },
@@ -15086,7 +15086,7 @@
             "label": "didRegistry",
             "offset": 0,
             "slot": "105",
-            "type": "t_contract(DIDRegistry)24080",
+            "type": "t_contract(DIDRegistry)24087",
             "contract": "NFTAccessTemplate",
             "src": "contracts/templates/NFTAccessTemplate.sol:35"
           },
@@ -15140,7 +15140,7 @@
             "label": "contract AgreementStoreManager",
             "numberOfBytes": "20"
           },
-          "t_contract(DIDRegistry)24080": {
+          "t_contract(DIDRegistry)24087": {
             "label": "contract DIDRegistry",
             "numberOfBytes": "20"
           },
@@ -15152,16 +15152,16 @@
             "label": "contract INFTHolder",
             "numberOfBytes": "20"
           },
-          "t_mapping(t_bytes32,t_struct(AgreementDataModel)27242_storage)": {
+          "t_mapping(t_bytes32,t_struct(AgreementDataModel)27249_storage)": {
             "label": "mapping(bytes32 => struct BaseEscrowTemplate.AgreementDataModel)",
             "numberOfBytes": "32"
           },
-          "t_struct(AgreementData)27251_storage": {
+          "t_struct(AgreementData)27258_storage": {
             "label": "struct BaseEscrowTemplate.AgreementData",
             "members": [
               {
                 "label": "agreementDataItems",
-                "type": "t_mapping(t_bytes32,t_struct(AgreementDataModel)27242_storage)",
+                "type": "t_mapping(t_bytes32,t_struct(AgreementDataModel)27249_storage)",
                 "offset": 0,
                 "slot": "0"
               },
@@ -15174,7 +15174,7 @@
             ],
             "numberOfBytes": "64"
           },
-          "t_struct(AgreementDataModel)27242_storage": {
+          "t_struct(AgreementDataModel)27249_storage": {
             "label": "struct BaseEscrowTemplate.AgreementDataModel",
             "members": [
               {
@@ -15275,7 +15275,7 @@
             "label": "agreementData",
             "offset": 0,
             "slot": "103",
-            "type": "t_struct(AgreementData)27251_storage",
+            "type": "t_struct(AgreementData)27258_storage",
             "contract": "BaseEscrowTemplate",
             "src": "contracts/templates/BaseEscrowTemplate.sol:13"
           },
@@ -15283,7 +15283,7 @@
             "label": "didRegistry",
             "offset": 0,
             "slot": "105",
-            "type": "t_contract(DIDRegistry)24080",
+            "type": "t_contract(DIDRegistry)24087",
             "contract": "NFTAccessSwapTemplate",
             "src": "contracts/templates/NFTAccessSwapTemplate.sol:36"
           },
@@ -15299,7 +15299,7 @@
             "label": "rewardCondition",
             "offset": 0,
             "slot": "107",
-            "type": "t_contract(INFTEscrow)16746",
+            "type": "t_contract(INFTEscrow)16753",
             "contract": "NFTAccessSwapTemplate",
             "src": "contracts/templates/NFTAccessSwapTemplate.sol:38"
           },
@@ -15349,11 +15349,11 @@
             "label": "contract AgreementStoreManager",
             "numberOfBytes": "20"
           },
-          "t_contract(DIDRegistry)24080": {
+          "t_contract(DIDRegistry)24087": {
             "label": "contract DIDRegistry",
             "numberOfBytes": "20"
           },
-          "t_contract(INFTEscrow)16746": {
+          "t_contract(INFTEscrow)16753": {
             "label": "contract INFTEscrow",
             "numberOfBytes": "20"
           },
@@ -15361,16 +15361,16 @@
             "label": "contract INFTLock",
             "numberOfBytes": "20"
           },
-          "t_mapping(t_bytes32,t_struct(AgreementDataModel)27242_storage)": {
+          "t_mapping(t_bytes32,t_struct(AgreementDataModel)27249_storage)": {
             "label": "mapping(bytes32 => struct BaseEscrowTemplate.AgreementDataModel)",
             "numberOfBytes": "32"
           },
-          "t_struct(AgreementData)27251_storage": {
+          "t_struct(AgreementData)27258_storage": {
             "label": "struct BaseEscrowTemplate.AgreementData",
             "members": [
               {
                 "label": "agreementDataItems",
-                "type": "t_mapping(t_bytes32,t_struct(AgreementDataModel)27242_storage)",
+                "type": "t_mapping(t_bytes32,t_struct(AgreementDataModel)27249_storage)",
                 "offset": 0,
                 "slot": "0"
               },
@@ -15383,7 +15383,7 @@
             ],
             "numberOfBytes": "64"
           },
-          "t_struct(AgreementDataModel)27242_storage": {
+          "t_struct(AgreementDataModel)27249_storage": {
             "label": "struct BaseEscrowTemplate.AgreementDataModel",
             "members": [
               {
@@ -15484,7 +15484,7 @@
             "label": "agreementData",
             "offset": 0,
             "slot": "103",
-            "type": "t_struct(AgreementData)27251_storage",
+            "type": "t_struct(AgreementData)27258_storage",
             "contract": "BaseEscrowTemplate",
             "src": "contracts/templates/BaseEscrowTemplate.sol:13"
           },
@@ -15492,7 +15492,7 @@
             "label": "didRegistry",
             "offset": 0,
             "slot": "105",
-            "type": "t_contract(DIDRegistry)24080",
+            "type": "t_contract(DIDRegistry)24087",
             "contract": "NFTSalesWithAccessTemplate",
             "src": "contracts/templates/NFTSalesWithAccessTemplate.sol:37"
           },
@@ -15516,7 +15516,7 @@
             "label": "rewardCondition",
             "offset": 0,
             "slot": "108",
-            "type": "t_contract(EscrowPaymentCondition)16723",
+            "type": "t_contract(EscrowPaymentCondition)16730",
             "contract": "NFTSalesWithAccessTemplate",
             "src": "contracts/templates/NFTSalesWithAccessTemplate.sol:40"
           },
@@ -15566,11 +15566,11 @@
             "label": "contract AgreementStoreManager",
             "numberOfBytes": "20"
           },
-          "t_contract(DIDRegistry)24080": {
+          "t_contract(DIDRegistry)24087": {
             "label": "contract DIDRegistry",
             "numberOfBytes": "20"
           },
-          "t_contract(EscrowPaymentCondition)16723": {
+          "t_contract(EscrowPaymentCondition)16730": {
             "label": "contract EscrowPaymentCondition",
             "numberOfBytes": "20"
           },
@@ -15582,16 +15582,16 @@
             "label": "contract LockPaymentCondition",
             "numberOfBytes": "20"
           },
-          "t_mapping(t_bytes32,t_struct(AgreementDataModel)27242_storage)": {
+          "t_mapping(t_bytes32,t_struct(AgreementDataModel)27249_storage)": {
             "label": "mapping(bytes32 => struct BaseEscrowTemplate.AgreementDataModel)",
             "numberOfBytes": "32"
           },
-          "t_struct(AgreementData)27251_storage": {
+          "t_struct(AgreementData)27258_storage": {
             "label": "struct BaseEscrowTemplate.AgreementData",
             "members": [
               {
                 "label": "agreementDataItems",
-                "type": "t_mapping(t_bytes32,t_struct(AgreementDataModel)27242_storage)",
+                "type": "t_mapping(t_bytes32,t_struct(AgreementDataModel)27249_storage)",
                 "offset": 0,
                 "slot": "0"
               },
@@ -15604,7 +15604,7 @@
             ],
             "numberOfBytes": "64"
           },
-          "t_struct(AgreementDataModel)27242_storage": {
+          "t_struct(AgreementDataModel)27249_storage": {
             "label": "struct BaseEscrowTemplate.AgreementDataModel",
             "members": [
               {
@@ -15705,7 +15705,7 @@
             "label": "agreementData",
             "offset": 0,
             "slot": "103",
-            "type": "t_struct(AgreementData)27251_storage",
+            "type": "t_struct(AgreementData)27258_storage",
             "contract": "BaseEscrowTemplate",
             "src": "contracts/templates/BaseEscrowTemplate.sol:13"
           },
@@ -15713,7 +15713,7 @@
             "label": "didRegistry",
             "offset": 0,
             "slot": "105",
-            "type": "t_contract(DIDRegistry)24080",
+            "type": "t_contract(DIDRegistry)24087",
             "contract": "DIDSalesTemplate",
             "src": "contracts/templates/DIDSalesTemplate.sol:35"
           },
@@ -15729,7 +15729,7 @@
             "label": "transferCondition",
             "offset": 0,
             "slot": "107",
-            "type": "t_contract(TransferDIDOwnershipCondition)14145",
+            "type": "t_contract(TransferDIDOwnershipCondition)14152",
             "contract": "DIDSalesTemplate",
             "src": "contracts/templates/DIDSalesTemplate.sol:37"
           },
@@ -15737,7 +15737,7 @@
             "label": "rewardCondition",
             "offset": 0,
             "slot": "108",
-            "type": "t_contract(EscrowPaymentCondition)16723",
+            "type": "t_contract(EscrowPaymentCondition)16730",
             "contract": "DIDSalesTemplate",
             "src": "contracts/templates/DIDSalesTemplate.sol:38"
           }
@@ -15775,11 +15775,11 @@
             "label": "contract AgreementStoreManager",
             "numberOfBytes": "20"
           },
-          "t_contract(DIDRegistry)24080": {
+          "t_contract(DIDRegistry)24087": {
             "label": "contract DIDRegistry",
             "numberOfBytes": "20"
           },
-          "t_contract(EscrowPaymentCondition)16723": {
+          "t_contract(EscrowPaymentCondition)16730": {
             "label": "contract EscrowPaymentCondition",
             "numberOfBytes": "20"
           },
@@ -15787,20 +15787,20 @@
             "label": "contract LockPaymentCondition",
             "numberOfBytes": "20"
           },
-          "t_contract(TransferDIDOwnershipCondition)14145": {
+          "t_contract(TransferDIDOwnershipCondition)14152": {
             "label": "contract TransferDIDOwnershipCondition",
             "numberOfBytes": "20"
           },
-          "t_mapping(t_bytes32,t_struct(AgreementDataModel)27242_storage)": {
+          "t_mapping(t_bytes32,t_struct(AgreementDataModel)27249_storage)": {
             "label": "mapping(bytes32 => struct BaseEscrowTemplate.AgreementDataModel)",
             "numberOfBytes": "32"
           },
-          "t_struct(AgreementData)27251_storage": {
+          "t_struct(AgreementData)27258_storage": {
             "label": "struct BaseEscrowTemplate.AgreementData",
             "members": [
               {
                 "label": "agreementDataItems",
-                "type": "t_mapping(t_bytes32,t_struct(AgreementDataModel)27242_storage)",
+                "type": "t_mapping(t_bytes32,t_struct(AgreementDataModel)27249_storage)",
                 "offset": 0,
                 "slot": "0"
               },
@@ -15813,7 +15813,7 @@
             ],
             "numberOfBytes": "64"
           },
-          "t_struct(AgreementDataModel)27242_storage": {
+          "t_struct(AgreementDataModel)27249_storage": {
             "label": "struct BaseEscrowTemplate.AgreementDataModel",
             "members": [
               {
@@ -15914,7 +15914,7 @@
             "label": "agreementData",
             "offset": 0,
             "slot": "103",
-            "type": "t_struct(AgreementData)27251_storage",
+            "type": "t_struct(AgreementData)27258_storage",
             "contract": "BaseEscrowTemplate",
             "src": "contracts/templates/BaseEscrowTemplate.sol:13"
           },
@@ -15922,7 +15922,7 @@
             "label": "didRegistry",
             "offset": 0,
             "slot": "105",
-            "type": "t_contract(DIDRegistry)24080",
+            "type": "t_contract(DIDRegistry)24087",
             "contract": "NFTSalesTemplate",
             "src": "contracts/templates/NFTSalesTemplate.sol:35"
           },
@@ -15946,7 +15946,7 @@
             "label": "rewardCondition",
             "offset": 0,
             "slot": "108",
-            "type": "t_contract(EscrowPaymentCondition)16723",
+            "type": "t_contract(EscrowPaymentCondition)16730",
             "contract": "NFTSalesTemplate",
             "src": "contracts/templates/NFTSalesTemplate.sol:38"
           },
@@ -15992,11 +15992,11 @@
             "label": "contract AgreementStoreManager",
             "numberOfBytes": "20"
           },
-          "t_contract(DIDRegistry)24080": {
+          "t_contract(DIDRegistry)24087": {
             "label": "contract DIDRegistry",
             "numberOfBytes": "20"
           },
-          "t_contract(EscrowPaymentCondition)16723": {
+          "t_contract(EscrowPaymentCondition)16730": {
             "label": "contract EscrowPaymentCondition",
             "numberOfBytes": "20"
           },
@@ -16020,7 +16020,7 @@
             "label": "mapping(address => mapping(bytes32 => uint256))",
             "numberOfBytes": "32"
           },
-          "t_mapping(t_bytes32,t_struct(AgreementDataModel)27242_storage)": {
+          "t_mapping(t_bytes32,t_struct(AgreementDataModel)27249_storage)": {
             "label": "mapping(bytes32 => struct BaseEscrowTemplate.AgreementDataModel)",
             "numberOfBytes": "32"
           },
@@ -16028,12 +16028,12 @@
             "label": "mapping(bytes32 => uint256)",
             "numberOfBytes": "32"
           },
-          "t_struct(AgreementData)27251_storage": {
+          "t_struct(AgreementData)27258_storage": {
             "label": "struct BaseEscrowTemplate.AgreementData",
             "members": [
               {
                 "label": "agreementDataItems",
-                "type": "t_mapping(t_bytes32,t_struct(AgreementDataModel)27242_storage)",
+                "type": "t_mapping(t_bytes32,t_struct(AgreementDataModel)27249_storage)",
                 "offset": 0,
                 "slot": "0"
               },
@@ -16046,7 +16046,7 @@
             ],
             "numberOfBytes": "64"
           },
-          "t_struct(AgreementDataModel)27242_storage": {
+          "t_struct(AgreementDataModel)27249_storage": {
             "label": "struct BaseEscrowTemplate.AgreementDataModel",
             "members": [
               {
@@ -16147,7 +16147,7 @@
             "label": "agreementData",
             "offset": 0,
             "slot": "103",
-            "type": "t_struct(AgreementData)27251_storage",
+            "type": "t_struct(AgreementData)27258_storage",
             "contract": "BaseEscrowTemplate",
             "src": "contracts/templates/BaseEscrowTemplate.sol:13"
           },
@@ -16155,7 +16155,7 @@
             "label": "didRegistry",
             "offset": 0,
             "slot": "105",
-            "type": "t_contract(DIDRegistry)24080",
+            "type": "t_contract(DIDRegistry)24087",
             "contract": "EscrowComputeExecutionTemplate",
             "src": "contracts/templates/EscrowComputeExecutionTemplate.sol:38"
           },
@@ -16179,7 +16179,7 @@
             "label": "escrowPayment",
             "offset": 0,
             "slot": "108",
-            "type": "t_contract(EscrowPaymentCondition)16723",
+            "type": "t_contract(EscrowPaymentCondition)16730",
             "contract": "EscrowComputeExecutionTemplate",
             "src": "contracts/templates/EscrowComputeExecutionTemplate.sol:41"
           }
@@ -16221,11 +16221,11 @@
             "label": "contract ComputeExecutionCondition",
             "numberOfBytes": "20"
           },
-          "t_contract(DIDRegistry)24080": {
+          "t_contract(DIDRegistry)24087": {
             "label": "contract DIDRegistry",
             "numberOfBytes": "20"
           },
-          "t_contract(EscrowPaymentCondition)16723": {
+          "t_contract(EscrowPaymentCondition)16730": {
             "label": "contract EscrowPaymentCondition",
             "numberOfBytes": "20"
           },
@@ -16233,16 +16233,16 @@
             "label": "contract LockPaymentCondition",
             "numberOfBytes": "20"
           },
-          "t_mapping(t_bytes32,t_struct(AgreementDataModel)27242_storage)": {
+          "t_mapping(t_bytes32,t_struct(AgreementDataModel)27249_storage)": {
             "label": "mapping(bytes32 => struct BaseEscrowTemplate.AgreementDataModel)",
             "numberOfBytes": "32"
           },
-          "t_struct(AgreementData)27251_storage": {
+          "t_struct(AgreementData)27258_storage": {
             "label": "struct BaseEscrowTemplate.AgreementData",
             "members": [
               {
                 "label": "agreementDataItems",
-                "type": "t_mapping(t_bytes32,t_struct(AgreementDataModel)27242_storage)",
+                "type": "t_mapping(t_bytes32,t_struct(AgreementDataModel)27249_storage)",
                 "offset": 0,
                 "slot": "0"
               },
@@ -16255,7 +16255,7 @@
             ],
             "numberOfBytes": "64"
           },
-          "t_struct(AgreementDataModel)27242_storage": {
+          "t_struct(AgreementDataModel)27249_storage": {
             "label": "struct BaseEscrowTemplate.AgreementDataModel",
             "members": [
               {
@@ -16364,7 +16364,7 @@
             "label": "aaveCreditVault",
             "offset": 0,
             "slot": "152",
-            "type": "t_contract(AaveCreditVault)15682",
+            "type": "t_contract(AaveCreditVault)15689",
             "contract": "DistributeNFTCollateralCondition",
             "src": "contracts/conditions/NFTs/DistributeNFTCollateralCondition.sol:23"
           },
@@ -16394,7 +16394,7 @@
             "label": "bool",
             "numberOfBytes": "1"
           },
-          "t_contract(AaveCreditVault)15682": {
+          "t_contract(AaveCreditVault)15689": {
             "label": "contract AaveCreditVault",
             "numberOfBytes": "20"
           },
@@ -16439,7 +16439,7 @@
             "label": "registry",
             "offset": 2,
             "slot": "0",
-            "type": "t_contract(DIDRegistry)24080",
+            "type": "t_contract(DIDRegistry)24087",
             "contract": "StandardRoyalties",
             "src": "contracts/royalties/StandardRoyalities.sol:17"
           },
@@ -16461,7 +16461,7 @@
             "label": "bytes32",
             "numberOfBytes": "32"
           },
-          "t_contract(DIDRegistry)24080": {
+          "t_contract(DIDRegistry)24087": {
             "label": "contract DIDRegistry",
             "numberOfBytes": "20"
           },
@@ -16522,7 +16522,7 @@
             "label": "registry",
             "offset": 0,
             "slot": "3",
-            "type": "t_contract(DIDRegistry)24080",
+            "type": "t_contract(DIDRegistry)24087",
             "contract": "RewardsDistributor",
             "src": "contracts/royalties/RewardsDistributor.sol:20"
           },
@@ -16564,7 +16564,7 @@
             "label": "contract ConditionStoreManager",
             "numberOfBytes": "20"
           },
-          "t_contract(DIDRegistry)24080": {
+          "t_contract(DIDRegistry)24087": {
             "label": "contract DIDRegistry",
             "numberOfBytes": "20"
           },
@@ -16641,7 +16641,7 @@
             "label": "aaveCreditVault",
             "offset": 0,
             "slot": "102",
-            "type": "t_contract(AaveCreditVault)15682",
+            "type": "t_contract(AaveCreditVault)15689",
             "contract": "AaveBorrowCondition",
             "src": "contracts/conditions/defi/aave/AaveBorrowCondition.sol:20"
           }
@@ -16663,7 +16663,7 @@
             "label": "bool",
             "numberOfBytes": "1"
           },
-          "t_contract(AaveCreditVault)15682": {
+          "t_contract(AaveCreditVault)15689": {
             "label": "contract AaveCreditVault",
             "numberOfBytes": "20"
           },
@@ -16756,7 +16756,7 @@
             "label": "aaveCreditVault",
             "offset": 0,
             "slot": "152",
-            "type": "t_contract(AaveCreditVault)15682",
+            "type": "t_contract(AaveCreditVault)15689",
             "contract": "AaveCollateralDepositCondition",
             "src": "contracts/conditions/defi/aave/AaveCollateralDepositCondition.sol:26"
           }
@@ -16778,7 +16778,7 @@
             "label": "bool",
             "numberOfBytes": "1"
           },
-          "t_contract(AaveCreditVault)15682": {
+          "t_contract(AaveCreditVault)15689": {
             "label": "contract AaveCreditVault",
             "numberOfBytes": "20"
           },
@@ -16871,7 +16871,7 @@
             "label": "aaveCreditVault",
             "offset": 0,
             "slot": "152",
-            "type": "t_contract(AaveCreditVault)15682",
+            "type": "t_contract(AaveCreditVault)15689",
             "contract": "AaveCollateralWithdrawCondition",
             "src": "contracts/conditions/defi/aave/AaveCollateralWithdrawCondition.sol:27"
           }
@@ -16893,7 +16893,7 @@
             "label": "bool",
             "numberOfBytes": "1"
           },
-          "t_contract(AaveCreditVault)15682": {
+          "t_contract(AaveCreditVault)15689": {
             "label": "contract AaveCreditVault",
             "numberOfBytes": "20"
           },
@@ -16970,7 +16970,7 @@
             "label": "aaveCreditVault",
             "offset": 0,
             "slot": "102",
-            "type": "t_contract(AaveCreditVault)15682",
+            "type": "t_contract(AaveCreditVault)15689",
             "contract": "AaveRepayCondition",
             "src": "contracts/conditions/defi/aave/AaveRepayCondition.sol:25"
           }
@@ -16992,7 +16992,7 @@
             "label": "bool",
             "numberOfBytes": "1"
           },
-          "t_contract(AaveCreditVault)15682": {
+          "t_contract(AaveCreditVault)15689": {
             "label": "contract AaveCreditVault",
             "numberOfBytes": "20"
           },
@@ -17077,7 +17077,7 @@
             "label": "agreementData",
             "offset": 0,
             "slot": "103",
-            "type": "t_struct(AgreementData)27251_storage",
+            "type": "t_struct(AgreementData)27258_storage",
             "contract": "BaseEscrowTemplate",
             "src": "contracts/templates/BaseEscrowTemplate.sol:13"
           },
@@ -17085,7 +17085,7 @@
             "label": "didRegistry",
             "offset": 0,
             "slot": "105",
-            "type": "t_contract(DIDRegistry)24080",
+            "type": "t_contract(DIDRegistry)24087",
             "contract": "AaveCreditTemplate",
             "src": "contracts/templates/AaveCreditTemplate.sol:36"
           },
@@ -17101,7 +17101,7 @@
             "label": "depositCondition",
             "offset": 0,
             "slot": "107",
-            "type": "t_contract(AaveCollateralDepositCondition)14679",
+            "type": "t_contract(AaveCollateralDepositCondition)14686",
             "contract": "AaveCreditTemplate",
             "src": "contracts/templates/AaveCreditTemplate.sol:39"
           },
@@ -17109,7 +17109,7 @@
             "label": "borrowCondition",
             "offset": 0,
             "slot": "108",
-            "type": "t_contract(AaveBorrowCondition)14449",
+            "type": "t_contract(AaveBorrowCondition)14456",
             "contract": "AaveCreditTemplate",
             "src": "contracts/templates/AaveCreditTemplate.sol:40"
           },
@@ -17117,7 +17117,7 @@
             "label": "repayCondition",
             "offset": 0,
             "slot": "109",
-            "type": "t_contract(AaveRepayCondition)15903",
+            "type": "t_contract(AaveRepayCondition)15910",
             "contract": "AaveCreditTemplate",
             "src": "contracts/templates/AaveCreditTemplate.sol:41"
           },
@@ -17133,7 +17133,7 @@
             "label": "withdrawCondition",
             "offset": 0,
             "slot": "111",
-            "type": "t_contract(AaveCollateralWithdrawCondition)14869",
+            "type": "t_contract(AaveCollateralWithdrawCondition)14876",
             "contract": "AaveCreditTemplate",
             "src": "contracts/templates/AaveCreditTemplate.sol:43"
           },
@@ -17191,19 +17191,19 @@
             "label": "bytes32",
             "numberOfBytes": "32"
           },
-          "t_contract(AaveBorrowCondition)14449": {
+          "t_contract(AaveBorrowCondition)14456": {
             "label": "contract AaveBorrowCondition",
             "numberOfBytes": "20"
           },
-          "t_contract(AaveCollateralDepositCondition)14679": {
+          "t_contract(AaveCollateralDepositCondition)14686": {
             "label": "contract AaveCollateralDepositCondition",
             "numberOfBytes": "20"
           },
-          "t_contract(AaveCollateralWithdrawCondition)14869": {
+          "t_contract(AaveCollateralWithdrawCondition)14876": {
             "label": "contract AaveCollateralWithdrawCondition",
             "numberOfBytes": "20"
           },
-          "t_contract(AaveRepayCondition)15903": {
+          "t_contract(AaveRepayCondition)15910": {
             "label": "contract AaveRepayCondition",
             "numberOfBytes": "20"
           },
@@ -17211,7 +17211,7 @@
             "label": "contract AgreementStoreManager",
             "numberOfBytes": "20"
           },
-          "t_contract(DIDRegistry)24080": {
+          "t_contract(DIDRegistry)24087": {
             "label": "contract DIDRegistry",
             "numberOfBytes": "20"
           },
@@ -17227,16 +17227,16 @@
             "label": "mapping(bytes32 => address)",
             "numberOfBytes": "32"
           },
-          "t_mapping(t_bytes32,t_struct(AgreementDataModel)27242_storage)": {
+          "t_mapping(t_bytes32,t_struct(AgreementDataModel)27249_storage)": {
             "label": "mapping(bytes32 => struct BaseEscrowTemplate.AgreementDataModel)",
             "numberOfBytes": "32"
           },
-          "t_struct(AgreementData)27251_storage": {
+          "t_struct(AgreementData)27258_storage": {
             "label": "struct BaseEscrowTemplate.AgreementData",
             "members": [
               {
                 "label": "agreementDataItems",
-                "type": "t_mapping(t_bytes32,t_struct(AgreementDataModel)27242_storage)",
+                "type": "t_mapping(t_bytes32,t_struct(AgreementDataModel)27249_storage)",
                 "offset": 0,
                 "slot": "0"
               },
@@ -17249,7 +17249,7 @@
             ],
             "numberOfBytes": "64"
           },
-          "t_struct(AgreementDataModel)27242_storage": {
+          "t_struct(AgreementDataModel)27249_storage": {
             "label": "struct BaseEscrowTemplate.AgreementDataModel",
             "members": [
               {
@@ -17272,6 +17272,195 @@
               }
             ],
             "numberOfBytes": "96"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        }
+      }
+    },
+    "032ce028383acf59f43c6b110ff9478f00279fb9d6ba9916251a7dc814dbf343": {
+      "address": "0xEcCF617D2F57e5eEF13D6B89EF1FE6984f9F7044",
+      "txHash": "0x0c2aca5a74cebb3d29d2713f83658fac3c32d832ca76c94e5753033be9ab41c1",
+      "layout": {
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint8",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:62",
+            "retypedFrom": "bool"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:67"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ContextUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:36"
+          },
+          {
+            "label": "_owner",
+            "offset": 0,
+            "slot": "51",
+            "type": "t_address",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:22"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "52",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:94"
+          },
+          {
+            "label": "conditionStoreManager",
+            "offset": 0,
+            "slot": "101",
+            "type": "t_contract(ConditionStoreManager)9530",
+            "contract": "Condition",
+            "src": "contracts/conditions/Condition.sol:25"
+          },
+          {
+            "label": "_status",
+            "offset": 0,
+            "slot": "102",
+            "type": "t_uint256",
+            "contract": "ReentrancyGuardUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:38"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "103",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "ReentrancyGuardUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:74"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "152",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ERC165Upgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/utils/introspection/ERC165Upgradeable.sol:41"
+          },
+          {
+            "label": "_roles",
+            "offset": 0,
+            "slot": "202",
+            "type": "t_mapping(t_bytes32,t_struct(RoleData)34_storage)",
+            "contract": "AccessControlUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol:61"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "203",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "AccessControlUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol:259"
+          },
+          {
+            "label": "erc721",
+            "offset": 0,
+            "slot": "252",
+            "type": "t_contract(NFT721Upgradeable)31732",
+            "contract": "TransferNFT721Condition",
+            "src": "contracts/conditions/NFTs/TransferNFT721Condition.sol:27"
+          },
+          {
+            "label": "_lockConditionAddress",
+            "offset": 0,
+            "slot": "253",
+            "type": "t_address",
+            "contract": "TransferNFT721Condition",
+            "src": "contracts/conditions/NFTs/TransferNFT721Condition.sol:29"
+          },
+          {
+            "label": "didRegistry",
+            "offset": 0,
+            "slot": "254",
+            "type": "t_contract(DIDRegistry)24087",
+            "contract": "TransferNFT721Condition",
+            "src": "contracts/conditions/NFTs/TransferNFT721Condition.sol:33"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]",
+            "numberOfBytes": "1568"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]",
+            "numberOfBytes": "1600"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_bytes32": {
+            "label": "bytes32",
+            "numberOfBytes": "32"
+          },
+          "t_contract(ConditionStoreManager)9530": {
+            "label": "contract ConditionStoreManager",
+            "numberOfBytes": "20"
+          },
+          "t_contract(DIDRegistry)24087": {
+            "label": "contract DIDRegistry",
+            "numberOfBytes": "20"
+          },
+          "t_contract(NFT721Upgradeable)31732": {
+            "label": "contract NFT721Upgradeable",
+            "numberOfBytes": "20"
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_bytes32,t_struct(RoleData)34_storage)": {
+            "label": "mapping(bytes32 => struct AccessControlUpgradeable.RoleData)",
+            "numberOfBytes": "32"
+          },
+          "t_struct(RoleData)34_storage": {
+            "label": "struct AccessControlUpgradeable.RoleData",
+            "members": [
+              {
+                "label": "members",
+                "type": "t_mapping(t_address,t_bool)",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "adminRole",
+                "type": "t_bytes32",
+                "offset": 0,
+                "slot": "1"
+              }
+            ],
+            "numberOfBytes": "64"
           },
           "t_uint256": {
             "label": "uint256",
