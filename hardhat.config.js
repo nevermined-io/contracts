@@ -182,9 +182,8 @@ module.exports = {
             accounts,
             chainId: 80001,
             confirmations: 2,
-            timeoutBlocks: 200,
+            timeoutBlocks: 100,
             skipDryRun: true,
-            from: '0x73943d14131268F23b721E668911bCDDEcA9da62'
         },
         // Polygon: matic mainnet
         matic: {
@@ -192,12 +191,8 @@ module.exports = {
             accounts,
             chainId: 137,
             confirmations: 2,
-            timeoutBlocks: 200,
+            timeoutBlocks: 100,
             skipDryRun: true,
-            from: '0xCF3D200356Fe8e5E2fa9f6fd59B01D41732BCf4c',
-            gas: 'auto',
-            gasPrice: 'auto',
-            gasMultiplier: 3
         },
         // mainnet the ethereum mainnet
         mainnet: {
