@@ -366,7 +366,7 @@ contract('TransferNFT721 Condition constructor', (accounts) => {
             // Invalid agreementID
             await assert.isRejected(
                 transferCondition.fulfill(testUtils.generateId(), did, buyer, numberNFTs, conditionIdPayment, nft.address, true, { from: seller }),
-                /Invalid UpdateRole/
+                /Condition doesnt exist/
             )
         })
 

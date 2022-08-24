@@ -22,7 +22,7 @@ contract DIDRegistryChangeFunctionSignature is DIDRegistry {
         require(
             didRegisterList.didRegisters[_did].owner == address(0x0) ||
             didRegisterList.didRegisters[_did].owner == msg.sender,
-            'Only DID Owners'
+            'Only DID Owners or not registered DID'
         );
 
         require(
