@@ -6,7 +6,7 @@ wget https://hermez.s3-eu-west-1.amazonaws.com/powersOfTau28_hez_final_14.ptau
 
 git clone https://github.com/iden3/circom.git
 cd circom
-git checkout v2.0.7
+git checkout v2.0.6
 cargo install --path circom
 cd -
 
