@@ -17,6 +17,7 @@ const constants = {
     },
     error: {
         idAlreadyExists: 'Id already exists',
+        templateAlreadyInitialized: 'TemplateId already initialized',
         revert: 'VM Exception while processing transaction: revert'
     },
     condition: {
@@ -89,7 +90,8 @@ const constants = {
     acl: {
         error: {
             invalidCreateRole: 'Invalid CreateRole',
-            invalidUpdateRole: 'Invalid UpdateRole'
+            invalidUpdateRole: 'Invalid UpdateRole',
+            conditionDoesntExist: 'Condition doesnt exist'
         }
     },
     initialize: {
