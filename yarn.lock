@@ -7113,7 +7113,7 @@ snake-case@^2.1.0:
   dependencies:
     no-case "^2.2.0"
 
-snarkjs@^0.4.14:
+snarkjs@^0.4.24:
   version "0.4.24"
   resolved "https://registry.yarnpkg.com/snarkjs/-/snarkjs-0.4.24.tgz#51dbad196294cbaf6e5db2d2256ec0767f6a128b"
   integrity sha512-bDxcLXDBo/vCxZhd1zXTvpjXT5QM+FnO5RbsrO3hpZSldv5H/cTZ572ie4OuNAZc+HBEJzq5aEEz/f0sZu1QIw==
