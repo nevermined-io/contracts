@@ -97,7 +97,8 @@ async function deployContracts({ contracts: origContracts, verbose, testnet, mak
 
     // Move proxy admin to upgrader wallet
     try {
-        const addr = await ethers.provider.getStorageAt(addressBook.DIDRegistry, '0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103')
+        const someContract = Object.values(addressBook)[0]
+        const addr = await ethers.provider.getStorageAt(someContract, '0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103')
         console.log('Proxy admin address', addr)
         const admin = new ethers.Contract('0x' + addr.substring(26), PROXY_ADMIN_ABI, ethers.provider)
         const adminOwner = await admin.owner()
