@@ -1,0 +1,43 @@
+# This workflow will run tests using node and then publish a package to GitHub Packages when a release is created
+# For more information see: https://help.github.com/actions/language-and-framework-guides/publishing-nodejs-packages
+
+name: NPM Release
+
+on:
+  push:
+    tags:
+      - 'v*.*'
+
+jobs:
+  publish-npm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 14
+          registry-url: https://registry.npmjs.org/
+      - name: Pre-install
+        run: |
+          rm -rf node_modules
+          yarn install --frozen-lockfile
+          git submodule init
+          git submodule update
+          npm install ganache-cli@~6.12.2 -g
+          ganache-cli -q -p 18545 &
+      - name: Generate circuits
+        run: |
+          sh ./scripts/build-circuit.sh
+          git diff --exit-code
+      - name: Generate dev artifacts
+        run: |
+          yarn compile
+          yarn deploy:development
+      - name: Publish package
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.npm_token}}
+

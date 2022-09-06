@@ -83,7 +83,7 @@ contract('NFT721HolderCondition', (accounts) => {
 
             await assert.isRejected(
                 nftHolderCondition.fulfill(agreementId, did, holderAddress, amount, token.address),
-                constants.acl.error.conditionDoesntExist
+                constants.acl.error.invalidUpdateRole
             )
         })
     })

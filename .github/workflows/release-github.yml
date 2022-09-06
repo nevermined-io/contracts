@@ -5,10 +5,6 @@ on:
     tags:
       - "v*.*.*"
 
-permissions:
-  id-token: write
-  contents: read
-
 jobs:
   release:
     name: "Tagged Release"
@@ -100,14 +96,13 @@ jobs:
 
       # Impersonate AWS role
       - name: Configure AWS credentials from Test account
-        uses: aws-actions/configure-aws-credentials@main
+        uses: aws-actions/configure-aws-credentials@v1
         with:
           role-to-assume: arn:aws:iam::059076247551:role/github-actions-s3-artifacts-nevermined-rocks
           aws-region: us-east-1
 
-      # Upload abis to s3 artifact repository
-      - name: Upload abis and circuits to S3
+      # Runs a set of commands using the runners shell
+      - name: Run upload script
         working-directory: ./
         run: |
           bash -x ./scripts/upload_artifacts_s3.sh abis
-          bash -x ./scripts/upload_artifacts_s3.sh circuits

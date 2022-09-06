@@ -29,7 +29,7 @@ contract DIDRegistryWithBug is DIDRegistry {
         require(
             didRegisterList.didRegisters[_did].owner == address(0x0) ||
             didRegisterList.didRegisters[_did].owner == msg.sender,
-            'Only DID Owners or not registered DID'
+            'Only DID Owners'
         );
 
         require(

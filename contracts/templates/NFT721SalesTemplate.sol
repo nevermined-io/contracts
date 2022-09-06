@@ -13,5 +13,4 @@ import './NFTSalesTemplate.sol';
  * @dev Implementation of NFT Sales Template
  */
 contract NFT721SalesTemplate is NFTSalesTemplate {
-
 }

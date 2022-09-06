@@ -15,8 +15,7 @@ contract NFT721Upgradeable is ERC721Upgradeable, NFTBase {
     // solhint-disable-next-line
     function initializeWithName(
         string memory name, 
-        string memory symbol,
-        string memory uri
+        string memory symbol
     ) 
     public 
     virtual 
@@ -28,7 +27,6 @@ contract NFT721Upgradeable is ERC721Upgradeable, NFTBase {
         __Ownable_init_unchained();
         AccessControlUpgradeable.__AccessControl_init();
         AccessControlUpgradeable._setupRole(MINTER_ROLE, msg.sender);
-        setContractMetadataUri(uri);
     }
 
     // solhint-disable-next-line
@@ -105,7 +103,7 @@ contract NFT721Upgradeable is ERC721Upgradeable, NFTBase {
     {
         return _metadata[tokenId].nftURI;
     }
-    
+
     /**
     * @dev Record some NFT Metadata
     * @param tokenId the id of the asset with the royalties associated

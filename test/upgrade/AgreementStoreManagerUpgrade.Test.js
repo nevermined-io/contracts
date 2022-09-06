@@ -134,7 +134,7 @@ contract('AgreementStoreManager', (accounts) => {
                     accounts[7],
                     { from: accounts[8] }
                 ),
-                'Invalid sender address, it should be the creator too'
+                'Invalid sender address, should fail in function signature check'
             )
         })
 
@@ -204,7 +204,7 @@ contract('AgreementStoreManager', (accounts) => {
                     accounts[7],
                     { from: accounts[8] }
                 ),
-                'Invalid sender address, it should be the creator too'
+                'Invalid sender address, should fail in function signature check'
             )
 
             assert.strictEqual(

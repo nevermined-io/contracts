@@ -7,23 +7,24 @@
 
 [![Docker Build Status](https://img.shields.io/docker/cloud/build/neverminedio/contracts.svg)](https://hub.docker.com/r/neverminedio/contracts/)
 ![Build](https://github.com/nevermined-io/contracts/workflows/Build/badge.svg)
+![NPM Package](https://github.com/nevermined-io/contracts/workflows/NPM%20Release/badge.svg)
 ![Pypi Package](https://github.com/nevermined-io/contracts/workflows/Pypi%20Release/badge.svg)
 
 ## Table of Contents
 
-- [Nevermined Smart Contracts](#nevermined-smart-contracts)
-  - [Table of Contents](#table-of-contents)
-  - [Get Started](#get-started)
-    - [Docker](#docker)
-    - [Local development](#local-development)
-  - [Testing](#testing)
-    - [Code Linting](#code-linting)
-  - [Networks](#networks)
-  - [Packages](#packages)
-  - [Documentation](#documentation)
-  - [Prior Art](#prior-art)
-  - [Attribution](#attribution)
-  - [License](#license)
+* [Nevermined Smart Contracts](#nevermined-smart-contracts)
+* [Table of Contents](#table-of-contents)
+  * [Get Started](#get-started)
+    * [Docker](#docker)
+    * [Local development](#local-development)
+  * [Testing](#testing)
+    * [Code Linting](#code-linting)
+  * [Networks](#networks)
+  * [Packages](#packages)
+  * [Documentation](#documentation)
+  * [Prior Art](#prior-art)
+  * [Attribution](#attribution)
+  * [License](#license)
 
 ---
 

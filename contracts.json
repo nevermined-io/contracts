@@ -3,7 +3,6 @@
   "DIDRegistry",
   "NFTUpgradeable",
   "NFT721Upgradeable",
-  "NFT721SubscriptionUpgradeable",
   "ConditionStoreManager",
   "TemplateStoreManager",
   "AgreementStoreManager",

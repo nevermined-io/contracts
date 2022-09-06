@@ -1,12 +1,7 @@
----
-sidebar_position: 5
----
-
 # Upgrade Process
 
 This documents explains in detail how [nevermined-contracts](https://github.com/nevermined-io/contracts) should be
 deployed using zeppelinOS and how the contracts can be upgraded. The latest section describes the test procedure.
-
 
 ## Quickstart
 
@@ -105,7 +100,7 @@ The following configuration should be an example for `wallets-<NETWORK_NAME>.jso
 
 The following commands clean, install dependencies and compile the contracts:
 
-```bash
+```console
 yarn clean #to clean the work dir
 yarn #install dependencies
 yarn compile #to compile the contracts
@@ -185,95 +180,4 @@ To check or document that all transactions have been approved in the multi sig w
  Data is `upgradeTo` call: true
  Confirmed from: 0x7A13E1aD23546c9b804aDFd13e9AcB184EfCAF58
  Executed: false
-```
-
-### 6. Typical problems and workarounds
-
-Workarounds for some of the operational problems suffered to the date. For these, you have to configure your environment as for any upgrade (replacing openzeppelin files, artifacts, exporting mnemnic, running `yarn`, `yarn compile`, ...).
-
-#### Transfer Proxy Address Ownership to Upgrader Wallet
-
-- Get the DIDRegistry contract address from the `artifacts/DIDRegistry.json` file: `cat artifacts/DIDRegistry.mumbai.json| grep -i '"address":'`
-
-- Run the `hardhat` console: `npx hardhat console --network mumbai`
-
-- Execute the next snippet replacing the `<DIDRegistryAddress>` with the DIDRegistry contract address:
-
-```typescript
-const PROXY_ADMIN_ABI = `[{
-    "inputs": [],
-    "name": "owner",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  }, {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "newOwner",
-        "type": "address"
-      }
-    ],
-    "name": "transferOwnership",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-}]`
-
-const DIDRegistry = '<DIDRegistryAddress>'
-const addr = await ethers.provider.getStorageAt(DIDRegistry, '0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103')
-console.log('Proxy admin address', addr)
-const admin = new ethers.Contract('0x' + addr.substring(26), PROXY_ADMIN_ABI, ethers.provider)
-const adminOwner = await admin.owner()
-console.log('Proxy admin owner', adminOwner)
-const signer = ethers.provider.getSigner(adminOwner)
-const accounts = await web3.eth.getAccounts()
-const upgraderWallet = accounts[8]
-await admin.connect(signer).transferOwnership(upgraderWallet)
-```
-
-#### Cannot upgrade Error: Deployment at address 0x... is not registered
-
-This happens when the contract is not registered in openzeppelin file. It can be fixed using the [`forceImport`](https://docs.openzeppelin.com/upgrades-plugins/1.x/api-hardhat-upgrades#force-import) function from openzeppelin library.
-
-Given the next error:
-
-```bash
-upgrading NFT721EscrowPaymentCondition at 0x7fF506C7148a46e57b8A349C1F848F0cC6d9Cfa8
-Cannot upgrade Error: Deployment at address 0xB54C6A5d60cB3984f8120EFA0c629a59DA8881aA is not registered
-
-To register a previously deployed proxy for upgrading, use the forceImport function.
-
-/Users/jcortejoso/Projects/nevermined/contracts/node_modules/@openzeppelin/upgrades-core/src/manifest-storage-layout.ts:20
-    throw new UpgradesError(
-          ^
-Error: Deployment at address 0xB54C6A5d60cB3984f8120EFA0c629a59DA8881aA is not registered
-
-To register a previously deployed proxy for upgrading, use the forceImport function.
-    at getStorageLayoutForAddress (/Users/jcortejoso/Projects/nevermined/contracts/node_modules/@openzeppelin/upgrades-core/src/manifest-storage-layout.ts:20:11)
-    at deployImpl (/Users/jcortejoso/Projects/nevermined/contracts/node_modules/@openzeppelin/hardhat-upgrades/src/utils/deploy-impl.ts:108:27)
-    at Proxy.prepareUpgrade (/Users/jcortejoso/Projects/nevermined/contracts/node_modules/@openzeppelin/hardhat-upgrades/src/prepare-upgrade.ts:25:22)
-    at upgradeContracts (/Users/jcortejoso/Projects/nevermined/contracts/scripts/deploy/truffle-wrapper/upgradeContracts.js:76:29)
-    at main (/Users/jcortejoso/Projects/nevermined/contracts/scripts/deploy/truffle-wrapper/upgradeContractsWrapper.js:9:5)
-error Command failed with exit code 1.
-info Visit https://yarnpkg.com/en/docs/cli/run for documentation about this command.
-error Command failed with exit code 1.
-info Visit https://yarnpkg.com/en/docs/cli/run for documentation about this command.
-```
-
-To fix it you can run the next commands in `hardhat` console, replacing the contract name and the proxy address (`npx hardhat console --network mumbai`):
-
-```typescript
-const { ethers, upgrades, web3 } = require('hardhat')
-const factory = await ethers.getContractFactory('NFT721EscrowPaymentCondition')
-const update = await upgrades.forceImport("0x7fF506C7148a46e57b8A349C1F848F0cC6d9Cfa8", factory, {kind: "transparent"})
-.exit
 ```

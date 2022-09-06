@@ -95,7 +95,7 @@ contract('NFTLockCondition', (accounts) => {
 
             await assert.isRejected(
                 lockCondition.fulfill(agreementId, did, lockAddress, amount),
-                constants.acl.error.conditionDoesntExist
+                constants.acl.error.invalidUpdateRole
             )
         })
 

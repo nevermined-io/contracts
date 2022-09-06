@@ -440,7 +440,7 @@ contract('TransferNFT Condition constructor', (accounts) => {
             // Invalid reward address
             await assert.isRejected(
                 transferCondition.methods['fulfill(bytes32,bytes32,address,uint256,bytes32,address,bool)'](agreementId, did, other, numberNFTs, conditionIdPayment, nft.address, true, { from: seller }),
-                /Condition doesnt exist/
+                /Invalid UpdateRole/
             )
 
             // Invalid conditionId
@@ -452,7 +452,7 @@ contract('TransferNFT Condition constructor', (accounts) => {
             // Invalid agreementID
             await assert.isRejected(
                 transferCondition.methods['fulfill(bytes32,bytes32,address,uint256,bytes32,address,bool)'](testUtils.generateId(), did, rewardAddress, numberNFTs, conditionIdPayment, nft.address, true, { from: seller }),
-                /Condition doesnt exist/
+                /Invalid UpdateRole/
             )
         })
 
