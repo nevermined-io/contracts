@@ -23,6 +23,7 @@ contract NFTUpgradeable is ERC1155Upgradeable, NFTBase {
         __Ownable_init_unchained();
         AccessControlUpgradeable.__AccessControl_init();
         AccessControlUpgradeable._setupRole(MINTER_ROLE, msg.sender);
+        setContractMetadataUri(uri_);
     }
     
     /**
@@ -56,6 +57,8 @@ contract NFTUpgradeable is ERC1155Upgradeable, NFTBase {
         return _metadata[tokenId].nftURI;
     }
 
+  
+    
     /**
     * @dev Record some NFT Metadata
     * @param tokenId the id of the asset with the royalties associated

@@ -36,7 +36,8 @@ contract POAPUpgradeable is NFT721Upgradeable, ERC721URIStorageUpgradeable, ERC7
     // solhint-disable-next-line
     function initializeWithName(
         string memory name,
-        string memory symbol
+        string memory symbol,
+        string memory uri
     )
     public
     override
@@ -51,6 +52,7 @@ contract POAPUpgradeable is NFT721Upgradeable, ERC721URIStorageUpgradeable, ERC7
         __Ownable_init_unchained();
         AccessControlUpgradeable.__AccessControl_init();
         AccessControlUpgradeable._setupRole(MINTER_ROLE, msg.sender);
+        setContractMetadataUri(uri);
     }
     
     function mint(
