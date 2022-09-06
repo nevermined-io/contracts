@@ -68,6 +68,10 @@ contract ConditionStoreManager is OwnableUpgradeable, AccessControlUpgradeable, 
     modifier onlyUpdateRole(bytes32 _id)
     {
         require(
+            conditionList.conditions[_id].typeRef != address(0),
+            'Condition doesnt exist'
+        );
+        require(
             conditionList.conditions[_id].typeRef == msg.sender,
             'Invalid UpdateRole'
         );

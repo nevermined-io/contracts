@@ -195,7 +195,7 @@ contract('LockPaymentCondition', (accounts) => {
 
             await assert.isRejected(
                 lockPaymentCondition.fulfill(agreementId, did, rewardAddress, token.address, amounts, receivers),
-                constants.acl.error.invalidUpdateRole
+                constants.acl.error.conditionDoesntExist
             )
         })
 
@@ -217,7 +217,7 @@ contract('LockPaymentCondition', (accounts) => {
 
             await assert.isRejected(
                 lockPaymentCondition.fulfill(agreementId, did, rewardAddress, token.address, amounts, receivers),
-                constants.acl.error.invalidUpdateRole
+                constants.acl.error.conditionDoesntExist
             )
         })
 

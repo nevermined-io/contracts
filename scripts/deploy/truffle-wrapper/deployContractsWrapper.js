@@ -25,6 +25,7 @@ async function main() {
     } catch (err) {
         console.log(err)
         fs.writeFileSync('deploy-cache.json', JSON.stringify(addresses, undefined, 2))
+        process.exit(1)
     }
     process.exit(0)
 }

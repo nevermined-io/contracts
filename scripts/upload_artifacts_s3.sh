@@ -30,6 +30,7 @@ SCRIPT_DIR=$(cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd)
 CONTRACTS_DIR="$SCRIPT_DIR/../artifacts"
 CIRCUITS_DIR="$SCRIPT_DIR/../circuits"
 ABIS_DIR="$SCRIPT_DIR/../build/contracts"
+OPENZEPPELIN_DIR="$SCRIPT_DIR/../.openzeppelin"
 BUCKET="artifacts-nevermined-rocks"
 OUTPUT_FOLDER="/tmp"
 DEPENDENCIES=(aws zip tar jq)
@@ -74,7 +75,6 @@ function package_abis {
   version=$(check_and_get_abis_version)
   filenames=$(get_network_abis_no_root_path)
   filenames_spaced=$(echo "${filenames}" | tr '\n' ' ')
-
   cd "$ABIS_DIR" >/dev/null 2>&1 || exit 1
   zip -9 "$OUTPUT_FOLDER/abis_$version.zip" $filenames_spaced
   tar -czf "$OUTPUT_FOLDER/abis_$version.tar.gz" $filenames_spaced
@@ -85,6 +85,12 @@ function upload_contracts_s3 {
   local network_id version
   network_id=$(get_network_id_from_name)
   version=$(check_and_get_contract_version)
+  # Upload the .openzeppelin file
+  openzeppelin_file="$OPENZEPPELIN_DIR/unknown-$network_id.json"
+  # Copy the .openzeppelin file adding the tag to the filename
+  cp -rp "$openzeppelin_file" "$openzeppelin_file.$TAG"
+  aws s3 cp "$openzeppelin_file" "s3://$BUCKET/$network_id/$TAG/"
+  # Upload the json with contract addresses
   aws s3 cp "$OUTPUT_FOLDER/contracts_$version.json" "s3://$BUCKET/$network_id/$TAG/"
   aws s3 cp "$OUTPUT_FOLDER/contracts_$version.zip" "s3://$BUCKET/$network_id/$TAG/"
   aws s3 cp "$OUTPUT_FOLDER/contracts_$version.tar.gz" "s3://$BUCKET/$network_id/$TAG/"
@@ -229,4 +235,3 @@ function main_contracts {
 }
 
 main
-

@@ -31,7 +31,7 @@ contract('Mintable DIDRegistry (ERC-721)', (accounts) => {
             await DIDRegistry.link(didRegistryLibrary)
 
             nft = await NFT.new()
-            await nft.initializeWithName('', '')
+            await nft.initializeWithName('', '', '')
 
             const StandardRoyalties = artifacts.require('StandardRoyalties')
             const standardRoyalties = await StandardRoyalties.new()
@@ -83,13 +83,13 @@ contract('Mintable DIDRegistry (ERC-721)', (accounts) => {
             await assert.isRejected(
                 // Must not allow to mint tokens without previous initialization
                 didRegistry.mint721(did, { from: owner }),
-                'NFT not initialized'
+                'NFT721 not initialized'
             )
 
             await assert.isRejected(
                 // Must not allow to mint tokens without previous initialization
                 didRegistry.burn721(did, { from: owner }),
-                'NFT not initialized'
+                'NFT721 not initialized'
             )
         })
 
