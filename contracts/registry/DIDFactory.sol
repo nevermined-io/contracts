@@ -57,7 +57,7 @@ abstract contract DIDFactory is OwnableUpgradeable, ProvenanceRegistry {
     modifier onlyOwnerProviderOrDelegated(bytes32 _did)
     {
         require(isOwnerProviderOrDelegate(_did),
-            'Only owner, provider or delegated'
+            'Invalid user'
         );
         _;
     }
@@ -84,7 +84,7 @@ abstract contract DIDFactory is OwnableUpgradeable, ProvenanceRegistry {
     {
         require(
             didRegisterList.didRegisters[_did].nft721Initialized,
-            'NFT721 not initialized'
+            'NFT not initialized (ERC-721)'
         );
         _;
     }    
@@ -206,7 +206,7 @@ abstract contract DIDFactory is OwnableUpgradeable, ProvenanceRegistry {
         require(
             didRegisterList.didRegisters[_did].owner == address(0x0) ||
             didRegisterList.didRegisters[_did].owner == msg.sender,
-            'Only DID Owners or not registered DID'
+            'Only DID Owners'
         );
 
         didRegisterList.update(_did, _checksum, _url);

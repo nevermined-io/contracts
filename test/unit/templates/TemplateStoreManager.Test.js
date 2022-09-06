@@ -62,7 +62,7 @@ contract('TemplateStoreManager', (accounts) => {
 
             await assert.isRejected(
                 templateStoreManager.proposeTemplate(templateId),
-                constants.error.templateAlreadyInitialized
+                constants.error.idAlreadyExists
             )
         })
     })

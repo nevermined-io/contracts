@@ -220,7 +220,7 @@ contract AgreementStoreManager is OwnableUpgradeable, AccessControlUpgradeable {
     )
         public payable
     {
-        require(hasRole(PROXY_ROLE, msg.sender), 'Proxy role required');
+        require(hasRole(PROXY_ROLE, msg.sender), 'Invalid access role');
         createAgreement(_id, _did, _conditionTypes, _conditionIds, _timeLocks, _timeOuts);
         if (_idx.length > 0) {
             ICondition(_conditionTypes[_idx[0]]).fulfillProxy{value: msg.value}(_account[0], _id, params[0]);

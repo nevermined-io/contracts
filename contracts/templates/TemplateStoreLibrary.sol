@@ -51,7 +51,7 @@ library TemplateStoreLibrary {
     {
         require(
             _self.templates[_id].state == TemplateState.Uninitialized,
-            'TemplateId already initialized'
+            'Id already exists'
         );
 
         _self.templates[_id] = Template({

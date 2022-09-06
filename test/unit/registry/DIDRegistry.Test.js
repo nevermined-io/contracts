@@ -671,7 +671,7 @@ contract('DIDRegistry', (accounts) => {
                 didRegistry.used(testUtils.generateId(), did, owner, Activities.USED, [], '', {
                     from: someone
                 }),
-                'Only owner, provider or delegated'
+                'Invalid user'
             )
         })
     })

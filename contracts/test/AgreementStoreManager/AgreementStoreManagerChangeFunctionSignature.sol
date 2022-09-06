@@ -25,7 +25,7 @@ contract AgreementStoreManagerChangeFunctionSignature is
     {
         require(
             msg.sender == _sender && msg.sender == _creator,
-            'Invalid sender address, it should be the creator too'
+            'Invalid sender address, should fail in function signature check'
         );
         require(
             templateStoreManager.isTemplateApproved(msg.sender) == true,

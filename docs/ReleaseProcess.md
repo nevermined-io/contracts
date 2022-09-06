@@ -1,25 +1,15 @@
----
-sidebar_position: 4
----
-
 # Release Process
 
 ## Build a new version
 
-We follow the standard Nevermined release pattern:
+The steps to build a new version are the following:
 
-- Make sure the versions are up to date: `package.json`, `setup.py`, `pom.xml`
-- Create a tag:
-
-  ```bash
-  git tag v2.0.0
-  ```
-
-- Push the tag:
-
-  ```bash
-  git push origin v2.0.0
-  ```
+- Create a new local feature branch, e.g. `git checkout -b release/v0.2.5`
+- Use the `bumpversion.sh` script to bump the project version. You can execute the script using {major|minor|patch} as first argument to bump the version accordingly:
+  - To bump the patch version: `./bumpversion.sh patch`
+  - To bump the minor version: `./bumpversion.sh minor`
+  - To bump the major version: `./bumpversion.sh major`
+- assuming we are on version `v0.2.4` and the desired version is `v0.2.5` `./bumpversion.sh patch` has to be run.
 
 ## Interact with networks
 
@@ -72,14 +62,14 @@ One instance of the multi sig wallet, defined as `owner`. This wallet will be as
 
 ### Deploy & Upgrade
 
-Deployment configurations are on `hardhat.config.js`.
-
 - run `yarn clean` to clean the work dir.
 - run `yarn compile` to compile the contracts.
 
-> :warning: The following steps shows how to perform contracts deployment for new deployments (check `[Upgrades.md](./Upgrades.md)` for upgrading details)
+The following steps shows how to perform contracts deployment for new deployments (check `[Upgrades.md](./Upgrades.md)` for upgrading details)
 
-- Export the `NETWORK_ID` (check in [Chainlist](https://chainlist.org/)) and contract's tag `TAG`:
+#### Copy the files and artifacts
+
+- Export the `NETWORK_ID` (check in https://chainlist.org/) and contract's tag `TAG`:
 
 ```bash
 export NETWORK=mumbai
@@ -88,25 +78,22 @@ export TAG=common
 
 - run `export MNEMONIC=<deployment's mnemonic>`. You will find them in the password manager.
 
-#### Deploy and initialize the conracts
+##### Deploy and initialize the conracts
 
 - To deploy and initialize all contracts run `yarn deploy:$NETWORK`
 
-This step will create `cache/` and `deploy-cache.json` used to resume the deployment in case something fails.
-
 ##### Upload the artifacts to the repository and persist any change in `openzeppelin/` file
 
-> :warning: The following steps can override the S3 resources you are pushing to S3. Particularly, take care of not overriding the `openzeppelin/` file with some old version of the file.
+- To upload the artifacts to the repository run `./scripts/upload_artifacts_s3.sh contracts $NETWORK $TAG`. You need to have access to S3.
 
-- To upload the artifacts to the repository run `./scripts/upload_artifacts_s3.sh contracts $NETWORK $TAG`. This will upload the contracts `tgz`/`zip` packages and the openzeppelin file. It will also rename `.openzeppelin/unknown-$NETWORK_ID.json` to `.openzeppelin/unknown-$NETWORK_ID.json.$TAG`. *You need to have access to artifacts-nevermined-rocks S3 bucket*.
+- Copy the openzeppeling file adding the deployment's tag: `cp -rp .openzeppelin/unknown-$NETWORK_ID.json .openzeppelin/unknown-$NETWORK_ID.json.$TAG`
 
-- To upload the circuits to the repository run `./scripts/upload_artifacts_s3.sh circuits $NETWORK $TAG`. This will upload the contracts `tgz`/`zip` packages. *You need to have access to artifacts-nevermined-rocks S3 bucket*.
+- Commit all changes in `.openzeppelin/unknown-$NETWORK_ID.json.$TAG` file
 
-- Commit the changes in `.openzeppelin/unknown-$NETWORK_ID.json.$TAG` file
 
 ## Script for uploading the artifacts (abis/contracts) to Contract Repository
 
-Once the contracts are deployed to a public network or a new con.tract version whose contract abis has to been uploaded, use `scripts/upload_artifacts_s3.sh` to upload
+Once the contracts are deployed to a public network or a new contract version whose contract abis has to been uploaded, use `scripts/upload_artifacts_s3.sh` to upload
 the contracts or artifacts to [nevermined repository](https://artifacts-nevermined-rocks.s3.amazonaws.com).
 
 *Your environment has to be configured and authorized to use aws cli to upload files to `artifacts-nevermined-rocks` bucket.*.
