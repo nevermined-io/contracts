@@ -18,6 +18,7 @@ contract('End to End NFT721 Scenarios', (accounts) => {
     const royalties = 100000 // 10% of royalties in the secondary market
     const didSeed = testUtils.generateId()
     const didSeed2 = testUtils.generateId()
+
     let did
     let agreementId
     const checksum = testUtils.generateId()

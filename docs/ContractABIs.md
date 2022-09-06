@@ -1,4 +1,8 @@
-# Nevermined Contracts ABIs
+---
+sidebar_position: 1
+---
+
+# Contracts ABIs
 
 Nevermined as a digital ecosystems builder has some differences from a contracts deployment point of view compared
 with some other protocols.

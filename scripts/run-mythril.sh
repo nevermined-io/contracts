@@ -9,6 +9,5 @@ npx hardhat run ./scripts/deploy/truffle-wrapper/deployContractsWrapper.js --net
 
 for i in artifacts/*.external.json; do
   echo $i
-  myth a -a $(jq -r .address $i) --rpc localhost:18545
+  myth a -a $(jq -r .address $i) --rpc localhost:18545 -o markdown --execution-timeout 30 -t 5 2>> mythril_report.txt
 done
-

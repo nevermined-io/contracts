@@ -24,7 +24,7 @@ abstract contract NFTBase is IERC2981Upgradeable, OwnableUpgradeable, AccessCont
         address receiver;
         uint256 royaltyAmount;
     }
-
+    
     struct NFTMetadata {
         string nftURI;
     }
@@ -35,12 +35,14 @@ abstract contract NFTBase is IERC2981Upgradeable, OwnableUpgradeable, AccessCont
     mapping(uint256 => NFTMetadata) internal _metadata;
     // Mapping of expiration block number per user (subscription NFT holder)
     mapping(address => uint256) internal _expiration;
+
+    // Used as a URL where is stored the Metadata describing the NFT contract
+    string private _contractMetadataUri;
     
     /** 
      * Event for recording proxy approvals.
      */
     event ProxyApproval(address sender, address operator, bool approved);
-
     
     function setProxyApproval(
         address operator, 
@@ -91,4 +93,26 @@ abstract contract NFTBase is IERC2981Upgradeable, OwnableUpgradeable, AccessCont
         royaltyAmount = (value * royalties.royaltyAmount) / 100;
     }
 
+    /**
+    * @dev Record the URI storing the Metadata describing the NFT Contract
+    *      More information about the file format here: 
+    *      https://docs.opensea.io/docs/contract-level-metadata
+    * @param _uri the URI (https, ipfs, etc) to the metadata describing the NFT Contract    
+    */    
+    function setContractMetadataUri(
+        string memory _uri
+    )
+    public
+    onlyOwner
+    virtual
+    {
+        _contractMetadataUri = _uri;
+    }
+    
+    function contractURI()
+    public
+    view
+    returns (string memory) {
+        return _contractMetadataUri;
+    }
 }
