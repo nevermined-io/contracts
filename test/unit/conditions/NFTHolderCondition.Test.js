@@ -6,13 +6,7 @@ const { assert } = chai
 const chaiAsPromised = require('chai-as-promised')
 chai.use(chaiAsPromised)
 
-const NeverminedConfig = artifacts.require('NeverminedConfig')
-const EpochLibrary = artifacts.require('EpochLibrary')
-const ConditionStoreManager = artifacts.require('ConditionStoreManager')
-const DIDRegistryLibrary = artifacts.require('DIDRegistryLibrary')
-const DIDRegistry = artifacts.require('DIDRegistry')
 const NFTHolderCondition = artifacts.require('NFTHolderCondition')
-const NFT = artifacts.require('NFTUpgradeable')
 
 const constants = require('../../helpers/constants.js')
 const testUtils = require('../../helpers/utils.js')
@@ -25,33 +19,14 @@ contract('NFTHolderCondition', (accounts) => {
     let conditionStoreManager
     let nftHolderCondition
     let nft
-    let nvmConfig
-
-    before(async () => {
-        nvmConfig = await NeverminedConfig.new()
-        await nvmConfig.initialize(owner, owner)
-        const epochLibrary = await EpochLibrary.new()
-        await ConditionStoreManager.link(epochLibrary)
-        const didRegistryLibrary = await DIDRegistryLibrary.new()
-        await DIDRegistry.link(didRegistryLibrary)
-    })
 
     beforeEach(async () => {
         await setupTest()
     })
 
     async function setupTest() {
-        if (!didRegistry) {
-            nft = await NFT.new()
-            await nft.initialize('')
-
-            didRegistry = await DIDRegistry.new()
-            await didRegistry.initialize(owner, nft.address, constants.address.zero)
-            await nft.addMinter(didRegistry.address)
-        }
         if (!conditionStoreManager) {
-            conditionStoreManager = await ConditionStoreManager.new()
-            await conditionStoreManager.initialize(createRole, owner, nvmConfig.address, { from: owner })
+            ({ didRegistry, conditionStoreManager, nft } = await testUtils.deployManagers(owner, createRole))
 
             nftHolderCondition = await NFTHolderCondition.new()
             await nftHolderCondition.initialize(

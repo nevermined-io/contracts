@@ -94,6 +94,8 @@ function upload_contracts_s3 {
   aws s3 cp "$OUTPUT_FOLDER/contracts_$version.json" "s3://$BUCKET/$network_id/$TAG/"
   aws s3 cp "$OUTPUT_FOLDER/contracts_$version.zip" "s3://$BUCKET/$network_id/$TAG/"
   aws s3 cp "$OUTPUT_FOLDER/contracts_$version.tar.gz" "s3://$BUCKET/$network_id/$TAG/"
+  # index.html is needed in each folder to enable browsing at http://artifacts-nevermined-rocks.s3-website-us-east-1.amazonaws.com/
+  aws s3 cp "s3://$BUCKET/index.html" "s3://$BUCKET/$network_id/$TAG/index.html"
 }
 
 function upload_circuits_s3 {

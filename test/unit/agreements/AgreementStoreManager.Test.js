@@ -52,12 +52,12 @@ contract('AgreementStoreManager', (accounts) => {
             await token.initialize(owner, owner)
 
             const nvmConfig = await NeverminedConfig.new()
-            await nvmConfig.initialize(owner, owner)
+            await nvmConfig.initialize(owner, owner, false)
 
             const didRegistryLibrary = await DIDRegistryLibrary.new()
             await DIDRegistry.link(didRegistryLibrary)
             didRegistry = await DIDRegistry.new()
-            await didRegistry.initialize(owner, constants.address.zero, constants.address.zero)
+            await didRegistry.initialize(owner, constants.address.zero, constants.address.zero, constants.address.zero, constants.address.zero)
 
             conditionStoreManager = await ConditionStoreManager.new({ from: deployer })
 
@@ -67,8 +67,6 @@ contract('AgreementStoreManager', (accounts) => {
                 { from: deployer }
             )
 
-            // const agreementStoreLibrary = await AgreementStoreLibrary.new({ from: deployer })
-            // await AgreementStoreManager.link(agreementStoreLibrary)
             agreementStoreManager = await AgreementStoreManager.new({ from: deployer })
             await agreementStoreManager.methods['initialize(address,address,address,address)'](
                 owner,

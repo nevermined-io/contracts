@@ -190,9 +190,12 @@ contract NFTLockCondition is Condition, INFTLock, ReentrancyGuardUpgradeable, IE
             _agreementId,
             hashValuesMarked(_did, _lockAddress, _amount, _receiver, _nftContractAddress)
         );
-        ConditionStoreLibrary.ConditionState state = super.fulfill(
+        ConditionStoreLibrary.ConditionState state = super.fulfillWithProvenance(
             _id,
-            ConditionStoreLibrary.ConditionState.Fulfilled
+            ConditionStoreLibrary.ConditionState.Fulfilled,
+            _did,
+            'NFTLockCondition',
+            msg.sender
         );
 
         emit Fulfilled(

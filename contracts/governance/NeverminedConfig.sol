@@ -25,17 +25,25 @@ INVMConfig
     // See `marketplaceFee`
     address public feeReceiver;
 
+    // @notice Switch to turn off provenance in storage. By default the storage is on
+    bool public provenanceOff;
+
     ///////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////
     
     
+    /**
+     * @notice Used to initialize the contract during delegator constructor
+     * @param _owner The owner of the contract
+     * @param _governor The address to be granted with the `GOVERNOR_ROLE`
+     */
     function initialize(
         address _owner,
-        address _governor
+        address _governor,
+        bool _provenanceOff
     )
     public
-    override
     initializer
     {
         __Ownable_init();
@@ -44,8 +52,9 @@ INVMConfig
         AccessControlUpgradeable.__AccessControl_init();
         AccessControlUpgradeable._setupRole(DEFAULT_ADMIN_ROLE, _owner);
         AccessControlUpgradeable._setupRole(GOVERNOR_ROLE, _governor);
+        provenanceOff = _provenanceOff;
     }
-    
+
     function setMarketplaceFees(
         uint256 _marketplaceFee,
         address _feeReceiver
@@ -56,7 +65,7 @@ INVMConfig
     onlyGovernor(msg.sender)
     {
         require(
-            _marketplaceFee >=0 && _marketplaceFee <= 10000,
+            _marketplaceFee >=0 && _marketplaceFee <= 1000000,
             'NeverminedConfig: Fee must be between 0 and 100 percent'
         );
         
@@ -104,6 +113,15 @@ INVMConfig
     returns (address)
     {
         return feeReceiver;
+    }
+    
+    function getProvenanceStorage()
+    external
+    view
+    override 
+    returns (bool)
+    {
+        return !provenanceOff;
     }
     
     modifier onlyGovernor(address _address)

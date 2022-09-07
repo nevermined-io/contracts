@@ -36,14 +36,16 @@ For local development of `nevermined-contracts` you can either use Docker, or se
 The simplest way to get started with is using the [Nevermined Tools](https://github.com/nevermined-io/tools),
 a docker compose application to run all the Nevermined stack.
 
+### Public Network development
+
+For deploying in a public network check [ReleaseProcess.md](./docs/ReleaseProcess.md) first.
+
 ### Local development
 
 As a pre-requisite, you need:
 
 * Node.js
 * yarn
-
-Note: For MacOS, make sure to have `node@10` installed.
 
 Clone the project and install all dependencies:
 
@@ -64,16 +66,16 @@ Compile the solidity contracts:
 yarn compile
 ```
 
-In a new terminal, launch an Ethereum RPC client, e.g. [ganache-cli](https://github.com/trufflesuite/ganache-cli):
+In a new terminal, launch an Ethereum RPC client, e.g. hardhat:
 
 ```bash
-npx ganache-cli@~6.9.1 > ganache-cli.log &
+npx hardhat node --port 18545
 ```
 
 Switch back to your other terminal and deploy the contracts:
 
 ```bash
-yarn test:fast
+yarn deploy:external
 ```
 
 For redeployment run this instead
@@ -81,13 +83,13 @@ For redeployment run this instead
 ```bash
 yarn clean
 yarn compile
-yarn test:fast
+yarn deploy:external
 ```
 
 Upgrade contracts [**optional**]:
 
 ```bash
-yarn upgrade
+yarn upgrade:external
 ```
 
 ## Testing

@@ -291,11 +291,13 @@ contract TransferNFTCondition is Condition, ITransferNFT, ReentrancyGuardUpgrade
                 token.mint(_nftReceiver, uint256(_did), _nftAmount, '');
             }
         }
-            
 
-        ConditionStoreLibrary.ConditionState state = super.fulfill(
+        ConditionStoreLibrary.ConditionState state = super.fulfillWithProvenance(
             _id,
-            ConditionStoreLibrary.ConditionState.Fulfilled
+            ConditionStoreLibrary.ConditionState.Fulfilled,
+            _did,
+            'TransferNFTCondition',
+            msg.sender
         );
 
         emit Fulfilled(

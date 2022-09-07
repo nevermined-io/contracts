@@ -64,13 +64,13 @@ contract('TransferNFT721 Condition constructor', (accounts) => {
             await token.initialize(owner, owner)
 
             const nvmConfig = await NeverminedConfig.new()
-            await nvmConfig.initialize(owner, owner)
+            await nvmConfig.initialize(owner, owner, false)
 
             nft = await ERC721.new()
             await nft.initialize()
 
             didRegistry = await DIDRegistry.new()
-            await didRegistry.initialize(owner, constants.address.zero, constants.address.zero)
+            await didRegistry.initialize(owner, constants.address.zero, constants.address.zero, nvmConfig.address, constants.address.zero)
 
             conditionStoreManager = await ConditionStoreManager.new()
 
@@ -94,6 +94,9 @@ contract('TransferNFT721 Condition constructor', (accounts) => {
                 nvmConfig.address,
                 { from: owner }
             )
+
+            await conditionStoreManager.setProvenanceRegistry(didRegistry.address, { from: owner })
+            await didRegistry.setConditionManager(conditionStoreManager.address, { from: owner })
 
             lockPaymentCondition = await LockPaymentCondition.new()
 
@@ -159,10 +162,10 @@ contract('TransferNFT721 Condition constructor', (accounts) => {
             await token.initialize(owner, owner)
 
             const nvmConfig = await NeverminedConfig.new()
-            await nvmConfig.initialize(owner, owner)
+            await nvmConfig.initialize(owner, owner, false)
 
             const didRegistry = await DIDRegistry.new()
-            didRegistry.initialize(owner, constants.address.zero, constants.address.zero)
+            await didRegistry.initialize(owner, constants.address.zero, constants.address.zero, constants.address.zero, constants.address.zero)
 
             const conditionStoreManager = await ConditionStoreManager.new()
 
@@ -312,6 +315,9 @@ contract('TransferNFT721 Condition constructor', (accounts) => {
                 (await conditionStoreManager.getConditionState(conditionId)).toNumber(),
                 constants.condition.state.fulfilled)
             testUtils.assertEmitted(result, 1, 'Fulfilled')
+
+            const entry = await didRegistry.getProvenanceEntry(conditionId)
+            assert.strictEqual(entry.did, did)
         })
     })
 

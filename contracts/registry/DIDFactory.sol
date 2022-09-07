@@ -14,7 +14,7 @@ import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
  *
  * @dev Implementation of the DID Registry.
  */
-contract DIDFactory is OwnableUpgradeable, ProvenanceRegistry { 
+abstract contract DIDFactory is OwnableUpgradeable, ProvenanceRegistry { 
     
     /**
      * @dev The DIDRegistry Library takes care of the basic DID storage functions.
@@ -144,24 +144,6 @@ contract DIDFactory is OwnableUpgradeable, ProvenanceRegistry {
         bytes32 _did,
         address _delegate
     );
-    
-    /**
-     * @dev DIDRegistry Initializer
-     *      Initialize Ownable. Only on contract creation.
-     * @param _owner refers to the owner of the contract.
-     */
-     /*
-    function initialize(
-        address _owner
-    )
-    public
-    virtual
-    initializer
-    {
-        OwnableUpgradeable.__Ownable_init();
-        transferOwnership(_owner);
-        manager = _owner;
-    }*/
 
     /**
      * Sets the manager role. Should be the TransferCondition contract address

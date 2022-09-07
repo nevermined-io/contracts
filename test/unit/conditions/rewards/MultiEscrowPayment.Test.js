@@ -61,7 +61,7 @@ function testMultiEscrow(EscrowPaymentCondition, LockPaymentCondition, Token, nf
         } = {}) {
             if (!escrowPayment) {
                 nvmConfig = await NeverminedConfig.new()
-                await nvmConfig.initialize(owner, owner)
+                await nvmConfig.initialize(owner, owner, false)
 
                 conditionStoreManager = await ConditionStoreManager.new()
                 await conditionStoreManager.initialize(
@@ -74,7 +74,7 @@ function testMultiEscrow(EscrowPaymentCondition, LockPaymentCondition, Token, nf
                 token = tokenWrapper(await Token.new())
 
                 didRegistry = await DIDRegistry.new()
-                await didRegistry.initialize(owner, token.address, token.address)
+                await didRegistry.initialize(owner, token.address, token.address, constants.address.zero, constants.address.zero)
 
                 await token.initWrap(owner, owner, didRegistry)
 

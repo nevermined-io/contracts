@@ -6,7 +6,6 @@ const chaiAsPromised = require('chai-as-promised')
 chai.use(chaiAsPromised)
 
 const DIDRegistryLibrary = artifacts.require('DIDRegistryLibrary')
-const DIDRegistryLibraryProxy = artifacts.require('DIDRegistryLibraryProxy')
 const DIDRegistry = artifacts.require('DIDRegistry')
 const NFT = artifacts.require('NFT721Upgradeable')
 const testUtils = require('../../helpers/utils.js')
@@ -20,7 +19,6 @@ contract('Mintable DIDRegistry (ERC-721)', (accounts) => {
     const nftMetadataURL = 'https://nevermined.io/metadata.json'
     let didRegistry
     let didRegistryLibrary
-    let didRegistryLibraryProxy
     let nft
 
     beforeEach(async () => {
@@ -30,16 +28,17 @@ contract('Mintable DIDRegistry (ERC-721)', (accounts) => {
     async function setupTest() {
         if (!didRegistry) {
             didRegistryLibrary = await DIDRegistryLibrary.new()
-            await DIDRegistryLibraryProxy.link(didRegistryLibrary)
-            didRegistryLibraryProxy = await DIDRegistryLibraryProxy.new()
-
             await DIDRegistry.link(didRegistryLibrary)
 
             nft = await NFT.new()
-            await nft.initialize()
+            await nft.initializeWithName('', '', '')
+
+            const StandardRoyalties = artifacts.require('StandardRoyalties')
+            const standardRoyalties = await StandardRoyalties.new()
 
             didRegistry = await DIDRegistry.new()
-            await didRegistry.initialize(owner, constants.address.zero, nft.address)
+            await didRegistry.initialize(owner, constants.address.zero, nft.address, constants.address.zero, standardRoyalties.address)
+            await standardRoyalties.initialize(didRegistry.address)
             await nft.addMinter(didRegistry.address)
         }
     }
@@ -246,31 +245,24 @@ contract('Mintable DIDRegistry (ERC-721)', (accounts) => {
             const did = await didRegistry.hashDID(didSeed, owner)
             const checksum = testUtils.generateId()
 
-            await didRegistryLibraryProxy.update(did, checksum, value, { from: owner })
-            await didRegistryLibraryProxy.initializeNft721Config(did, 10, { from: owner })
-
-            await didRegistryLibraryProxy.updateDIDOwner(did, other, { from: owner })
-
-            const storedDIDRegister = await didRegistryLibraryProxy.getDIDInfo(did)
-
-            assert.strictEqual(storedDIDRegister.owner, other)
-            assert.strictEqual(storedDIDRegister.creator, owner)
-            assert.strictEqual(Number(storedDIDRegister.royalties), 10)
+            await didRegistry.registerAttribute(didSeed, checksum, [], value, { from: owner })
+            await didRegistry.enableAndMintDidNft721(did, 100000, false, '', { from: owner })
+            await didRegistry.transferDIDOwnership(did, other, { from: owner })
 
             assert.isNotOk( // MUST BE FALSE. Royalties for original creator are too low
-                await didRegistryLibraryProxy.areRoyaltiesValid(did, [91, 9], [consumer, owner], constants.address.zero))
+                await didRegistry.areRoyaltiesValid(did, [91, 9], [consumer, owner], constants.address.zero))
 
             assert.isOk( // MUST BE TRUE. There is not payment
-                await didRegistryLibraryProxy.areRoyaltiesValid(did, [], [], constants.address.zero))
+                await didRegistry.areRoyaltiesValid(did, [], [], constants.address.zero))
 
             assert.isOk( // MUST BE TRUE. Original creator is getting 10% by royalties
-                await didRegistryLibraryProxy.areRoyaltiesValid(did, [90, 10], [other, owner], constants.address.zero))
+                await didRegistry.areRoyaltiesValid(did, [90, 10], [other, owner], constants.address.zero))
 
             assert.isOk( // MUST BE TRUE. Original creator is getting 10% by royalties
-                await didRegistryLibraryProxy.areRoyaltiesValid(did, [10, 90], [owner, other], constants.address.zero))
+                await didRegistry.areRoyaltiesValid(did, [10, 90], [owner, other], constants.address.zero))
 
             assert.isNotOk( // MUST BE FALSE. Original creator is not getting royalties
-                await didRegistryLibraryProxy.areRoyaltiesValid(did, [100], [other], constants.address.zero))
+                await didRegistry.areRoyaltiesValid(did, [100], [other], constants.address.zero))
         })
     })
 })

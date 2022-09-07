@@ -121,9 +121,12 @@ contract NFT721LockCondition is Condition, INFTLock, ReentrancyGuardUpgradeable,
             _agreementId,
             hashValuesMarked(_did, _lockAddress, _amount, _receiver, _nftContractAddress)
         );
-        ConditionStoreLibrary.ConditionState state = super.fulfill(
+        ConditionStoreLibrary.ConditionState state = super.fulfillWithProvenance(
             _id,
-            ConditionStoreLibrary.ConditionState.Fulfilled
+            ConditionStoreLibrary.ConditionState.Fulfilled,
+            _did,
+            'NFT721LockCondition',
+            msg.sender
         );
 
         emit Fulfilled(

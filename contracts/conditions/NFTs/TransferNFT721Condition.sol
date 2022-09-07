@@ -266,9 +266,12 @@ contract TransferNFT721Condition is Condition, ITransferNFT, ReentrancyGuardUpgr
             
         }
 
-        ConditionStoreLibrary.ConditionState state = super.fulfill(
+        ConditionStoreLibrary.ConditionState state = super.fulfillWithProvenance(
             _id,
-            ConditionStoreLibrary.ConditionState.Fulfilled
+            ConditionStoreLibrary.ConditionState.Fulfilled,
+            _did,
+            'TransferNFT721Condition',
+            msg.sender
         );
 
         emit Fulfilled(

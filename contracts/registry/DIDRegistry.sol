@@ -7,6 +7,7 @@ pragma solidity ^0.8.0;
 import './DIDFactory.sol';
 import '../token/erc1155/NFTUpgradeable.sol';
 import '../token/erc721/NFT721Upgradeable.sol';
+import '../royalties/StandardRoyalties.sol';
 
 /**
  * @title Mintable DID Registry
@@ -22,6 +23,19 @@ contract DIDRegistry is DIDFactory {
     NFT721Upgradeable public erc721;
 
     mapping (address => bool) public royaltiesCheckers;
+    StandardRoyalties public defaultRoyalties;
+
+    INVMConfig public nvmConfig;
+    address public conditionManager;
+
+    modifier onlyConditionManager
+    {
+        require(
+            msg.sender == conditionManager,
+            'Only condition store manager'
+        );
+        _;
+    }
 
     //////////////////////////////////////////////////////////////
     ////////  EVENTS  ////////////////////////////////////////////
@@ -35,7 +49,9 @@ contract DIDRegistry is DIDFactory {
     function initialize(
         address _owner,
         address _erc1155,
-        address _erc721
+        address _erc721,
+        address _config,
+        address _royalties
     )
     public
     initializer
@@ -45,10 +61,20 @@ contract DIDRegistry is DIDFactory {
         erc721 = NFT721Upgradeable(_erc721);
         transferOwnership(_owner);
         manager = _owner;
+        defaultRoyalties = StandardRoyalties(_royalties);
+        nvmConfig = INVMConfig(_config);
+    }
+
+    function setDefaultRoyalties(address _royalties) public onlyOwner {
+        defaultRoyalties = StandardRoyalties(_royalties);
     }
 
     function registerRoyaltiesChecker(address _addr) public onlyOwner {
         royaltiesCheckers[_addr] = true;
+    }
+
+    function setConditionManager(address _manager) public onlyOwner {
+        conditionManager = _manager;
     }
 
     event DIDRoyaltiesAdded(bytes32 indexed did, address indexed addr);
@@ -107,7 +133,7 @@ contract DIDRegistry is DIDFactory {
         address[] memory _providers,
         string memory _url,
         uint256 _cap,
-        uint8 _royalties,
+        uint256 _royalties,
         bool _mint,
         bytes32 _activityId,
         string memory _nftMetadata
@@ -145,7 +171,7 @@ contract DIDRegistry is DIDFactory {
         bytes32 _checksum,
         address[] memory _providers,
         string memory _url,
-        uint8 _royalties,
+        uint256 _royalties,
         bool _mint,
         bytes32 _activityId,
         string memory _nftMetadata
@@ -185,7 +211,7 @@ contract DIDRegistry is DIDFactory {
         address[] memory _providers,
         string memory _url,
         uint256 _cap,
-        uint8 _royalties,
+        uint256 _royalties,
         bytes32 _activityId,
         string memory _nftMetadata
     )
@@ -213,7 +239,7 @@ contract DIDRegistry is DIDFactory {
     function enableAndMintDidNft(
         bytes32 _did,
         uint256 _cap,
-        uint8 _royalties,
+        uint256 _royalties,
         bool _mint,
         string memory _nftMetadata
     )
@@ -221,13 +247,15 @@ contract DIDRegistry is DIDFactory {
     onlyDIDOwner(_did)
     returns (bool success)
     {
-        didRegisterList.initializeNftConfig(_did, _cap, _royalties);
+        didRegisterList.initializeNftConfig(_did, _cap, _royalties > 0 ? defaultRoyalties : IRoyaltyScheme(address(0)));
         
         if (bytes(_nftMetadata).length > 0)
             erc1155.setNFTMetadata(uint256(_did), _nftMetadata);
         
-        if (_royalties > 0)
+        if (_royalties > 0) {
             erc1155.setTokenRoyalty(uint256(_did), msg.sender, _royalties);
+            if (address(defaultRoyalties) != address(0)) defaultRoyalties.setRoyalty(_did, _royalties);
+        }
         
         if (_mint)
             mint(_did, _cap);
@@ -251,7 +279,7 @@ contract DIDRegistry is DIDFactory {
      */    
     function enableAndMintDidNft721(
         bytes32 _did,
-        uint8 _royalties,
+        uint256 _royalties,
         bool _mint,
         string memory _nftMetadata
     )
@@ -259,14 +287,16 @@ contract DIDRegistry is DIDFactory {
     onlyDIDOwner(_did)
     returns (bool success)
     {
-        didRegisterList.initializeNft721Config(_did, _royalties);
+        didRegisterList.initializeNft721Config(_did, _royalties > 0 ? defaultRoyalties : IRoyaltyScheme(address(0)));
 
         if (bytes(_nftMetadata).length > 0)
             erc721.setNFTMetadata(uint256(_did), _nftMetadata);
         
-        if (_royalties > 0)
+        if (_royalties > 0) {
+            if (address(defaultRoyalties) != address(0)) defaultRoyalties.setRoyalty(_did, _royalties);
             erc721.setTokenRoyalty(uint256(_did), msg.sender, _royalties);
-        
+        }
+
         if (_mint)
             mint721(_did, msg.sender);
         
@@ -386,6 +416,14 @@ contract DIDRegistry is DIDFactory {
         super._used(
             keccak256(abi.encode(_did, msg.sender, 'burn721', 1, block.number)),
             _did, msg.sender, keccak256('burn721'), '', 'burn721');
+    }
+
+    function _provenanceStorage() override internal view returns (bool) {
+        return address(nvmConfig) == address(0) || nvmConfig.getProvenanceStorage();
+    }
+
+    function condition(bytes32 _did, bytes32 _cond, string memory name, address user) public onlyConditionManager {
+        _used(_cond, _did, user, keccak256(bytes(name)), '', name);
     }
 
 }

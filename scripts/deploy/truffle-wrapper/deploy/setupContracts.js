@@ -31,6 +31,13 @@ async function approveTemplate({
 async function setupTemplate({ verbose, TemplateStoreManagerInstance, templateName, addressBook, roles } = {}) {
     const templateAddress = addressBook[templateName]
     if (templateAddress) {
+        const approved = await TemplateStoreManagerInstance.isTemplateApproved(templateAddress)
+
+        if (approved) {
+            console.log(`Already approved ${templateName} at ${templateAddress}`)
+            return
+        }
+
         if (verbose) {
             console.log(
                 `Proposing template ${templateName}: ${templateAddress} from ${roles.deployer}`
@@ -494,6 +501,7 @@ async function setupContracts({
     if (addressBook.DIDRegistry && addressBook.StandardRoyalties && addresses.stage < 19) {
         console.log('Setup royalty manager: ' + addressBook.StandardRoyalties)
         await callContract(artifacts.DIDRegistry, a => a.registerRoyaltiesChecker(addressBook.StandardRoyalties))
+        await callContract(artifacts.DIDRegistry, a => a.setDefaultRoyalties(addressBook.StandardRoyalties))
         addresses.stage = 19
     }
 }

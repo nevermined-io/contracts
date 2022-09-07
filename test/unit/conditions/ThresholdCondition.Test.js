@@ -27,7 +27,7 @@ contract('Threshold Condition', (accounts) => {
 
     before(async () => {
         nvmConfig = await NeverminedConfig.new()
-        await nvmConfig.initialize(owner, owner)
+        await nvmConfig.initialize(owner, owner, false)
         const epochLibrary = await EpochLibrary.new()
         await ConditionStoreManager.link(epochLibrary)
     })
@@ -141,7 +141,7 @@ contract('Threshold Condition', (accounts) => {
     describe('deploy and setup', () => {
         it('contract should deploy', async () => {
             const nvmConfig = await NeverminedConfig.new()
-            await nvmConfig.initialize(owner, owner)
+            await nvmConfig.initialize(owner, owner, false)
 
             const conditionStoreManager = await ConditionStoreManager.new()
             await conditionStoreManager.initialize(

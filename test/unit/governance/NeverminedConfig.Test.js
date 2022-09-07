@@ -25,7 +25,7 @@ contract('NeverminedConfig', (accounts) => {
     async function setupTest() {
         if (!nvmConfig) {
             nvmConfig = await NeverminedConfig.new({ from: deployer })
-            await nvmConfig.initialize(owner, governor, { from: deployer })
+            await nvmConfig.initialize(owner, governor, false, { from: deployer })
         }
     }
 
@@ -48,7 +48,7 @@ contract('NeverminedConfig', (accounts) => {
 
         it('Marketplace fees should be in the right range', async () => {
             await assert.isRejected(
-                nvmConfig.setMarketplaceFees(10001, accounts[3], { from: governor }),
+                nvmConfig.setMarketplaceFees(1000001, accounts[3], { from: governor }),
                 'NeverminedConfig: Fee must be between 0 and 100 percent'
             )
             await assert.isRejected(
