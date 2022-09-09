@@ -13,7 +13,7 @@ async function loadWallet({ makeWallet }) {
         { name: 'upgrader', account: accounts[8] },
         { name: 'governor', account: accounts[9] }
     ]
-    JSON.string
+
     let contractNetworks = {}
     if (makeWallet) {
         const SafeContract = await ethers.getContractFactory('GnosisSafe')
