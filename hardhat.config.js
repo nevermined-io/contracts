@@ -179,7 +179,7 @@ module.exports = {
         // Polygon Networks: https://docs.matic.network/docs/develop/network-details/network/
         // Polygon: mumbai testnet
         mumbai: {
-            url: url || 'https://matic-mumbai.chainstacklabs.com',
+            url: url || `https://polygon-mumbai.infura.io/v3/${process.env.INFURA_TOKEN}`,
             accounts,
             chainId: 80001,
             confirmations: 2,
