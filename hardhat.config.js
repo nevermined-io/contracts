@@ -125,31 +125,6 @@ module.exports = {
             deploymentPollingInterval: 8000,
             from: '0xB6d47415AfCDD06c5155d0E191530027FD51CCfD'
         },
-        // integration
-        integration: {
-            url: url || 'https://integration.nevermined.io',
-            accounts,
-            chainId: 0x897, // 2199
-            gas: 6000000,
-            gasPrice: 10000,
-            from: '0x90eE7A30339D05E07d9c6e65747132933ff6e624'
-        },
-        // staging
-        staging: {
-            url: url || 'https://staging.nevermined.io',
-            accounts,
-            chainId: 0x2323, // 8995
-            gas: 6000000,
-            gasPrice: 10000,
-            from: '0x90eE7A30339D05E07d9c6e65747132933ff6e624'
-        },
-        // kovan the ethereum testnet
-        kovan: {
-            url: url || `https://kovan.infura.io/v3/${process.env.INFURA_TOKEN}`,
-            accounts,
-            chainId: 0x2A, // 42
-            from: '0x2c0D5F47374b130EE398F4C34DBE8168824A8616'
-        },
         // rinkeby the ethereum testnet
         rinkeby: {
             url: url || `https://rinkeby.infura.io/v3/${process.env.INFURA_TOKEN}`,
@@ -157,6 +132,27 @@ module.exports = {
             chainId: 0x4, // 4
             gas: 20 * 1000000,
             gasPrice: parseInt(utils.toWei('5', 'gwei')),
+            skipDryRun: true,
+            from: '0x73943d14131268F23b721E668911bCDDEcA9da62'
+        },
+        goerli: {
+            url: url || `https://goerli.infura.io/v3/${process.env.INFURA_TOKEN}`,
+            accounts,
+            chainId: 0x5, // 5
+            skipDryRun: true,
+            from: '0x73943d14131268F23b721E668911bCDDEcA9da62'
+        },
+        'arbitrum-goerli': {
+            url: url || `https://arbitrum-goerli.infura.io/v3/${process.env.INFURA_TOKEN}`,
+            accounts,
+            chainId: 421613,
+            skipDryRun: true,
+            from: '0x73943d14131268F23b721E668911bCDDEcA9da62'
+        },
+        'arbitrum-one': {
+            url: url || `https://arbitrum-mainnet.infura.io/v3/${process.env.INFURA_TOKEN}`,
+            accounts,
+            chainId: 42161,
             skipDryRun: true,
             from: '0x73943d14131268F23b721E668911bCDDEcA9da62'
         },
