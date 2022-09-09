@@ -34,16 +34,17 @@ const PROXY_ADMIN_ABI = `[{
     "type": "function"
 }]`
 
-async function deployLibrary(name, addresses) {
+async function deployLibrary(name, addresses, signer) {
     if (addresses[name]) {
         console.log(`Contract ${name} found from cache`)
         return addresses[name]
     } else {
-        const factory = await ethers.getContractFactory(name)
+        const factory = await ethers.getContractFactory(name, signer)
         const library = await factory.deploy()
         const h1 = library.deployTransaction.hash
         await library.deployed()
         const address = (await web3.eth.getTransactionReceipt(h1)).contractAddress
+        console.log(`Library ${name} deployed into address ${address}`)
         addresses[name] = address
         return address
     }
@@ -69,11 +70,12 @@ async function deployContracts({ contracts: origContracts, verbose, testnet, mak
     const { roles } = await loadWallet({ makeWallet })
 
     console.log('wallet', roles)
+    console.log('addresses', addresses)
 
-    const didRegistryLibraryAddress = await deployLibrary('DIDRegistryLibrary', addresses)
+    const didRegistryLibraryAddress = await deployLibrary('DIDRegistryLibrary', addresses, roles.deployerSigner)
     console.log('Registry library', didRegistryLibraryAddress)
 
-    const epochLibraryAddress = await deployLibrary('EpochLibrary', addresses)
+    const epochLibraryAddress = await deployLibrary('EpochLibrary', addresses, roles.deployerSigner)
     console.log('Epoch library', epochLibraryAddress)
 
     const { cache, addressBook, proxies } = await initializeContracts({

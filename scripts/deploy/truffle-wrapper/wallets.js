@@ -13,6 +13,7 @@ async function loadWallet({ makeWallet }) {
         { name: 'upgrader', account: accounts[8] },
         { name: 'governor', account: accounts[9] }
     ]
+    JSON.string
     let contractNetworks = {}
     if (makeWallet) {
         const SafeContract = await ethers.getContractFactory('GnosisSafe')
@@ -65,6 +66,9 @@ async function loadWallet({ makeWallet }) {
         ownerWallet: (wallets.find(a => a.name === 'owner') || { account: accounts[8] }).account,
         upgraderWallet: (wallets.find(a => a.name === 'upgrader') || { account: accounts[8] }).account,
         governorWallet: (wallets.find(a => a.name === 'governor') || { account: accounts[9] }).account,
+        deployerSigner: await ethers.provider.getSigner(8),
+        upgraderSigner: await ethers.provider.getSigner(8),
+        governorSigner: await ethers.provider.getSigner(9),
         contractNetworks
     }
     return { roles, contractNetworks }
