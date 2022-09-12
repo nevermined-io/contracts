@@ -53,14 +53,14 @@ async function zosCreate({ contract, args, libraries, verbose, ctx }) {
     }
 }
 
-async function deployLibrary(name, addresses, cache) {
+async function deployLibrary(name, addresses, cache, signer) {
     if (addresses[name]) {
         console.log(`Contract ${name} found from cache`)
-        const C = await ethers.getContractFactory(name)
+        const C = await ethers.getContractFactory(name, signer)
         cache[name] = C.attach(addresses[name])
         return addresses[name]
     } else {
-        const factory = await ethers.getContractFactory(name)
+        const factory = await ethers.getContractFactory(name, signer)
         const library = await factory.deploy()
         const h1 = library.deployTransaction.hash
         await library.deployed()
@@ -103,6 +103,8 @@ async function initializeContracts({
     // This configuration can be modified later via interaction with the NeverminedConfig contract
     const configMarketplaceFee = Number(process.env.NVM_MARKETPLACE_FEE || '0')
     const configFeeReceiver = process.env.NVM_RECEIVER_FEE || ZeroAddress
+
+    console.log(`Fee env: ${configMarketplaceFee}`)
 
     if (configMarketplaceFee < 0 || configMarketplaceFee > 1000000) {
         console.error('NVM_MARKETPLACE_FEE can not be lower than 0 or higher than 1000000 (100%)\nPlease refer to the ReleaseProcess.md documentation')
@@ -212,11 +214,11 @@ async function initializeContracts({
     }
 
     if (contracts.indexOf('PlonkVerifier') > -1) {
-        proxies.PlonkVerifier = await deployLibrary('PlonkVerifier', addresses, cache)
+        proxies.PlonkVerifier = await deployLibrary('PlonkVerifier', addresses, cache, roles.deployerSigner)
     }
 
     if (contracts.indexOf('AaveCreditVault') > -1) {
-        proxies.AaveCreditVault = await deployLibrary('AaveCreditVault', addresses, cache)
+        proxies.AaveCreditVault = await deployLibrary('AaveCreditVault', addresses, cache, roles.deployerSigner)
     }
 
     if (contracts.indexOf('TemplateStoreManager') > -1) {
