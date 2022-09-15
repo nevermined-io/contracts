@@ -5,23 +5,11 @@ COPY networks/spree/authorities/validator0.json /home/openethereum/.local/keys/s
 COPY networks/spree/keys /home/openethereum/.local/keys/spree
 COPY networks/spree/authorities/validator0.pwd /home/openethereum/validator.pwd
 
+FROM node:16 as deploy
 
+RUN apt-get update -y && apt-get install -y musl psmisc
 
-FROM node:14-alpine as deploy
-
-RUN apk add --no-cache --update\
-      bash\
-      g++\
-      gcc\
-      git\
-      krb5-dev\
-      krb5-libs\
-      krb5\
-      make\
-      python3\
-      curl
-
-RUN curl https://sh.rustup.rs -sSf | bash -s -- -y
+RUN curl  https://sh.rustup.rs -sSf | bash -s -- -y
 ENV PATH="/root/.cargo/bin:${PATH}"
 
 COPY --from=openethereum /home/openethereum /home/openethereum

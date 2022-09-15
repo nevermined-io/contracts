@@ -9,7 +9,7 @@ echo "deploy contracts is ${DEPLOY_CONTRACTS}"
 
 if [ "${DEPLOY_CONTRACTS}" = "true" ]
 then
-    geth --dev --http --datadir /chain-data &
+    geth --dev --http --networkid 8998 --datadir /chain-data &
 
     until curl --data '{"method":"web3_clientVersion","params":[],"id":1,"jsonrpc":"2.0"}' -H "Content-Type: application/json" -X POST localhost:8545
     do
