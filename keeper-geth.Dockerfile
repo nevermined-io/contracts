@@ -1,20 +1,8 @@
 FROM ethereum/client-go:latest as geth
 
-FROM node:14-alpine as deploy
+FROM node:16 as deploy
 
 COPY --from=geth /usr/local/bin/geth /usr/local/bin/geth
-
-RUN apk add --no-cache --update\
-      bash\
-      g++\
-      gcc\
-      git\
-      krb5-dev\
-      krb5-libs\
-      krb5\
-      make\
-      python3\
-      curl
 
 RUN curl https://sh.rustup.rs -sSf | bash -s -- -y
 ENV PATH="/root/.cargo/bin:${PATH}"
