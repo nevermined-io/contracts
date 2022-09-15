@@ -4,7 +4,9 @@ FROM node:16 as deploy
 
 COPY --from=geth /usr/local/bin/geth /usr/local/bin/geth
 
-RUN curl https://sh.rustup.rs -sSf | bash -s -- -y
+RUN apt-get update -y && apt-get install -y musl psmisc
+
+RUN curl  https://sh.rustup.rs -sSf | bash -s -- -y
 ENV PATH="/root/.cargo/bin:${PATH}"
 
 COPY . /nevermined-contracts

@@ -1,20 +1,10 @@
 FROM 0xpolygon/polygon-edge:0.4.1 as polygon
 
-FROM node:14-alpine as deploy
+FROM node:16 as deploy
 
 COPY --from=polygon /usr/local/bin/polygon-edge /usr/local/bin/polygon-edge
 
-RUN apk add --no-cache --update\
-      bash\
-      g++\
-      gcc\
-      git\
-      krb5-dev\
-      krb5-libs\
-      krb5\
-      make\
-      python3\
-      curl
+RUN apt-get update -y && apt-get install -y musl psmisc
 
 RUN curl https://sh.rustup.rs -sSf | bash -s -- -y
 ENV PATH="/root/.cargo/bin:${PATH}"

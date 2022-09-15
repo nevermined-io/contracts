@@ -8,7 +8,7 @@
   "homepage": "https://github.com/nevermined-io/contracts#readme",
   "main": "README.md",
   "scripts": {
-    "compile": "hardhat compile || hardhat compile",
+    "compile": "hardhat compile",
     "audit": "npx truffle exec ./scripts/deploy/truffle-wrapper/auditWrapper.js",
     "audit:development": "export NETWORK=development&&yarn run audit --network development",
     "audit:aurora-testnet": "export NETWORK=aurora-testnet&&yarn run audit --network aurora-testnet",
