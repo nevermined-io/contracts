@@ -3,6 +3,7 @@
  */
 require('@openzeppelin/hardhat-upgrades')
 require('@nomiclabs/hardhat-truffle5')
+require("@nomiclabs/hardhat-etherscan")
 require('hardhat-dependency-compiler')
 require('hardhat-gas-reporter')
 require('solidity-coverage')
@@ -125,16 +126,6 @@ module.exports = {
             deploymentPollingInterval: 8000,
             from: '0xB6d47415AfCDD06c5155d0E191530027FD51CCfD'
         },
-        // rinkeby the ethereum testnet
-        rinkeby: {
-            url: url || `https://rinkeby.infura.io/v3/${process.env.INFURA_TOKEN}`,
-            accounts,
-            chainId: 0x4, // 4
-            gas: 20 * 1000000,
-            gasPrice: parseInt(utils.toWei('5', 'gwei')),
-            skipDryRun: true,
-            from: '0x73943d14131268F23b721E668911bCDDEcA9da62'
-        },
         goerli: {
             url: url || `https://goerli.infura.io/v3/${process.env.INFURA_TOKEN}`,
             accounts,
@@ -217,6 +208,16 @@ module.exports = {
             from: '0xba3e0ec852dc24ca7f454ea545d40b1462501711',
             gas: 6 * 1000000,
             gasPrice: parseInt(utils.toWei('10', 'mwei'))
+        }
+    },
+    etherscan: {
+        apiKey: {
+          goerli: process.env.ETHERSCAN_TOKEN,
+          mainnet: process.env.ETHERSCAN_TOKEN,
+          mumbai: process.env.POLYGONSCAN_TOKEN,
+          matic: process.env.POLYGONSCAN_TOKEN,
+          'arbitrum-goerli': process.env.ARBISCAN_TOKEN,
+          'arbitrum-one': process.env.ARBISCAN_TOKEN
         }
     }
 }
