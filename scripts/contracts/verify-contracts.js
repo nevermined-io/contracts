@@ -1,7 +1,7 @@
 const { mkdtempSync } = require('fs')
-const { execSync } = require('child_process')
-var path = require('path')
-var fs = require('fs')
+const { execSync } = require('child_process') // eslint-disable-line
+const path = require('path')
+const fs = require('fs')
 
 /**
 * This script verify all the contracts source code for a given version, network & tag name
@@ -11,9 +11,7 @@ var fs = require('fs')
 * - Tag Name. Nevermined Smart Contracts can be deployed multiple times under different tag names. Example: public or common
 */
 
-
-
-function parseArguments()   {
+function parseArguments() {
     const args = process.argv.slice(2)
     if (args.length < 3) {
         printHelp()
@@ -22,88 +20,87 @@ function parseArguments()   {
     return args
 }
 
-function createEphemeralFolder(version)    {
+function createEphemeralFolder(version) {
     const tempDir = mkdtempSync('/tmp/nvm_contracts_verification_')
     const cloneCommand = `git clone git@github.com:nevermined-io/contracts.git --depth 1 -b ${version} ${tempDir}`
     console.log(cloneCommand)
     execSync(cloneCommand)
-    execSync(`yarn`, { cwd: tempDir } )
-    execSync(`yarn compile`, { cwd: tempDir } )
-    execSync(`yarn add @nomiclabs/hardhat-etherscan`, { cwd: tempDir } )
+    execSync('yarn', { cwd: tempDir })
+    execSync('yarn compile', { cwd: tempDir })
+    execSync('yarn add @nomiclabs/hardhat-etherscan', { cwd: tempDir })
 
     return tempDir
 }
 
-function deleteEphemeralFolder(tempDir)    {
+function deleteEphemeralFolder(tempDir) {
     execSync(`rm -rf ${tempDir}`)
 }
 
-function downloadArtifacts(scriptsDir, version, network, tag, options)    {
+function downloadArtifacts(scriptsDir, version, network, tag, options) {
     var artifactsDir = mkdtempSync('/tmp/nvm_contracts_artifacts_')
     execSync(`mkdir -p ${artifactsDir}/scripts/`)
     const cpScriptCmd = `cp -f ${scriptsDir}/download_artifacts_s3.sh ${artifactsDir}/scripts/`
     execSync(cpScriptCmd)
-    const output = execSync(`./scripts/download_artifacts_s3.sh ${version} ${network} ${tag}`, { cwd: `${artifactsDir}`} )
+    execSync(`./scripts/download_artifacts_s3.sh ${version} ${network} ${tag}`, { cwd: `${artifactsDir}` })
     artifactsDir = artifactsDir + '/artifacts'
     console.log(`Artifacts downloaded to ${artifactsDir}`)
     return artifactsDir
 }
 
-function processContracts(tempDir, artifactsDir, network)  {
+function processContracts(tempDir, artifactsDir, network) {
     var verified = []
     var notVerified = []
 
     const artifactFiles = fs.readdirSync(artifactsDir)
-    artifactFiles.filter( file => file.indexOf('.json') > -1)
-    .forEach( abiFile => {
-        const abiData = fs.readFileSync(`${artifactsDir}/${abiFile}`, "UTF-8")
-        const abi = JSON.parse(abiData)
+    artifactFiles.filter(file => file.indexOf('.json') > -1)
+        .forEach(abiFile => {
+            const abiData = fs.readFileSync(`${artifactsDir}/${abiFile}`, 'UTF-8')
+            const abi = JSON.parse(abiData)
 
-        const findContractName = `find contracts/ -name ${abi.name}.sol`
-        const output = execSync(findContractName, { cwd: `${tempDir}`} )
-        const contractName = output.toString().trim()
-        if (contractName.length === 0) {
-            console.log(`ABI ${abi.name} not found, skipping`)
-            notVerified.push(abi.name)
-        }   else {
-            const contractEntity = `${contractName}:${abi.name}`
-            console.log(`Contract Entity ${contractEntity}`)
-            try {
-                console.log(`Verifying Implementation address: ${abi.implementation}`)
-                verifyContract(abi.implementation, network, tempDir, contractEntity)
-
-                console.log(`Verifying Proxy address: ${abi.address}`)
-                verifyContract(abi.address, network, tempDir, contractEntity)
-                verified.push(abi.name)
-            } catch (error) {
-                console.log(`Unable to verify contract: ${abi.name}`)
+            const findContractName = `find contracts/ -name ${abi.name}.sol`
+            const output = execSync(findContractName, { cwd: `${tempDir}` })
+            const contractName = output.toString().trim()
+            if (contractName.length === 0) {
+                console.log(`ABI ${abi.name} not found, skipping`)
                 notVerified.push(abi.name)
-            }
-        }
+            } else {
+                const contractEntity = `${contractName}:${abi.name}`
+                console.log(`Contract Entity ${contractEntity}`)
+                try {
+                    console.log(`Verifying Implementation address: ${abi.implementation}`)
+                    verifyContract(abi.implementation, network, tempDir, contractEntity)
 
-    })
+                    console.log(`Verifying Proxy address: ${abi.address}`)
+                    verifyContract(abi.address, network, tempDir, contractEntity)
+                    verified.push(abi.name)
+                } catch (error) {
+                    console.log(`Unable to verify contract: ${abi.name}`)
+                    notVerified.push(abi.name)
+                }
+            }
+        })
     console.log(`Verified contracts ${verified}`)
     console.log(`NOT Verified contracts ${notVerified}`)
 }
 
-function verifyContract(contractAddress, network, tempDir, contractEntity)   {
+function verifyContract(contractAddress, network, tempDir, contractEntity) {
     const verifyCommand = `npx hardhat verify --network ${network} ${contractAddress} --contract ${contractEntity}`
     console.log(`Executing verification command: ${verifyCommand}`)
-    const output = execSync(verifyCommand, { cwd: `${tempDir}`} )
+    execSync(verifyCommand, { cwd: `${tempDir}` })
 }
 
-function printHelp()    {
-    console.log(`\nThis script verify all the contracts source code.`)
-    console.log(`The parameters required are:`)
-    console.log(` - Smart Contracts version. Example: v2.1.0`)
-    console.log(` - Network name. Example: mainnet, goerli, etc`)
-    console.log(` - Tag Name. Example: common, public, etc`)
+function printHelp() {
+    console.log('\nThis script verify all the contracts source code.')
+    console.log('The parameters required are:')
+    console.log(' - Smart Contracts version. Example: v2.1.0')
+    console.log(' - Network name. Example: mainnet, goerli, etc')
+    console.log(' - Tag Name. Example: common, public, etc')
     console.log(`\nExample: ${process.argv[1]} v2.1.0 goerli public\n\n`)
 }
 
-/////////////////////////////////
-/////////// MAIN ////////////////
-/////////////////////////////////
+/// //////////////////////////////
+/// //////// MAIN ////////////////
+/// //////////////////////////////
 
 const scriptsDir = path.dirname(path.dirname(process.argv[1]))
 
@@ -118,16 +115,10 @@ console.log(`\nVerifying contracts of version ${version} deployed on network ${n
 
 const artifactsDir = downloadArtifacts(scriptsDir, version, network, tag)
 
-if (args.length > 3)
-    tempDir = args[3]
-else
-    tempDir = createEphemeralFolder(version)
-
-const cmdOptions = { cwd: tempDir}
+if (args.length > 3) { tempDir = args[3] } else { tempDir = createEphemeralFolder(version) }
 
 console.log(`Using contracts folder ${tempDir}`)
 
 processContracts(tempDir, artifactsDir, network)
 
-//deleteEphemeralFolder(tempDir)
-
+if (args.length > 4 && args[4] === 'delete') { deleteEphemeralFolder(tempDir) }

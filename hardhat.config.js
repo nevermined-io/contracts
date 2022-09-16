@@ -3,7 +3,7 @@
  */
 require('@openzeppelin/hardhat-upgrades')
 require('@nomiclabs/hardhat-truffle5')
-require("@nomiclabs/hardhat-etherscan")
+require('@nomiclabs/hardhat-etherscan')
 require('hardhat-dependency-compiler')
 require('hardhat-gas-reporter')
 require('solidity-coverage')
@@ -203,20 +203,20 @@ module.exports = {
     },
     etherscan: {
         apiKey: {
-          goerli: process.env.ETHERSCAN_TOKEN,
-          mainnet: process.env.ETHERSCAN_TOKEN,
-          polygonMumbai: process.env.POLYGONSCAN_TOKEN,
-          polygon: process.env.POLYGONSCAN_TOKEN,
-          arbitrumTestnet: process.env.ARBISCAN_TOKEN,
-          arbitrumOne: process.env.ARBISCAN_TOKEN
+            goerli: process.env.ETHERSCAN_TOKEN,
+            mainnet: process.env.ETHERSCAN_TOKEN,
+            polygonMumbai: process.env.POLYGONSCAN_TOKEN,
+            polygon: process.env.POLYGONSCAN_TOKEN,
+            arbitrumTestnet: process.env.ARBISCAN_TOKEN,
+            arbitrumOne: process.env.ARBISCAN_TOKEN
         },
         customChains: [{
-          network: "arbitrum-goerli",
-          chainId: 421613,
-          urls: {
-            apiURL: "https://api-testnet.arbiscan.io/api",
-            browserURL: "https://testnet.arbiscan.io"
-          }
+            network: 'arbitrum-goerli',
+            chainId: 421613,
+            urls: {
+                apiURL: 'https://api-testnet.arbiscan.io/api',
+                browserURL: 'https://testnet.arbiscan.io'
+            }
         }]
     }
 }
