@@ -199,25 +199,16 @@ module.exports = {
             from: '0x721ba7Dc4357D846778Bad4227D46f2cefBa7De7',
             gas: 10 * 1000000,
             gasPrice: parseInt(utils.toWei('45', 'gwei'))
-        },
-        // production mainnet
-        production: {
-            url: url || 'https://mainnet.nevermined.io',
-            accounts,
-            chainId: 0xCEA11, // 846353
-            from: '0xba3e0ec852dc24ca7f454ea545d40b1462501711',
-            gas: 6 * 1000000,
-            gasPrice: parseInt(utils.toWei('10', 'mwei'))
         }
     },
     etherscan: {
         apiKey: {
           goerli: process.env.ETHERSCAN_TOKEN,
           mainnet: process.env.ETHERSCAN_TOKEN,
-          mumbai: process.env.POLYGONSCAN_TOKEN,
-          matic: process.env.POLYGONSCAN_TOKEN,
-          'arbitrum-goerli': process.env.ARBISCAN_TOKEN,
-          'arbitrum-one': process.env.ARBISCAN_TOKEN
+          polygonMumbai: process.env.POLYGONSCAN_TOKEN,
+          polygon: process.env.POLYGONSCAN_TOKEN,
+          arbitrumTestnet: process.env.ARBISCAN_TOKEN,
+          arbitrumOne: process.env.ARBISCAN_TOKEN
         }
     }
 }
