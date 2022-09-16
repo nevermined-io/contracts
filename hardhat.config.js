@@ -209,6 +209,14 @@ module.exports = {
           polygon: process.env.POLYGONSCAN_TOKEN,
           arbitrumTestnet: process.env.ARBISCAN_TOKEN,
           arbitrumOne: process.env.ARBISCAN_TOKEN
-        }
+        },
+        customChains: [{
+          network: "arbitrum-goerli",
+          chainId: 421613,
+          urls: {
+            apiURL: "https://api-testnet.arbiscan.io/api",
+            browserURL: "https://testnet.arbiscan.io"
+          }
+        }]
     }
 }
