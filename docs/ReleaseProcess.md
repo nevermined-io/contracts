@@ -88,7 +88,7 @@ export TAG=common
 
 - run `export MNEMONIC=<deployment's mnemonic>`. You will find them in the password manager.
 
-#### Deploy and initialize the conracts
+#### Deploy and initialize the contracts
 
 - To deploy and initialize all contracts run `yarn deploy:$NETWORK`
 
@@ -124,6 +124,48 @@ This workflows uses the script `scripts/upload_artifacts_s3.sh` that can be used
 ./scripts/upload_artifacts_s3.sh abis
 ./scripts/upload_artifacts_s3.sh contracts mumbai awesome_tag
 ```
+
+
+## Script for uploading the artifacts (abis/contracts) to Contract Repository
+
+Once the contracts are deployed to a public network or a new con.tract version whose contract abis has to been uploaded, use `scripts/upload_artifacts_s3.sh` to upload
+the contracts or artifacts to [nevermined repository](https://artifacts-nevermined-rocks.s3.amazonaws.com).
+
+*Your environment has to be configured and authorized to use aws cli to upload files to `artifacts-nevermined-rocks` bucket.*.
+
+The script has the next variables:
+
+- `branch` is the branch from where the workflow and artifacts will be used.
+- `asset` can be `abis`/`contracts`. Use abis if you want to upload the contract ABIs that not contain deployment information. Contracts for uploading abis with deployment information to `network`.
+- `network` refers to network name, based on filename/hardhat config. Not used if `abis` is selected.
+- `tag` refers to deployment tag. Defaults to common. Not used if `abis` is selected.
+
+This workflows uses the script `scripts/upload_artifacts_s3.sh` that can be used using the next syntax:
+
+```bash
+./scripts/upload_artifacts_s3.sh abis
+./scripts/upload_artifacts_s3.sh contracts mumbai awesome_tag
+```
+
+
+## Verifying contracts code in different networks
+
+Once the contracts are deployed and the ABIs are uploaded into the artifacts repository, it's time to verify the contracts code
+in all the different networks where this has been deployed.
+
+The script to do that is `scripts/contracts/verify-contracts.js` and requires the following parameters:
+
+- `version` the version/tag of the contracts. For example `v2.1.0`
+- `network` refers to network name, based on filename/hardhat config. For example `goerli`
+- `tag` refers to deployment tag. For example `public`
+
+An example of an execution is:
+
+```bash
+./scripts/contracts/verify-contracts.js v2.1.0 goerli public
+```
+
+
 
 ## Document
 
