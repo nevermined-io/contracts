@@ -387,9 +387,10 @@ contract LockPaymentCondition is ILockPayment, ReentrancyGuardUpgradeable, Condi
 
         bool marketplaceReceiverIsIncluded = false;
         uint receiverIndex = 0;
+        address receiver = nvmConfig.getFeeReceiver();
         
         for(uint i = 0; i < _receivers.length; i++)    {
-            if (_receivers[i] == nvmConfig.getFeeReceiver())    {
+            if (_receivers[i] == receiver) {
                 marketplaceReceiverIsIncluded = true;
                 receiverIndex = i;
             }
@@ -398,7 +399,7 @@ contract LockPaymentCondition is ILockPayment, ReentrancyGuardUpgradeable, Condi
             return false;
         
         // Return if fee calculation is correct
-        return nvmConfig.getMarketplaceFee().mul(calculateTotalAmount(_amounts)).div(DENOMINATOR) == _amounts[receiverIndex];
+        return nvmConfig.getMarketplaceFee() * calculateTotalAmount(_amounts) / DENOMINATOR <= _amounts[receiverIndex];
     }
 
 }
