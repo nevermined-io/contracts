@@ -135,7 +135,7 @@ contract AaveCreditTemplate is BaseEscrowTemplate, CloneFactory {
     )
     public
     {
-        vaultAddress[keccak256(abi.encode(_id, msg.sender))] = address(_vaultAddress);
+        vaultAddress[keccak256(abi.encode(_id, _msgSender()))] = address(_vaultAddress);
 
         super.createAgreement(
             _id,
@@ -143,7 +143,7 @@ contract AaveCreditTemplate is BaseEscrowTemplate, CloneFactory {
             _conditionIds,
             _timeLocks,
             _timeOuts,
-            msg.sender // borrower
+            _msgSender() // borrower
         );
     }
     
@@ -170,12 +170,12 @@ contract AaveCreditTemplate is BaseEscrowTemplate, CloneFactory {
             nvmFee,
             _agreementFee,
             _treasuryAddress,
-            msg.sender, // borrower
+            _msgSender(), // borrower
             _lender,
             conditionTypes
         );
-        vaultAddress[keccak256(abi.encode(_id, msg.sender))] = address(_vault);
-        emit VaultCreated(address(_vault), msg.sender, _lender, msg.sender);
+        vaultAddress[keccak256(abi.encode(_id, _msgSender()))] = address(_vault);
+        emit VaultCreated(address(_vault), _msgSender(), _lender, _msgSender());
 
         super.createAgreement(
             _id,
@@ -183,7 +183,7 @@ contract AaveCreditTemplate is BaseEscrowTemplate, CloneFactory {
             _conditionIds,
             _timeLocks,
             _timeOuts,
-            msg.sender // borrower
+            _msgSender() // borrower
         );
     }
 
@@ -211,7 +211,7 @@ contract AaveCreditTemplate is BaseEscrowTemplate, CloneFactory {
             _lender,
             conditionTypes
         );
-        emit VaultCreated(address(_vault), msg.sender, _lender, _borrower);
+        emit VaultCreated(address(_vault), _msgSender(), _lender, _borrower);
         return address(_vault);
     }
 

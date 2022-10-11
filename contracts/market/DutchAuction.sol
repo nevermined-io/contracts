@@ -25,8 +25,8 @@ contract DutchAuction is AbstractAuction {
         transferOwnership(_owner);
 
         AccessControlUpgradeable.__AccessControl_init();
-        AccessControlUpgradeable._setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
-        AccessControlUpgradeable._setupRole(AUCTION_MANAGER_ROLE, msg.sender);
+        AccessControlUpgradeable._setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
+        AccessControlUpgradeable._setupRole(AUCTION_MANAGER_ROLE, _msgSender());
     }    
     
     /**
@@ -63,7 +63,7 @@ contract DutchAuction is AbstractAuction {
         auctions[_auctionId] = Auction({
             did: _did,
             state: DynamicPricingState.NotStarted,
-            creator: msg.sender,
+            creator: _msgSender(),
             blockNumberCreated: block.number,
             floor: _startPrice,
             starts: _starts,
@@ -77,7 +77,7 @@ contract DutchAuction is AbstractAuction {
         emit AuctionCreated(
             _auctionId,
             _did,
-            msg.sender,
+            _msgSender(),
             block.number,
             _startPrice,
             _starts,
@@ -103,20 +103,20 @@ contract DutchAuction is AbstractAuction {
         require(_bidAmount <= auctions[_auctionId].floor, 'DutchAuction: Only lower or equal than start price');
         require(_bidAmount > auctions[_auctionId].price, 'DutchAuction: Only higher bids');
         
-        auctions[_auctionId].whoCanClaim = msg.sender;
+        auctions[_auctionId].whoCanClaim = _msgSender();
         auctions[_auctionId].price = _bidAmount;
-        auctionBids[_auctionId][msg.sender] = _bidAmount;
+        auctionBids[_auctionId][_msgSender()] = _bidAmount;
         auctions[_auctionId].state = DynamicPricingState.Finished;
 
         emit AuctionBidReceived(
             _auctionId,
-            msg.sender,
+            _msgSender(),
             auctions[_auctionId].tokenAddress,
             _bidAmount
         );
         emit AuctionChangedState(
             _auctionId,
-            msg.sender,
+            _msgSender(),
             DynamicPricingState.InProgress,
             DynamicPricingState.Finished
         );
@@ -144,22 +144,22 @@ contract DutchAuction is AbstractAuction {
         require(_bidAmount > auctions[_auctionId].price, 'DutchAuction: Only higher bids');
 
         IERC20Upgradeable token = ERC20Upgradeable(auctions[_auctionId].tokenAddress);
-        token.safeTransferFrom(msg.sender, address(this), _bidAmount);
+        token.safeTransferFrom(_msgSender(), address(this), _bidAmount);
 
-        auctions[_auctionId].whoCanClaim = msg.sender;
+        auctions[_auctionId].whoCanClaim = _msgSender();
         auctions[_auctionId].price = _bidAmount;
-        auctionBids[_auctionId][msg.sender] = _bidAmount;
+        auctionBids[_auctionId][_msgSender()] = _bidAmount;
         auctions[_auctionId].state = DynamicPricingState.Finished;
         
         emit AuctionBidReceived(
             _auctionId,
-            msg.sender,
+            _msgSender(),
             auctions[_auctionId].tokenAddress,
             _bidAmount
         );
         emit AuctionChangedState(
             _auctionId,
-            msg.sender,
+            _msgSender(),
             DynamicPricingState.InProgress,
             DynamicPricingState.Finished
         );        
@@ -185,21 +185,21 @@ contract DutchAuction is AbstractAuction {
             if (_withdrawAddress != address(0))
                 withdrawalAddress = _withdrawAddress;
             else
-                withdrawalAddress = msg.sender;
-            withdrawalAmount = auctionBids[_auctionId][msg.sender];
+                withdrawalAddress = _msgSender();
+            withdrawalAmount = auctionBids[_auctionId][_msgSender()];
 
         }   else    {
 
             // The auction finished correctly
-            if (msg.sender == auctions[_auctionId].creator)   { // The creator of the auction cant withdraw
+            if (_msgSender() == auctions[_auctionId].creator)   { // The creator of the auction cant withdraw
                 return false;
-            } else if (msg.sender == auctions[_auctionId].whoCanClaim)    { // The winner of the auction cant withdraw
+            } else if (_msgSender() == auctions[_auctionId].whoCanClaim)    { // The winner of the auction cant withdraw
                 return false;
-            } else if (hasRole(NVM_AGREEMENT_ROLE, msg.sender)) { // Approved proxy or contract can withdraw for locking into service agreements
+            } else if (hasRole(NVM_AGREEMENT_ROLE, _msgSender())) { // Approved proxy or contract can withdraw for locking into service agreements
                 if (_withdrawAddress != address(0))
                     withdrawalAddress = _withdrawAddress;
                 else
-                    withdrawalAddress = msg.sender;
+                    withdrawalAddress = _msgSender();
                 withdrawalAmount = auctionBids[_auctionId][auctions[_auctionId].whoCanClaim];
                 auctionBids[_auctionId][auctions[_auctionId].whoCanClaim] = 0;
             }

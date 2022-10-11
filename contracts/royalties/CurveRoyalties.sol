@@ -37,7 +37,7 @@ contract CurveRoyalties is IRoyaltyScheme, Initializable, Common {
      */
     function setRoyalty(bytes32 _did, uint256 _royalty) public {
         require(_royalty <= DENOMINATOR, 'royalty cannot be more than 100%');
-        require(msg.sender == registry.getDIDCreator(_did), 'only owner can change');
+        require(_msgSender() == registry.getDIDCreator(_did), 'only owner can change');
         require(royalties[_did] == 0, 'royalties cannot be changed');
         royalties[_did] = _royalty;
     }

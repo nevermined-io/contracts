@@ -31,7 +31,7 @@ contract POAPUpgradeable is NFT721Upgradeable, ERC721URIStorageUpgradeable, ERC7
         __ERC721Enumerable_init_unchained();
         __Ownable_init_unchained();
         AccessControlUpgradeable.__AccessControl_init();
-        AccessControlUpgradeable._setupRole(MINTER_ROLE, msg.sender);    }
+        AccessControlUpgradeable._setupRole(MINTER_ROLE, _msgSender());    }
 
     // solhint-disable-next-line
     function initializeWithName(
@@ -51,7 +51,7 @@ contract POAPUpgradeable is NFT721Upgradeable, ERC721URIStorageUpgradeable, ERC7
         __ERC721Enumerable_init_unchained();
         __Ownable_init_unchained();
         AccessControlUpgradeable.__AccessControl_init();
-        AccessControlUpgradeable._setupRole(MINTER_ROLE, msg.sender);
+        AccessControlUpgradeable._setupRole(MINTER_ROLE, _msgSender());
         setContractMetadataUri(uri);
     }
     
@@ -62,7 +62,7 @@ contract POAPUpgradeable is NFT721Upgradeable, ERC721URIStorageUpgradeable, ERC7
     ) 
     public 
     {
-        require(hasRole(MINTER_ROLE, msg.sender), 'only minter can mint');
+        require(hasRole(MINTER_ROLE, _msgSender()), 'only minter can mint');
         uint256 tokenId = _tokenIdCounter.current();
 
         _tokenIdCounter.increment();

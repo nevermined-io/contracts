@@ -146,7 +146,7 @@ abstract contract CommonOwnable is OwnableUpgradeable, Common {
     }
 }
 
-abstract contract CommonAccessControl is AccessControlUpgradeable, CommonOwnable {
+abstract contract CommonAccessControl is CommonOwnable, AccessControlUpgradeable {
     function _msgSender() internal override(CommonOwnable,ContextUpgradeable) virtual view returns (address ret) {
         return Common._msgSender();
     }

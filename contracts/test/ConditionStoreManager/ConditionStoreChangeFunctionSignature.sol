@@ -17,7 +17,7 @@ contract ConditionStoreChangeFunctionSignature is ConditionStoreManager {
     {
         // change function signature
         require(
-            msg.sender == _sender,
+            _msgSender() == _sender,
             'Invalid _sender address change signature test should fail'
         );
 

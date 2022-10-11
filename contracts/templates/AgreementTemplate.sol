@@ -45,7 +45,7 @@ contract AgreementTemplate is CommonOwnable {
         public
     {
         agreementStoreManager.createAgreement(
-            keccak256(abi.encode(_id, msg.sender)),
+            keccak256(abi.encode(_id, _msgSender())),
             _did,
             getConditionTypes(),
             _conditionIds,
@@ -69,13 +69,13 @@ contract AgreementTemplate is CommonOwnable {
         public payable
     {
         agreementStoreManager.createAgreementAndPay{value: msg.value}(AgreementStoreManager.CreateAgreementArgs(
-            keccak256(abi.encode(_id, msg.sender)),
+            keccak256(abi.encode(_id, _msgSender())),
             _did,
             getConditionTypes(),
             _conditionIds,
             _timeLocks,
             _timeOuts,
-            msg.sender,
+            _msgSender(),
             _idx,
             _rewardAddress, _tokenAddress, _amounts, _receivers
         ));
@@ -94,7 +94,7 @@ contract AgreementTemplate is CommonOwnable {
         internal
     {
         agreementStoreManager.createAgreementAndFulfill{value: msg.value}(
-            keccak256(abi.encode(_id, msg.sender)),
+            keccak256(abi.encode(_id, _msgSender())),
             _did,
             getConditionTypes(),
             _conditionIds,

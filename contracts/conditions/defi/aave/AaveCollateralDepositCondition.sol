@@ -138,7 +138,7 @@ contract AaveCollateralDepositCondition is Condition, ReentrancyGuardUpgradeable
         if (msg.value == 0) {
             IERC20Upgradeable token = ERC20Upgradeable(_collateralAsset);
             token.safeTransferFrom(
-                msg.sender,
+                _msgSender(),
                 address(vault),
                 _collateralAmount
             );
@@ -166,7 +166,7 @@ contract AaveCollateralDepositCondition is Condition, ReentrancyGuardUpgradeable
             ConditionStoreLibrary.ConditionState.Fulfilled,
             _did,
             'AaveCollateralDepositCondition',
-            msg.sender
+            _msgSender()
         );
 
         return state;

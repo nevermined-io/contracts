@@ -30,7 +30,7 @@ contract NFT721EscrowPaymentCondition is Reward, INFTEscrow, IERC721ReceiverUpgr
     );
     
     receive() external payable {
-        emit Received(msg.sender, msg.value);
+        emit Received(_msgSender(), msg.value);
     }
 
     /**
@@ -273,7 +273,7 @@ contract NFT721EscrowPaymentCondition is Reward, INFTEscrow, IERC721ReceiverUpgr
             ConditionStoreLibrary.ConditionState.Fulfilled,
             _did,
             'NFT721EscrowPaymentCondition',
-            msg.sender
+            _msgSender()
         );
     }
     

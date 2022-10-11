@@ -158,7 +158,7 @@ contract LockPaymentCondition is ILockPayment, ReentrancyGuardUpgradeable, Condi
     nonReentrant
     returns (ConditionStoreLibrary.ConditionState)
     {
-        return fulfillInternal(msg.sender, _agreementId, _did, _rewardAddress, _tokenAddress, _amounts, _receivers);
+        return fulfillInternal(_msgSender(), _agreementId, _did, _rewardAddress, _tokenAddress, _amounts, _receivers);
     }
 
     /**
@@ -207,7 +207,7 @@ contract LockPaymentCondition is ILockPayment, ReentrancyGuardUpgradeable, Condi
             (IDynamicPricing.DynamicPricingState externalState, uint256 externalAmount, address whoCanClaim) =
                 IDynamicPricing(_externalContract).getStatus(_remoteId);
 
-            require(msg.sender == whoCanClaim, 'No allowed');
+            require(_msgSender() == whoCanClaim, 'No allowed');
             require(externalState != IDynamicPricing.DynamicPricingState.NotStarted &&
                 externalState != IDynamicPricing.DynamicPricingState.Aborted, 'Invalid external state');
             require(calculateTotalAmount(_amounts) == externalAmount, 'Amounts dont match');
@@ -225,7 +225,7 @@ contract LockPaymentCondition is ILockPayment, ReentrancyGuardUpgradeable, Condi
             ConditionStoreLibrary.ConditionState.Fulfilled,
             _did,
             'LockPaymentCondition',
-            msg.sender
+            _msgSender()
         );
 
         emit Fulfilled(
@@ -292,7 +292,7 @@ contract LockPaymentCondition is ILockPayment, ReentrancyGuardUpgradeable, Condi
             ConditionStoreLibrary.ConditionState.Fulfilled,
             _did,
             'LockPaymentCondition',
-            msg.sender
+            _msgSender()
         );
 
         emit Fulfilled(
@@ -322,7 +322,7 @@ contract LockPaymentCondition is ILockPayment, ReentrancyGuardUpgradeable, Condi
         uint256[] memory _amounts;
         address[] memory _receivers;
         (_did, _rewardAddress, _tokenAddress, _amounts, _receivers) = abi.decode(params, (bytes32, address, address, uint256[], address[]));
-        require(hasRole(PROXY_ROLE, msg.sender), 'Invalid access role');
+        require(hasRole(PROXY_ROLE, _msgSender()), 'Invalid access role');
         fulfillInternal(_account, _agreementId, _did, _rewardAddress, _tokenAddress, _amounts, _receivers);
     }
  

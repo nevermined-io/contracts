@@ -94,7 +94,7 @@ contract Dispenser is OwnableUpgradeable {
         uint256 amount
     )
         external
-        isValidAddress(msg.sender)
+        isValidAddress(_msgSender())
         returns (bool tokensTransferred)
     {
         uint256 amountWithDigits = amount.mul(scale);
@@ -105,10 +105,10 @@ contract Dispenser is OwnableUpgradeable {
         );
 
         // solhint-disable-next-line
-        if (block.timestamp < tokenRequests[msg.sender] + minPeriod) {
+        if (block.timestamp < tokenRequests[_msgSender()] + minPeriod) {
             // Failed, requested to frequently
             emit RequestFrequencyExceeded(
-                msg.sender,
+                _msgSender(),
                 minPeriod
             );
             return false;
@@ -118,19 +118,19 @@ contract Dispenser is OwnableUpgradeable {
         if (amountWithDigits > maxAmount) {
             // Failed, requested to much tokens
             emit RequestLimitExceeded(
-                msg.sender,
+                _msgSender(),
                 amount,
                 maxAmount
             );
             return false;
         } else {
             // solhint-disable-next-line
-            tokenRequests[msg.sender] = block.timestamp;
+            tokenRequests[_msgSender()] = block.timestamp;
 
             totalMintAmount = totalMintAmount.add(amountWithDigits);
 
             require(
-                token.mint(msg.sender, amountWithDigits),
+                token.mint(_msgSender(), amountWithDigits),
                 'Token minting failed.'
             );
 

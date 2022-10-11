@@ -87,7 +87,7 @@ contract WhitelistingCondition is Condition {
         
         require(
             list.has(
-                keccak256(abi.encode(msg.sender)),
+                keccak256(abi.encode(_msgSender())),
                 _item
             ),
             'Item does not exist'

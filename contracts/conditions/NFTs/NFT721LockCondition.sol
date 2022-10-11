@@ -109,12 +109,12 @@ contract NFT721LockCondition is Condition, INFTLock, ReentrancyGuardUpgradeable,
         IERC721Upgradeable erc721 = IERC721Upgradeable(_nftContractAddress);
 
         require(
-            _amount == 0 || (_amount == 1 && erc721.ownerOf(uint256(_did)) == msg.sender),
+            _amount == 0 || (_amount == 1 && erc721.ownerOf(uint256(_did)) == _msgSender()),
             'Sender does not have enough balance or is not the NFT owner.'
         );
 
         if (_amount == 1) {
-            erc721.safeTransferFrom(msg.sender, _lockAddress, uint256(_did));
+            erc721.safeTransferFrom(_msgSender(), _lockAddress, uint256(_did));
         }
 
         bytes32 _id = generateId(
@@ -126,7 +126,7 @@ contract NFT721LockCondition is Condition, INFTLock, ReentrancyGuardUpgradeable,
             ConditionStoreLibrary.ConditionState.Fulfilled,
             _did,
             'NFT721LockCondition',
-            msg.sender
+            _msgSender()
         );
 
         emit Fulfilled(

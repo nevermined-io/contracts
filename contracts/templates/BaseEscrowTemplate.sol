@@ -125,7 +125,7 @@ contract BaseEscrowTemplate is AgreementTemplate {
     )
     internal view returns (bytes32[] memory)
     {
-        bytes32 _id = keccak256(abi.encode(_idSeed, msg.sender));
+        bytes32 _id = keccak256(abi.encode(_idSeed, _msgSender()));
         bytes32[] memory ids = new bytes32[](_conditionIds.length);
         for (uint i = 0; i < ids.length; i++) {
             ids[i] = keccak256(abi.encode(_id, conditionTypes[i], _conditionIds[i]));
@@ -144,7 +144,7 @@ contract BaseEscrowTemplate is AgreementTemplate {
         internal
     {
 
-        bytes32 _id = keccak256(abi.encode(_idSeed, msg.sender));
+        bytes32 _id = keccak256(abi.encode(_idSeed, _msgSender()));
         // storing some additional information for the template
         agreementData.agreementDataItems[_id].accessConsumer = _accessConsumer;
         agreementData.agreementDataItems[_id].did = _did;
@@ -159,7 +159,7 @@ contract BaseEscrowTemplate is AgreementTemplate {
             _conditionIds,
             _makeIds(_idSeed, _conditionIds),
             _idSeed,
-            msg.sender
+            _msgSender()
         );
 
     }

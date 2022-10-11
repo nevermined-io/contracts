@@ -15,7 +15,7 @@ contract NFT721SubscriptionUpgradeable is NFT721Upgradeable {
      * @dev TransferNFT721Condition needs to have the `MINTER_ROLE`
      */
     function mint(address to, uint256 id, uint256 expirationBlock) public {
-        require(hasRole(MINTER_ROLE, msg.sender), 'only minter can mint');
+        require(hasRole(MINTER_ROLE, _msgSender()), 'only minter can mint');
         _safeMint(to, id);
         _expiration[to] = expirationBlock;
     }

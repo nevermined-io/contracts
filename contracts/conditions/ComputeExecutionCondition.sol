@@ -45,8 +45,8 @@ contract ComputeExecutionCondition is Condition {
         );
         
         require(
-            didRegistry.isDIDProvider(_did, msg.sender) || 
-            msg.sender == didRegistry.getDIDOwner(_did),
+            didRegistry.isDIDProvider(_did, _msgSender()) || 
+            _msgSender() == didRegistry.getDIDOwner(_did),
             'Invalid DID owner/provider'
         );
         _;
@@ -128,7 +128,7 @@ contract ComputeExecutionCondition is Condition {
             ConditionStoreLibrary.ConditionState.Fulfilled,
             _did,
             'ComputeExecutionCondition',
-            msg.sender
+            _msgSender()
         );
         
         computeExecutionStatus[_did][_computeConsumer] = true;

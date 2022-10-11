@@ -30,8 +30,8 @@ contract TemplateStoreManager is CommonOwnable {
 
     modifier onlyOwnerOrTemplateOwner(address _id){
         require(
-            msg.sender == owner() ||
-            templateList.templates[_id].owner == msg.sender,
+            _msgSender() == owner() ||
+            templateList.templates[_id].owner == _msgSender(),
             'Invalid UpdateRole'
         );
         _;
@@ -66,7 +66,7 @@ contract TemplateStoreManager is CommonOwnable {
         external
         returns (uint size)
     {
-        return templateList.propose(_id);
+        return templateList.propose(_id, _msgSender());
     }
 
     /**
@@ -79,7 +79,7 @@ contract TemplateStoreManager is CommonOwnable {
         external
         onlyOwner
     {
-        return templateList.approve(_id);
+        return templateList.approve(_id, _msgSender());
     }
 
     /**
@@ -93,7 +93,7 @@ contract TemplateStoreManager is CommonOwnable {
         external
         onlyOwnerOrTemplateOwner(_id)
     {
-        return templateList.revoke(_id);
+        return templateList.revoke(_id, _msgSender());
     }
 
     /**

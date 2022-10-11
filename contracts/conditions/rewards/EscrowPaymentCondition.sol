@@ -42,7 +42,7 @@ contract EscrowPaymentCondition is Reward, ReentrancyGuardUpgradeable {
     );
     
     receive() external payable {
-        emit Received(msg.sender, msg.value);
+        emit Received(_msgSender(), msg.value);
     }
 
     /**
@@ -375,7 +375,7 @@ contract EscrowPaymentCondition is Reward, ReentrancyGuardUpgradeable {
             ConditionStoreLibrary.ConditionState.Fulfilled,
             _did,
             'EscrowPaymentCondition',
-            msg.sender
+            _msgSender()
         );
     }
 
@@ -417,7 +417,7 @@ contract EscrowPaymentCondition is Reward, ReentrancyGuardUpgradeable {
             ConditionStoreLibrary.ConditionState.Fulfilled,
             _did,
             'EscrowPaymentCondition',
-            msg.sender
+            _msgSender()
         );
     }    
     

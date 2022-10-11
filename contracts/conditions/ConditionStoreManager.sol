@@ -59,7 +59,7 @@ contract ConditionStoreManager is CommonAccessControl {
 
     modifier onlyCreateRole(){
         require(
-            createRole == msg.sender,
+            createRole == _msgSender(),
             'Invalid CreateRole'
         );
         _;
@@ -72,7 +72,7 @@ contract ConditionStoreManager is CommonAccessControl {
             'Condition doesnt exist'
         );
         require(
-            conditionList.conditions[_id].typeRef == msg.sender,
+            conditionList.conditions[_id].typeRef == _msgSender(),
             'Invalid UpdateRole'
         );
         _;
@@ -285,7 +285,7 @@ contract ConditionStoreManager is CommonAccessControl {
         emit ConditionCreated(
             _id,
             _typeRef,
-            msg.sender
+            _msgSender()
         );
     }
 
@@ -333,7 +333,7 @@ contract ConditionStoreManager is CommonAccessControl {
             _id,
             conditionList.conditions[_id].typeRef,
             updateState,
-            msg.sender
+            _msgSender()
         );
 
         return updateState;
@@ -379,7 +379,7 @@ contract ConditionStoreManager is CommonAccessControl {
     )
     external
     {
-        require(hasRole(PROXY_ROLE, msg.sender), 'Invalid access role');
+        require(hasRole(PROXY_ROLE, _msgSender()), 'Invalid access role');
         conditionList.updateKeyValue(
             _id, 
             _key, 

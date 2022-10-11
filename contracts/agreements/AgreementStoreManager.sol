@@ -149,7 +149,7 @@ contract AgreementStoreManager is CommonAccessControl {
         public
     {
         require(
-            templateStoreManager.isTemplateApproved(msg.sender) == true,
+            templateStoreManager.isTemplateApproved(_msgSender()) == true,
             'Template not Approved'
         );
         require(
@@ -175,7 +175,7 @@ contract AgreementStoreManager is CommonAccessControl {
         agreementList.create(
             _id,
             _did,
-            msg.sender,
+            _msgSender(),
             _conditionIds
         );
     }
@@ -220,7 +220,7 @@ contract AgreementStoreManager is CommonAccessControl {
     )
         public payable
     {
-        require(hasRole(PROXY_ROLE, msg.sender), 'Proxy role required');
+        require(hasRole(PROXY_ROLE, _msgSender()), 'Proxy role required');
         createAgreement(_id, _did, _conditionTypes, _conditionIds, _timeLocks, _timeOuts);
         if (_idx.length > 0) {
             ICondition(_conditionTypes[_idx[0]]).fulfillProxy{value: msg.value}(_account[0], _id, params[0]);

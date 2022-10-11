@@ -128,11 +128,11 @@ contract AaveRepayCondition is Condition {
             ConditionStoreLibrary.ConditionState.Fulfilled,
             _did,
             'AaveRepayCondition',
-            msg.sender
+            _msgSender()
         );
         
         if (state == ConditionStoreLibrary.ConditionState.Fulfilled)    {
-            token.safeTransferFrom(msg.sender, _vaultAddress, totalDebt);
+            token.safeTransferFrom(_msgSender(), _vaultAddress, totalDebt);
             vault.repay(_assetToRepay, _interestRateMode, _id);
         } else if (state == ConditionStoreLibrary.ConditionState.Aborted)    {
             vault.setRepayConditionId(_id);

@@ -109,8 +109,8 @@ contract AaveBorrowCondition is Condition {
     returns (ConditionStoreLibrary.ConditionState) 
     {
         AaveCreditVault vault = AaveCreditVault(_vaultAddress);
-        require(vault.isBorrower(msg.sender), 'Only borrower');
-        vault.borrow(_assetToBorrow, _amount, msg.sender, _interestRateMode);
+        require(vault.isBorrower(_msgSender()), 'Only borrower');
+        vault.borrow(_assetToBorrow, _amount, _msgSender(), _interestRateMode);
 
         bytes32 _id =
         generateId(
@@ -124,7 +124,7 @@ contract AaveBorrowCondition is Condition {
             ConditionStoreLibrary.ConditionState.Fulfilled,
             _did,
             'AaveBorrowCondition',
-            msg.sender
+            _msgSender()
         );
 
         return state;

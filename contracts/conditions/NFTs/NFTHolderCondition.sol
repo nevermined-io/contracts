@@ -133,7 +133,7 @@ contract NFTHolderCondition is Condition, INFTHolder {
             ConditionStoreLibrary.ConditionState.Fulfilled,
             _did,
             'NFTHolderCondition',
-            msg.sender
+            _msgSender()
         );
 
         emit Fulfilled(

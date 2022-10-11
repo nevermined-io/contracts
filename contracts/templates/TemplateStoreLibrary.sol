@@ -44,7 +44,8 @@ library TemplateStoreLibrary {
     */
     function propose(
         TemplateList storage _self,
-        address _id
+        address _id,
+        address _sender
     )
         internal
         returns (uint size)
@@ -56,8 +57,8 @@ library TemplateStoreLibrary {
 
         _self.templates[_id] = Template({
             state: TemplateState.Proposed,
-            owner: msg.sender,
-            lastUpdatedBy: msg.sender,
+            owner: _sender,
+            lastUpdatedBy: _sender,
             blockNumberUpdated: block.number
         });
 
@@ -73,7 +74,8 @@ library TemplateStoreLibrary {
     */
     function approve(
         TemplateList storage _self,
-        address _id
+        address _id,
+        address _sender
     )
         internal
     {
@@ -83,7 +85,7 @@ library TemplateStoreLibrary {
         );
 
         _self.templates[_id].state = TemplateState.Approved;
-        _self.templates[_id].lastUpdatedBy = msg.sender;
+        _self.templates[_id].lastUpdatedBy = _sender;
         _self.templates[_id].blockNumberUpdated = block.number;
     }
 
@@ -94,7 +96,8 @@ library TemplateStoreLibrary {
     */
     function revoke(
         TemplateList storage _self,
-        address _id
+        address _id,
+        address _sender
     )
         internal
     {
@@ -104,7 +107,7 @@ library TemplateStoreLibrary {
         );
 
         _self.templates[_id].state = TemplateState.Revoked;
-        _self.templates[_id].lastUpdatedBy = msg.sender;
+        _self.templates[_id].lastUpdatedBy = _sender;
         _self.templates[_id].blockNumberUpdated = block.number;
     }
 }

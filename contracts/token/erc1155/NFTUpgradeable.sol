@@ -22,7 +22,7 @@ contract NFTUpgradeable is ERC1155Upgradeable, NFTBase {
         __ERC1155_init_unchained(uri_);
         __Ownable_init_unchained();
         AccessControlUpgradeable.__AccessControl_init();
-        AccessControlUpgradeable._setupRole(MINTER_ROLE, msg.sender);
+        AccessControlUpgradeable._setupRole(MINTER_ROLE, _msgSender());
         setContractMetadataUri(uri_);
     }
     
@@ -34,7 +34,7 @@ contract NFTUpgradeable is ERC1155Upgradeable, NFTBase {
     }
 
     function mint(address to, uint256 id, uint256 amount, bytes memory data) public {
-        require(hasRole(MINTER_ROLE, msg.sender), 'only minter can mint');
+        require(hasRole(MINTER_ROLE, _msgSender()), 'only minter can mint');
         _mint(to, id, amount, data);
     }
 
@@ -42,8 +42,8 @@ contract NFTUpgradeable is ERC1155Upgradeable, NFTBase {
         require(balanceOf(to, id) >= amount, 'ERC1155: burn amount exceeds balance');
         require(
             hasRole(MINTER_ROLE, _msgSender()) || // Or the DIDRegistry is burning the NFT 
-            to == _msgSender() || // Or the NFT owner is msg.sender 
-            isApprovedForAll(to, _msgSender()), // Or the msg.sender is approved
+            to == _msgSender() || // Or the NFT owner is _msgSender() 
+            isApprovedForAll(to, _msgSender()), // Or the _msgSender() is approved
             'ERC1155: caller is not owner nor approved'
         );
         _burn(to, id, amount);
@@ -70,7 +70,7 @@ contract NFTUpgradeable is ERC1155Upgradeable, NFTBase {
     )
     public
     {
-        require(hasRole(MINTER_ROLE, msg.sender), 'only minter');
+        require(hasRole(MINTER_ROLE, _msgSender()), 'only minter');
         _setNFTMetadata(tokenId, nftURI);
     }    
     
@@ -87,7 +87,7 @@ contract NFTUpgradeable is ERC1155Upgradeable, NFTBase {
     ) 
     public
     {
-        require(hasRole(MINTER_ROLE, msg.sender), 'only minter');
+        require(hasRole(MINTER_ROLE, _msgSender()), 'only minter');
         _setTokenRoyalty(tokenId, receiver, royaltyAmount);
     }
     

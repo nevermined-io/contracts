@@ -102,7 +102,7 @@ ERC20CappedUpgradeable {
     returns (bool)
     {
         require(
-            AccessControlUpgradeable.hasRole('minter', msg.sender),
+            AccessControlUpgradeable.hasRole('minter', _msgSender()),
             'Address not granted for minting tokens');
         super._mint(account, amount);
         return true;

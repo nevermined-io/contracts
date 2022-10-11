@@ -32,7 +32,7 @@ contract NFTEscrowPaymentCondition is Reward, INFTEscrow, ReentrancyGuardUpgrade
     );
     
     receive() external payable {
-        emit Received(msg.sender, msg.value);
+        emit Received(_msgSender(), msg.value);
     }
 
     /**
@@ -270,7 +270,7 @@ contract NFTEscrowPaymentCondition is Reward, INFTEscrow, ReentrancyGuardUpgrade
             ConditionStoreLibrary.ConditionState.Fulfilled,
             _did,
             'NFTEscrowPaymentCondition',
-            msg.sender
+            _msgSender()
         );
     }
 
