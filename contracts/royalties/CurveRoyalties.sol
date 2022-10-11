@@ -13,7 +13,7 @@ import '@openzeppelin/contracts-upgradeable/token/ERC1155/IERC1155Upgradeable.so
  * @author Nevermined
  */
 
-contract CurveRoyalties is IRoyaltyScheme, Initializable {
+contract CurveRoyalties is IRoyaltyScheme, Initializable, Common {
 
     DIDRegistry public registry;
 
@@ -90,6 +90,19 @@ contract CurveRoyalties is IRoyaltyScheme, Initializable {
         // Check if royalties are enough
         // Are we paying enough royalties in the secondary market to the original creator?
         return (_amounts[index] >= _requiredRoyalties);
+    }
+
+    /**
+     * @dev getNvmConfigAddress get the address of the NeverminedConfig contract
+     * @return NeverminedConfig contract address
+     */
+    function getNvmConfigAddress()
+    public
+    override
+    view
+    returns (address)
+    {
+        return registry.getNvmConfigAddress();
     }
 }
 

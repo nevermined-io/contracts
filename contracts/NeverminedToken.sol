@@ -3,11 +3,10 @@ pragma solidity ^0.8.0;
 // SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 // Code is Apache-2.0 and docs are CC-BY-4.0
 
-/* solium-disable-next-line */
+import './Common.sol';
 import '@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20CappedUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol';
-/* solium-disable-next-line */
 import '@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol';
 
 /**
@@ -20,9 +19,32 @@ import '@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol'
 contract NeverminedToken is
 AccessControlUpgradeable,
 OwnableUpgradeable,
-ERC20CappedUpgradeable {
+ERC20CappedUpgradeable,
+Common {
 
     using SafeMathUpgradeable for uint256;
+
+    address public nvmConfig;
+
+    /**
+     * @dev getNvmConfigAddress get the address of the NeverminedConfig contract
+     * @return NeverminedConfig contract address
+     */
+    function getNvmConfigAddress()
+    public
+    override
+    view
+    returns (address)
+    {
+        return nvmConfig;
+    }
+
+    function setNvmConfigAddress(address _addr)
+    external
+    onlyOwner
+    {
+        nvmConfig = _addr;
+    }
 
     /**
     * @dev NeverminedToken Initializer

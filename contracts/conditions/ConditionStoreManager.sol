@@ -168,7 +168,7 @@ contract ConditionStoreManager is OwnableUpgradeable, AccessControlUpgradeable, 
     onlyOwner
     {
         nvmConfigAddress = _addr;
-    }    
+    }
     
     /**
      * @dev delegateCreateRole only owner can delegate the 

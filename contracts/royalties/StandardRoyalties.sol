@@ -5,6 +5,7 @@ pragma solidity ^0.8.0;
 
 import '../interfaces/IRoyaltyScheme.sol';
 import '../registry/DIDRegistry.sol';
+import '../Common.sol';
 import '@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol';
 
 /**
@@ -12,7 +13,7 @@ import '@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol';
  * @author Nevermined
  */
 
-contract StandardRoyalties is IRoyaltyScheme, Initializable {
+contract StandardRoyalties is IRoyaltyScheme, Initializable, Common {
 
     DIDRegistry public registry;
 
@@ -81,6 +82,19 @@ contract StandardRoyalties is IRoyaltyScheme, Initializable {
         // Check if royalties are enough
         // Are we paying enough royalties in the secondary market to the original creator?
         return (_amounts[index] >= _requiredRoyalties);
+    }
+
+    /**
+     * @dev getNvmConfigAddress get the address of the NeverminedConfig contract
+     * @return NeverminedConfig contract address
+     */
+    function getNvmConfigAddress()
+    public
+    override
+    view
+    returns (address)
+    {
+        return registry.getNvmConfigAddress();
     }
 }
 

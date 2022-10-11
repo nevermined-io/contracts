@@ -3,6 +3,7 @@ pragma solidity ^0.8.0;
 // SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 // Code is Apache-2.0 and docs are CC-BY-4.0
 
+import '../Common.sol';
 import '@openzeppelin/contracts-upgradeable/interfaces/IERC2981Upgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
@@ -13,7 +14,7 @@ import '@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol
  * @dev Implementation of the Royalties EIP-2981 base contract
  * See https://eips.ethereum.org/EIPS/eip-2981
  */
-abstract contract NFTBase is IERC2981Upgradeable, OwnableUpgradeable, AccessControlUpgradeable {
+abstract contract NFTBase is IERC2981Upgradeable, OwnableUpgradeable, AccessControlUpgradeable, Common {
 
     // Mapping from account to proxy approvals
     mapping (address => bool) internal _proxyApprovals;
@@ -38,7 +39,29 @@ abstract contract NFTBase is IERC2981Upgradeable, OwnableUpgradeable, AccessCont
 
     // Used as a URL where is stored the Metadata describing the NFT contract
     string private _contractMetadataUri;
-    
+
+    address public nvmConfig;
+
+    /**
+     * @dev getNvmConfigAddress get the address of the NeverminedConfig contract
+     * @return NeverminedConfig contract address
+     */
+    function getNvmConfigAddress()
+    public
+    override
+    view
+    returns (address)
+    {
+        return nvmConfig;
+    }
+
+    function setNvmConfigAddress(address _addr)
+    external
+    onlyOwner
+    {
+        nvmConfig = _addr;
+    }
+
     /** 
      * Event for recording proxy approvals.
      */

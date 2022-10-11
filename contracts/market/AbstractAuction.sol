@@ -3,6 +3,7 @@ pragma solidity ^0.8.0;
 // SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 // Code is Apache-2.0 and docs are CC-BY-4.0
 
+import '../Common.sol';
 import '../interfaces/IDynamicPricing.sol';
 import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol';
@@ -17,7 +18,7 @@ import '@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.
  */
 
 abstract contract AbstractAuction is 
-    IDynamicPricing, Initializable, OwnableUpgradeable, AccessControlUpgradeable, ReentrancyGuardUpgradeable {
+    IDynamicPricing, Initializable, OwnableUpgradeable, AccessControlUpgradeable, ReentrancyGuardUpgradeable, Common {
 
     using SafeERC20Upgradeable for IERC20Upgradeable;
 
@@ -57,8 +58,29 @@ abstract contract AbstractAuction is
     mapping(bytes32 => Auction) internal auctions;
     // auctionId -> (userAddress -> amounts)
     mapping(bytes32 => mapping(address => uint256)) internal auctionBids;
-    
-    
+
+    address public nvmConfig;
+
+    /**
+     * @dev getNvmConfigAddress get the address of the NeverminedConfig contract
+     * @return NeverminedConfig contract address
+     */
+    function getNvmConfigAddress()
+    public
+    override
+    view
+    returns (address)
+    {
+        return nvmConfig;
+    }
+
+    function setNvmConfigAddress(address _addr)
+    external
+    onlyOwner
+    {
+        nvmConfig = _addr;
+    }
+
     event AuctionCreated(
         bytes32 indexed auctionId,
         bytes32 indexed did,
