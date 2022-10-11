@@ -23,6 +23,7 @@ import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
 contract Condition is OwnableUpgradeable {
 
     ConditionStoreManager internal conditionStoreManager;
+    int addition;
 
    /**
     * @notice generateId condition Id from the following 
