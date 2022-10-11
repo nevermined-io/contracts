@@ -155,7 +155,8 @@ contract ConditionStoreManager is OwnableUpgradeable, AccessControlUpgradeable, 
      * @return NeverminedConfig contract address
      */
     function getNvmConfigAddress()
-    external
+    public
+    override
     view
     returns (address)
     {

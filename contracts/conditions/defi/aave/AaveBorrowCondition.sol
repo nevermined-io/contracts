@@ -15,7 +15,7 @@ import '@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol';
  *
  * @dev Implementation of the Aave Borrow Credit Condition
  */
-contract AaveBorrowCondition is Condition, Common {
+contract AaveBorrowCondition is Condition {
     
     AaveCreditVault internal aaveCreditVault;
 

@@ -15,7 +15,7 @@ import '../interfaces/IList.sol';
  *
  * @dev Implementation of the Whitelisting Condition
  */
-contract WhitelistingCondition is Condition, Common {
+contract WhitelistingCondition is Condition {
 
     bytes32 constant public CONDITION_TYPE = keccak256('WhitelistingCondition');
 

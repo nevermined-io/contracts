@@ -21,7 +21,6 @@ import '@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol';
  */
 contract AaveCollateralWithdrawCondition is
     Condition,
-    Common,
     ReentrancyGuardUpgradeable {
 
     AaveCreditVault internal aaveCreditVault;

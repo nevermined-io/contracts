@@ -19,7 +19,7 @@ import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
  *      has the ability to create agreements from whitelisted 
  *      template
  */
-contract AgreementTemplate is OwnableUpgradeable {
+contract AgreementTemplate is OwnableUpgradeable, Common {
 
     address[] internal conditionTypes;
 
@@ -118,5 +118,14 @@ contract AgreementTemplate is OwnableUpgradeable {
         returns (address[] memory)
     {
         return conditionTypes;
+    }
+
+    function getNvmConfigAddress()
+    public
+    override
+    view
+    returns (address)
+    {
+        return agreementStoreManager.getNvmConfigAddress();
     }
 }

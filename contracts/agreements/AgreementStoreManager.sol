@@ -28,7 +28,7 @@ interface Template {
  *      Agreement templates must to be approved in the Template Store
  *      Each agreement is linked to the DID of an asset.
  */
-contract AgreementStoreManager is OwnableUpgradeable, AccessControlUpgradeable {
+contract AgreementStoreManager is OwnableUpgradeable, AccessControlUpgradeable, Common {
 
     bytes32 private constant PROXY_ROLE = keccak256('PROXY_ROLE');
 
@@ -250,5 +250,18 @@ contract AgreementStoreManager is OwnableUpgradeable, AccessControlUpgradeable {
         returns(address)
     {
         return address(didRegistry);
+    }
+
+    /**
+     * @dev getNvmConfigAddress get the address of the NeverminedConfig contract
+     * @return NeverminedConfig contract address
+     */
+    function getNvmConfigAddress()
+    public
+    override
+    view
+    returns (address)
+    {
+        return didRegistry.getNvmConfigAddress();
     }
 }

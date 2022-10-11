@@ -21,7 +21,7 @@ import 'hardhat/console.sol';
  *      can release reward if lock and release conditions
  *      are fulfilled.
  */
-contract NFTEscrowPaymentCondition is Reward, INFTEscrow, Common, ReentrancyGuardUpgradeable, IERC1155ReceiverUpgradeable {
+contract NFTEscrowPaymentCondition is Reward, INFTEscrow, ReentrancyGuardUpgradeable, IERC1155ReceiverUpgradeable {
 
     bytes32 constant public CONDITION_TYPE = keccak256('NFTEscrowPayment');
     bytes32 constant public LOCK_CONDITION_TYPE = keccak256('NFTLockCondition');

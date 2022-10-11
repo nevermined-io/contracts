@@ -20,7 +20,7 @@ import '@openzeppelin/contracts-upgradeable/token/ERC721/IERC721ReceiverUpgradea
  *      can release reward if lock and release conditions
  *      are fulfilled.
  */
-contract NFT721EscrowPaymentCondition is Reward, INFTEscrow, Common, IERC721ReceiverUpgradeable, ReentrancyGuardUpgradeable {
+contract NFT721EscrowPaymentCondition is Reward, INFTEscrow, IERC721ReceiverUpgradeable, ReentrancyGuardUpgradeable {
 
     bytes32 constant public CONDITION_TYPE = keccak256('NFTEscrowPayment');
 

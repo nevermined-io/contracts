@@ -21,7 +21,7 @@ import '../../interfaces/IDynamicPricing.sol';
  *      can release reward if lock and release conditions
  *      are fulfilled.
  */
-contract EscrowPaymentCondition is Reward, Common, ReentrancyGuardUpgradeable {
+contract EscrowPaymentCondition is Reward, ReentrancyGuardUpgradeable {
 
     using SafeERC20Upgradeable for IERC20Upgradeable;
 

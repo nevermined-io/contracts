@@ -23,7 +23,7 @@ import 'hardhat/console.sol';
  * This condition allows to lock payment for multiple receivers taking
  * into account the royalties to be paid to the original creators in a secondary market.  
  */
-contract LockPaymentCondition is ILockPayment, ReentrancyGuardUpgradeable, Condition, Common, AccessControlUpgradeable, ICondition {
+contract LockPaymentCondition is ILockPayment, ReentrancyGuardUpgradeable, Condition, AccessControlUpgradeable, ICondition {
 
     using SafeERC20Upgradeable for IERC20Upgradeable;
     using SafeMathUpgradeable for uint256;

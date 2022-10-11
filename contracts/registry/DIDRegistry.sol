@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 // Code is Apache-2.0 and docs are CC-BY-4.0
 
 
+import '../Common.sol';
 import './DIDFactory.sol';
 import '../token/erc1155/NFTUpgradeable.sol';
 import '../token/erc721/NFT721Upgradeable.sol';
@@ -15,7 +16,7 @@ import '../royalties/StandardRoyalties.sol';
  *
  * @dev Implementation of a Mintable DID Registry.
  */
-contract DIDRegistry is DIDFactory {
+contract DIDRegistry is DIDFactory, Common {
 
     using DIDRegistryLibrary for DIDRegistryLibrary.DIDRegisterList;
 
@@ -426,4 +427,16 @@ contract DIDRegistry is DIDFactory {
         _used(_cond, _did, user, keccak256(bytes(name)), '', name);
     }
 
+    /**
+     * @dev getNvmConfigAddress get the address of the NeverminedConfig contract
+     * @return NeverminedConfig contract address
+     */
+    function getNvmConfigAddress()
+    public
+    override
+    view
+    returns (address)
+    {
+        return address(nvmConfig);
+    }
 }

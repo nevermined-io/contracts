@@ -96,18 +96,18 @@ abstract contract Common {
         return address(uint160(uint256(_b32)));
     }
 
-    function getConfig() public virtual view returns (INVMConfig);
+    function getNvmConfigAddress() public virtual view returns (address);
 
     /// Implement IERC2771Recipient
     function getTrustedForwarder() public virtual view returns(address) {
-        return getConfig().getTrustedForwarder();
+        return INVMConfig(getNvmConfigAddress()).getTrustedForwarder();
     }
 
     function isTrustedForwarder(address forwarder) public virtual view returns(bool) {
         return forwarder == getTrustedForwarder();
     }
 
-    function _msgSender() internal virtual view returns (address ret) {
+    function __msgSender() internal virtual view returns (address ret) {
         if (msg.data.length >= 20 && isTrustedForwarder(msg.sender)) {
             // At this point we know that the sender is a trusted forwarder,
             // so we trust that the last bytes of msg.data are the verified sender address.
@@ -120,7 +120,7 @@ abstract contract Common {
         }
     }
 
-    function _msgData() internal virtual view returns (bytes calldata ret) {
+    function __msgData() internal virtual view returns (bytes calldata ret) {
         if (msg.data.length >= 20 && isTrustedForwarder(msg.sender)) {
             return msg.data[0:msg.data.length-20];
         } else {
