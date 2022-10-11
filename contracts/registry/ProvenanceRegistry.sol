@@ -5,6 +5,7 @@ pragma solidity ^0.8.0;
 
 import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
 import '../governance/INVMConfig.sol';
+import '../Common.sol';
 
 /**
  * @title Provenance Registry Library
@@ -13,7 +14,7 @@ import '../governance/INVMConfig.sol';
  * @dev All function calls are currently implemented without side effects
  */
 /* solium-disable-next-line */
-abstract contract ProvenanceRegistry is OwnableUpgradeable {
+abstract contract ProvenanceRegistry is CommonOwnable {
 
     // solhint-disable-next-line
     function __ProvenanceRegistry_init() internal initializer {

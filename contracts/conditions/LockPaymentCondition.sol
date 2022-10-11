@@ -401,4 +401,11 @@ contract LockPaymentCondition is ILockPayment, ReentrancyGuardUpgradeable, Condi
         return nvmConfig.getMarketplaceFee().mul(calculateTotalAmount(_amounts)).div(DENOMINATOR) == _amounts[receiverIndex];
     }
 
+
+    function _msgSender() internal override(CommonOwnable,ContextUpgradeable) virtual view returns (address ret) {
+        return Common._msgSender();
+    }
+    function _msgData() internal override(CommonOwnable,ContextUpgradeable) virtual view returns (bytes calldata ret) {
+        return Common._msgData();
+    }
 }

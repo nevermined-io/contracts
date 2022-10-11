@@ -14,7 +14,7 @@ import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
  *
  * @dev Implementation of the DID Registry.
  */
-abstract contract DIDFactory is OwnableUpgradeable, ProvenanceRegistry { 
+abstract contract DIDFactory is ProvenanceRegistry { 
     
     /**
      * @dev The DIDRegistry Library takes care of the basic DID storage functions.

@@ -20,7 +20,7 @@ import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
  *      values imply that a condition has not been provably FULFILLED or ABORTED. 
  *      All initialized conditions start out as UNFULFILLED.
  */
-contract Condition is OwnableUpgradeable, Common {
+contract Condition is CommonOwnable {
 
     ConditionStoreManager internal conditionStoreManager;
 

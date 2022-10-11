@@ -5,6 +5,8 @@ pragma solidity ^0.8.0;
 
 import '@openzeppelin/contracts-upgradeable/utils/cryptography/ECDSAUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol';
+import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
+import '@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol';
 import './governance/INVMConfig.sol';
 
 /**
@@ -107,7 +109,7 @@ abstract contract Common {
         return forwarder == getTrustedForwarder();
     }
 
-    function __msgSender() internal virtual view returns (address ret) {
+    function _msgSender() internal virtual view returns (address ret) {
         if (msg.data.length >= 20 && isTrustedForwarder(msg.sender)) {
             // At this point we know that the sender is a trusted forwarder,
             // so we trust that the last bytes of msg.data are the verified sender address.
@@ -121,7 +123,7 @@ abstract contract Common {
         }
     }
 
-    function __msgData() internal virtual view returns (bytes calldata ret) {
+    function _msgData() internal virtual view returns (bytes calldata ret) {
         if (msg.data.length >= 20 && isTrustedForwarder(msg.sender)) {
             return msg.data[0:msg.data.length-20];
         } else {
@@ -129,4 +131,22 @@ abstract contract Common {
         }
     }
     
+}
+
+abstract contract CommonOwnable is OwnableUpgradeable, Common {
+    function _msgSender() internal override(Common,ContextUpgradeable) virtual view returns (address ret) {
+        return Common._msgSender();
+    }
+    function _msgData() internal override(Common,ContextUpgradeable) virtual view returns (bytes calldata ret) {
+        return Common._msgData();
+    }
+}
+
+abstract contract CommonAccessControl is AccessControlUpgradeable, CommonOwnable {
+    function _msgSender() internal override(CommonOwnable,ContextUpgradeable) virtual view returns (address ret) {
+        return Common._msgSender();
+    }
+    function _msgData() internal override(CommonOwnable,ContextUpgradeable) virtual view returns (bytes calldata ret) {
+        return Common._msgData();
+    }
 }

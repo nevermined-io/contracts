@@ -152,4 +152,12 @@ contract NFT721Upgradeable is ERC721Upgradeable, NFTBase {
         || interfaceId == type(IERC2981Upgradeable).interfaceId;
     }
 
+
+    function _msgSender() internal override(NFTBase,ContextUpgradeable) virtual view returns (address ret) {
+        return Common._msgSender();
+    }
+    function _msgData() internal override(NFTBase,ContextUpgradeable) virtual view returns (bytes calldata ret) {
+        return Common._msgData();
+    }
+
 }

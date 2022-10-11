@@ -18,9 +18,8 @@ import '@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol'
  */
 contract NeverminedToken is
 AccessControlUpgradeable,
-OwnableUpgradeable,
-ERC20CappedUpgradeable,
-Common {
+CommonOwnable,
+ERC20CappedUpgradeable {
 
     using SafeMathUpgradeable for uint256;
 
@@ -107,6 +106,13 @@ Common {
             'Address not granted for minting tokens');
         super._mint(account, amount);
         return true;
+    }
+
+    function _msgSender() internal override(CommonOwnable,ContextUpgradeable) virtual view returns (address ret) {
+        return Common._msgSender();
+    }
+    function _msgData() internal override(CommonOwnable,ContextUpgradeable) virtual view returns (bytes calldata ret) {
+        return Common._msgData();
     }
 
 }

@@ -165,4 +165,10 @@ contract POAPUpgradeable is NFT721Upgradeable, ERC721URIStorageUpgradeable, ERC7
         return super.supportsInterface(interfaceId);
     }
     
+    function _msgSender() internal override(NFT721Upgradeable,ContextUpgradeable) virtual view returns (address ret) {
+        return Common._msgSender();
+    }
+    function _msgData() internal override(NFT721Upgradeable,ContextUpgradeable) virtual view returns (bytes calldata ret) {
+        return Common._msgData();
+    }
 }

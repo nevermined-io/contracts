@@ -14,7 +14,7 @@ import '@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol
  * @dev Implementation of the Royalties EIP-2981 base contract
  * See https://eips.ethereum.org/EIPS/eip-2981
  */
-abstract contract NFTBase is IERC2981Upgradeable, OwnableUpgradeable, AccessControlUpgradeable, Common {
+abstract contract NFTBase is IERC2981Upgradeable, CommonOwnable, AccessControlUpgradeable {
 
     // Mapping from account to proxy approvals
     mapping (address => bool) internal _proxyApprovals;
@@ -138,4 +138,12 @@ abstract contract NFTBase is IERC2981Upgradeable, OwnableUpgradeable, AccessCont
     returns (string memory) {
         return _contractMetadataUri;
     }
+
+    function _msgSender() internal override(CommonOwnable,ContextUpgradeable) virtual view returns (address ret) {
+        return Common._msgSender();
+    }
+    function _msgData() internal override(CommonOwnable,ContextUpgradeable) virtual view returns (bytes calldata ret) {
+        return Common._msgData();
+    }
+
 }

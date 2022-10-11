@@ -361,6 +361,14 @@ contract TransferNFT721Condition is Condition, ITransferNFT, ReentrancyGuardUpgr
                 _transfer, 
                 _expirationBlock
         );
-    }        
+    }
+
+    function _msgSender() internal override(CommonOwnable,ContextUpgradeable) virtual view returns (address ret) {
+        return Common._msgSender();
+    }
+    function _msgData() internal override(CommonOwnable,ContextUpgradeable) virtual view returns (bytes calldata ret) {
+        return Common._msgData();
+    }
+
 }
 

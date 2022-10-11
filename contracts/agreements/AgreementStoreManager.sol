@@ -28,7 +28,7 @@ interface Template {
  *      Agreement templates must to be approved in the Template Store
  *      Each agreement is linked to the DID of an asset.
  */
-contract AgreementStoreManager is OwnableUpgradeable, AccessControlUpgradeable, Common {
+contract AgreementStoreManager is CommonAccessControl {
 
     bytes32 private constant PROXY_ROLE = keccak256('PROXY_ROLE');
 

@@ -18,7 +18,7 @@ import '@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.
  */
 
 abstract contract AbstractAuction is 
-    IDynamicPricing, Initializable, OwnableUpgradeable, AccessControlUpgradeable, ReentrancyGuardUpgradeable, Common {
+    IDynamicPricing, Initializable, CommonAccessControl, ReentrancyGuardUpgradeable {
 
     using SafeERC20Upgradeable for IERC20Upgradeable;
 

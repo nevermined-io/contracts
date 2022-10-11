@@ -28,7 +28,7 @@ import '@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol'
  *      The second role is the update role, which is can update the condition state.
  *      Also, it support delegating the roles to other contract(s)/account(s).
  */
-contract ConditionStoreManager is OwnableUpgradeable, AccessControlUpgradeable, Common {
+contract ConditionStoreManager is CommonAccessControl {
 
     bytes32 private constant PROXY_ROLE = keccak256('PROXY_ROLE');
 

@@ -16,7 +16,7 @@ import '../royalties/StandardRoyalties.sol';
  *
  * @dev Implementation of a Mintable DID Registry.
  */
-contract DIDRegistry is DIDFactory, Common {
+contract DIDRegistry is DIDFactory {
 
     using DIDRegistryLibrary for DIDRegistryLibrary.DIDRegisterList;
 

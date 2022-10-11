@@ -19,7 +19,7 @@ import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
  *      has the ability to create agreements from whitelisted 
  *      template
  */
-contract AgreementTemplate is OwnableUpgradeable, Common {
+contract AgreementTemplate is CommonOwnable {
 
     address[] internal conditionTypes;
 
