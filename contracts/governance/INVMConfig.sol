@@ -56,4 +56,7 @@ abstract contract INVMConfig {
      */    
     function getProvenanceStorage()
     external view virtual returns (bool);
+
+    function getTrustedForwarder()
+    external virtual view returns(address);
 }
