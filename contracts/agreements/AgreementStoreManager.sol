@@ -262,6 +262,9 @@ contract AgreementStoreManager is CommonAccessControl {
     view
     returns (address)
     {
+        if (address(didRegistry) == address(0)) {
+            return address(0);
+        }
         return didRegistry.getNvmConfigAddress();
     }
 }

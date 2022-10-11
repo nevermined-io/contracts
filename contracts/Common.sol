@@ -102,7 +102,11 @@ abstract contract Common {
 
     /// Implement IERC2771Recipient
     function getTrustedForwarder() public virtual view returns(address) {
-        return INVMConfig(getNvmConfigAddress()).getTrustedForwarder();
+        address addr = getNvmConfigAddress();
+        if (addr == address(0)) {
+            return address(0);
+        }
+        return INVMConfig(addr).getTrustedForwarder();
     }
 
     function isTrustedForwarder(address forwarder) public virtual view returns(bool) {

@@ -126,6 +126,9 @@ contract AgreementTemplate is CommonOwnable {
     view
     returns (address)
     {
+        if (address(agreementStoreManager) == address(0)) {
+            return address(0);
+        }
         return agreementStoreManager.getNvmConfigAddress();
     }
 }

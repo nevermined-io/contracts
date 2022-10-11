@@ -6,6 +6,7 @@ pragma solidity ^0.8.0;
 
 
 import './TemplateStoreLibrary.sol';
+import '../Common.sol';
 import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
 
 /**
@@ -19,11 +20,13 @@ import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
  *      of the template ( Propose --> Approve --> Revoke ).
  *      
  */
-contract TemplateStoreManager is OwnableUpgradeable {
+contract TemplateStoreManager is CommonOwnable {
 
     using TemplateStoreLibrary for TemplateStoreLibrary.TemplateList;
 
     TemplateStoreLibrary.TemplateList internal templateList;
+
+    address public nvmConfig;
 
     modifier onlyOwnerOrTemplateOwner(address _id){
         require(
@@ -142,5 +145,24 @@ contract TemplateStoreManager is OwnableUpgradeable {
             TemplateStoreLibrary.TemplateState.Approved;
     }
     
+    /**
+     * @dev getNvmConfigAddress get the address of the NeverminedConfig contract
+     * @return NeverminedConfig contract address
+     */
+    function getNvmConfigAddress()
+    public
+    override
+    view
+    returns (address)
+    {
+        return nvmConfig;
+    }
+
+    function setNvmConfigAddress(address _addr)
+    external
+    onlyOwner
+    {
+        nvmConfig = _addr;
+    }
 
 }

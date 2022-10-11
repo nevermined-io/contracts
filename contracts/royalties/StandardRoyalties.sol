@@ -94,6 +94,9 @@ contract StandardRoyalties is IRoyaltyScheme, Initializable, Common {
     view
     returns (address)
     {
+        if (address(registry) == address(0)) {
+            return address(0);
+        }
         return registry.getNvmConfigAddress();
     }
 }

@@ -108,6 +108,9 @@ contract Condition is CommonOwnable {
     view
     returns (address)
     {
+        if (address(conditionStoreManager) == address(0)) {
+            return address(0);
+        }
         return conditionStoreManager.getNvmConfigAddress();
     }
 }
