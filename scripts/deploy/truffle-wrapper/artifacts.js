@@ -1,4 +1,4 @@
-const { hardhatArguments, upgrades } = require('hardhat')
+const { hardhatArguments, upgrades, ethers, web3 } = require('hardhat')
 const glob = require('glob')
 const fs = require('fs')
 

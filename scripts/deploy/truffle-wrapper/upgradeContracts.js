@@ -10,7 +10,7 @@ function processLibraries(libraries, addresses) {
     if (!libraries) {
         libraries = {}
     }
-    for (let k of Object.keys(libraries)) {
+    for (const k of Object.keys(libraries)) {
         libraries[k] = addresses[k] || libraries[k]
     }
     return libraries
