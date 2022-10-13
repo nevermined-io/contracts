@@ -131,6 +131,11 @@ INVMConfig
         return trustedForwarder;
     }
 
+    function setTrustedForwarder(address forwarder)
+    external onlyGovernor(msg.sender) {
+        trustedForwarder = forwarder;
+    }
+
     modifier onlyGovernor(address _address)
     {
         require(
