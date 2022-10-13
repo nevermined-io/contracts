@@ -1,10 +1,20 @@
 const { upgrades, ethers } = require('hardhat')
-const { readArtifact, updateArtifact, writeArtifact } = require('./artifacts')
+const { readArtifact, updateArtifact, writeArtifact, deployLibrary } = require('./artifacts')
 const evaluateContracts = require('./evaluateContracts.js')
 const Safe = require('@gnosis.pm/safe-core-sdk')
 const { loadWallet } = require('./wallets')
 const EthersAdapter = require('@gnosis.pm/safe-ethers-lib').default
 const fs = require('fs')
+
+function processLibraries(libraries, addresses) {
+    if (!libraries) {
+        libraries = {}
+    }
+    for (let k of Object.keys(libraries)) {
+        libraries[k] = addresses[k] || libraries[k]
+    }
+    return libraries
+}
 
 async function upgradeContracts({ contracts: origContracts, verbose, testnet, fail, strict }) {
     const table = {}
@@ -38,6 +48,14 @@ async function upgradeContracts({ contracts: origContracts, verbose, testnet, fa
 
     const { roles, contractNetworks } = await loadWallet({})
 
+    const addresses = {}
+
+    const didRegistryLibraryAddress = await deployLibrary('DIDRegistryLibrary', addresses, roles.deployerSigner)
+    console.log('Registry library', didRegistryLibraryAddress)
+
+    const epochLibraryAddress = await deployLibrary('EpochLibrary', addresses, roles.deployerSigner)
+    console.log('Epoch library', epochLibraryAddress)
+
     for (const c of contracts) {
         if (success[c]) {
             console.log(`Already upgraded ${c}`)
@@ -56,7 +74,8 @@ async function upgradeContracts({ contracts: origContracts, verbose, testnet, fa
             console.log(`contract ${c} didn't exist`)
             continue
         }
-        const C = await (await ethers.getContractFactory(table[c] || c, { libraries: afact.libraries })).connect(ethers.provider.getSigner(roles.deployer))
+        const libraries = processLibraries(afact.libraries, addresses)
+        const C = await (await ethers.getContractFactory(table[c] || c, { libraries })).connect(ethers.provider.getSigner(roles.deployer))
         if (verbose) {
             console.log(`upgrading ${c} at ${afact.address}`)
         }

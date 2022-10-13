@@ -4,7 +4,7 @@ const evaluateContracts = require('./evaluateContracts.js')
 const { ethers, web3 } = require('hardhat')
 const { exportArtifacts, exportLibraryArtifacts } = require('./artifacts')
 const { loadWallet } = require('./wallets.js')
-const { readArtifact } = require('./artifacts')
+const { readArtifact, deployLibrary } = require('./artifacts')
 
 const PROXY_ADMIN_ABI = `[{
     "inputs": [],
@@ -33,22 +33,6 @@ const PROXY_ADMIN_ABI = `[{
     "stateMutability": "nonpayable",
     "type": "function"
 }]`
-
-async function deployLibrary(name, addresses, signer) {
-    if (addresses[name]) {
-        console.log(`Contract ${name} found from cache`)
-        return addresses[name]
-    } else {
-        const factory = await ethers.getContractFactory(name, signer)
-        const library = await factory.deploy()
-        const h1 = library.deployTransaction.hash
-        await library.deployed()
-        const address = (await web3.eth.getTransactionReceipt(h1)).contractAddress
-        console.log(`Library ${name} deployed into address ${address}`)
-        addresses[name] = address
-        return address
-    }
-}
 
 async function deployContracts({ contracts: origContracts, verbose, testnet, makeWallet, addresses, deeperClean }) {
     const contracts = evaluateContracts({
