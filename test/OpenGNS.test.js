@@ -1,6 +1,6 @@
 const { RelayProvider } = require('@opengsn/provider')
-const { GsnTestEnvironment } = require('@opengsn/dev' )
-const { ethers } = require('hardhat')
+const { GsnTestEnvironment } = require('@opengsn/dev')
+const { ethers, web3 } = require('hardhat')
 const { it, describe, before } = require('mocha')
 const { assert } = require('chai')
 const constants = require('./helpers/constants.js')
@@ -35,12 +35,12 @@ describe('using ethers with OpenGSN', () => {
     const nftMetadataURL = 'https://nevermined.io/metadata.json'
     let account
     before(async () => {
-        let env = await GsnTestEnvironment.startGsn('localhost')
+        const env = await GsnTestEnvironment.startGsn('localhost')
 
         const { paymasterAddress, forwarderAddress } = env.contractsDeployment
-    
+
         const web3provider = new Web3HttpProvider('http://localhost:8545')
- 
+
         const deploymentProvider = new ethers.providers.Web3Provider(web3provider)
         const deployer = await deploymentProvider.getSigner(8)
 
@@ -58,13 +58,12 @@ describe('using ethers with OpenGSN', () => {
         didRegistry = await deployContract(
             'DIDRegistry',
             deployer,
-            {DIDRegistryLibrary: didlib}, 
+            { DIDRegistryLibrary: didlib },
             [owner, nft.address, constants.address.zero, nvmConfig.address, constants.address.zero]
         )
 
         await nft.connect(deployer).addMinter(didRegistry.address)
         await nvmConfig.connect(await deploymentProvider.getSigner(governor)).setTrustedForwarder(forwarderAddress)
-
 
         const config = await {
             // loggerConfiguration: { logLevel: 'error'},
@@ -72,14 +71,14 @@ describe('using ethers with OpenGSN', () => {
             auditorsCount: 0
         }
         // const hdweb3provider = new HDWallet('0x123456', 'http://localhost:8545')
-        let gsnProvider = RelayProvider.newProvider({provider: web3provider, config})
-    	await gsnProvider.init()
-	   // The above is the full provider configuration. can use the provider returned by startGsn:
+        const gsnProvider = RelayProvider.newProvider({ provider: web3provider, config })
+        await gsnProvider.init()
+        // The above is the full provider configuration. can use the provider returned by startGsn:
         // const gsnProvider = env.relayProvider
 
-    	const wallet = new ethers.Wallet(Buffer.from('1'.repeat(64),'hex'))
+        const wallet = new ethers.Wallet(Buffer.from('1'.repeat(64), 'hex'))
         gsnProvider.addAccount(wallet.privateKey)
-    	account = wallet.address
+        account = wallet.address
 
         // gsnProvider is now an rpc provider with GSN support. make it an ethers provider:
         const etherProvider = new ethers.providers.Web3Provider(gsnProvider)
@@ -88,7 +87,6 @@ describe('using ethers with OpenGSN', () => {
     })
 
     describe('Register an Asset with a DID', () => {
-
         it('Should mint and burn NFTs after initialization', async () => {
             const didSeed = testUtils.generateId()
             const did = await didRegistry.hashDID(didSeed, account)
@@ -109,8 +107,5 @@ describe('using ethers with OpenGSN', () => {
             const _nftURI = await nft.uri(did)
             assert.strictEqual(nftMetadataURL, _nftURI)
         })
-
     })
-
 })
-
