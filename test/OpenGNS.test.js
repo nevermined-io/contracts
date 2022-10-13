@@ -3,8 +3,8 @@ const { GsnTestEnvironment } = require('@opengsn/dev' )
 const { ethers } = require('hardhat')
 const { it, describe, before } = require('mocha')
 const { assert } = require('chai')
-const constants = require('../../helpers/constants.js')
-const testUtils = require('../../helpers/utils.js')
+const constants = require('./helpers/constants.js')
+const testUtils = require('./helpers/utils.js')
 const Web3HttpProvider = require('web3-providers-http')
 
 async function deployLibrary(name, signer) {

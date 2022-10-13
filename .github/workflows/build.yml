@@ -30,6 +30,10 @@ jobs:
         run: |
           yarn clean
           yarn compile
+      - name: Run OpenGSN Tests
+        run: |
+          npx hardhat node --port 8545 &
+          npx hardhat test test/OpenGSN.test.js --network local
       - name: Run Unit Tests
         run: |
           yarn test:unit
