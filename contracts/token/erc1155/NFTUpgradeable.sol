@@ -13,10 +13,10 @@ import '../NFTBase.sol';
 contract NFTUpgradeable is ERC1155Upgradeable, NFTBase {
 
     // Token name
-    string private _name;
+    string public name;
 
     // Token symbol
-    string private _symbol;    
+    string public symbol;    
     
     function initializeWithName(
         string memory name_,
@@ -34,8 +34,8 @@ contract NFTUpgradeable is ERC1155Upgradeable, NFTBase {
         AccessControlUpgradeable.__AccessControl_init();
         AccessControlUpgradeable._setupRole(MINTER_ROLE, msg.sender);
         setContractMetadataUri(uri_);
-        _name = name_;
-        _symbol = symbol_;
+        name = name_;
+        symbol = symbol_;
     }
     
     // solhint-disable-next-line
@@ -47,8 +47,8 @@ contract NFTUpgradeable is ERC1155Upgradeable, NFTBase {
         AccessControlUpgradeable.__AccessControl_init();
         AccessControlUpgradeable._setupRole(MINTER_ROLE, msg.sender);
         setContractMetadataUri(uri_);
-        _name = 'Nevermined ERC1155';
-        _symbol = 'NVM1155';        
+        name = 'Nevermined ERC1155';
+        symbol = 'NVM1155';        
     }
     
     /**
@@ -129,12 +129,4 @@ contract NFTUpgradeable is ERC1155Upgradeable, NFTBase {
         || ERC1155Upgradeable.supportsInterface(interfaceId)
         || interfaceId == type(IERC2981Upgradeable).interfaceId;
     }
-
-    function name() public view virtual returns (string memory) {
-        return _name;
-    }
-    
-    function symbol() public view virtual returns (string memory) {
-        return _symbol;
-    }    
 }
