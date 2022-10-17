@@ -19,9 +19,9 @@ contract NFTUpgradeable is ERC1155Upgradeable, NFTBase {
     string private _symbol;    
     
     function initializeWithName(
-        string memory name,
-        string memory symbol,
-        string memory uri
+        string memory name_,
+        string memory symbol_,
+        string memory uri_
     )
     public
     virtual
@@ -34,8 +34,8 @@ contract NFTUpgradeable is ERC1155Upgradeable, NFTBase {
         AccessControlUpgradeable.__AccessControl_init();
         AccessControlUpgradeable._setupRole(MINTER_ROLE, msg.sender);
         setContractMetadataUri(uri_);
-        _name = name;
-        _symbol = symbol;
+        _name = name_;
+        _symbol = symbol_;
     }
     
     // solhint-disable-next-line
@@ -130,11 +130,11 @@ contract NFTUpgradeable is ERC1155Upgradeable, NFTBase {
         || interfaceId == type(IERC2981Upgradeable).interfaceId;
     }
 
-    function name() public view virtual override returns (string memory) {
+    function name() public view virtual returns (string memory) {
         return _name;
     }
     
-    function symbol() public view virtual override returns (string memory) {
+    function symbol() public view virtual returns (string memory) {
         return _symbol;
     }    
 }
