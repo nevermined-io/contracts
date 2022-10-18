@@ -109,6 +109,8 @@ async function setupContracts({
     artifacts,
     addressBook,
     roles,
+    testnet,
+    gsn,
     verbose = true,
     addresses
 } = {}) {
@@ -505,6 +507,23 @@ async function setupContracts({
         await callContract(artifacts.DIDRegistry, a => a.registerRoyaltiesChecker(addressBook.StandardRoyalties))
         await callContract(artifacts.DIDRegistry, a => a.setDefaultRoyalties(addressBook.StandardRoyalties))
         addresses.stage = 19
+    }
+
+    if (addresses.stage < 20 && testnet) {
+        console.log('Setting up OpenGSN forwarder')
+        if (gsn) {
+            await callContract(artifacts.NeverminedConfig, a => a.setTrustedForwarder(gsn))
+        }
+        if (addressBook.NFTUpgradeable) {
+            await callContract(artifacts.NFTUpgradeable, a => a.setNvmConfigAddress(addressBook.NeverminedConfig))
+        }
+        if (addressBook.NFT721Upgradeable) {
+            await callContract(artifacts.NFT721Upgradeable, a => a.setNvmConfigAddress(addressBook.NeverminedConfig))
+        }
+        if (addressBook.NeverminedToken) {
+            await callContract(artifacts.NeverminedToken, a => a.setNvmConfigAddress(addressBook.NeverminedConfig))
+        }
+        addresses.stage = 20
     }
 }
 

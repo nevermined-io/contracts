@@ -5,6 +5,7 @@ const { ethers, web3 } = require('hardhat')
 const { exportArtifacts, exportLibraryArtifacts } = require('./artifacts')
 const { loadWallet } = require('./wallets.js')
 const { readArtifact, deployLibrary } = require('./artifacts')
+const { GsnTestEnvironment } = require('@opengsn/dev')
 
 const PROXY_ADMIN_ABI = `[{
     "inputs": [],
@@ -62,6 +63,18 @@ async function deployContracts({ contracts: origContracts, verbose, testnet, mak
     const epochLibraryAddress = await deployLibrary('EpochLibrary', addresses, roles.deployerSigner)
     console.log('Epoch library', epochLibraryAddress)
 
+    let gsn
+    // Add OpenGSN contracts
+    if (testnet) {
+        try {
+            const env = await GsnTestEnvironment.startGsn('localhost')
+            const { forwarderAddress } = env.contractsDeployment
+            gsn = forwarderAddress
+        } catch (e) {
+            console.log('Cannot deploy OpenGSN contracts', e)
+        }
+    }
+
     const { cache, addressBook, proxies } = await initializeContracts({
         contracts,
         roles,
@@ -78,7 +91,9 @@ async function deployContracts({ contracts: origContracts, verbose, testnet, mak
         artifacts: cache,
         roles,
         verbose,
-        addresses
+        addresses,
+        gsn,
+        testnet
     })
 
     // Move proxy admin to upgrader wallet
