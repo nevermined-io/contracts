@@ -39,7 +39,7 @@ contract NFT721Upgradeable is ERC721Upgradeable, NFTBase {
     {
         __Context_init_unchained();
         __ERC165_init_unchained();
-        __ERC721_init_unchained('', '');
+        __ERC721_init_unchained('Nevermined ERC721', 'NVM721');
         __Ownable_init_unchained();
         AccessControlUpgradeable.__AccessControl_init();
         AccessControlUpgradeable._setupRole(MINTER_ROLE, _msgSender());

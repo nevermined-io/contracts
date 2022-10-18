@@ -11,10 +11,33 @@ import '../NFTBase.sol';
  * See https://eips.ethereum.org/EIPS/eip-1155
  */
 contract NFTUpgradeable is ERC1155Upgradeable, NFTBase {
+
+    // Token name
+    string public name;
+
+    // Token symbol
+    string public symbol;    
     
-    /**
-     * @dev See {_setURI}.
-     */
+    function initializeWithName(
+        string memory name_,
+        string memory symbol_,
+        string memory uri_
+    )
+    public
+    virtual
+    initializer  
+    {
+        __Context_init_unchained();
+        __ERC165_init_unchained();
+        __ERC1155_init_unchained(uri_);
+        __Ownable_init_unchained();
+        AccessControlUpgradeable.__AccessControl_init();
+        AccessControlUpgradeable._setupRole(MINTER_ROLE, msg.sender);
+        setContractMetadataUri(uri_);
+        name = name_;
+        symbol = symbol_;
+    }
+    
     // solhint-disable-next-line
     function initialize(string memory uri_) public initializer {
         __Context_init_unchained();
@@ -24,6 +47,8 @@ contract NFTUpgradeable is ERC1155Upgradeable, NFTBase {
         AccessControlUpgradeable.__AccessControl_init();
         AccessControlUpgradeable._setupRole(MINTER_ROLE, _msgSender());
         setContractMetadataUri(uri_);
+        name = 'Nevermined ERC1155';
+        symbol = 'NVM1155';        
     }
     
     /**

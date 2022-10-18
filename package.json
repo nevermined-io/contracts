@@ -98,14 +98,14 @@
     "@gnosis.pm/safe-core-sdk": "^2.1.0",
     "@gnosis.pm/safe-deployments": "^1.4.0",
     "@gnosis.pm/safe-ethers-lib": "^1.1.0",
-    "@nomiclabs/hardhat-ethers": "^2.1.0",
-    "@nomiclabs/hardhat-truffle5": "^2.0.6",
+    "@nomiclabs/hardhat-ethers": "^2.2.0",
+    "@nomiclabs/hardhat-truffle5": "^2.0.7",
     "@nomiclabs/hardhat-web3": "^2.0.0",
     "@nomiclabs/hardhat-etherscan": "^3.1.0",
     "@opengsn/dev": "^2.2.6",
     "@opengsn/provider": "^2.2.6",
-    "@openzeppelin/hardhat-upgrades": "^1.19.0",
-    "hardhat": "^2.10.1",
+    "@openzeppelin/hardhat-upgrades": "^1.21.0",
+    "hardhat": "^2.12.0",
     "hardhat-dependency-compiler": "^1.1.3",
     "hardhat-gas-reporter": "^1.0.8",
     "bignumber.js": "^9.0.0",
@@ -137,6 +137,6 @@
     "web3-eth-accounts/scrypt.js": "0.3.0"
   },
   "dependencies": {
-    "@openzeppelin/contracts-upgradeable": "^4.6.0"
+    "@openzeppelin/contracts-upgradeable": "^4.7.3"
   }
 }
