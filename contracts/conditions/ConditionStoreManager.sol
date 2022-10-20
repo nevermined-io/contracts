@@ -28,7 +28,7 @@ import '@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol'
  *      The second role is the update role, which is can update the condition state.
  *      Also, it support delegating the roles to other contract(s)/account(s).
  */
-contract ConditionStoreManager is OwnableUpgradeable, AccessControlUpgradeable, Common {
+contract ConditionStoreManager is CommonAccessControl {
 
     bytes32 private constant PROXY_ROLE = keccak256('PROXY_ROLE');
 
@@ -59,7 +59,7 @@ contract ConditionStoreManager is OwnableUpgradeable, AccessControlUpgradeable, 
 
     modifier onlyCreateRole(){
         require(
-            createRole == msg.sender,
+            createRole == _msgSender(),
             'Invalid CreateRole'
         );
         _;
@@ -72,7 +72,7 @@ contract ConditionStoreManager is OwnableUpgradeable, AccessControlUpgradeable, 
             'Condition doesnt exist'
         );
         require(
-            conditionList.conditions[_id].typeRef == msg.sender,
+            conditionList.conditions[_id].typeRef == _msgSender(),
             'Invalid UpdateRole'
         );
         _;
@@ -155,7 +155,8 @@ contract ConditionStoreManager is OwnableUpgradeable, AccessControlUpgradeable, 
      * @return NeverminedConfig contract address
      */
     function getNvmConfigAddress()
-    external
+    public
+    override
     view
     returns (address)
     {
@@ -167,7 +168,7 @@ contract ConditionStoreManager is OwnableUpgradeable, AccessControlUpgradeable, 
     onlyOwner
     {
         nvmConfigAddress = _addr;
-    }    
+    }
     
     /**
      * @dev delegateCreateRole only owner can delegate the 
@@ -284,7 +285,7 @@ contract ConditionStoreManager is OwnableUpgradeable, AccessControlUpgradeable, 
         emit ConditionCreated(
             _id,
             _typeRef,
-            msg.sender
+            _msgSender()
         );
     }
 
@@ -332,7 +333,7 @@ contract ConditionStoreManager is OwnableUpgradeable, AccessControlUpgradeable, 
             _id,
             conditionList.conditions[_id].typeRef,
             updateState,
-            msg.sender
+            _msgSender()
         );
 
         return updateState;
@@ -378,7 +379,7 @@ contract ConditionStoreManager is OwnableUpgradeable, AccessControlUpgradeable, 
     )
     external
     {
-        require(hasRole(PROXY_ROLE, msg.sender), 'Invalid access role');
+        require(hasRole(PROXY_ROLE, _msgSender()), 'Invalid access role');
         conditionList.updateKeyValue(
             _id, 
             _key, 

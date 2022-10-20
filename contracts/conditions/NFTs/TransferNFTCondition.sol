@@ -80,7 +80,7 @@ contract TransferNFTCondition is Condition, ITransferNFT, ReentrancyGuardUpgrade
             _ercAddress
         );
 
-        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
         if (_nftContractAddress != address(0))
             grantRole(MARKET_ROLE, _nftContractAddress);
         _setupRole(DEFAULT_ADMIN_ROLE, _owner);
@@ -224,7 +224,7 @@ contract TransferNFTCondition is Condition, ITransferNFT, ReentrancyGuardUpgrade
         bool _transfer;
         (_did, _nftHolder, _nftReceiver, _nftAmount, _lockPaymentCondition, _nftContractAddress, _transfer) = abi.decode(_params, (bytes32, address, address, uint256, bytes32, address, bool));
 
-        require(hasRole(PROXY_ROLE, msg.sender), 'Proxy role required');
+        require(hasRole(PROXY_ROLE, _msgSender()), 'Proxy role required');
         fulfillInternal(_account, _agreementId, _did, _nftReceiver, _nftAmount, _lockPaymentCondition, _nftContractAddress, _transfer);
     }
     
@@ -256,7 +256,7 @@ contract TransferNFTCondition is Condition, ITransferNFT, ReentrancyGuardUpgrade
         nonReentrant
         returns (ConditionStoreLibrary.ConditionState)
     {
-        return fulfillInternal(msg.sender, _agreementId, _did, _nftReceiver, _nftAmount, _lockPaymentCondition, _nftContractAddress, _transfer);
+        return fulfillInternal(_msgSender(), _agreementId, _did, _nftReceiver, _nftAmount, _lockPaymentCondition, _nftContractAddress, _transfer);
     }
 
     function fulfillInternal(
@@ -284,9 +284,9 @@ contract TransferNFTCondition is Condition, ITransferNFT, ReentrancyGuardUpgrade
         NFTUpgradeable token = NFTUpgradeable(_nftContractAddress);
 
         if (_nftAmount > 0) {
-            if (_transfer) // Transfer only works if `_account` (msg.sender) is holder
+            if (_transfer) // Transfer only works if `_account` (_msgSender()) is holder
                 token.safeTransferFrom(_account, _nftReceiver, uint256(_did), _nftAmount, '');
-            else  {// Check that `account` (msg.sender) is DID owner or provider
+            else  {// Check that `account` (_msgSender()) is DID owner or provider
                 require(didRegistry.isDIDProviderOrOwner(_did, _account), 'Only owner or provider');
                 token.mint(_nftReceiver, uint256(_did), _nftAmount, '');
             }
@@ -297,7 +297,7 @@ contract TransferNFTCondition is Condition, ITransferNFT, ReentrancyGuardUpgrade
             ConditionStoreLibrary.ConditionState.Fulfilled,
             _did,
             'TransferNFTCondition',
-            msg.sender
+            _msgSender()
         );
 
         emit Fulfilled(
@@ -339,7 +339,7 @@ contract TransferNFTCondition is Condition, ITransferNFT, ReentrancyGuardUpgrade
     
     returns (ConditionStoreLibrary.ConditionState)
     {
-        require(hasRole(MARKET_ROLE, msg.sender) || erc1155.isApprovedForAll(_nftHolder, msg.sender), 'Only Market role or ERC1155 approvedForAll');
+        require(hasRole(MARKET_ROLE, _msgSender()) || erc1155.isApprovedForAll(_nftHolder, _msgSender()), 'Only Market role or ERC1155 approvedForAll');
         return fulfillInternal(_nftHolder, _agreementId, _did, _nftReceiver, _nftAmount, _lockPaymentCondition, address(erc1155), _transfer);
     }
 
@@ -373,8 +373,15 @@ contract TransferNFTCondition is Condition, ITransferNFT, ReentrancyGuardUpgrade
 
     returns (ConditionStoreLibrary.ConditionState)
     {
-        require(hasRole(MARKET_ROLE, msg.sender) || NFTUpgradeable(_nftContractAddress).isApprovedForAll(_nftHolder, msg.sender), 'Only Market role or approvedForAll');
+        require(hasRole(MARKET_ROLE, _msgSender()) || NFTUpgradeable(_nftContractAddress).isApprovedForAll(_nftHolder, _msgSender()), 'Only Market role or approvedForAll');
         return fulfillInternal(_nftHolder, _agreementId, _did, _nftReceiver, _nftAmount, _lockPaymentCondition, _nftContractAddress, _transfer);
+    }
+
+    function _msgSender() internal override(CommonOwnable,ContextUpgradeable) virtual view returns (address ret) {
+        return Common._msgSender();
+    }
+    function _msgData() internal override(CommonOwnable,ContextUpgradeable) virtual view returns (bytes calldata ret) {
+        return Common._msgData();
     }
 
 }

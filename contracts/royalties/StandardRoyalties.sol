@@ -5,6 +5,7 @@ pragma solidity ^0.8.0;
 
 import '../interfaces/IRoyaltyScheme.sol';
 import '../registry/DIDRegistry.sol';
+import '../Common.sol';
 import '@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol';
 
 /**
@@ -12,7 +13,7 @@ import '@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol';
  * @author Nevermined
  */
 
-contract StandardRoyalties is IRoyaltyScheme, Initializable {
+contract StandardRoyalties is IRoyaltyScheme, Initializable, Common {
 
     DIDRegistry public registry;
 
@@ -32,7 +33,7 @@ contract StandardRoyalties is IRoyaltyScheme, Initializable {
      */
     function setRoyalty(bytes32 _did, uint256 _royalty) public {
         require(_royalty <= DENOMINATOR, 'royalty cannot be more than 100%');
-        require(msg.sender == registry.getDIDCreator(_did) || msg.sender == address(registry), 'only owner can change');
+        require(_msgSender() == registry.getDIDCreator(_did) || _msgSender() == address(registry), 'only owner can change');
         require(royalties[_did] == 0, 'royalties cannot be changed');
         royalties[_did] = _royalty;
     }
@@ -81,6 +82,22 @@ contract StandardRoyalties is IRoyaltyScheme, Initializable {
         // Check if royalties are enough
         // Are we paying enough royalties in the secondary market to the original creator?
         return (_amounts[index] >= _requiredRoyalties);
+    }
+
+    /**
+     * @dev getNvmConfigAddress get the address of the NeverminedConfig contract
+     * @return NeverminedConfig contract address
+     */
+    function getNvmConfigAddress()
+    public
+    override
+    view
+    returns (address)
+    {
+        if (address(registry) == address(0)) {
+            return address(0);
+        }
+        return registry.getNvmConfigAddress();
     }
 }
 

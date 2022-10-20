@@ -116,7 +116,7 @@ contract DistributeNFTCollateralCondition is Condition, ReentrancyGuardUpgradeab
     {
 
         AaveCreditVault vault = AaveCreditVault(_vaultAddress);
-        require(vault.isBorrower(msg.sender) || vault.isLender(msg.sender),
+        require(vault.isBorrower(_msgSender()) || vault.isLender(_msgSender()),
             'Invalid sender, only borrower or lender can request Nft transfer under this agreement.'
         );
         
@@ -150,7 +150,7 @@ contract DistributeNFTCollateralCondition is Condition, ReentrancyGuardUpgradeab
             ConditionStoreLibrary.ConditionState.Fulfilled,
             _did,
             'DistributeNFTCollateralCondition',
-            msg.sender
+            _msgSender()
         );
 
     }    

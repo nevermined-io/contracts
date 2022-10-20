@@ -86,7 +86,7 @@ contract NFT721HolderCondition is Condition, INFTHolder {
             ConditionStoreLibrary.ConditionState.Fulfilled,
             _did,
             'NFT721HolderCondition',
-            msg.sender
+            _msgSender()
         );
 
         emit Fulfilled(

@@ -66,7 +66,8 @@ library DIDRegistryLibrary {
         DIDRegisterList storage _self,
         bytes32 _did,
         bytes32 _checksum,
-        string calldata _url
+        string calldata _url,
+        address _sender
     )
     external
     {
@@ -74,7 +75,7 @@ library DIDRegistryLibrary {
         address creator = _self.didRegisters[_did].creator;
         
         if (didOwner == address(0)) {
-            didOwner = msg.sender;
+            didOwner = _sender;
             creator = didOwner;
         }
 
@@ -82,7 +83,7 @@ library DIDRegistryLibrary {
         _self.didRegisters[_did].creator = creator;
         _self.didRegisters[_did].lastChecksum = _checksum;
         _self.didRegisters[_did].url = _url;
-        _self.didRegisters[_did].lastUpdatedBy = msg.sender;
+        _self.didRegisters[_did].lastUpdatedBy = _sender;
         _self.didRegisters[_did].owner = didOwner;
         _self.didRegisters[_did].blockNumberUpdated = block.number;
     }

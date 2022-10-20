@@ -21,7 +21,7 @@ import '@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeab
  * This condition allows a Lender to deposit the collateral that 
  * into account the royalties to be paid to the original creators in a secondary market.
  */
-contract AaveCollateralDepositCondition is Condition, Common, ReentrancyGuardUpgradeable {
+contract AaveCollateralDepositCondition is Condition, ReentrancyGuardUpgradeable {
     
     AaveCreditVault internal aaveCreditVault;
 
@@ -138,7 +138,7 @@ contract AaveCollateralDepositCondition is Condition, Common, ReentrancyGuardUpg
         if (msg.value == 0) {
             IERC20Upgradeable token = ERC20Upgradeable(_collateralAsset);
             token.safeTransferFrom(
-                msg.sender,
+                _msgSender(),
                 address(vault),
                 _collateralAmount
             );
@@ -166,7 +166,7 @@ contract AaveCollateralDepositCondition is Condition, Common, ReentrancyGuardUpg
             ConditionStoreLibrary.ConditionState.Fulfilled,
             _did,
             'AaveCollateralDepositCondition',
-            msg.sender
+            _msgSender()
         );
 
         return state;

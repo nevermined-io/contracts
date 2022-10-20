@@ -3,6 +3,7 @@ pragma solidity ^0.8.0;
 // SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 // Code is Apache-2.0 and docs are CC-BY-4.0
 
+import '../Common.sol';
 import '../interfaces/IDynamicPricing.sol';
 import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol';
@@ -17,7 +18,7 @@ import '@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.
  */
 
 abstract contract AbstractAuction is 
-    IDynamicPricing, Initializable, OwnableUpgradeable, AccessControlUpgradeable, ReentrancyGuardUpgradeable {
+    IDynamicPricing, Initializable, CommonAccessControl, ReentrancyGuardUpgradeable {
 
     using SafeERC20Upgradeable for IERC20Upgradeable;
 
@@ -57,8 +58,29 @@ abstract contract AbstractAuction is
     mapping(bytes32 => Auction) internal auctions;
     // auctionId -> (userAddress -> amounts)
     mapping(bytes32 => mapping(address => uint256)) internal auctionBids;
-    
-    
+
+    address public nvmConfig;
+
+    /**
+     * @dev getNvmConfigAddress get the address of the NeverminedConfig contract
+     * @return NeverminedConfig contract address
+     */
+    function getNvmConfigAddress()
+    public
+    override
+    view
+    returns (address)
+    {
+        return nvmConfig;
+    }
+
+    function setNvmConfigAddress(address _addr)
+    external
+    onlyOwner
+    {
+        nvmConfig = _addr;
+    }
+
     event AuctionCreated(
         bytes32 indexed auctionId,
         bytes32 indexed did,
@@ -105,7 +127,7 @@ abstract contract AbstractAuction is
     {
         emit AuctionChangedState(
             _auctionId,
-            msg.sender,
+            _msgSender(),
             auctions[_auctionId].state,
             DynamicPricingState.Aborted
         );
@@ -126,7 +148,7 @@ abstract contract AbstractAuction is
             auctions[_auctionId].state = DynamicPricingState.Finished;
             emit AuctionChangedState(
                 _auctionId,
-                msg.sender,
+                _msgSender(),
                 DynamicPricingState.InProgress,
                 DynamicPricingState.Finished
             );
@@ -140,30 +162,30 @@ abstract contract AbstractAuction is
             if (_withdrawAddress != address(0))
                 withdrawalAddress = _withdrawAddress;
             else
-                withdrawalAddress = msg.sender;
-            withdrawalAmount = auctionBids[_auctionId][msg.sender];
+                withdrawalAddress = _msgSender();
+            withdrawalAmount = auctionBids[_auctionId][_msgSender()];
  
         }   else    {
             
             // The auction finished correctly
-            if (msg.sender == auctions[_auctionId].creator)   { // The creator of the auction cant withdraw
+            if (_msgSender() == auctions[_auctionId].creator)   { // The creator of the auction cant withdraw
                 return false;
-            } else if (msg.sender == auctions[_auctionId].whoCanClaim)    { // The winner of the auction cant withdraw
+            } else if (_msgSender() == auctions[_auctionId].whoCanClaim)    { // The winner of the auction cant withdraw
                 return false;
-            } else if (hasRole(NVM_AGREEMENT_ROLE, msg.sender)) { // Approved proxy or contract can withdraw for locking into service agreements
+            } else if (hasRole(NVM_AGREEMENT_ROLE, _msgSender())) { // Approved proxy or contract can withdraw for locking into service agreements
                 if (_withdrawAddress != address(0))
                     withdrawalAddress = _withdrawAddress;
                 else
-                    withdrawalAddress = msg.sender;
+                    withdrawalAddress = _msgSender();
                 withdrawalAmount = auctionBids[_auctionId][auctions[_auctionId].whoCanClaim];
                 auctionBids[_auctionId][auctions[_auctionId].whoCanClaim] = 0;
-            } else if (auctionBids[_auctionId][msg.sender] > 0)    { // A participant not winning can withdraw
+            } else if (auctionBids[_auctionId][_msgSender()] > 0)    { // A participant not winning can withdraw
                 if (_withdrawAddress != address(0))
                     withdrawalAddress = _withdrawAddress;
                 else
-                    withdrawalAddress = msg.sender;
-                withdrawalAmount = auctionBids[_auctionId][msg.sender];
-                auctionBids[_auctionId][msg.sender] = 0;
+                    withdrawalAddress = _msgSender();
+                withdrawalAmount = auctionBids[_auctionId][_msgSender()];
+                auctionBids[_auctionId][_msgSender()] = 0;
             }
         }
 
@@ -250,19 +272,19 @@ abstract contract AbstractAuction is
     }
 
     modifier onlyCreator(bytes32 _auctionId) {
-        require(msg.sender == auctions[_auctionId].creator, 'AbstractAuction: Only creator');
+        require(_msgSender() == auctions[_auctionId].creator, 'AbstractAuction: Only creator');
         _;
     }
 
     modifier onlyCreatorOrAdmin(bytes32 _auctionId) {
         require(
-            msg.sender == auctions[_auctionId].creator || hasRole(AUCTION_MANAGER_ROLE, msg.sender), 
+            _msgSender() == auctions[_auctionId].creator || hasRole(AUCTION_MANAGER_ROLE, _msgSender()), 
             'AbstractAuction: Only creator or admin');
         _;
     }    
     
     modifier onlyNotCreator(bytes32 _auctionId) {
-        require(msg.sender != auctions[_auctionId].creator, 'AbstractAuction: Not creator');
+        require(_msgSender() != auctions[_auctionId].creator, 'AbstractAuction: Not creator');
         _;
     }
     

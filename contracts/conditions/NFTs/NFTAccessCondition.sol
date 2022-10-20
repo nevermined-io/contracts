@@ -34,7 +34,7 @@ contract NFTAccessCondition is Condition, INFTAccess {
     )
     {
         require(
-            didRegistry.isDIDProviderOrOwner(_documentId, msg.sender),
+            didRegistry.isDIDProviderOrOwner(_documentId, _msgSender()),
             'Invalid DID owner/provider'
         );
         _;
@@ -167,7 +167,7 @@ contract NFTAccessCondition is Condition, INFTAccess {
             ConditionStoreLibrary.ConditionState.Fulfilled,
             _documentId,
             'NFTAccessCondition',
-            msg.sender
+            _msgSender()
         );
         
         emit Fulfilled(

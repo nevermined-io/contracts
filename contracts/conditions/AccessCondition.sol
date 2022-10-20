@@ -50,7 +50,7 @@ ISecretStore, ISecretStorePermission {
     )
     {
         require(
-            didRegistry.isDIDProviderOrOwner(_documentId, msg.sender),
+            didRegistry.isDIDProviderOrOwner(_documentId, _msgSender()),
             'Invalid DID owner/provider'
         );
         _;
@@ -150,7 +150,7 @@ ISecretStore, ISecretStorePermission {
             ConditionStoreLibrary.ConditionState.Fulfilled,
             _documentId,
             'AccessCondition',
-            msg.sender
+            _msgSender()
         );
         
         emit Fulfilled(

@@ -13,7 +13,7 @@ import '@openzeppelin/contracts-upgradeable/token/ERC1155/IERC1155Upgradeable.so
  * @author Nevermined
  */
 
-contract CurveRoyalties is IRoyaltyScheme, Initializable {
+contract CurveRoyalties is IRoyaltyScheme, Initializable, Common {
 
     DIDRegistry public registry;
 
@@ -37,7 +37,7 @@ contract CurveRoyalties is IRoyaltyScheme, Initializable {
      */
     function setRoyalty(bytes32 _did, uint256 _royalty) public {
         require(_royalty <= DENOMINATOR, 'royalty cannot be more than 100%');
-        require(msg.sender == registry.getDIDCreator(_did), 'only owner can change');
+        require(_msgSender() == registry.getDIDCreator(_did), 'only owner can change');
         require(royalties[_did] == 0, 'royalties cannot be changed');
         royalties[_did] = _royalty;
     }
@@ -90,6 +90,22 @@ contract CurveRoyalties is IRoyaltyScheme, Initializable {
         // Check if royalties are enough
         // Are we paying enough royalties in the secondary market to the original creator?
         return (_amounts[index] >= _requiredRoyalties);
+    }
+
+    /**
+     * @dev getNvmConfigAddress get the address of the NeverminedConfig contract
+     * @return NeverminedConfig contract address
+     */
+    function getNvmConfigAddress()
+    public
+    override
+    view
+    returns (address)
+    {
+        if (address(registry) == address(0)) {
+            return address(0);
+        }
+        return registry.getNvmConfigAddress();
     }
 }
 

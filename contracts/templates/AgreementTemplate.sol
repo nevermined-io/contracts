@@ -19,7 +19,7 @@ import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
  *      has the ability to create agreements from whitelisted 
  *      template
  */
-contract AgreementTemplate is OwnableUpgradeable {
+contract AgreementTemplate is CommonOwnable {
 
     address[] internal conditionTypes;
 
@@ -45,7 +45,7 @@ contract AgreementTemplate is OwnableUpgradeable {
         public
     {
         agreementStoreManager.createAgreement(
-            keccak256(abi.encode(_id, msg.sender)),
+            keccak256(abi.encode(_id, _msgSender())),
             _did,
             getConditionTypes(),
             _conditionIds,
@@ -69,13 +69,13 @@ contract AgreementTemplate is OwnableUpgradeable {
         public payable
     {
         agreementStoreManager.createAgreementAndPay{value: msg.value}(AgreementStoreManager.CreateAgreementArgs(
-            keccak256(abi.encode(_id, msg.sender)),
+            keccak256(abi.encode(_id, _msgSender())),
             _did,
             getConditionTypes(),
             _conditionIds,
             _timeLocks,
             _timeOuts,
-            msg.sender,
+            _msgSender(),
             _idx,
             _rewardAddress, _tokenAddress, _amounts, _receivers
         ));
@@ -94,7 +94,7 @@ contract AgreementTemplate is OwnableUpgradeable {
         internal
     {
         agreementStoreManager.createAgreementAndFulfill{value: msg.value}(
-            keccak256(abi.encode(_id, msg.sender)),
+            keccak256(abi.encode(_id, _msgSender())),
             _did,
             getConditionTypes(),
             _conditionIds,
@@ -118,5 +118,17 @@ contract AgreementTemplate is OwnableUpgradeable {
         returns (address[] memory)
     {
         return conditionTypes;
+    }
+
+    function getNvmConfigAddress()
+    public
+    override
+    view
+    returns (address)
+    {
+        if (address(agreementStoreManager) == address(0)) {
+            return address(0);
+        }
+        return agreementStoreManager.getNvmConfigAddress();
     }
 }

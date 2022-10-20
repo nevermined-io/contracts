@@ -17,6 +17,6 @@ contract TemplateStoreChangeFunctionSignature is TemplateStoreManager {
             _id == _sender,
             'Invalid sender address'
         );
-        return templateList.propose(_id);
+        return templateList.propose(_id, _sender);
     }
 }

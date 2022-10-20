@@ -5,7 +5,6 @@ const { assert } = chai
 const chaiAsPromised = require('chai-as-promised')
 chai.use(chaiAsPromised)
 
-const Common = artifacts.require('Common')
 const DIDRegistryLibrary = artifacts.require('DIDRegistryLibrary')
 const DIDRegistry = artifacts.require('DIDRegistry')
 const testUtils = require('../../helpers/utils.js')
@@ -13,7 +12,6 @@ const constants = require('../../helpers/constants')
 
 contract('DIDRegistry', (accounts) => {
     let didRegistry
-    let common
 
     const _from = accounts[0]
     const owner = accounts[1]
@@ -40,7 +38,6 @@ contract('DIDRegistry', (accounts) => {
             await DIDRegistry.link(didRegistryLibrary)
             didRegistry = await DIDRegistry.new()
             await didRegistry.initialize(owner, constants.address.zero, constants.address.zero, constants.address.zero, constants.address.zero)
-            common = await Common.new()
         }
     }
 
@@ -157,7 +154,7 @@ contract('DIDRegistry', (accounts) => {
             const did = await didRegistry.hashDID(didSeed, _from)
             const checksum = testUtils.generateId()
             const value = 'https://nevermined.io/did/nevermined/test-attr-example.txt'
-            const blockNumber = await common.getCurrentBlockNumber()
+            const blockNumber = await didRegistry.getCurrentBlockNumber()
 
             await didRegistry.registerAttribute(didSeed, checksum, providers, value)
             const storedDIDRegister = await didRegistry.getDIDRegister(did)
@@ -756,7 +753,7 @@ contract('DIDRegistry', (accounts) => {
                 await web3.eth.sign(_message, owner)
             )
 
-            const valid = await common.provenanceSignatureIsCorrect(
+            const valid = await didRegistry.provenanceSignatureIsCorrect(
                 owner, _messageHash, _signature)
 
             assert.isOk(valid, 'Signature doesnt match')
@@ -772,7 +769,7 @@ contract('DIDRegistry', (accounts) => {
                 await web3.eth.sign(_message, delegates[1])
             )
 
-            const valid = await common.provenanceSignatureIsCorrect(
+            const valid = await didRegistry.provenanceSignatureIsCorrect(
                 delegates[1], _messageHash, _signature)
 
             assert.isOk(valid, 'Signature doesnt match')
@@ -800,7 +797,7 @@ contract('DIDRegistry', (accounts) => {
                 await web3.eth.sign(_message, delegates[1])
             )
 
-            assert.isOk(await common.provenanceSignatureIsCorrect(
+            assert.isOk(await didRegistry.provenanceSignatureIsCorrect(
                 delegates[1], testUtils.toEthSignedMessageHash(_message), _signatureDelegate))
 
             const result = await didRegistry.actedOnBehalf(

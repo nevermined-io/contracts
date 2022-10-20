@@ -184,7 +184,7 @@ contract NFTLockCondition is Condition, INFTLock, ReentrancyGuardUpgradeable, IE
         nonReentrant
         returns (ConditionStoreLibrary.ConditionState)
     {
-        IERC1155Upgradeable(_nftContractAddress).safeTransferFrom(msg.sender, _lockAddress, uint256(_did), _amount, '');
+        IERC1155Upgradeable(_nftContractAddress).safeTransferFrom(_msgSender(), _lockAddress, uint256(_did), _amount, '');
         
         bytes32 _id = generateId(
             _agreementId,
@@ -195,7 +195,7 @@ contract NFTLockCondition is Condition, INFTLock, ReentrancyGuardUpgradeable, IE
             ConditionStoreLibrary.ConditionState.Fulfilled,
             _did,
             'NFTLockCondition',
-            msg.sender
+            _msgSender()
         );
 
         emit Fulfilled(

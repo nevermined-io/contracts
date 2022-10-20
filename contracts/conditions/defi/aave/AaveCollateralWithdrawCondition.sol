@@ -21,7 +21,6 @@ import '@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol';
  */
 contract AaveCollateralWithdrawCondition is
     Condition,
-    Common,
     ReentrancyGuardUpgradeable {
 
     AaveCreditVault internal aaveCreditVault;
@@ -109,7 +108,7 @@ contract AaveCollateralWithdrawCondition is
     {
         // Withdraw the collateral from the Aave Lending pool contract and the agreement fees
         AaveCreditVault vault = AaveCreditVault(_vaultAddress);
-        require(vault.isLender(msg.sender), 'Only lender');
+        require(vault.isLender(_msgSender()), 'Only lender');
 
         address lockConditionTypeRef;
         ConditionStoreLibrary.ConditionState repayConditionState;
@@ -133,7 +132,7 @@ contract AaveCollateralWithdrawCondition is
             ConditionStoreLibrary.ConditionState.Fulfilled,
             _did,
             'AaveCollateralWithdrawCondition',
-            msg.sender
+            _msgSender()
         );
         
         return state;

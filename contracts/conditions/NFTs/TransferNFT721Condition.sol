@@ -83,7 +83,7 @@ contract TransferNFT721Condition is Condition, ITransferNFT, ReentrancyGuardUpgr
         );
         _lockConditionAddress = _lockNFTConditionAddress;
 
-        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
         _setupRole(DEFAULT_ADMIN_ROLE, _owner);
 
     }
@@ -177,7 +177,7 @@ contract TransferNFT721Condition is Condition, ITransferNFT, ReentrancyGuardUpgr
         nonReentrant
         returns (ConditionStoreLibrary.ConditionState)
     {
-        return fulfillInternal(msg.sender, _agreementId, _did, _nftReceiver, _nftAmount, _lockPaymentCondition, _contract, _transfer, 0);
+        return fulfillInternal(_msgSender(), _agreementId, _did, _nftReceiver, _nftAmount, _lockPaymentCondition, _contract, _transfer, 0);
     }
 
 
@@ -207,7 +207,7 @@ contract TransferNFT721Condition is Condition, ITransferNFT, ReentrancyGuardUpgr
         bool _transfer;
         (_did, _nftHolder, _nftReceiver, _nftAmount, _lockPaymentCondition, _nftContractAddress, _transfer) = abi.decode(_params, (bytes32, address, address, uint256, bytes32, address, bool));
 
-        require(hasRole(PROXY_ROLE, msg.sender), 'Invalid access role');
+        require(hasRole(PROXY_ROLE, _msgSender()), 'Invalid access role');
         fulfillInternal(_account, _agreementId, _did, _nftReceiver, _nftAmount, _lockPaymentCondition, _nftContractAddress, _transfer, 0);
     }
 
@@ -253,7 +253,7 @@ contract TransferNFT721Condition is Condition, ITransferNFT, ReentrancyGuardUpgr
             
         }   else {
             require(
-                didRegistry.isDIDProviderOrOwner(_did, msg.sender), 
+                didRegistry.isDIDProviderOrOwner(_did, _msgSender()), 
                 'Only owner or provider'
             );
             uint256 _tokenId = uint256(keccak256(abi.encode(_did, _agreementId)));
@@ -271,7 +271,7 @@ contract TransferNFT721Condition is Condition, ITransferNFT, ReentrancyGuardUpgr
             ConditionStoreLibrary.ConditionState.Fulfilled,
             _did,
             'TransferNFT721Condition',
-            msg.sender
+            _msgSender()
         );
 
         emit Fulfilled(
@@ -314,7 +314,7 @@ contract TransferNFT721Condition is Condition, ITransferNFT, ReentrancyGuardUpgr
 
     returns (ConditionStoreLibrary.ConditionState)
     {
-        require(hasRole(MARKET_ROLE, msg.sender) || erc721.isApprovedForAll(_nftHolder, msg.sender), 'Invalid access role');
+        require(hasRole(MARKET_ROLE, _msgSender()) || erc721.isApprovedForAll(_nftHolder, _msgSender()), 'Invalid access role');
         return fulfillInternal(_nftHolder, _agreementId, _did, _nftReceiver, _nftAmount, _lockPaymentCondition, address(erc721), _transfer, 0);
     }
 
@@ -349,7 +349,7 @@ contract TransferNFT721Condition is Condition, ITransferNFT, ReentrancyGuardUpgr
     
     returns (ConditionStoreLibrary.ConditionState)
     {
-        require(hasRole(MARKET_ROLE, msg.sender) || NFT721Upgradeable(_nftContractAddress).isApprovedForAll(_nftHolder, msg.sender), 'Invalid access role');
+        require(hasRole(MARKET_ROLE, _msgSender()) || NFT721Upgradeable(_nftContractAddress).isApprovedForAll(_nftHolder, _msgSender()), 'Invalid access role');
         return fulfillInternal(
                 _nftHolder, 
                 _agreementId, 
@@ -361,6 +361,14 @@ contract TransferNFT721Condition is Condition, ITransferNFT, ReentrancyGuardUpgr
                 _transfer, 
                 _expirationBlock
         );
-    }        
+    }
+
+    function _msgSender() internal override(CommonOwnable,ContextUpgradeable) virtual view returns (address ret) {
+        return Common._msgSender();
+    }
+    function _msgData() internal override(CommonOwnable,ContextUpgradeable) virtual view returns (bytes calldata ret) {
+        return Common._msgData();
+    }
+
 }
 

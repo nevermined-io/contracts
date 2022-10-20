@@ -27,7 +27,7 @@ contract NFT721Upgradeable is ERC721Upgradeable, NFTBase {
         __ERC721_init_unchained(name, symbol);
         __Ownable_init_unchained();
         AccessControlUpgradeable.__AccessControl_init();
-        AccessControlUpgradeable._setupRole(MINTER_ROLE, msg.sender);
+        AccessControlUpgradeable._setupRole(MINTER_ROLE, _msgSender());
         setContractMetadataUri(uri);
     }
 
@@ -42,7 +42,7 @@ contract NFT721Upgradeable is ERC721Upgradeable, NFTBase {
         __ERC721_init_unchained('Nevermined ERC721', 'NVM721');
         __Ownable_init_unchained();
         AccessControlUpgradeable.__AccessControl_init();
-        AccessControlUpgradeable._setupRole(MINTER_ROLE, msg.sender);
+        AccessControlUpgradeable._setupRole(MINTER_ROLE, _msgSender());
     }    
     
     /**
@@ -77,7 +77,7 @@ contract NFT721Upgradeable is ERC721Upgradeable, NFTBase {
     public 
     virtual 
     {
-        require(hasRole(MINTER_ROLE, msg.sender), 'only minter can mint');
+        require(hasRole(MINTER_ROLE, _msgSender()), 'only minter can mint');
         _mint(to, id);
     }
 
@@ -87,8 +87,8 @@ contract NFT721Upgradeable is ERC721Upgradeable, NFTBase {
     public 
     {
         require(
-            hasRole(MINTER_ROLE, msg.sender) || // Or the DIDRegistry is burning the NFT 
-            balanceOf(msg.sender) > 0, // Or the msg.sender is owner and have balance
+            hasRole(MINTER_ROLE, _msgSender()) || // Or the DIDRegistry is burning the NFT 
+            balanceOf(_msgSender()) > 0, // Or the _msgSender() is owner and have balance
             'ERC721: caller is not owner or not have balance'
         );        
         _burn(id);
@@ -117,7 +117,7 @@ contract NFT721Upgradeable is ERC721Upgradeable, NFTBase {
     )
     public
     {
-        require(hasRole(MINTER_ROLE, msg.sender), 'only minter');
+        require(hasRole(MINTER_ROLE, _msgSender()), 'only minter');
         _setNFTMetadata(tokenId, nftURI);
     }
 
@@ -134,7 +134,7 @@ contract NFT721Upgradeable is ERC721Upgradeable, NFTBase {
     )
     public
     {
-        require(hasRole(MINTER_ROLE, msg.sender), 'only minter');
+        require(hasRole(MINTER_ROLE, _msgSender()), 'only minter');
         _setTokenRoyalty(tokenId, receiver, royaltyAmount);
     }
 
@@ -150,6 +150,14 @@ contract NFT721Upgradeable is ERC721Upgradeable, NFTBase {
         return AccessControlUpgradeable.supportsInterface(interfaceId)
         || ERC721Upgradeable.supportsInterface(interfaceId)
         || interfaceId == type(IERC2981Upgradeable).interfaceId;
+    }
+
+
+    function _msgSender() internal override(NFTBase,ContextUpgradeable) virtual view returns (address ret) {
+        return Common._msgSender();
+    }
+    function _msgData() internal override(NFTBase,ContextUpgradeable) virtual view returns (bytes calldata ret) {
+        return Common._msgData();
     }
 
 }

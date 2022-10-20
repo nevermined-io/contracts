@@ -21,7 +21,7 @@ import '../../interfaces/IDynamicPricing.sol';
  *      can release reward if lock and release conditions
  *      are fulfilled.
  */
-contract EscrowPaymentCondition is Reward, Common, ReentrancyGuardUpgradeable {
+contract EscrowPaymentCondition is Reward, ReentrancyGuardUpgradeable {
 
     using SafeERC20Upgradeable for IERC20Upgradeable;
 
@@ -42,7 +42,7 @@ contract EscrowPaymentCondition is Reward, Common, ReentrancyGuardUpgradeable {
     );
     
     receive() external payable {
-        emit Received(msg.sender, msg.value);
+        emit Received(_msgSender(), msg.value);
     }
 
     /**
@@ -375,7 +375,7 @@ contract EscrowPaymentCondition is Reward, Common, ReentrancyGuardUpgradeable {
             ConditionStoreLibrary.ConditionState.Fulfilled,
             _did,
             'EscrowPaymentCondition',
-            msg.sender
+            _msgSender()
         );
     }
 
@@ -417,7 +417,7 @@ contract EscrowPaymentCondition is Reward, Common, ReentrancyGuardUpgradeable {
             ConditionStoreLibrary.ConditionState.Fulfilled,
             _did,
             'EscrowPaymentCondition',
-            msg.sender
+            _msgSender()
         );
     }    
     

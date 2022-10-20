@@ -135,7 +135,7 @@ contract AaveCreditVault is
         uint256 _interestRateMode
     ) 
     public {
-        require(hasRole(CONDITION_ROLE, msg.sender), 'Only conditions');
+        require(hasRole(CONDITION_ROLE, _msgSender()), 'Only conditions');
         
         (, address stableDebtTokenAddress, address variableDebtTokenAddress ) = dataProvider
           .getReserveTokensAddresses(_asset);
@@ -194,7 +194,7 @@ contract AaveCreditVault is
     )
     public 
     {
-        require(hasRole(CONDITION_ROLE, msg.sender), 'Only conditions');
+        require(hasRole(CONDITION_ROLE, _msgSender()), 'Only conditions');
         require(borrowedAmount == 0, 'Already borrowed');
         
         borrowedAsset = _assetToBorrow;
@@ -216,7 +216,7 @@ contract AaveCreditVault is
     ) 
     public 
     {
-        require(hasRole(CONDITION_ROLE, msg.sender), 'Only conditions');
+        require(hasRole(CONDITION_ROLE, _msgSender()), 'Only conditions');
         IERC20(_asset).approve(address(lendingPool), uint256(2**256 - 1));
         lendingPool.repay(_asset, uint256(2**256 - 1), _interestRateMode, address(this));
         
@@ -229,7 +229,7 @@ contract AaveCreditVault is
     )
     public
     {
-        require(hasRole(CONDITION_ROLE, msg.sender), 'Only conditions');
+        require(hasRole(CONDITION_ROLE, _msgSender()), 'Only conditions');
         repayConditionId = _repayConditionId;
     }
         
@@ -316,7 +316,7 @@ contract AaveCreditVault is
     ) 
     public 
     {
-        require(hasRole(CONDITION_ROLE, msg.sender), 'Only conditions');
+        require(hasRole(CONDITION_ROLE, _msgSender()), 'Only conditions');
 
         lendingPool.withdraw(_asset, uint256(2**256 - 1), _delegator);
         uint256 delegatorFee = borrowedAmount * agreementFee / FEE_BASE;
@@ -336,7 +336,7 @@ contract AaveCreditVault is
     )
     public
     {
-        require(hasRole(CONDITION_ROLE, msg.sender), 'Only conditions');
+        require(hasRole(CONDITION_ROLE, _msgSender()), 'Only conditions');
         require(nftId == _tokenId, 'Invalid tokenId');
 
         IERC721Upgradeable token = IERC721Upgradeable(nftAddress);
@@ -386,7 +386,7 @@ contract AaveCreditVault is
     returns (bytes4) 
     {
         require(nftAddress == address(0), 'NFT already locked');
-        nftAddress = msg.sender;
+        nftAddress = _msgSender();
         nftId = _tokenId;        
         return this.onERC721Received.selector;
     }

@@ -117,8 +117,8 @@ const constants = {
         url: 'https://example.com/did/nevermined/test-attr-example.txt'
     },
     activities: {
-        GENERATED: '0x1',
-        USED: '0x2'
+        GENERATED: '0x0000000000000000000000000000000000000000000000000000000000000001',
+        USED: '0x02'
     }
 }
 

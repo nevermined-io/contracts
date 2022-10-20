@@ -7,15 +7,13 @@ const { assert } = chai
 const chaiAsPromised = require('chai-as-promised')
 chai.use(chaiAsPromised)
 
-const Common = artifacts.require('Common')
 const TemplateStoreManager = artifacts.require('TemplateStoreManager')
 
 const constants = require('../../helpers/constants.js')
 const testUtils = require('../../helpers/utils.js')
 
 contract('TemplateStoreManager', (accounts) => {
-    let common,
-        templateStoreManager,
+    let templateStoreManager,
         templateId
 
     beforeEach(async () => {
@@ -27,14 +25,12 @@ contract('TemplateStoreManager', (accounts) => {
         createRole = accounts[0]
     } = {}) {
         if (!templateStoreManager) {
-            common = await Common.new()
             templateStoreManager = await TemplateStoreManager.new()
             await templateStoreManager.initialize(createRole)
         }
         templateId = testUtils.generateAccount().address
 
         return {
-            common,
             templateStoreManager,
             templateId,
             conditionType,
@@ -93,7 +89,7 @@ contract('TemplateStoreManager', (accounts) => {
 
     describe('get template', () => {
         it('successful create should get unfulfilled condition', async () => {
-            const blockNumber = await common.getCurrentBlockNumber()
+            const blockNumber = await templateStoreManager.getCurrentBlockNumber()
 
             await templateStoreManager.proposeTemplate(templateId)
 
@@ -113,7 +109,7 @@ contract('TemplateStoreManager', (accounts) => {
             await templateStoreManager.proposeTemplate(templateId)
             await templateStoreManager.approveTemplate(templateId)
 
-            const blockNumber = await common.getCurrentBlockNumber()
+            const blockNumber = await templateStoreManager.getCurrentBlockNumber()
 
             await templateStoreManager.revokeTemplate(templateId)
 

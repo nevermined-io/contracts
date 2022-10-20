@@ -4,7 +4,8 @@ const evaluateContracts = require('./evaluateContracts.js')
 const { ethers, web3 } = require('hardhat')
 const { exportArtifacts, exportLibraryArtifacts } = require('./artifacts')
 const { loadWallet } = require('./wallets.js')
-const { readArtifact } = require('./artifacts')
+const { readArtifact, deployLibrary } = require('./artifacts')
+const { GsnTestEnvironment } = require('@opengsn/dev')
 
 const PROXY_ADMIN_ABI = `[{
     "inputs": [],
@@ -34,22 +35,6 @@ const PROXY_ADMIN_ABI = `[{
     "type": "function"
 }]`
 
-async function deployLibrary(name, addresses, signer) {
-    if (addresses[name]) {
-        console.log(`Contract ${name} found from cache`)
-        return addresses[name]
-    } else {
-        const factory = await ethers.getContractFactory(name, signer)
-        const library = await factory.deploy()
-        const h1 = library.deployTransaction.hash
-        await library.deployed()
-        const address = (await web3.eth.getTransactionReceipt(h1)).contractAddress
-        console.log(`Library ${name} deployed into address ${address}`)
-        addresses[name] = address
-        return address
-    }
-}
-
 async function deployContracts({ contracts: origContracts, verbose, testnet, makeWallet, addresses, deeperClean }) {
     const contracts = evaluateContracts({
         contracts: origContracts,
@@ -78,6 +63,18 @@ async function deployContracts({ contracts: origContracts, verbose, testnet, mak
     const epochLibraryAddress = await deployLibrary('EpochLibrary', addresses, roles.deployerSigner)
     console.log('Epoch library', epochLibraryAddress)
 
+    let gsn
+    // Add OpenGSN contracts
+    if (testnet) {
+        try {
+            const env = await GsnTestEnvironment.startGsn('localhost')
+            const { forwarderAddress } = env.contractsDeployment
+            gsn = forwarderAddress
+        } catch (e) {
+            console.log('Cannot deploy OpenGSN contracts', e)
+        }
+    }
+
     const { cache, addressBook, proxies } = await initializeContracts({
         contracts,
         roles,
@@ -94,7 +91,9 @@ async function deployContracts({ contracts: origContracts, verbose, testnet, mak
         artifacts: cache,
         roles,
         verbose,
-        addresses
+        addresses,
+        gsn,
+        testnet
     })
 
     // Move proxy admin to upgrader wallet

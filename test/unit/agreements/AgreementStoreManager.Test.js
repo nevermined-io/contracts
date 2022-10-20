@@ -10,7 +10,6 @@ const { web3 } = require('hardhat')
 chai.use(chaiAsPromised)
 
 const NeverminedConfig = artifacts.require('NeverminedConfig')
-const Common = artifacts.require('Common')
 const EpochLibrary = artifacts.require('EpochLibrary')
 const ConditionStoreManager = artifacts.require('ConditionStoreManager')
 const AgreementStoreManager = artifacts.require('AgreementStoreManager')
@@ -30,8 +29,7 @@ contract('AgreementStoreManager', (accounts) => {
     const owner = accounts[9]
     const providers = [accounts[8], accounts[9]]
     const templateId = accounts[2]
-    let common,
-        didRegistry,
+    let didRegistry,
         agreementStoreManager,
         conditionStoreManager,
         templateStoreManager,
@@ -82,7 +80,6 @@ contract('AgreementStoreManager', (accounts) => {
                 nvmConfig.address,
                 { from: deployer }
             )
-            common = await Common.new()
 
             await templateStoreManager.proposeTemplate(templateId)
             await templateStoreManager.approveTemplate(templateId, { from: owner })
@@ -196,7 +193,7 @@ contract('AgreementStoreManager', (accounts) => {
 
             const agreement = {
                 did: did,
-                conditionTypes: [common.address, common.address],
+                conditionTypes: [templateStoreManager.address, templateStoreManager.address],
                 conditionIds: [constants.bytes32.zero, constants.bytes32.one],
                 timeLocks: [0, 1],
                 timeOuts: [2, 3]
@@ -226,7 +223,7 @@ contract('AgreementStoreManager', (accounts) => {
 
             const agreement = {
                 did: did,
-                conditionTypes: [common.address, common.address],
+                conditionTypes: [templateStoreManager.address, templateStoreManager.address],
                 conditionIds: [constants.bytes32.zero, constants.bytes32.one],
                 timeLocks: [0],
                 timeOuts: [2, 3]
@@ -323,7 +320,7 @@ contract('AgreementStoreManager', (accounts) => {
 
             const agreement = {
                 did: did,
-                conditionTypes: [common.address],
+                conditionTypes: [templateStoreManager.address],
                 conditionIds: [testUtils.generateId()],
                 timeLocks: [0],
                 timeOuts: [2]
@@ -344,7 +341,7 @@ contract('AgreementStoreManager', (accounts) => {
             ) */
             const otherAgreement = {
                 did: did,
-                conditionTypes: [common.address],
+                conditionTypes: [templateStoreManager.address],
                 conditionIds: [testUtils.generateId()],
                 timeLocks: [2],
                 timeOuts: [3]
@@ -366,7 +363,7 @@ contract('AgreementStoreManager', (accounts) => {
 
             const agreement = {
                 did: did,
-                conditionTypes: [common.address],
+                conditionTypes: [templateStoreManager.address],
                 conditionIds: [testUtils.generateId()],
                 timeLocks: [0],
                 timeOuts: [2]
@@ -407,14 +404,13 @@ contract('AgreementStoreManager', (accounts) => {
             const did = await registerNewDID()
             const agreement = {
                 did: did,
-                conditionTypes: [common.address, common.address],
+                conditionTypes: [templateStoreManager.address, templateStoreManager.address],
                 conditionIds: [testUtils.generateId(), testUtils.generateId()],
                 timeLocks: [0, 1],
                 timeOuts: [2, 3]
 
             }
 
-            // const blockNumber = await common.getCurrentBlockNumber()
             const agreementId = testUtils.generateId()
 
             await agreementStoreManager.createAgreement(
@@ -433,7 +429,7 @@ contract('AgreementStoreManager', (accounts) => {
 
             const agreement = {
                 did: did,
-                conditionTypes: [common.address],
+                conditionTypes: [templateStoreManager.address],
                 conditionIds: [testUtils.generateId()],
                 timeLocks: [0],
                 timeOuts: [2]
@@ -449,7 +445,7 @@ contract('AgreementStoreManager', (accounts) => {
 
             const otherAgreement = {
                 did: did,
-                conditionTypes: [common.address],
+                conditionTypes: [templateStoreManager.address],
                 conditionIds: [testUtils.generateId()],
                 timeLocks: [2],
                 timeOuts: [3]

@@ -24,11 +24,11 @@ contract AgreementStoreManagerChangeFunctionSignature is
         public
     {
         require(
-            msg.sender == _sender && msg.sender == _creator,
+            _msgSender() == _sender && _msgSender() == _creator,
             'Invalid sender address, it should be the creator too'
         );
         require(
-            templateStoreManager.isTemplateApproved(msg.sender) == true,
+            templateStoreManager.isTemplateApproved(_msgSender()) == true,
             'Template not Approved'
         );
         require(
@@ -49,7 +49,7 @@ contract AgreementStoreManagerChangeFunctionSignature is
         agreementList.create(
             _id,
             _did,
-            msg.sender,
+            _msgSender(),
             _conditionIds
         );
     }

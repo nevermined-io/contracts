@@ -25,8 +25,8 @@ contract EnglishAuction is AbstractAuction {
         transferOwnership(_owner);
 
         AccessControlUpgradeable.__AccessControl_init();
-        AccessControlUpgradeable._setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
-        AccessControlUpgradeable._setupRole(AUCTION_MANAGER_ROLE, msg.sender);
+        AccessControlUpgradeable._setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
+        AccessControlUpgradeable._setupRole(AUCTION_MANAGER_ROLE, _msgSender());
     }    
     
     /**
@@ -62,7 +62,7 @@ contract EnglishAuction is AbstractAuction {
         auctions[_auctionId] = Auction({
             did: _did,
             state: DynamicPricingState.NotStarted,
-            creator: msg.sender,
+            creator: _msgSender(),
             blockNumberCreated: block.number,
             floor: _floor,
             starts: _starts,
@@ -76,7 +76,7 @@ contract EnglishAuction is AbstractAuction {
         emit AuctionCreated(
             _auctionId,
             _did,
-            msg.sender,
+            _msgSender(),
             block.number,
             _floor,
             _starts,
@@ -99,20 +99,20 @@ contract EnglishAuction is AbstractAuction {
     {
         require(auctions[_auctionId].tokenAddress == address(0), 'EnglishAuction: Only native token accepted');
 
-        uint256 userBid = msg.value + auctionBids[_auctionId][msg.sender];
+        uint256 userBid = msg.value + auctionBids[_auctionId][_msgSender()];
 
         require(userBid >= auctions[_auctionId].floor, 'EnglishAuction: Only higher or equal than floor');
         require(userBid > auctions[_auctionId].price, 'EnglishAuction: Only higher bids');
         
-        auctions[_auctionId].whoCanClaim = msg.sender;
+        auctions[_auctionId].whoCanClaim = _msgSender();
         auctions[_auctionId].price = userBid;
-        auctionBids[_auctionId][msg.sender] = userBid;
+        auctionBids[_auctionId][_msgSender()] = userBid;
         if (auctions[_auctionId].state != DynamicPricingState.InProgress)
             auctions[_auctionId].state = DynamicPricingState.InProgress;
         
         emit AuctionBidReceived(
             _auctionId,
-            msg.sender,
+            _msgSender(),
             address(0),
             userBid
         );
@@ -137,23 +137,23 @@ contract EnglishAuction is AbstractAuction {
     {
         require(auctions[_auctionId].tokenAddress != address(0), 'EnglishAuction: Only ERC20');
         
-        uint256 userBid = _bidAmount + auctionBids[_auctionId][msg.sender];
+        uint256 userBid = _bidAmount + auctionBids[_auctionId][_msgSender()];
 
         require(userBid >= auctions[_auctionId].floor, 'EnglishAuction: Only higher or equal than floor');
         require(userBid > auctions[_auctionId].price, 'EnglishAuction: Only higher bids');
 
         IERC20Upgradeable token = ERC20Upgradeable(auctions[_auctionId].tokenAddress);
-        token.safeTransferFrom(msg.sender, address(this), _bidAmount);
+        token.safeTransferFrom(_msgSender(), address(this), _bidAmount);
 
-        auctions[_auctionId].whoCanClaim = msg.sender;
+        auctions[_auctionId].whoCanClaim = _msgSender();
         auctions[_auctionId].price = userBid;
-        auctionBids[_auctionId][msg.sender] = userBid;
+        auctionBids[_auctionId][_msgSender()] = userBid;
         if (auctions[_auctionId].state != DynamicPricingState.InProgress)
             auctions[_auctionId].state = DynamicPricingState.InProgress;
         
         emit AuctionBidReceived(
             _auctionId,
-            msg.sender,
+            _msgSender(),
             auctions[_auctionId].tokenAddress,
             userBid
         );

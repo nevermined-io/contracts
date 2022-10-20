@@ -12,7 +12,7 @@ contract TestERC721 is ERC721Upgradeable {
     }
 
     function mint(uint256 id) public {
-        _mint(msg.sender, id);
+        _mint(_msgSender(), id);
     }
 
 }

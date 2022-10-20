@@ -28,6 +28,8 @@ INVMConfig
     // @notice Switch to turn off provenance in storage. By default the storage is on
     bool public provenanceOff;
 
+    address public trustedForwarder;
+
     ///////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////
@@ -123,7 +125,17 @@ INVMConfig
     {
         return !provenanceOff;
     }
-    
+
+    function getTrustedForwarder()
+    external override virtual view returns(address) {
+        return trustedForwarder;
+    }
+
+    function setTrustedForwarder(address forwarder)
+    external onlyGovernor(msg.sender) {
+        trustedForwarder = forwarder;
+    }
+
     modifier onlyGovernor(address _address)
     {
         require(

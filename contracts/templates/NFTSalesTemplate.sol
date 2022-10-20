@@ -107,7 +107,7 @@ contract NFTSalesTemplate is BaseEscrowTemplate {
     mapping(address => mapping(address => mapping(address => mapping(bytes32 => uint256)))) public nftPrice;
 
     function nftSale(address nftAddress, bytes32 nftId, address token, uint256 amount) external {
-        nftPrice[msg.sender][nftAddress][token][nftId] = amount;
+        nftPrice[_msgSender()][nftAddress][token][nftId] = amount;
     }
 
     function checkParamsTransfer(bytes[] memory _params, bytes32 lockPaymentConditionId, bytes32 _did) internal view returns (address) {
@@ -176,12 +176,12 @@ contract NFTSalesTemplate is BaseEscrowTemplate {
         address _accessConsumer,
         bytes[] memory _params
     ) external payable {
-        bytes32 agreementId = keccak256(abi.encode(_id, msg.sender));
+        bytes32 agreementId = keccak256(abi.encode(_id, _msgSender()));
         bytes32[] memory conditionIds = new bytes32[](3);
         uint256[] memory indices = new uint256[](2);
         address[] memory accounts = new address[](2);
         bytes[] memory params = new bytes[](2);
-        accounts[0] = msg.sender;
+        accounts[0] = _msgSender();
         // accounts[1] = getSeller(_params[1]);
         for (uint i = 0; i < 2; i++) {
             indices[i] = i;

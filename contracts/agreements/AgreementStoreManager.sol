@@ -28,7 +28,7 @@ interface Template {
  *      Agreement templates must to be approved in the Template Store
  *      Each agreement is linked to the DID of an asset.
  */
-contract AgreementStoreManager is OwnableUpgradeable, AccessControlUpgradeable {
+contract AgreementStoreManager is CommonAccessControl {
 
     bytes32 private constant PROXY_ROLE = keccak256('PROXY_ROLE');
 
@@ -149,7 +149,7 @@ contract AgreementStoreManager is OwnableUpgradeable, AccessControlUpgradeable {
         public
     {
         require(
-            templateStoreManager.isTemplateApproved(msg.sender) == true,
+            templateStoreManager.isTemplateApproved(_msgSender()) == true,
             'Template not Approved'
         );
         require(
@@ -175,7 +175,7 @@ contract AgreementStoreManager is OwnableUpgradeable, AccessControlUpgradeable {
         agreementList.create(
             _id,
             _did,
-            msg.sender,
+            _msgSender(),
             _conditionIds
         );
     }
@@ -220,7 +220,7 @@ contract AgreementStoreManager is OwnableUpgradeable, AccessControlUpgradeable {
     )
         public payable
     {
-        require(hasRole(PROXY_ROLE, msg.sender), 'Proxy role required');
+        require(hasRole(PROXY_ROLE, _msgSender()), 'Proxy role required');
         createAgreement(_id, _did, _conditionTypes, _conditionIds, _timeLocks, _timeOuts);
         if (_idx.length > 0) {
             ICondition(_conditionTypes[_idx[0]]).fulfillProxy{value: msg.value}(_account[0], _id, params[0]);
@@ -250,5 +250,21 @@ contract AgreementStoreManager is OwnableUpgradeable, AccessControlUpgradeable {
         returns(address)
     {
         return address(didRegistry);
+    }
+
+    /**
+     * @dev getNvmConfigAddress get the address of the NeverminedConfig contract
+     * @return NeverminedConfig contract address
+     */
+    function getNvmConfigAddress()
+    public
+    override
+    view
+    returns (address)
+    {
+        if (address(didRegistry) == address(0)) {
+            return address(0);
+        }
+        return didRegistry.getNvmConfigAddress();
     }
 }

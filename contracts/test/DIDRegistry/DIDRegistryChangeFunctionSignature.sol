@@ -18,10 +18,10 @@ contract DIDRegistryChangeFunctionSignature is DIDRegistry {
     )
         public
     {
-        bytes32 _did = hashDID(_didSeed, msg.sender);
+        bytes32 _did = hashDID(_didSeed, _msgSender());
         require(
             didRegisterList.didRegisters[_did].owner == address(0x0) ||
-            didRegisterList.didRegisters[_did].owner == msg.sender,
+            didRegisterList.didRegisters[_did].owner == _msgSender(),
             'Only DID Owners or not registered DID'
         );
 
@@ -31,7 +31,7 @@ contract DIDRegistryChangeFunctionSignature is DIDRegistry {
             'Invalid value size'
         );
 
-        didRegisterList.update(_did, _checksum, _url);
+        didRegisterList.update(_did, _checksum, _url, _msgSender());
 
         // push providers to storage
         for(uint256 i = 0; i < _providers.length; i++) {
@@ -43,7 +43,7 @@ contract DIDRegistryChangeFunctionSignature is DIDRegistry {
             didRegisterList.didRegisters[_did].owner,
             _checksum,
             _url,
-            msg.sender,
+            _msgSender(),
             block.number
         );
     }

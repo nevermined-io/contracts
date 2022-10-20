@@ -18,7 +18,7 @@ import '@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeab
  * @dev Implementation of the Aave Repay Condition
  * This condition allows to a borrower to repay a credit as part of a credit template
  */
-contract AaveRepayCondition is Condition, Common {
+contract AaveRepayCondition is Condition {
     using SafeMathUpgradeable for uint256;
     using SafeERC20Upgradeable for ERC20Upgradeable;
 
@@ -128,11 +128,11 @@ contract AaveRepayCondition is Condition, Common {
             ConditionStoreLibrary.ConditionState.Fulfilled,
             _did,
             'AaveRepayCondition',
-            msg.sender
+            _msgSender()
         );
         
         if (state == ConditionStoreLibrary.ConditionState.Fulfilled)    {
-            token.safeTransferFrom(msg.sender, _vaultAddress, totalDebt);
+            token.safeTransferFrom(_msgSender(), _vaultAddress, totalDebt);
             vault.repay(_assetToRepay, _interestRateMode, _id);
         } else if (state == ConditionStoreLibrary.ConditionState.Aborted)    {
             vault.setRepayConditionId(_id);

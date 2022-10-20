@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 // Code is Apache-2.0 and docs are CC-BY-4.0
 
 
+import '../Common.sol';
 import './DIDFactory.sol';
 import '../token/erc1155/NFTUpgradeable.sol';
 import '../token/erc721/NFT721Upgradeable.sol';
@@ -31,7 +32,7 @@ contract DIDRegistry is DIDFactory {
     modifier onlyConditionManager
     {
         require(
-            msg.sender == conditionManager,
+            _msgSender() == conditionManager,
             'Only condition store manager'
         );
         _;
@@ -86,7 +87,7 @@ contract DIDRegistry is DIDFactory {
     )
     public
     {
-        require(didRegisterList.didRegisters[_did].creator == msg.sender, 'Only creator can set royalties');
+        require(didRegisterList.didRegisters[_did].creator == _msgSender(), 'Only creator can set royalties');
         require(address(didRegisterList.didRegisters[_did].royaltyScheme) == address(0), 'Cannot change royalties');
         didRegisterList.didRegisters[_did].royaltyScheme = IRoyaltyScheme(_royalties);
 
@@ -102,7 +103,7 @@ contract DIDRegistry is DIDFactory {
     )
     public
     {
-        require(didRegisterList.didRegisters[_did].creator == msg.sender, 'Only creator can set royalties');
+        require(didRegisterList.didRegisters[_did].creator == _msgSender(), 'Only creator can set royalties');
         didRegisterList.didRegisters[_did].royaltyRecipient = _recipient;
 
         emit DIDRoyaltyRecipientChanged(
@@ -143,7 +144,7 @@ contract DIDRegistry is DIDFactory {
     {
         registerDID(_didSeed, _checksum, _providers, _url, _activityId, '');
         enableAndMintDidNft(
-            hashDID(_didSeed, msg.sender),
+            hashDID(_didSeed, _msgSender()),
             _cap,
             _royalties,
             _mint,
@@ -181,7 +182,7 @@ contract DIDRegistry is DIDFactory {
     {
         registerDID(_didSeed, _checksum, _providers, _url, _activityId, '');
         enableAndMintDidNft721(
-            hashDID(_didSeed, msg.sender),
+            hashDID(_didSeed, _msgSender()),
             _royalties,
             _mint,
             _nftMetadata
@@ -253,7 +254,7 @@ contract DIDRegistry is DIDFactory {
             erc1155.setNFTMetadata(uint256(_did), _nftMetadata);
         
         if (_royalties > 0) {
-            erc1155.setTokenRoyalty(uint256(_did), msg.sender, _royalties);
+            erc1155.setTokenRoyalty(uint256(_did), _msgSender(), _royalties);
             if (address(defaultRoyalties) != address(0)) defaultRoyalties.setRoyalty(_did, _royalties);
         }
         
@@ -261,8 +262,8 @@ contract DIDRegistry is DIDFactory {
             mint(_did, _cap);
         
         return super.used(
-            keccak256(abi.encode(_did, _cap, _royalties, msg.sender)),
-            _did, msg.sender, keccak256('enableNft'), '', 'nft initialization');
+            keccak256(abi.encode(_did, _cap, _royalties, _msgSender())),
+            _did, _msgSender(), keccak256('enableNft'), '', 'nft initialization');
     }
 
     /**
@@ -294,15 +295,15 @@ contract DIDRegistry is DIDFactory {
         
         if (_royalties > 0) {
             if (address(defaultRoyalties) != address(0)) defaultRoyalties.setRoyalty(_did, _royalties);
-            erc721.setTokenRoyalty(uint256(_did), msg.sender, _royalties);
+            erc721.setTokenRoyalty(uint256(_did), _msgSender(), _royalties);
         }
 
         if (_mint)
-            mint721(_did, msg.sender);
+            mint721(_did, _msgSender());
         
         return super.used(
-            keccak256(abi.encode(_did, 1, _royalties, msg.sender)),
-            _did, msg.sender, keccak256('enableNft721'), '', 'nft initialization');
+            keccak256(abi.encode(_did, 1, _royalties, _msgSender())),
+            _did, _msgSender(), keccak256('enableNft721'), '', 'nft initialization');
     }
 
     /**
@@ -334,8 +335,8 @@ contract DIDRegistry is DIDFactory {
         didRegisterList.didRegisters[_did].nftSupply = didRegisterList.didRegisters[_did].nftSupply + _amount;
         
         super.used(
-            keccak256(abi.encode(_did, msg.sender, 'mint', _amount, block.number)),
-            _did, msg.sender, keccak256('mint'), '', 'mint');
+            keccak256(abi.encode(_did, _msgSender(), 'mint', _amount, block.number)),
+            _did, _msgSender(), keccak256('mint'), '', 'mint');
 
         erc1155.mint(_receiver, uint256(_did), _amount, '');
     }
@@ -346,7 +347,7 @@ contract DIDRegistry is DIDFactory {
     )
     public
     {
-        mint(_did, _amount, msg.sender);
+        mint(_did, _amount, _msgSender());
     }
 
 
@@ -365,8 +366,8 @@ contract DIDRegistry is DIDFactory {
     nft721IsInitialized(_did)
     {
         super.used(
-            keccak256(abi.encode(_did, msg.sender, 'mint721', 1, block.number)),
-            _did, msg.sender, keccak256('mint721'), '', 'mint721');
+            keccak256(abi.encode(_did, _msgSender(), 'mint721', 1, block.number)),
+            _did, _msgSender(), keccak256('mint721'), '', 'mint721');
 
         erc721.mint(_receiver, uint256(_did));
     }
@@ -376,7 +377,7 @@ contract DIDRegistry is DIDFactory {
     )
     public
     {
-        mint721(_did, msg.sender);
+        mint721(_did, _msgSender());
     }
     
     
@@ -396,12 +397,12 @@ contract DIDRegistry is DIDFactory {
     public
     nftIsInitialized(_did)
     {
-        erc1155.burn(msg.sender, uint256(_did), _amount);
+        erc1155.burn(_msgSender(), uint256(_did), _amount);
         didRegisterList.didRegisters[_did].nftSupply -= _amount;
         
         super._used(
-            keccak256(abi.encode(_did, msg.sender, 'burn', _amount, block.number)),
-            _did, msg.sender, keccak256('burn'), '', 'burn');
+            keccak256(abi.encode(_did, _msgSender(), 'burn', _amount, block.number)),
+            _did, _msgSender(), keccak256('burn'), '', 'burn');
     }
 
     function burn721(
@@ -410,12 +411,12 @@ contract DIDRegistry is DIDFactory {
     public
     nft721IsInitialized(_did)
     {
-        require(erc721.balanceOf(msg.sender) > 0, 'ERC721: burn amount exceeds balance');
+        require(erc721.balanceOf(_msgSender()) > 0, 'ERC721: burn amount exceeds balance');
         erc721.burn(uint256(_did));
 
         super._used(
-            keccak256(abi.encode(_did, msg.sender, 'burn721', 1, block.number)),
-            _did, msg.sender, keccak256('burn721'), '', 'burn721');
+            keccak256(abi.encode(_did, _msgSender(), 'burn721', 1, block.number)),
+            _did, _msgSender(), keccak256('burn721'), '', 'burn721');
     }
 
     function _provenanceStorage() override internal view returns (bool) {
@@ -426,4 +427,16 @@ contract DIDRegistry is DIDFactory {
         _used(_cond, _did, user, keccak256(bytes(name)), '', name);
     }
 
+    /**
+     * @dev getNvmConfigAddress get the address of the NeverminedConfig contract
+     * @return NeverminedConfig contract address
+     */
+    function getNvmConfigAddress()
+    public
+    override
+    view
+    returns (address)
+    {
+        return address(nvmConfig);
+    }
 }

@@ -5,6 +5,7 @@ pragma solidity ^0.8.0;
 
 import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
 import '../governance/INVMConfig.sol';
+import '../Common.sol';
 
 /**
  * @title Provenance Registry Library
@@ -13,7 +14,7 @@ import '../governance/INVMConfig.sol';
  * @dev All function calls are currently implemented without side effects
  */
 /* solium-disable-next-line */
-abstract contract ProvenanceRegistry is OwnableUpgradeable {
+abstract contract ProvenanceRegistry is CommonOwnable {
 
     // solhint-disable-next-line
     function __ProvenanceRegistry_init() internal initializer {
@@ -233,14 +234,14 @@ abstract contract ProvenanceRegistry is OwnableUpgradeable {
             _activityId,
             address(0x0),
             ProvenanceMethod.WAS_GENERATED_BY,
-            msg.sender,
+            _msgSender(),
             new bytes(0), // No signatures between parties needed
             _attributes
         );
 
         emit WasGeneratedBy(
             _did,
-           msg.sender,
+           _msgSender(),
             _activityId,
             _provId,
             _attributes,
@@ -282,7 +283,7 @@ abstract contract ProvenanceRegistry is OwnableUpgradeable {
             _activityId,
             address(0x0),
             ProvenanceMethod.USED,
-            msg.sender,
+            _msgSender(),
             _signatureUsing,
             _attributes
         );
@@ -332,7 +333,7 @@ abstract contract ProvenanceRegistry is OwnableUpgradeable {
             _activityId,
             address(0x0),
             ProvenanceMethod.WAS_DERIVED_FROM,
-            msg.sender,
+            _msgSender(),
             new bytes(0), // No signatures between parties needed
             _attributes
         );
@@ -380,7 +381,7 @@ abstract contract ProvenanceRegistry is OwnableUpgradeable {
             _activityId,
             address(0x0),
             ProvenanceMethod.WAS_ASSOCIATED_WITH,
-            msg.sender,
+            _msgSender(),
             new bytes(0), // No signatures between parties needed
             _attributes
         );
@@ -433,7 +434,7 @@ abstract contract ProvenanceRegistry is OwnableUpgradeable {
             _activityId,
             _responsibleAgentId,
             ProvenanceMethod.ACTED_ON_BEHALF,
-            msg.sender,
+            _msgSender(),
             _signatureDelegate,
             _attributes
         );

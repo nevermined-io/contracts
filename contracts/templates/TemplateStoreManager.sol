@@ -6,6 +6,7 @@ pragma solidity ^0.8.0;
 
 
 import './TemplateStoreLibrary.sol';
+import '../Common.sol';
 import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
 
 /**
@@ -19,16 +20,18 @@ import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
  *      of the template ( Propose --> Approve --> Revoke ).
  *      
  */
-contract TemplateStoreManager is OwnableUpgradeable {
+contract TemplateStoreManager is CommonOwnable {
 
     using TemplateStoreLibrary for TemplateStoreLibrary.TemplateList;
 
     TemplateStoreLibrary.TemplateList internal templateList;
 
+    address public nvmConfig;
+
     modifier onlyOwnerOrTemplateOwner(address _id){
         require(
-            msg.sender == owner() ||
-            templateList.templates[_id].owner == msg.sender,
+            _msgSender() == owner() ||
+            templateList.templates[_id].owner == _msgSender(),
             'Invalid UpdateRole'
         );
         _;
@@ -63,7 +66,7 @@ contract TemplateStoreManager is OwnableUpgradeable {
         external
         returns (uint size)
     {
-        return templateList.propose(_id);
+        return templateList.propose(_id, _msgSender());
     }
 
     /**
@@ -76,7 +79,7 @@ contract TemplateStoreManager is OwnableUpgradeable {
         external
         onlyOwner
     {
-        return templateList.approve(_id);
+        return templateList.approve(_id, _msgSender());
     }
 
     /**
@@ -90,7 +93,7 @@ contract TemplateStoreManager is OwnableUpgradeable {
         external
         onlyOwnerOrTemplateOwner(_id)
     {
-        return templateList.revoke(_id);
+        return templateList.revoke(_id, _msgSender());
     }
 
     /**
@@ -142,5 +145,24 @@ contract TemplateStoreManager is OwnableUpgradeable {
             TemplateStoreLibrary.TemplateState.Approved;
     }
     
+    /**
+     * @dev getNvmConfigAddress get the address of the NeverminedConfig contract
+     * @return NeverminedConfig contract address
+     */
+    function getNvmConfigAddress()
+    public
+    override
+    view
+    returns (address)
+    {
+        return nvmConfig;
+    }
+
+    function setNvmConfigAddress(address _addr)
+    external
+    onlyOwner
+    {
+        nvmConfig = _addr;
+    }
 
 }

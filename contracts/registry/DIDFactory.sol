@@ -14,7 +14,7 @@ import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
  *
  * @dev Implementation of the DID Registry.
  */
-abstract contract DIDFactory is OwnableUpgradeable, ProvenanceRegistry { 
+abstract contract DIDFactory is ProvenanceRegistry { 
     
     /**
      * @dev The DIDRegistry Library takes care of the basic DID storage functions.
@@ -39,7 +39,7 @@ abstract contract DIDFactory is OwnableUpgradeable, ProvenanceRegistry {
     modifier onlyDIDOwner(bytes32 _did)
     {
         require(
-            isDIDOwner(msg.sender, _did),
+            isDIDOwner(_msgSender(), _did),
             'Only owner'
         );
         _;
@@ -48,7 +48,7 @@ abstract contract DIDFactory is OwnableUpgradeable, ProvenanceRegistry {
     modifier onlyManager
     {
         require(
-            msg.sender == manager,
+            _msgSender() == manager,
             'Only manager'
         );
         _;
@@ -202,14 +202,14 @@ abstract contract DIDFactory is OwnableUpgradeable, ProvenanceRegistry {
     virtual
     onlyValidAttributes(_attributes)
     {
-        bytes32 _did = hashDID(_didSeed, msg.sender);
+        bytes32 _did = hashDID(_didSeed, _msgSender());
         require(
             didRegisterList.didRegisters[_did].owner == address(0x0) ||
-            didRegisterList.didRegisters[_did].owner == msg.sender,
+            didRegisterList.didRegisters[_did].owner == _msgSender(),
             'Only DID Owners or not registered DID'
         );
 
-        didRegisterList.update(_did, _checksum, _url);
+        didRegisterList.update(_did, _checksum, _url, _msgSender());
 
         // push providers to storage
         for (uint256 i = 0; i < _providers.length; i++) {
@@ -224,11 +224,11 @@ abstract contract DIDFactory is OwnableUpgradeable, ProvenanceRegistry {
             didRegisterList.didRegisters[_did].owner,
             _checksum,
             _url,
-            msg.sender,
+            _msgSender(),
             block.number
         );
         
-        _wasGeneratedBy(_did, _did, msg.sender, _activityId, _attributes);
+        _wasGeneratedBy(_did, _did, _msgSender(), _activityId, _attributes);
 
     }
 
@@ -466,7 +466,7 @@ abstract contract DIDFactory is OwnableUpgradeable, ProvenanceRegistry {
     function transferDIDOwnership(bytes32 _did, address _newOwner)
     external
     {
-        _transferDIDOwnership(msg.sender, _did, _newOwner);
+        _transferDIDOwnership(_msgSender(), _did, _newOwner);
     }
 
     /**
@@ -697,7 +697,7 @@ abstract contract DIDFactory is OwnableUpgradeable, ProvenanceRegistry {
         didPermissions[_did][_grantee] = true;
         emit DIDPermissionGranted(
             _did,
-            msg.sender,
+            _msgSender(),
             _grantee
         );
     }
@@ -720,7 +720,7 @@ abstract contract DIDFactory is OwnableUpgradeable, ProvenanceRegistry {
         didPermissions[_did][_grantee] = false;
         emit DIDPermissionRevoked(
             _did,
-            msg.sender,
+            _msgSender(),
             _grantee
         );
     }
@@ -806,7 +806,7 @@ abstract contract DIDFactory is OwnableUpgradeable, ProvenanceRegistry {
 
 
     /**
-     * @notice isOwnerProviderOrDelegate check whether msg.sender is owner, provider or
+     * @notice isOwnerProviderOrDelegate check whether _msgSender() is owner, provider or
      * delegate for a DID given
      * @param _did refers to decentralized identifier (a bytes32 length ID).
      * @return boolean true if yes
@@ -818,9 +818,9 @@ abstract contract DIDFactory is OwnableUpgradeable, ProvenanceRegistry {
     view
     returns (bool)
     {
-        return (msg.sender == didRegisterList.didRegisters[_did].owner ||
-                    isProvenanceDelegate(_did, msg.sender) ||
-                    isDIDProvider(_did, msg.sender));
+        return (_msgSender() == didRegisterList.didRegisters[_did].owner ||
+                    isProvenanceDelegate(_did, _msgSender()) ||
+                    isDIDProvider(_did, _msgSender()));
     }    
     
     /**
