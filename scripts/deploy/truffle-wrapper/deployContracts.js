@@ -6,6 +6,7 @@ const { exportArtifacts, exportLibraryArtifacts } = require('./artifacts')
 const { loadWallet } = require('./wallets.js')
 const { readArtifact, deployLibrary } = require('./artifacts')
 const { GsnTestEnvironment } = require('@opengsn/dev')
+const fs = require('fs')
 
 const PROXY_ADMIN_ABI = `[{
     "inputs": [],
@@ -70,6 +71,7 @@ async function deployContracts({ contracts: origContracts, verbose, testnet, mak
             const env = await GsnTestEnvironment.startGsn('localhost')
             const { forwarderAddress } = env.contractsDeployment
             gsn = forwarderAddress
+            fs.writeFileSync('artifacts/opengsn.json', JSON.stringify(env.contractsDeployment))
         } catch (e) {
             console.log('Cannot deploy OpenGSN contracts', e)
         }
