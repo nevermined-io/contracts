@@ -31,7 +31,7 @@ contract('POAP', (accounts) => {
 
     async function setupTest() {
         nft = await POAPUpgradeable.new({ from: deployer })
-        await nft.initializeWithName('TestPOAP', 'TEST', '', { from: owner })
+        await nft.initializeWithName('TestPOAP', 'TEST', { from: owner })
         await nft.addMinter(minter)
     }
 
@@ -39,9 +39,8 @@ contract('POAP', (accounts) => {
         it('As a minter I am minting a POAP', async () => {
             await setupTest()
 
-            await nft.methods['mint(address,string,uint256)'](
+            await nft.methods['mint(address,uint256)'](
                 account1,
-                url,
                 eventId,
                 { from: minter }
             )
@@ -53,16 +52,14 @@ contract('POAP', (accounts) => {
         })
 
         it('The minter can mint more POAPs for the same and other users', async () => {
-            await nft.methods['mint(address,string,uint256)'](
+            await nft.methods['mint(address,uint256)'](
                 account1,
-                url,
                 eventId,
                 { from: minter }
             )
 
-            await nft.methods['mint(address,string,uint256)'](
+            await nft.methods['mint(address,uint256)'](
                 account2,
-                url,
                 eventId,
                 { from: minter }
             )

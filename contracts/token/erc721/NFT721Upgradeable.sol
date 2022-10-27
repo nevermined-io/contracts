@@ -5,18 +5,25 @@ pragma solidity ^0.8.0;
 
 import '@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol';
 import '../NFTBase.sol';
+import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
+
 
 /**
  *
  * @dev Implementation of the basic standard multi-token.
  */
 contract NFT721Upgradeable is ERC721Upgradeable, NFTBase {
+    
+    uint256 _nftContractCap;
+
+    using CountersUpgradeable for CountersUpgradeable.Counter;
+
+    CountersUpgradeable.Counter _counterMinted;
 
     // solhint-disable-next-line
     function initializeWithName(
         string memory name, 
-        string memory symbol,
-        string memory uri
+        string memory symbol
     ) 
     public 
     virtual 
@@ -28,9 +35,29 @@ contract NFT721Upgradeable is ERC721Upgradeable, NFTBase {
         __Ownable_init_unchained();
         AccessControlUpgradeable.__AccessControl_init();
         AccessControlUpgradeable._setupRole(MINTER_ROLE, _msgSender());
-        setContractMetadataUri(uri);
     }
-
+    
+    // solhint-disable-next-line
+    function initializeWithAttributes(
+        string memory name,
+        string memory symbol,
+        string memory uri,
+        uint256 cap
+    )
+    public
+    virtual
+    initializer
+    {
+        __Context_init_unchained();
+        __ERC165_init_unchained();
+        __ERC721_init_unchained(name, symbol);
+        __Ownable_init_unchained();
+        AccessControlUpgradeable.__AccessControl_init();
+        AccessControlUpgradeable._setupRole(MINTER_ROLE, _msgSender());
+        setContractMetadataUri(uri);
+        _nftContractCap = cap;
+    }    
+    
     // solhint-disable-next-line
     function initialize()
     public
@@ -45,9 +72,6 @@ contract NFT721Upgradeable is ERC721Upgradeable, NFTBase {
         AccessControlUpgradeable._setupRole(MINTER_ROLE, _msgSender());
     }    
     
-    /**
-     * @dev See {IERC1155-isApprovedForAll}.
-     */
     function isApprovedForAll(
         address account, 
         address operator
@@ -55,7 +79,7 @@ contract NFT721Upgradeable is ERC721Upgradeable, NFTBase {
     public 
     view 
     virtual 
-    override 
+    override
     returns (bool) 
     {
         return super.isApprovedForAll(account, operator) || _proxyApprovals[operator];
@@ -71,18 +95,34 @@ contract NFT721Upgradeable is ERC721Upgradeable, NFTBase {
     }    
     
     function mint(
-        address to, 
-        uint256 id
-    ) 
-    public 
-    virtual 
+        address to,
+        uint256 tokenId
+    )
+    public
+    virtual
     {
         require(hasRole(MINTER_ROLE, _msgSender()), 'only minter can mint');
-        _mint(to, id);
+        require(_nftContractCap == 0 || _counterMinted.current() < _nftContractCap,
+            'ERC721: Cap exceed'
+        );
+        _mint(to, tokenId);
+        _counterMinted.increment();
     }
 
+    function getHowManyMinted()
+    public
+    view
+    returns (uint256)
+    {
+        return _counterMinted.current();
+    }
+    
+    /**
+    * @dev Burning tokens does not decrement the counter of tokens minted!
+    *      This is by design.
+    */
     function burn(
-        uint256 id
+        uint256 tokenId
     ) 
     public 
     {
@@ -91,19 +131,37 @@ contract NFT721Upgradeable is ERC721Upgradeable, NFTBase {
             balanceOf(_msgSender()) > 0, // Or the _msgSender() is owner and have balance
             'ERC721: caller is not owner or not have balance'
         );        
-        _burn(id);
+        _burn(tokenId);
     }
-    
-    function tokenURI(
-        uint256 tokenId
-    ) 
-    public 
-    virtual 
+
+//    function _burn(
+//        uint256 tokenId
+//    )
+//    internal
+//    virtual
+//    override(ERC721Upgradeable) {
+//        super._burn(tokenId);
+//    }
+
+//    function _beforeTokenTransfer(
+//        address from,
+//        address to,
+//        uint256 tokenId
+//    )
+//    internal
+//    override(ERC721Upgradeable)
+//    {
+//        super._beforeTokenTransfer(from, to, tokenId);
+//    }
+
+    function _baseURI() 
+    internal 
     view 
-    override 
+    override
+    virtual
     returns (string memory) 
     {
-        return _metadata[tokenId].nftURI;
+        return contractURI();
     }
     
     /**
@@ -120,7 +178,7 @@ contract NFT721Upgradeable is ERC721Upgradeable, NFTBase {
         require(hasRole(MINTER_ROLE, _msgSender()), 'only minter');
         _setNFTMetadata(tokenId, nftURI);
     }
-
+    
     /**
     * @dev Record the asset royalties
     * @param tokenId the id of the asset with the royalties associated
@@ -151,7 +209,6 @@ contract NFT721Upgradeable is ERC721Upgradeable, NFTBase {
         || ERC721Upgradeable.supportsInterface(interfaceId)
         || interfaceId == type(IERC2981Upgradeable).interfaceId;
     }
-
 
     function _msgSender() internal override(NFTBase,ContextUpgradeable) virtual view returns (address ret) {
         return Common._msgSender();
