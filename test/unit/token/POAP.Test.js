@@ -14,7 +14,6 @@ const BigNumber = require('bignumber.js')
 
 contract('POAP', (accounts) => {
     const eventId = testUtils.generateId()
-    const url = 'http://nevermined.io'
 
     const [
         owner,
@@ -84,8 +83,8 @@ contract('POAP', (accounts) => {
                 .filter((v, i, a) => a.indexOf(v) === i)
 
             assert.strictEqual(poaps.length, 1)
-            assert.strictEqual(new BigNumber(tokenIds[0]).toNumber(), 0)
-            assert.strictEqual(new BigNumber(tokenIds[1]).toNumber(), 1)
+            assert.strictEqual(new BigNumber(tokenIds[0]).toNumber(), 1)
+            assert.strictEqual(new BigNumber(tokenIds[1]).toNumber(), 2)
             assert.strictEqual(new BigNumber(eventIds[0]).toNumber(), BigNumber(eventId).toNumber())
             assert.strictEqual(new BigNumber(eventIds[1]).toNumber(), BigNumber(eventId).toNumber())
         })

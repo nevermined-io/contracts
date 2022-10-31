@@ -24,6 +24,17 @@ contract POAPUpgradeable is NFT721Upgradeable, ERC721EnumerableUpgradeable {
         _tokenEvent[tokenId] = eventId;
     }
 
+    function mint(
+        address to,
+        uint256 eventId
+    )
+    public
+    override
+    virtual
+    {
+        uint256 tokenId = getHowManyMinted() + 1;
+        mint(to, tokenId, eventId);
+    }    
 
     function mint(
         address to
@@ -128,13 +139,28 @@ contract POAPUpgradeable is NFT721Upgradeable, ERC721EnumerableUpgradeable {
         return super._baseURI();
     }
 
-//    function _burn(
-//        uint256 tokenId
-//    )
-//    internal
-//    override(NFT721Upgradeable, ERC721Upgradeable) {
-//        super._burn(tokenId);
-//    }    
+    function tokenURI(
+        uint256 tokenId
+    )
+    public
+    view
+    virtual
+    override(NFT721Upgradeable, ERC721Upgradeable)
+    returns (string memory)
+    {
+        return super.tokenURI(tokenId);
+    }    
+    
+    function _beforeTokenTransfer(
+        address from,
+        address to,
+        uint256 tokenId
+    )
+    internal
+    override(ERC721Upgradeable, ERC721EnumerableUpgradeable)
+    {
+        super._beforeTokenTransfer(from, to, tokenId);
+    } 
     
     function _msgSender() internal override(NFT721Upgradeable,ContextUpgradeable) virtual view returns (address ret) {
         return Common._msgSender();

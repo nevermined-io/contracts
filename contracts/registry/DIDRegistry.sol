@@ -356,11 +356,10 @@ contract DIDRegistry is DIDFactory {
     onlyDIDOwner(_did)
     nft721IsInitialized(_did)
     {
+        erc721.mint(_receiver, uint256(_did));
         super.used(
             keccak256(abi.encode(_did, _msgSender(), 'mint721', 1, block.number)),
             _did, _msgSender(), keccak256('mint721'), '', 'mint721');
-
-        erc721.mint(_receiver, uint256(_did));
     }
 
     function mint721(

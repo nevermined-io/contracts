@@ -5,7 +5,8 @@ pragma solidity ^0.8.0;
 
 import '@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol';
 import '../NFTBase.sol';
-import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
+import '@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol';
+import '@openzeppelin/contracts-upgradeable/utils/StringsUpgradeable.sol';
 
 
 /**
@@ -14,11 +15,12 @@ import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
  */
 contract NFT721Upgradeable is ERC721Upgradeable, NFTBase {
     
-    uint256 _nftContractCap;
+    uint256 private _nftContractCap;
 
     using CountersUpgradeable for CountersUpgradeable.Counter;
+    using StringsUpgradeable for uint256;
 
-    CountersUpgradeable.Counter _counterMinted;
+    CountersUpgradeable.Counter private _counterMinted;
 
     // solhint-disable-next-line
     function initializeWithName(
@@ -109,6 +111,15 @@ contract NFT721Upgradeable is ERC721Upgradeable, NFTBase {
         _counterMinted.increment();
     }
 
+    function mint(
+        uint256 tokenId
+    )
+    public
+    virtual
+    {
+        return mint(_msgSender(), tokenId);
+    }    
+    
     function getHowManyMinted()
     public
     view
@@ -134,26 +145,6 @@ contract NFT721Upgradeable is ERC721Upgradeable, NFTBase {
         _burn(tokenId);
     }
 
-//    function _burn(
-//        uint256 tokenId
-//    )
-//    internal
-//    virtual
-//    override(ERC721Upgradeable) {
-//        super._burn(tokenId);
-//    }
-
-//    function _beforeTokenTransfer(
-//        address from,
-//        address to,
-//        uint256 tokenId
-//    )
-//    internal
-//    override(ERC721Upgradeable)
-//    {
-//        super._beforeTokenTransfer(from, to, tokenId);
-//    }
-
     function _baseURI() 
     internal 
     view 
@@ -178,6 +169,22 @@ contract NFT721Upgradeable is ERC721Upgradeable, NFTBase {
         require(hasRole(MINTER_ROLE, _msgSender()), 'only minter');
         _setNFTMetadata(tokenId, nftURI);
     }
+
+    function tokenURI(
+        uint256 tokenId
+    ) 
+    public 
+    view 
+    virtual 
+    override (ERC721Upgradeable)
+    returns (string memory) 
+    {
+        string memory baseURI = _baseURI();
+        if (_exists(tokenId))
+            return bytes(baseURI).length > 0 ? string(abi.encodePacked(baseURI, tokenId.toHexString())) : '';
+        else
+            return bytes(baseURI).length > 0 ? string(abi.encodePacked(baseURI)) : '';        
+    }    
     
     /**
     * @dev Record the asset royalties
