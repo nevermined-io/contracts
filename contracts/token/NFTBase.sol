@@ -30,9 +30,9 @@ abstract contract NFTBase is IERC2981Upgradeable, CommonOwnable, AccessControlUp
         string nftURI;
     }
     
-    // Mapping of Royalties per tokenId (DID)
+    // Mapping of Royalties per asset (DID)
     mapping(uint256 => RoyaltyInfo) internal _royalties;
-    // Mapping of NFT Metadata object per tokenId (DID)
+    // Mapping of NFT Metadata object per tokenId
     mapping(uint256 => NFTMetadata) internal _metadata;
     // Mapping of expiration block number per user (subscription NFT holder)
     mapping(address => uint256) internal _expiration;
@@ -138,7 +138,7 @@ abstract contract NFTBase is IERC2981Upgradeable, CommonOwnable, AccessControlUp
     returns (string memory) {
         return _contractMetadataUri;
     }
-
+    
     function _msgSender() internal override(CommonOwnable,ContextUpgradeable) virtual view returns (address ret) {
         return Common._msgSender();
     }
