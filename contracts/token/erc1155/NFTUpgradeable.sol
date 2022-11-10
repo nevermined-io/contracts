@@ -130,6 +130,28 @@ contract NFTUpgradeable is ERC1155Upgradeable, NFTBase {
         || interfaceId == type(IERC2981Upgradeable).interfaceId;
     }
 
+    function safeTransferFrom(
+        address from,
+        address to,
+        uint256 id,
+        uint256 amount,
+        bytes memory data
+    ) public virtual override {
+        require(isApprovedProxy(_msgSender()), 'only proxy');
+        super.safeTransferFrom(from, to, id, amount, data);
+    }
+
+    function safeBatchTransferFrom(
+        address from,
+        address to,
+        uint256[] memory ids,
+        uint256[] memory amounts,
+        bytes memory data
+    ) public virtual override {
+        require(isApprovedProxy(_msgSender()), 'only proxy');
+        super.safeBatchTransferFrom(from, to, ids, amounts, data);        
+    }
+    
     function _msgSender() internal override(NFTBase,ContextUpgradeable) virtual view returns (address ret) {
         return Common._msgSender();
     }

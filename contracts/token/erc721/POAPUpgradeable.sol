@@ -149,8 +149,33 @@ contract POAPUpgradeable is NFT721Upgradeable, ERC721EnumerableUpgradeable {
     returns (string memory)
     {
         return super.tokenURI(tokenId);
-    }    
-    
+    }
+
+    function transferFrom(
+        address from,
+        address to,
+        uint256 tokenId
+    ) public virtual override (NFT721Upgradeable, ERC721Upgradeable) {
+        super.transferFrom(from, to, tokenId);
+    }
+
+    function safeTransferFrom(
+        address from,
+        address to,
+        uint256 tokenId
+    ) public virtual override (NFT721Upgradeable, ERC721Upgradeable) {
+        super.safeTransferFrom(from, to, tokenId);
+    }
+
+    function safeTransferFrom(
+        address from,
+        address to,
+        uint256 tokenId,
+        bytes memory data
+    ) public virtual override (NFT721Upgradeable, ERC721Upgradeable) {
+        super.safeTransferFrom(from, to, tokenId, data);
+    }
+
     function _beforeTokenTransfer(
         address from,
         address to,

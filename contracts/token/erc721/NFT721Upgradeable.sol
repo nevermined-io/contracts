@@ -217,6 +217,34 @@ contract NFT721Upgradeable is ERC721Upgradeable, NFTBase {
         || interfaceId == type(IERC2981Upgradeable).interfaceId;
     }
 
+    function transferFrom(
+        address from,
+        address to,
+        uint256 tokenId
+    ) public virtual override {
+        require(isApprovedProxy(_msgSender()), 'only proxy');
+        super.transferFrom(from, to, tokenId);
+    }
+
+    function safeTransferFrom(
+        address from,
+        address to,
+        uint256 tokenId
+    ) public virtual override {
+        require(isApprovedProxy(_msgSender()), 'only proxy');
+        super.safeTransferFrom(from, to, tokenId);
+    }
+
+    function safeTransferFrom(
+        address from,
+        address to,
+        uint256 tokenId,
+        bytes memory data
+    ) public virtual override {
+        require(isApprovedProxy(_msgSender()), 'only proxy');
+        super.safeTransferFrom(from, to, tokenId, data);
+    }    
+    
     function _msgSender() internal override(NFTBase,ContextUpgradeable) virtual view returns (address ret) {
         return Common._msgSender();
     }

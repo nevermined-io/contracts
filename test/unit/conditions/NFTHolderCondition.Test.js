@@ -30,10 +30,12 @@ contract('NFTHolderCondition', (accounts) => {
 
             nftHolderCondition = await NFTHolderCondition.new()
             await nftHolderCondition.initialize(
-                accounts[0],
+                createRole,
                 conditionStoreManager.address,
                 nft.address,
-                { from: accounts[0] })
+                { from: createRole })
+
+            await nft.setProxyApproval(owner, true, { from: createRole })
         }
     }
 
