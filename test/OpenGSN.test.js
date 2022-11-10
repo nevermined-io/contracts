@@ -92,8 +92,8 @@ describe('using ethers with OpenGSN', () => {
             const did = await didRegistry.hashDID(didSeed, account)
             const checksum = testUtils.generateId()
 
-            await didRegistry['registerMintableDID(bytes32,bytes32,address[],string,uint256,uint256,bytes32,string)'](
-                didSeed, checksum, [], value, 20, 0, constants.activities.GENERATED, nftMetadataURL, { from: account })
+            await didRegistry['registerMintableDID(bytes32,bytes32,address[],string,uint256,uint256,bytes32,string,string)'](
+                didSeed, checksum, [], value, 20, 0, constants.activities.GENERATED, nftMetadataURL, '', { from: account })
             await didRegistry['mint(bytes32,uint256)'](did, 20, { from: account })
 
             let balance = await nft.balanceOf(account, did)

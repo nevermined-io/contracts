@@ -137,6 +137,6 @@
     "web3-eth-accounts/scrypt.js": "0.3.0"
   },
   "dependencies": {
-    "@openzeppelin/contracts-upgradeable": "^4.7.3"
+    "@openzeppelin/contracts-upgradeable": "^4.8.0"
   }
 }

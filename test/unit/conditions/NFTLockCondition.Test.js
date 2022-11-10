@@ -52,7 +52,7 @@ contract('NFTLockCondition', (accounts) => {
 
             // register DID
             await didRegistry.registerMintableDID(
-                didSeed, checksum, [], url, amount, 0, constants.activities.GENERATED, '')
+                didSeed, checksum, [], url, amount, 0, constants.activities.GENERATED, '', '')
             await didRegistry.mint(did, amount)
             await nft.setApprovalForAll(lockCondition.address, true)
 
@@ -89,7 +89,7 @@ contract('NFTLockCondition', (accounts) => {
 
             // register DID
             await didRegistry.registerMintableDID(
-                didSeed, checksum, [], url, amount, 0, true, constants.activities.GENERATED, '')
+                didSeed, checksum, [], url, amount, 0, true, constants.activities.GENERATED, '', '')
 
             await nft.setApprovalForAll(lockCondition.address, true)
 
@@ -108,7 +108,7 @@ contract('NFTLockCondition', (accounts) => {
 
             // register DID
             await didRegistry.registerMintableDID(
-                didSeed, checksum, [], url, amount, 0, constants.activities.GENERATED, '')
+                didSeed, checksum, [], url, amount, 0, constants.activities.GENERATED, '', '')
             await didRegistry.mint(did, amount)
             await nft.setApprovalForAll(lockCondition.address, true)
 
@@ -134,7 +134,7 @@ contract('NFTLockCondition', (accounts) => {
 
             // register DID
             await didRegistry.registerMintableDID(
-                didSeed, checksum, [], url, amount, 0, constants.activities.GENERATED, '')
+                didSeed, checksum, [], url, amount, 0, constants.activities.GENERATED, '', '')
             await didRegistry.mint(did, amount)
             await nft.setApprovalForAll(lockCondition.address, true)
 
@@ -172,7 +172,7 @@ contract('NFTLockCondition', (accounts) => {
 
             // register DID
             await didRegistry.registerMintableDID(
-                didSeed, checksum, [], url, amount, 0, constants.activities.GENERATED, '')
+                didSeed, checksum, [], url, amount, 0, constants.activities.GENERATED, '', '')
             await didRegistry.mint(did, amount)
             await nft.setApprovalForAll(lockCondition.address, true)
 

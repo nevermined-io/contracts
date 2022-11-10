@@ -279,7 +279,7 @@ function escrowTest(EscrowPaymentCondition, LockPaymentCondition, Token, nft, nf
 
                 // register DID
                 await didRegistry.registerMintableDID(
-                    didSeed, checksum, [], url, amounts[0], 0, false, constants.activities.GENERATED, '')
+                    didSeed, checksum, [], url, amounts[0], 0, false, constants.activities.GENERATED, '', '')
 
                 const hashValuesLock = await lockPaymentCondition.hashValues(
                     did, escrowPayment.address, constants.address.zero, amounts, receivers)
@@ -372,7 +372,7 @@ function escrowTest(EscrowPaymentCondition, LockPaymentCondition, Token, nft, nf
 
                 // register DID
                 await didRegistry.registerMintableDID(
-                    didSeed, checksum, [], url, amounts[0], 0, false, constants.activities.GENERATED, '')
+                    didSeed, checksum, [], url, amounts[0], 0, false, constants.activities.GENERATED, '', '')
 
                 const hashValuesLock = await lockPaymentCondition.hashValues(
                     did, escrowPayment.address, constants.address.zero, amounts, receivers)

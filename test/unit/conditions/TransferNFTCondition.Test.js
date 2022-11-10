@@ -135,7 +135,7 @@ contract('TransferNFT Condition constructor', (accounts) => {
 
         if (registerDID) {
             await didRegistry.registerMintableDID(
-                didSeed, checksum, [], url, mintCap, 0, constants.activities.GENERATED, '',
+                didSeed, checksum, [], url, mintCap, 0, constants.activities.GENERATED, '', '',
                 { from: seller }
             )
             if (mintDID) {

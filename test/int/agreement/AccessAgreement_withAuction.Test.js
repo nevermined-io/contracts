@@ -194,7 +194,7 @@ contract('Access with Auction integration test', (accounts) => {
 
             // register DID
             await didRegistry.registerMintableDID(
-                didSeed, checksum, [], url, 10, 0, constants.activities.GENERATED, '', { from: creator })
+                didSeed, checksum, [], url, 10, 0, constants.activities.GENERATED, '', '', { from: creator })
 
             // create agreement
             await accessTemplate.createAgreement(initAgreementId, ...Object.values(agreement))

@@ -31,7 +31,7 @@ contract DIDRegistryChangeFunctionSignature is DIDRegistry {
             'Invalid value size'
         );
 
-        didRegisterList.update(_did, _checksum, _url, _msgSender());
+        didRegisterList.update(_did, _checksum, _url, _msgSender(), '');
 
         // push providers to storage
         for(uint256 i = 0; i < _providers.length; i++) {

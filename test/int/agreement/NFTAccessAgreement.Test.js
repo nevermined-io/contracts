@@ -120,7 +120,7 @@ contract('NFT Access integration test', (accounts) => {
 
             // register DID
             await didRegistry.registerMintableDID(
-                didSeed, checksum, [], url, 10, 0, constants.activities.GENERATED, '', { from: sender })
+                didSeed, checksum, [], url, 10, 0, constants.activities.GENERATED, '', '', { from: sender })
 
             // create agreement
             await nftAccessTemplate.createAgreement(...Object.values(agreement))
