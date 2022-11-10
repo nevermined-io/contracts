@@ -6,8 +6,7 @@ pragma solidity ^0.8.0;
 
 import './Condition.sol';
 import '../registry/DIDRegistry.sol';
-import '../interfaces/ISecretStore.sol';
-import '../interfaces/ISecretStorePermission.sol';
+import '../interfaces/IAccessControl.sol';
 import '../agreements/AgreementStoreManager.sol';
 
 interface IDisputeManager {
