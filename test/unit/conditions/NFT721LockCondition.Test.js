@@ -96,16 +96,9 @@ contract('NFT721LockCondition', (accounts) => {
 
             // register DID
             await didRegistry.registerMintableDID(
-<<<<<<< HEAD
                 didSeed, checksum, [], url, amount, 0, false, constants.activities.GENERATED, '', '')
-            await erc721.mint(did)
-||||||| d65359a4
-                didSeed, checksum, [], url, amount, 0, false, constants.activities.GENERATED, '')
-            await erc721.mint(did)
-=======
-                didSeed, checksum, [], url, amount, 0, false, constants.activities.GENERATED, '')
             await erc721.mint(accounts[0], did)
->>>>>>> develop
+
             await erc721.approve(lockCondition.address, did)
 
             await assert.isRejected(
