@@ -182,14 +182,12 @@ contract DIDRegistry is DIDFactory {
         string memory _immutableUrl
     )
     public
-    onlyValidAttributes(_nftMetadata)
     {
         registerDID(_didSeed, _checksum, _providers, _url, _activityId, _immutableUrl);
         enableAndMintDidNft721(
             hashDID(_didSeed, _msgSender()),
             _royalties,
-            _mint,
-            _nftMetadata
+            _mint
         );
     }
 
@@ -281,23 +279,18 @@ contract DIDRegistry is DIDFactory {
      * @dev update the DID registry providers list by adding the mintCap and royalties configuration
      * @param _did refers to decentralized identifier (a byte32 length ID)
      * @param _royalties refers to the royalties to reward to the DID creator in the secondary market
-     * @param _mint if is true mint directly the amount capped tokens and lock in the _lockAddress
-     * @param _nftMetadata refers to the url providing the NFT Metadata          
+     * @param _mint if is true mint directly the amount capped tokens and lock in the _lockAddress          
      */    
     function enableAndMintDidNft721(
         bytes32 _did,
         uint256 _royalties,
-        bool _mint,
-        string memory _nftMetadata
+        bool _mint
     )
     public
     onlyDIDOwner(_did)
     returns (bool success)
     {
         didRegisterList.initializeNft721Config(_did, _royalties > 0 ? defaultRoyalties : IRoyaltyScheme(address(0)));
-
-        if (bytes(_nftMetadata).length > 0)
-            erc721.setNFTMetadata(uint256(_did), _nftMetadata);
         
         if (_royalties > 0) {
             if (address(defaultRoyalties) != address(0)) defaultRoyalties.setRoyalty(_did, _royalties);
@@ -371,11 +364,10 @@ contract DIDRegistry is DIDFactory {
     onlyDIDOwner(_did)
     nft721IsInitialized(_did)
     {
+        erc721.mint(_receiver, uint256(_did));
         super.used(
             keccak256(abi.encode(_did, _msgSender(), 'mint721', 1, block.number)),
             _did, _msgSender(), keccak256('mint721'), '', 'mint721');
-
-        erc721.mint(_receiver, uint256(_did));
     }
 
     function mint721(
@@ -412,13 +404,14 @@ contract DIDRegistry is DIDFactory {
     }
 
     function burn721(
-        bytes32 _did
+        bytes32 _did,
+        uint256 _tokenId
     )
     public
     nft721IsInitialized(_did)
     {
-        require(erc721.balanceOf(_msgSender()) > 0, 'ERC721: burn amount exceeds balance');
-        erc721.burn(uint256(_did));
+        require(erc721.ownerOf(_tokenId) == _msgSender(), 'ERC721: burn amount exceeds balance');
+        erc721.burn(uint256(_tokenId));
 
         super._used(
             keccak256(abi.encode(_did, _msgSender(), 'burn721', 1, block.number)),
