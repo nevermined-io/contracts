@@ -158,7 +158,7 @@ contract('NFT Sales with Access Proof Template integration test', (accounts) => 
             did = await didRegistry.hashDID(didSeed, artist)
 
             await didRegistry.registerMintableDID(
-                didSeed, checksum, [], url, cappedAmount, royalties, constants.activities.GENERATED, '', { from: artist })
+                didSeed, checksum, [], url, cappedAmount, royalties, constants.activities.GENERATED, '', '', { from: artist })
             await didRegistry.mint(did, 5, { from: artist })
 
             const balance = await nft.balanceOf(artist, did)

@@ -188,7 +188,7 @@ abstract contract DIDFactory is ProvenanceRegistry {
      * @param _url refers to the url resolving the DID into a DID Document (DDO), limited to 2048 bytes.
      * @param _providers list of DID providers addresses
      * @param _activityId refers to activity
-     * @param _attributes refers to the provenance attributes     
+     * @param _immutableUrl refers to url stored in an immutable storage network like IPFS, Filecoin, Arweave
      */
     function registerDID(
         bytes32 _didSeed,
@@ -196,11 +196,10 @@ abstract contract DIDFactory is ProvenanceRegistry {
         address[] memory _providers,
         string memory _url,
         bytes32 _activityId,
-        string memory _attributes
+        string memory _immutableUrl
     )
     public
     virtual
-    onlyValidAttributes(_attributes)
     {
         bytes32 _did = hashDID(_didSeed, _msgSender());
         require(
@@ -209,7 +208,7 @@ abstract contract DIDFactory is ProvenanceRegistry {
             'Only DID Owners or not registered DID'
         );
 
-        didRegisterList.update(_did, _checksum, _url, _msgSender());
+        didRegisterList.update(_did, _checksum, _url, _msgSender(), _immutableUrl);
 
         // push providers to storage
         for (uint256 i = 0; i < _providers.length; i++) {
@@ -228,7 +227,7 @@ abstract contract DIDFactory is ProvenanceRegistry {
             block.number
         );
         
-        _wasGeneratedBy(_did, _did, _msgSender(), _activityId, _attributes);
+        _wasGeneratedBy(_did, _did, _msgSender(), _activityId, _immutableUrl);
 
     }
 

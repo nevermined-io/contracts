@@ -139,7 +139,7 @@ function nftTokenWrapper(contract) {
         const checksum = testUtils.generateId()
         contract.did = await registry.hashDID(didSeed, sender)
         await registry.registerMintableDID(
-            didSeed, checksum, [], '', 1000, 0, constants.activities.GENERATED, '', { from: sender }
+            didSeed, checksum, [], '', 1000, 0, constants.activities.GENERATED, '', '', { from: sender }
         )
         return contract.did
     }
@@ -177,7 +177,7 @@ function nft721TokenWrapper(contract) {
         const checksum = testUtils.generateId()
         contract.did = await registry.hashDID(didSeed, sender)
         await registry.registerMintableDID721(
-            didSeed, checksum, [], '', 0, false, constants.activities.GENERATED, '', { from: sender }
+            didSeed, checksum, [], '', 0, false, constants.activities.GENERATED, '', '', { from: sender }
         )
         return contract.did
     }

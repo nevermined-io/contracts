@@ -141,7 +141,7 @@ contract('Dynamic Access Template integration test', (accounts) => {
 
             // register DID
             await didRegistry.registerMintableDID(
-                didSeed, checksum, [], url, 10, 0, Activities.GENERATED, '', { from: receiver })
+                didSeed, checksum, [], url, 10, 0, Activities.GENERATED, '', '', { from: receiver })
 
             // Mint and Transfer
             await didRegistry.mint(agreement.did, 10, { from: receiver })

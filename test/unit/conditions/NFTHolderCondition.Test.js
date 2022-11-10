@@ -55,7 +55,7 @@ contract('NFTHolderCondition', (accounts) => {
                 nftHolderCondition.address)
 
             await didRegistry.registerMintableDID(
-                didSeed, checksum, [], value, 100, 0, constants.activities.GENERATED, '', { from: owner })
+                didSeed, checksum, [], value, 100, 0, constants.activities.GENERATED, '', '', { from: owner })
             await didRegistry.mint(did, 10, { from: owner })
 
             await nft.safeTransferFrom(
@@ -86,7 +86,7 @@ contract('NFTHolderCondition', (accounts) => {
             const amount = 10
 
             await didRegistry.registerMintableDID(
-                didSeed, checksum, [], value, 100, 0, constants.activities.GENERATED, '', { from: owner })
+                didSeed, checksum, [], value, 100, 0, constants.activities.GENERATED, '', '', { from: owner })
             await didRegistry.mint(did, 10, { from: owner })
 
             await nft.safeTransferFrom(
@@ -117,7 +117,7 @@ contract('NFTHolderCondition', (accounts) => {
                 nftHolderCondition.address)
 
             await didRegistry.registerMintableDID(
-                didSeed, checksum, [], value, 100, 0, constants.activities.GENERATED, '', { from: owner })
+                didSeed, checksum, [], value, 100, 0, constants.activities.GENERATED, '', '', { from: owner })
             await didRegistry.mint(did, 10, { from: owner })
 
             await nft.safeTransferFrom(

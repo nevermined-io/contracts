@@ -126,7 +126,8 @@ contract DIDRegistry is DIDFactory {
      * @param _royalties refers to the royalties to reward to the DID creator in the secondary market
      * @param _mint if true it mints the ERC-1155 NFTs attached to the asset
      * @param _activityId refers to activity
-     * @param _nftMetadata refers to the url providing the NFT Metadata     
+     * @param _nftMetadata refers to the url providing the NFT Metadata 
+     * @param _immutableUrl includes the url to the DDO in immutable storage              
      */
     function registerMintableDID(
         bytes32 _didSeed,
@@ -137,12 +138,13 @@ contract DIDRegistry is DIDFactory {
         uint256 _royalties,
         bool _mint,
         bytes32 _activityId,
-        string memory _nftMetadata
+        string memory _nftMetadata,
+        string memory _immutableUrl
     )
     public
     onlyValidAttributes(_nftMetadata)
     {
-        registerDID(_didSeed, _checksum, _providers, _url, _activityId, '');
+        registerDID(_didSeed, _checksum, _providers, _url, _activityId, _immutableUrl);
         enableAndMintDidNft(
             hashDID(_didSeed, _msgSender()),
             _cap,
@@ -165,7 +167,8 @@ contract DIDRegistry is DIDFactory {
      * @param _royalties refers to the royalties to reward to the DID creator in the secondary market
      * @param _mint if true it mints the ERC-1155 NFTs attached to the asset
      * @param _activityId refers to activity
-     * @param _nftMetadata refers to the url providing the NFT Metadata     
+     * @param _nftMetadata refers to the url providing the NFT Metadata
+     * @param _immutableUrl includes the url to the DDO in immutable storage       
      */
     function registerMintableDID721(
         bytes32 _didSeed,
@@ -175,12 +178,13 @@ contract DIDRegistry is DIDFactory {
         uint256 _royalties,
         bool _mint,
         bytes32 _activityId,
-        string memory _nftMetadata
+        string memory _nftMetadata,
+        string memory _immutableUrl
     )
     public
     onlyValidAttributes(_nftMetadata)
     {
-        registerDID(_didSeed, _checksum, _providers, _url, _activityId, '');
+        registerDID(_didSeed, _checksum, _providers, _url, _activityId, _immutableUrl);
         enableAndMintDidNft721(
             hashDID(_didSeed, _msgSender()),
             _royalties,
@@ -204,7 +208,8 @@ contract DIDRegistry is DIDFactory {
      * @param _cap refers to the mint cap
      * @param _royalties refers to the royalties to reward to the DID creator in the secondary market
      * @param _activityId refers to activity
-     * @param _nftMetadata refers to the url providing the NFT Metadata     
+     * @param _nftMetadata refers to the url providing the NFT Metadata
+     * @param _immutableUrl includes the url to the DDO in immutable storage               
      */
     function registerMintableDID(
         bytes32 _didSeed,
@@ -214,13 +219,14 @@ contract DIDRegistry is DIDFactory {
         uint256 _cap,
         uint256 _royalties,
         bytes32 _activityId,
-        string memory _nftMetadata
+        string memory _nftMetadata,
+        string memory _immutableUrl
     )
     public
     onlyValidAttributes(_nftMetadata)
     {
         registerMintableDID(
-            _didSeed, _checksum, _providers, _url, _cap, _royalties, false, _activityId, _nftMetadata);
+            _didSeed, _checksum, _providers, _url, _cap, _royalties, false, _activityId, _nftMetadata, _immutableUrl);
     }
 
     

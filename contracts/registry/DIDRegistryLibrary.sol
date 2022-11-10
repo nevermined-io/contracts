@@ -46,6 +46,8 @@ library DIDRegistryLibrary {
         uint256 mintCap;
         address royaltyRecipient;
         IRoyaltyScheme royaltyScheme;
+        // URL to the Metadata in Immutable storage 
+        string  immutableUrl;        
     }
 
     // List of DID's registered in the system
@@ -61,13 +63,16 @@ library DIDRegistryLibrary {
      * @param _did refers to decentralized identifier (a byte32 length ID)
      * @param _checksum includes a one-way HASH calculated using the DDO content
      * @param _url includes the url resolving to the DID Document (DDO)
+     * @param _sender the address of the user updating the entry
+     * @param _immutableUrl includes the url to the DDO in immutable storage     
      */
     function update(
         DIDRegisterList storage _self,
         bytes32 _did,
         bytes32 _checksum,
         string calldata _url,
-        address _sender
+        address _sender,
+        string calldata _immutableUrl
     )
     external
     {
@@ -86,6 +91,7 @@ library DIDRegistryLibrary {
         _self.didRegisters[_did].lastUpdatedBy = _sender;
         _self.didRegisters[_did].owner = didOwner;
         _self.didRegisters[_did].blockNumberUpdated = block.number;
+        _self.didRegisters[_did].immutableUrl = _immutableUrl;
     }
 
     /**
