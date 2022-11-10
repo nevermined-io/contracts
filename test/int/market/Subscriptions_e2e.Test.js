@@ -219,7 +219,7 @@ contract('End to End NFT721 Scenarios', (accounts) => {
             did = await didRegistry.hashDID(didSeed, artist)
 
             await didRegistry.registerMintableDID721(
-                didSeed, checksum, [market], url, royalties, false, constants.activities.GENERATED, '', '', { from: artist })
+                didSeed, checksum, [market], url, royalties, false, constants.activities.GENERATED, '', { from: artist })
             await nft721.setApprovalForAll(transferCondition.address, true, { from: artist })
         })
 

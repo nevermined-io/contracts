@@ -154,12 +154,13 @@ contract POAPUpgradeable is NFT721Upgradeable, ERC721EnumerableUpgradeable {
     function _beforeTokenTransfer(
         address from,
         address to,
+        uint256 firstTokenId,
         uint256 tokenId
     )
     internal
     override(ERC721Upgradeable, ERC721EnumerableUpgradeable)
     {
-        super._beforeTokenTransfer(from, to, tokenId);
+        super._beforeTokenTransfer(from, to, firstTokenId, tokenId);
     } 
     
     function _msgSender() internal override(NFT721Upgradeable,ContextUpgradeable) virtual view returns (address ret) {
