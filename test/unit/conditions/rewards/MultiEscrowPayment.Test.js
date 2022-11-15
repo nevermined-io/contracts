@@ -172,6 +172,7 @@ function testMultiEscrow(EscrowPaymentCondition, LockPaymentCondition, Token, nf
                     [conditionLockId, conditionLockId2])
                 )
 
+                await contract.setProxyApproval(lockPaymentCondition.address, true)
                 await lockPaymentCondition.fulfillWrap(agreementId, did, escrowPayment.address, token.address, amounts, receivers)
 
                 await assert.isRejected(escrowPayment.fulfillWrap(
