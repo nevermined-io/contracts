@@ -46,7 +46,9 @@ contract('NFT721LockCondition', (accounts) => {
         erc721 = await NFT721Upgradeable.new()
         await erc721.initialize({ from: accounts[0] })
         nftTokenAddress = erc721.address
-        console.log('ERC-721 deployed on address ' + nftTokenAddress)
+        // ERC-721 deployed on address `nftTokenAddress`
+        // Approving NFT721LockCondition as proxy in the NFT contract
+        await erc721.setProxyApproval(lockCondition.address, true)
     }
 
     describe('fulfill correctly', () => {

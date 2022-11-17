@@ -4,6 +4,24 @@ const testUtils = require('../../../helpers/utils.js')
 const { getBalance } = require('../../../helpers/getBalance.js')
 const constants = require('../../../helpers/constants.js')
 
+function nftLockWrapper(contract) {
+    contract.hashWrap = (did, escrowPaymentAddress, tokenAddress, amounts, receivers) => {
+        return contract.hashValuesMarked(did, escrowPaymentAddress, amounts[0], receivers[0], tokenAddress)
+    }
+    contract.fulfillWrap = async (agreementId, did, escrowPaymentAddress, tokenAddress, amounts, receivers, owner) => {
+        return contract.fulfillMarked(agreementId, did, escrowPaymentAddress, amounts[0], receivers[0], tokenAddress)
+    }
+    contract.initWrap = (owner, conditionStoreManagerAddress, _didRegistryAddress, args) => {
+        return contract.initialize(
+            owner,
+            conditionStoreManagerAddress,
+            owner,
+            args
+        )
+    }
+    return contract
+}
+
 function tokenLockWrapper(contract) {
     contract.hashWrap = (did, escrowPaymentAddress, tokenAddress, amounts, receivers) => {
         return contract.hashValues(did, escrowPaymentAddress, tokenAddress, amounts, receivers)
@@ -23,29 +41,11 @@ function tokenLockWrapper(contract) {
     return contract
 }
 
-function nftLockWrapper(contract) {
-    contract.hashWrap = (did, escrowPaymentAddress, tokenAddress, amounts, receivers) => {
-        return contract.hashValuesMarked(did, escrowPaymentAddress, amounts[0], receivers[0], tokenAddress)
-    }
-    contract.fulfillWrap = (agreementId, did, escrowPaymentAddress, tokenAddress, amounts, receivers) => {
-        return contract.fulfillMarked(agreementId, did, escrowPaymentAddress, amounts[0], receivers[0], tokenAddress)
-    }
-    contract.initWrap = (owner, conditionStoreManagerAddress, _didRegistryAddress, args) => {
-        return contract.initialize(
-            owner,
-            conditionStoreManagerAddress,
-            owner,
-            args
-        )
-    }
-    return contract
-}
-
 function nft721LockWrapper(contract) {
     contract.hashWrap = (did, escrowPaymentAddress, tokenAddress, amounts, receivers) => {
         return contract.hashValuesMarked(did, escrowPaymentAddress, amounts[0], receivers[0], tokenAddress)
     }
-    contract.fulfillWrap = (agreementId, did, escrowPaymentAddress, tokenAddress, amounts, receivers) => {
+    contract.fulfillWrap = async (agreementId, did, escrowPaymentAddress, tokenAddress, amounts, receivers) => {
         return contract.fulfillMarked(agreementId, did, escrowPaymentAddress, amounts[0], receivers[0], tokenAddress)
     }
     contract.initWrap = (owner, conditionStoreManagerAddress, _didRegistryAddress, args) => {

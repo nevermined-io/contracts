@@ -160,6 +160,8 @@ contract('NFT Access Proof Template integration test', (accounts) => {
             const balance = await nft.balanceOf(artist, did)
             assert.strictEqual(5, balance.toNumber())
 
+            // We give the artist permissions to transfer the NFT
+            await nft.setProxyApproval(artist, true, { from: owner })
             await nft.safeTransferFrom(artist, receiver, did, 2, '0x', { from: artist })
         })
     })

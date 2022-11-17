@@ -127,6 +127,8 @@ contract('TransferNFT Condition constructor', (accounts) => {
             await nft.addMinter(didRegistry.address)
             await nft.addMinter(transferCondition.address)
 
+            //            nft.setProxyApproval(lockCondition.address, true)
+
             // IMPORTANT: Here we give ERC1155 transfer grants to the TransferNFTCondition condition
             // await didRegistry.setProxyApproval(transferCondition.address, true, { from: owner })
         }
@@ -140,6 +142,7 @@ contract('TransferNFT Condition constructor', (accounts) => {
             )
             if (mintDID) {
                 await didRegistry.mint(did, mintCap, { from: seller })
+                await nft.setProxyApproval(seller, true)
                 await nft.safeTransferFrom(seller, other, did, 10, [], { from: seller })
             }
         }
@@ -258,6 +261,7 @@ contract('TransferNFT Condition constructor', (accounts) => {
             )
 
             await nft.setApprovalForAll(transferCondition.address, true, { from: seller })
+            await nft.setProxyApproval(transferCondition.address, true)
             const result = await transferCondition.methods['fulfill(bytes32,bytes32,address,uint256,bytes32)'](
                 agreementId, did, rewardAddress, numberNFTs,
                 conditionIdPayment,

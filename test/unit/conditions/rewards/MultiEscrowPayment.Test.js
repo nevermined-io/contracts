@@ -172,7 +172,11 @@ function testMultiEscrow(EscrowPaymentCondition, LockPaymentCondition, Token, nf
                     [conditionLockId, conditionLockId2])
                 )
 
-                await contract.setProxyApproval(lockPaymentCondition.address, true)
+                if (nft) {
+                    await testUtils.approveProxy('NFTUpgradeable', sender, token.address, lockPaymentCondition.address)
+                    await testUtils.approveProxy('NFTUpgradeable', sender, token.address, escrowPayment.address)
+                }
+
                 await lockPaymentCondition.fulfillWrap(agreementId, did, escrowPayment.address, token.address, amounts, receivers)
 
                 await assert.isRejected(escrowPayment.fulfillWrap(
