@@ -189,7 +189,11 @@ contract('NFT Sales with Access Proof Template integration test', (accounts) => 
             const nftBalanceCollectorBefore = await nft.balanceOf(collector1, did)
 
             await nft.setApprovalForAll(lockPaymentCondition.address, true, { from: artist })
-            await nft.setProxyApproval(lockPaymentCondition.address, true, { from: deployer })
+            const nftOwner = await nft.owner()
+            console.log(`NFT Contract owner: ${nftOwner}`)
+            console.log(`Accounts Owner: ${owner}`)
+            console.log(`Accounts Deployer: ${deployer}`)
+            await nft.setProxyApproval(lockPaymentCondition.address, true, { from: nftOwner })
             await lockPaymentCondition.fulfillMarked(agreementId, did, escrowCondition.address, amount, receiver, token.address, { from: artist })
 
             const { state } = await conditionStoreManager.getCondition(conditionIds[0])
