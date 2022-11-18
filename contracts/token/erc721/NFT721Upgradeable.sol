@@ -107,8 +107,8 @@ contract NFT721Upgradeable is ERC721Upgradeable, NFTBase {
         require(_nftContractCap == 0 || _counterMinted.current() < _nftContractCap,
             'ERC721: Cap exceed'
         );
-        _mint(to, tokenId);
         _counterMinted.increment();
+        _mint(to, tokenId);
     }
 
     function mint(
@@ -209,19 +209,41 @@ contract NFT721Upgradeable is ERC721Upgradeable, NFTBase {
     public 
     view 
     virtual 
-    override(ERC721Upgradeable, IERC165Upgradeable) 
+    override(ERC721Upgradeable, AccessControlUpgradeable, IERC165Upgradeable) 
     returns (bool) 
     {
         return AccessControlUpgradeable.supportsInterface(interfaceId)
         || ERC721Upgradeable.supportsInterface(interfaceId)
         || interfaceId == type(IERC2981Upgradeable).interfaceId;
     }
-
+    
     function _msgSender() internal override(NFTBase,ContextUpgradeable) virtual view returns (address ret) {
         return Common._msgSender();
     }
     function _msgData() internal override(NFTBase,ContextUpgradeable) virtual view returns (bytes calldata ret) {
         return Common._msgData();
     }
-
+    
+    /**
+    * @dev It protects NFT transfers to force going through service agreements and enforce royalties
+    */
+    function _beforeTokenTransfer(
+        address from,
+        address to,
+        uint256, /* firstTokenId */
+        uint256 batchSize
+    ) 
+    internal 
+    virtual 
+    override 
+    {
+        require(
+            from == address(0) || // We exclude mints
+            to == address(0) || // We exclude burns
+            isApprovedProxy(_msgSender()) // Only proxies (Nevermined condition contracts)
+        , 'only proxy'
+        );
+        super._beforeTokenTransfer(from, to, 0, batchSize);
+    }
+    
 }

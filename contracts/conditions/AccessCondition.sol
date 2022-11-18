@@ -6,8 +6,7 @@ pragma solidity ^0.8.0;
 
 import './Condition.sol';
 import '../registry/DIDRegistry.sol';
-import '../interfaces/ISecretStore.sol';
-import '../interfaces/ISecretStorePermission.sol';
+import '../interfaces/IAccessControl.sol';
 import '../agreements/AgreementStoreManager.sol';
 
 /**
@@ -24,8 +23,7 @@ import '../agreements/AgreementStoreManager.sol';
  *      will check whether the permission is granted for the consumer
  *      in order to encrypt/decrypt the document.
  */
-contract AccessCondition is Condition, 
-ISecretStore, ISecretStorePermission {
+contract AccessCondition is Condition, IAccessControl {
 
     bytes32 constant public CONDITION_TYPE = keccak256('AccessCondition');
 

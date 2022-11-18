@@ -7,28 +7,13 @@ import './NFT721Upgradeable.sol';
 
 contract SoulBoundUpgradeable is NFT721Upgradeable {
 
-    function transferFrom(
-        address,
-        address,
-        uint256
-    ) public virtual override {
+    function _beforeTokenTransfer(
+        address, // from
+        address, // to
+        uint256, // firstTokenId
+        uint256 // batchSize
+    ) internal virtual override {
         revert('SoulBound can not be transferred');
     }
-
-    function safeTransferFrom(
-        address,
-        address,
-        uint256
-    ) public virtual override {
-        revert('SoulBound can not be transferred');
-    }
-
-    function safeTransferFrom(
-        address,
-        address,
-        uint256,
-        bytes memory
-    ) public virtual override {
-        revert('SoulBound can not be transferred');
-    }
+    
 }

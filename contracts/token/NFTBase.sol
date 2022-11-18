@@ -79,6 +79,16 @@ abstract contract NFTBase is IERC2981Upgradeable, CommonOwnable, AccessControlUp
         emit ProxyApproval(_msgSender(), operator, approved);
     }
 
+    function isApprovedProxy(
+        address operator
+    )
+    public
+    virtual
+    returns (bool)
+    {
+        return _proxyApprovals[operator];
+    }    
+    
     function _setNFTMetadata(
         uint256 tokenId,
         string memory tokenURI

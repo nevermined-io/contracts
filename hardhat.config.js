@@ -8,6 +8,7 @@ require('hardhat-dependency-compiler')
 require('hardhat-gas-reporter')
 require('solidity-coverage')
 require('solidity-docgen')
+require('hardhat-ignore-warnings')
 
 const utils = require('web3-utils')
 
@@ -24,7 +25,7 @@ module.exports = {
     solidity: {
         compilers: [
             {
-                version: '0.8.9',
+                version: '0.8.17',
                 settings: {
                     optimizer: {
                         enabled: true,
@@ -33,6 +34,11 @@ module.exports = {
                 }
             }
         ]
+    },
+    warnings: {
+        '@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol': {
+            unreachable: 'off'
+        }
     },
     paths: {
         artifacts: 'build'

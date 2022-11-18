@@ -81,8 +81,6 @@ contract NFTUpgradeable is ERC1155Upgradeable, NFTBase {
     function uri(uint256 tokenId) public view override returns (string memory) {
         return _metadata[tokenId].nftURI;
     }
-
-  
     
     /**
     * @dev Record some NFT Metadata
@@ -122,14 +120,14 @@ contract NFTUpgradeable is ERC1155Upgradeable, NFTBase {
     public 
     view 
     virtual 
-    override(ERC1155Upgradeable, IERC165Upgradeable) 
+    override(ERC1155Upgradeable, AccessControlUpgradeable, IERC165Upgradeable) 
     returns (bool) 
     {
         return AccessControlUpgradeable.supportsInterface(interfaceId)
         || ERC1155Upgradeable.supportsInterface(interfaceId)
         || interfaceId == type(IERC2981Upgradeable).interfaceId;
     }
-
+    
     function _msgSender() internal override(NFTBase,ContextUpgradeable) virtual view returns (address ret) {
         return Common._msgSender();
     }
@@ -137,4 +135,28 @@ contract NFTUpgradeable is ERC1155Upgradeable, NFTBase {
         return Common._msgData();
     }
 
+    /**
+    * @dev It protects NFT transfers to force going through service agreements and enforce royalties
+    */
+    function _beforeTokenTransfer(
+        address operator,
+        address from,
+        address to,
+        uint256[] memory ids,
+        uint256[] memory amounts,
+        bytes memory data
+    )
+    internal
+    virtual
+    override
+    {
+        super._beforeTokenTransfer(operator, from, to, ids, amounts, data);
+        require(
+            from == address(0) || // We exclude mints
+            to == address(0) || // We exclude burns
+            isApprovedProxy(_msgSender()) // Only proxies (Nevermined condition contracts)
+            , 'only proxy'
+        );
+    }    
+    
 }

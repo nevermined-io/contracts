@@ -59,7 +59,8 @@ contract('NFT Access integration test', (accounts) => {
 
         return {
             templateId,
-            owner
+            owner,
+            deployer
         }
     }
 
@@ -113,7 +114,7 @@ contract('NFT Access integration test', (accounts) => {
 
     describe('Create and fulfill NFT Agreement', () => {
         it('should create escrow agreement and fulfill', async () => {
-            await setupTest()
+            const { deployer } = await setupTest()
 
             // prepare: nft agreement
             const { agreementId, didSeed, agreement, sender, receiver, nftAmount, checksum, url, conditionIds } = await prepareNFTAccessAgreement({ timeOutAccess: 10 })
@@ -127,6 +128,9 @@ contract('NFT Access integration test', (accounts) => {
 
             // mint and transfer the nft
             await didRegistry.mint(agreement.did, nftAmount, { from: sender })
+
+            await nft.setProxyApproval(sender, true, { from: deployer })
+
             await nft.safeTransferFrom(
                 sender, receiver, BigInt(agreement.did), nftAmount, '0x', { from: sender })
 

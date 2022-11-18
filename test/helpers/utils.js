@@ -1,7 +1,7 @@
 /* eslint-env mocha */
 /* global artifacts, assert, web3 */
 
-const { hardhatArguments } = require('hardhat')
+const { ethers, hardhatArguments } = require('hardhat')
 const network = hardhatArguments.network || 'hardhat'
 const deploying = network === 'hardhat' || network === 'coverage'
 const constants = require('./constants')
@@ -108,6 +108,12 @@ const utils = {
             conditionStoreManager,
             nft
         }
+    },
+
+    approveProxy: async (name, owner, nftAddress, contractAddress) => {
+        const signer = await ethers.provider.getSigner(owner)
+        const instance = await ethers.getContractAt(name, nftAddress, signer)
+        await instance.setProxyApproval(contractAddress, true, { gasLimit: 100000 })
     }
 
 }

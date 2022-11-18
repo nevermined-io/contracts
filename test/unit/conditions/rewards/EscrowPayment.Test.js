@@ -212,6 +212,14 @@ function escrowTest(EscrowPaymentCondition, LockPaymentCondition, Token, nft, nf
                     totalAmount,
                     { from: sender })
 
+                if (nft) {
+                    await testUtils.approveProxy('NFTUpgradeable', sender, token.address, lockPaymentCondition.address)
+                    await testUtils.approveProxy('NFTUpgradeable', sender, token.address, escrowPayment.address)
+                }
+                if (nft721) {
+                    await testUtils.approveProxy('NFT721Upgradeable', sender, token.address, lockPaymentCondition.address)
+                    await testUtils.approveProxy('NFT721Upgradeable', sender, token.address, escrowPayment.address)
+                }
                 await lockPaymentCondition.fulfillWrap(agreementId, did, escrowPayment.address, token.address, amounts, receivers)
 
                 assert.strictEqual(await token.getBalance(lockPaymentCondition.address), 0)
@@ -247,7 +255,9 @@ function escrowTest(EscrowPaymentCondition, LockPaymentCondition, Token, nft, nf
                 assert.strictEqual(await token.getBalance(escrowPayment.address), 0)
                 assert.strictEqual(await token.getBalance(receivers[0]), totalAmount)
 
-                if (nft721) {
+                if (nft721 || nft) {
+                    await testUtils.approveProxy('NFTUpgradeable', sender, token.address, receivers[0])
+                    await testUtils.approveProxy('NFT721Upgradeable', sender, token.address, receivers[0])
                     await token.transferWrap(escrowPayment.address, totalAmount, { from: receivers[0] })
                 } else {
                     await token.mintWrap(didRegistry, sender, totalAmount, owner)
@@ -255,6 +265,7 @@ function escrowTest(EscrowPaymentCondition, LockPaymentCondition, Token, nft, nf
                         lockPaymentCondition.address,
                         totalAmount,
                         { from: sender })
+
                     await token.transferWrap(escrowPayment.address, totalAmount, { from: sender })
                 }
 
@@ -862,8 +873,11 @@ function escrowTest(EscrowPaymentCondition, LockPaymentCondition, Token, nft, nf
 
                 /* simulate a real environment by giving the EscrowPayment contract a bunch of tokens: */
                 await token.mintWrap(didRegistry, sender, 100, owner)
-                await token.transferWrap(escrowPayment.address, 100, { from: sender })
 
+                if (nft) {
+                    await testUtils.approveProxy('NFTUpgradeable', sender, token.address, sender)
+                }
+                await token.transferWrap(escrowPayment.address, 100, { from: sender })
                 const lockConditionId = conditionLockId
                 const releaseConditionId = conditionLockId
 

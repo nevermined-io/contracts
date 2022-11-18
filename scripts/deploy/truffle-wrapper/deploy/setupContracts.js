@@ -379,6 +379,7 @@ async function setupContracts({
     if (addressBook.TransferNFTCondition && addressBook.DIDRegistry && addresses.stage < 11) {
         console.log('DIDRegistry : ' + addressBook.DIDRegistry)
         await callContract(artifacts.NFTUpgradeable, a => a.setProxyApproval(addressBook.DIDRegistry, true))
+        await callContract(artifacts.NFTUpgradeable, a => a.setProxyApproval(addressBook.TransferNFTCondition, true))
         await callContract(artifacts.NFTUpgradeable, a => a.addMinter(addressBook.TransferNFTCondition))
         addresses.stage = 11
     }
@@ -509,7 +510,19 @@ async function setupContracts({
         addresses.stage = 19
     }
 
-    if (addresses.stage < 20 && testnet) {
+    if (addressBook.NFTLockCondition && addressBook.NFTUpgradeable && addresses.stage < 20) {
+        console.log('Grant Proxy Approval (NFTUpgradeable) : ' + addressBook.NFTLockCondition)
+        await callContract(artifacts.NFTUpgradeable, a => a.setProxyApproval(addressBook.NFTLockCondition, true))
+        addresses.stage = 20
+    }
+
+    if (addressBook.NFTLockCondition && addressBook.NFT721Upgradeable && addresses.stage < 21) {
+        console.log('Grant Proxy Approval (NFT721Upgradeable): ' + addressBook.NFTLockCondition)
+        await callContract(artifacts.NFT721Upgradeable, a => a.setProxyApproval(addressBook.NFTLockCondition, true))
+        addresses.stage = 21
+    }
+
+    if (addresses.stage < 22 && testnet) {
         console.log('Setting up OpenGSN forwarder')
         if (gsn) {
             await callContract(artifacts.NeverminedConfig, a => a.setTrustedForwarder(gsn))
@@ -523,7 +536,7 @@ async function setupContracts({
         if (addressBook.NeverminedToken) {
             await callContract(artifacts.NeverminedToken, a => a.setNvmConfigAddress(addressBook.NeverminedConfig))
         }
-        addresses.stage = 20
+        addresses.stage = 22
     }
 }
 
