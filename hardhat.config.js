@@ -37,8 +37,8 @@ module.exports = {
     },
     warnings: {
         '@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol': {
-            unreachable: 'off',
-        },
+            unreachable: 'off'
+        }
     },
     paths: {
         artifacts: 'build'
