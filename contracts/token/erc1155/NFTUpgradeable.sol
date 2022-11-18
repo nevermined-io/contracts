@@ -81,8 +81,6 @@ contract NFTUpgradeable is ERC1155Upgradeable, NFTBase {
     function uri(uint256 tokenId) public view override returns (string memory) {
         return _metadata[tokenId].nftURI;
     }
-
-  
     
     /**
     * @dev Record some NFT Metadata
@@ -155,7 +153,7 @@ contract NFTUpgradeable is ERC1155Upgradeable, NFTBase {
         super._beforeTokenTransfer(operator, from, to, ids, amounts, data);
         require(
             from == address(0) || // We exclude mints
-            to == address(0) || // We exclude burs
+            to == address(0) || // We exclude burns
             isApprovedProxy(_msgSender()) // Only proxies (Nevermined condition contracts)
             , 'only proxy'
         );

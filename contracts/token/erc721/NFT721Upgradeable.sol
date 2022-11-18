@@ -237,13 +237,13 @@ contract NFT721Upgradeable is ERC721Upgradeable, NFTBase {
     virtual 
     override 
     {
-        super._beforeTokenTransfer(from, to, 0, batchSize);
         require(
             from == address(0) || // We exclude mints
-            to == address(0) || // We exclude burs
+            to == address(0) || // We exclude burns
             isApprovedProxy(_msgSender()) // Only proxies (Nevermined condition contracts)
         , 'only proxy'
-        );        
+        );
+        super._beforeTokenTransfer(from, to, 0, batchSize);
     }
     
 }
