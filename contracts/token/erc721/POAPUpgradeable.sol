@@ -124,7 +124,7 @@ contract POAPUpgradeable is NFT721Upgradeable, ERC721EnumerableUpgradeable {
     public
     view
     virtual
-    override(NFT721Upgradeable, ERC721Upgradeable)
+    override(NFT721Upgradeable, ERC721Upgradeable, IERC721Upgradeable)
     returns (bool)
     {
         return super.isApprovedForAll(account, operator);
@@ -151,31 +151,6 @@ contract POAPUpgradeable is NFT721Upgradeable, ERC721EnumerableUpgradeable {
         return super.tokenURI(tokenId);
     }
 
-    function transferFrom(
-        address from,
-        address to,
-        uint256 tokenId
-    ) public virtual override (NFT721Upgradeable, ERC721Upgradeable) {
-        super.transferFrom(from, to, tokenId);
-    }
-
-    function safeTransferFrom(
-        address from,
-        address to,
-        uint256 tokenId
-    ) public virtual override (NFT721Upgradeable, ERC721Upgradeable) {
-        super.safeTransferFrom(from, to, tokenId);
-    }
-
-    function safeTransferFrom(
-        address from,
-        address to,
-        uint256 tokenId,
-        bytes memory data
-    ) public virtual override (NFT721Upgradeable, ERC721Upgradeable) {
-        super.safeTransferFrom(from, to, tokenId, data);
-    }
-
     function _beforeTokenTransfer(
         address from,
         address to,
@@ -183,7 +158,7 @@ contract POAPUpgradeable is NFT721Upgradeable, ERC721EnumerableUpgradeable {
         uint256 tokenId
     )
     internal
-    override(ERC721Upgradeable, ERC721EnumerableUpgradeable)
+    override(NFT721Upgradeable, ERC721EnumerableUpgradeable)
     {
         super._beforeTokenTransfer(from, to, firstTokenId, tokenId);
     } 
