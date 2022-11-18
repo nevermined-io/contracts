@@ -126,9 +126,6 @@ contract('TransferNFT Condition constructor', (accounts) => {
             // We allow DIDRegistry and TransferCondition to mint NFTs
             await nft.addMinter(didRegistry.address)
             await nft.addMinter(transferCondition.address)
-
-            // IMPORTANT: Here we give ERC1155 transfer grants to the TransferNFTCondition condition
-            // await didRegistry.setProxyApproval(transferCondition.address, true, { from: owner })
         }
 
         const did = await didRegistry.hashDID(didSeed, seller)
@@ -258,7 +255,6 @@ contract('TransferNFT Condition constructor', (accounts) => {
                 { from: owner }
             )
 
-            await nft.setApprovalForAll(transferCondition.address, true, { from: seller })
             await nft.setProxyApproval(transferCondition.address, true)
             const result = await transferCondition.methods['fulfill(bytes32,bytes32,address,uint256,bytes32)'](
                 agreementId, did, rewardAddress, numberNFTs,
@@ -322,7 +318,6 @@ contract('TransferNFT Condition constructor', (accounts) => {
                 { from: owner }
             )
 
-            await nft.setApprovalForAll(transferCondition.address, true, { from: seller })
             const result = await transferCondition.methods['fulfill(bytes32,bytes32,address,uint256,bytes32,address,bool)'](
                 agreementId, did, rewardAddress, numberNFTs,
                 conditionIdPayment, nft.address, false,
@@ -384,7 +379,6 @@ contract('TransferNFT Condition constructor', (accounts) => {
                 { from: owner }
             )
 
-            await nft.setApprovalForAll(transferCondition.address, true, { from: other })
             const result = await transferCondition.methods['fulfill(bytes32,bytes32,address,uint256,bytes32,address,bool)'](
                 agreementId, did, rewardAddress, numberNFTs,
                 conditionIdPayment, nft.address, true, { from: other })

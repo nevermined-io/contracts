@@ -188,7 +188,6 @@ contract('NFT Sales with Access Proof Template integration test', (accounts) => 
             const nftBalanceArtistBefore = await nft.balanceOf(artist, did)
             const nftBalanceCollectorBefore = await nft.balanceOf(collector1, did)
 
-            await nft.setApprovalForAll(lockPaymentCondition.address, true, { from: artist })
             const nftOwner = await nft.owner()
             console.log(`NFT Contract owner: ${nftOwner}`)
             console.log(`Accounts Owner: ${owner}`)
