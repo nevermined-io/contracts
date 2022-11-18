@@ -202,6 +202,7 @@ contract('NFT Sales with Access Proof Template integration test', (accounts) => 
                 (await conditionStoreManager.getConditionState(conditionIds[2])).toNumber(),
                 constants.condition.state.fulfilled)
 
+            await nft.setProxyApproval(escrowCondition.address, true, { from: deployer })
             // escrow
             await escrowCondition.fulfill(
                 agreementId,
