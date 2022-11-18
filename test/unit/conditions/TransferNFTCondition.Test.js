@@ -127,8 +127,6 @@ contract('TransferNFT Condition constructor', (accounts) => {
             await nft.addMinter(didRegistry.address)
             await nft.addMinter(transferCondition.address)
 
-            //            nft.setProxyApproval(lockCondition.address, true)
-
             // IMPORTANT: Here we give ERC1155 transfer grants to the TransferNFTCondition condition
             // await didRegistry.setProxyApproval(transferCondition.address, true, { from: owner })
         }
