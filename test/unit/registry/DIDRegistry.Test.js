@@ -743,18 +743,6 @@ contract('DIDRegistry', (accounts) => {
     })
 
     describe('Provenance #actedOnBehalf()', () => {
-        it('we can validate owner signature', async () => {
-            const _sourceMessage = 'hi there' // _did + owner
-
-            const _message = testUtils.toEthSignedMessageHash(
-                web3.utils.sha3(_sourceMessage))
-            const _messageHash = testUtils.toEthSignedMessageHash(_message)
-            const _signature = testUtils.fixSignature(
-                await web3.eth.sign(_message, owner)
-            )
-
-        })
-
         it('should act in behalf of delegate 2', async () => {
             const didSeed = testUtils.generateId()
             const did = await didRegistry.hashDID(didSeed, _from)
