@@ -5,12 +5,10 @@ pragma solidity ^0.8.0;
 // Code is Apache-2.0 and docs are CC-BY-4.0
 
 
-import '../Common.sol';
 import '../libraries/EpochLibrary.sol';
 import './ConditionStoreLibrary.sol';
 import '../registry/DIDRegistry.sol';
 import '../governance/INVMConfig.sol';
-
 import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol';
 
@@ -84,10 +82,7 @@ contract ConditionStoreManager is CommonAccessControl {
             typeRef != address(0),
             'Invalid address'
         );
-        require(
-            isContract(typeRef),
-            'Invalid contract address'
-        );
+        require(AddressUpgradeable.isContract(typeRef), 'Invalid contract address');
         _;
     }
 
