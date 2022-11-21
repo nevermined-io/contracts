@@ -3,10 +3,11 @@ pragma solidity ^0.8.0;
 // SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 // Code is Apache-2.0 and docs are CC-BY-4.0
 
-import '@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol';
 import '../NFTBase.sol';
+import '@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/utils/StringsUpgradeable.sol';
+import '@openzeppelin/contracts-upgradeable/proxy/ClonesUpgradeable.sol';
 
 
 /**
@@ -72,7 +73,23 @@ contract NFT721Upgradeable is ERC721Upgradeable, NFTBase {
         __Ownable_init_unchained();
         AccessControlUpgradeable.__AccessControl_init();
         AccessControlUpgradeable._setupRole(MINTER_ROLE, _msgSender());
-    }    
+    }
+
+    function createClone(
+        address implementation,
+        string memory name,
+        string memory symbol,
+        string memory uri,
+        uint256 cap
+    )
+    external
+    virtual
+    returns (address)
+    {
+        address cloneAddress = ClonesUpgradeable.clone(implementation);
+        NFT721Upgradeable(cloneAddress).initializeWithAttributes(name, symbol, uri, cap);
+        return cloneAddress;
+    }
     
     function isApprovedForAll(
         address account, 
