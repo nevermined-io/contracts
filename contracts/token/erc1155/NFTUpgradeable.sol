@@ -50,6 +50,24 @@ contract NFTUpgradeable is ERC1155Upgradeable, NFTBase {
         name = 'Nevermined ERC1155';
         symbol = 'NVM1155';        
     }
+
+
+    function createClone(
+        address _implementation,
+        string memory _name,
+        string memory _symbol,
+        string memory _uri
+    )
+    external
+    virtual
+    returns (address)
+    {
+        require(AddressUpgradeable.isContract(_implementation), 'Invalid contract address');
+        address cloneAddress = ClonesUpgradeable.clone(_implementation);
+        NFTUpgradeable(cloneAddress).initializeWithName(_name, _symbol, _uri);
+        emit NFTCloned(cloneAddress, _implementation, 1155);
+        return cloneAddress;
+    }    
     
     /**
      * @dev See {IERC1155-isApprovedForAll}.

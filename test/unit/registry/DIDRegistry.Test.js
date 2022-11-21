@@ -743,38 +743,6 @@ contract('DIDRegistry', (accounts) => {
     })
 
     describe('Provenance #actedOnBehalf()', () => {
-        it('we can validate owner signature', async () => {
-            const _sourceMessage = 'hi there' // _did + owner
-
-            const _message = testUtils.toEthSignedMessageHash(
-                web3.utils.sha3(_sourceMessage))
-            const _messageHash = testUtils.toEthSignedMessageHash(_message)
-            const _signature = testUtils.fixSignature(
-                await web3.eth.sign(_message, owner)
-            )
-
-            const valid = await didRegistry.provenanceSignatureIsCorrect(
-                owner, _messageHash, _signature)
-
-            assert.isOk(valid, 'Signature doesnt match')
-        })
-
-        it('we can generate the same signatures', async () => {
-            const did = testUtils.generateId()
-
-            const _message = testUtils.toEthSignedMessageHash(
-                web3.utils.sha3(did + delegates[1]))
-            const _messageHash = testUtils.toEthSignedMessageHash(_message)
-            const _signature = testUtils.fixSignature(
-                await web3.eth.sign(_message, delegates[1])
-            )
-
-            const valid = await didRegistry.provenanceSignatureIsCorrect(
-                delegates[1], _messageHash, _signature)
-
-            assert.isOk(valid, 'Signature doesnt match')
-        })
-
         it('should act in behalf of delegate 2', async () => {
             const didSeed = testUtils.generateId()
             const did = await didRegistry.hashDID(didSeed, _from)
@@ -796,9 +764,6 @@ contract('DIDRegistry', (accounts) => {
             const _signatureDelegate = testUtils.fixSignature(
                 await web3.eth.sign(_message, delegates[1])
             )
-
-            assert.isOk(await didRegistry.provenanceSignatureIsCorrect(
-                delegates[1], testUtils.toEthSignedMessageHash(_message), _signatureDelegate))
 
             const result = await didRegistry.actedOnBehalf(
                 testUtils.toEthSignedMessageHash(_message),
