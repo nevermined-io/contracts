@@ -83,6 +83,14 @@ contract POAPUpgradeable is NFT721Upgradeable, ERC721EnumerableUpgradeable {
         return _tokenEvent[tokenId];
     }
 
+    function _burn(
+        uint256 tokenId
+    ) 
+    internal 
+    override(ERC721Upgradeable) {
+        super._burn(tokenId);
+    }    
+    
     function tokenDetailsOfOwner(
         address owner
     )

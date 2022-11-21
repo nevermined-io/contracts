@@ -16,7 +16,7 @@ interface IAccessControl {
     * @notice It checks if an address (`_address`) has access to a certain asset (`_did`) 
     * @param _address address of the account to check if has address
     * @param _did unique identifier of the asset
-    * @return permissionGranted true if the `_address` has access to `_did`
+    * @return permissionGranted is true if the `_address` has access to the `_did`
     */    
     function checkPermissions(
         address _address,
