@@ -8,6 +8,7 @@ import '@openzeppelin/contracts-upgradeable/interfaces/IERC2981Upgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol';
+import '@openzeppelin/contracts-upgradeable/proxy/ClonesUpgradeable.sol';
 
 /**
  *
@@ -42,6 +43,12 @@ abstract contract NFTBase is IERC2981Upgradeable, CommonOwnable, AccessControlUp
 
     address public nvmConfig;
 
+    event NFTCloned(
+        address indexed _newAddress,
+        address indexed _fromAddress,
+        uint _ercType
+    );    
+    
     /**
      * @dev getNvmConfigAddress get the address of the NeverminedConfig contract
      * @return NeverminedConfig contract address

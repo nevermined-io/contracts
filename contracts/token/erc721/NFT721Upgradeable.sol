@@ -7,7 +7,6 @@ import '../NFTBase.sol';
 import '@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/utils/StringsUpgradeable.sol';
-import '@openzeppelin/contracts-upgradeable/proxy/ClonesUpgradeable.sol';
 
 
 /**
@@ -86,8 +85,10 @@ contract NFT721Upgradeable is ERC721Upgradeable, NFTBase {
     virtual
     returns (address)
     {
+        require(AddressUpgradeable.isContract(implementation), 'Invalid contract address');
         address cloneAddress = ClonesUpgradeable.clone(implementation);
         NFT721Upgradeable(cloneAddress).initializeWithAttributes(name, symbol, uri, cap);
+        emit NFTCloned(cloneAddress, implementation, 721);
         return cloneAddress;
     }
     
