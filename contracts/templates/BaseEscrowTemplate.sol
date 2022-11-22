@@ -186,7 +186,7 @@ contract BaseEscrowTemplate is AgreementTemplate {
             agreementStoreManager.getDIDRegistryAddress()
         );
         
-        (owner, , , , , providers,,,) = didRegistryInstance.getDIDRegister(agreementData.agreementDataItems[_id].did);
+        (owner, , , , , providers,,,,) = didRegistryInstance.getDIDRegister(agreementData.agreementDataItems[_id].did);
 
         if (providers.length > 0) {
             accessProvider = providers[0];
