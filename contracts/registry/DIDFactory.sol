@@ -105,6 +105,14 @@ abstract contract DIDFactory is ProvenanceRegistry {
         uint256 _blockNumberUpdated
     );
 
+    event DIDMetadataUpdated(
+        bytes32 indexed _did,
+        address indexed _owner,
+        bytes32 _checksum,
+        string _url,
+        string _immutableUrl
+    );
+    
     event DIDProviderRemoved(
         bytes32 _did,
         address _provider,
@@ -231,6 +239,33 @@ abstract contract DIDFactory is ProvenanceRegistry {
 
     }
 
+    function updateMetadataUrl(
+        bytes32 _did,
+        bytes32 _checksum,
+        string memory _url,
+        string memory _immutableUrl
+    )
+    public
+    onlyDIDOwner(_did)
+    virtual {
+        didRegisterList.update(_did, _checksum, _url, _msgSender(), _immutableUrl);
+        used(
+            keccak256(abi.encode(_did, _checksum, _url, _immutableUrl, block.number, _msgSender())),
+            _did,
+            _msgSender(),
+            keccak256('updateMetadataUrl'),
+            '',
+            _immutableUrl
+        );
+        emit DIDMetadataUpdated(
+            _did,
+            _msgSender(),
+            _checksum,
+            _url,
+            _immutableUrl
+        ); 
+    }
+    
     /**
      * @notice It generates a DID using as seed a bytes32 and the address of the DID creator
      * @param _didSeed refers to DID Seed used as base to generate the final DID
@@ -582,6 +617,7 @@ abstract contract DIDFactory is ProvenanceRegistry {
     * @return nftSupply the supply of nfts
     * @return mintCap the maximum number of nfts that can be minted
     * @return royalties the royalties amount
+    * @return immutableUrl includes the url to the DDO in immutable storage
     */
     function getDIDRegister(
         bytes32 _did
@@ -597,7 +633,8 @@ abstract contract DIDFactory is ProvenanceRegistry {
         address[] memory providers,
         uint256 nftSupply,
         uint256 mintCap,
-        uint256 royalties
+        uint256 royalties,
+        string memory immutableUrl
     )
     {
         owner = didRegisterList.didRegisters[_did].owner;
@@ -610,6 +647,7 @@ abstract contract DIDFactory is ProvenanceRegistry {
         nftSupply = didRegisterList.didRegisters[_did].nftSupply;
         mintCap = didRegisterList.didRegisters[_did].mintCap;
         royalties = didRegisterList.didRegisters[_did].royalties;
+        immutableUrl = didRegisterList.didRegisters[_did].immutableUrl;
     }
 
     function getDIDSupply(
