@@ -53,7 +53,7 @@ describe('using ethers with OpenGSN', () => {
 
         const nvmConfig = await deployContract('NeverminedConfig', deployer, {}, [owner, governor, false])
 
-        nft = await deployContract('NFTUpgradeable', deployer, {}, [''])
+        nft = await deployContract('NFT1155Upgradeable', deployer, {}, [''])
 
         didRegistry = await deployContract(
             'DIDRegistry',
