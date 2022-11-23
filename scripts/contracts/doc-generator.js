@@ -33,7 +33,7 @@ const contracts = [
     'NFTHolderCondition',
     'NFTLockCondition',
     'NFTSalesTemplate',
-    'NFTUpgradeable',
+    'NFT1155Upgradeable',
     'ProvenanceRegistry',
     'Reward',
     'SignCondition',

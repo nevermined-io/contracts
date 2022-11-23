@@ -84,7 +84,7 @@ const utils = {
         const ConditionStoreManager = artifacts.require('ConditionStoreManager')
         const EpochLibrary = artifacts.require('EpochLibrary')
         const DIDRegistryLibrary = artifacts.require('DIDRegistryLibrary')
-        const NFT = artifacts.require('NFTUpgradeable')
+        const NFT = artifacts.require('NFT1155Upgradeable')
         const Royalties = artifacts.require('StandardRoyalties')
 
         const epochLibrary = await EpochLibrary.new()

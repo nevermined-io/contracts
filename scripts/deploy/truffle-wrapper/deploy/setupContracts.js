@@ -302,10 +302,10 @@ async function setupContracts({
         addresses.stage = 2
     }
 
-    if (addressBook.NFTUpgradeable && addressBook.DIDRegistry && addresses.stage < 3) {
-        console.log('Set NFT minter : ' + addressBook.NFTUpgradeable)
-        await callContract(artifacts.NFTUpgradeable, a => a.addMinter(addressBook.DIDRegistry))
-        await callContract(artifacts.NFTUpgradeable, a => a.setProxyApproval(addressBook.DIDRegistry, true))
+    if (addressBook.NFT1155Upgradeable && addressBook.DIDRegistry && addresses.stage < 3) {
+        console.log('Set NFT minter : ' + addressBook.NFT1155Upgradeable)
+        await callContract(artifacts.NFT1155Upgradeable, a => a.addMinter(addressBook.DIDRegistry))
+        await callContract(artifacts.NFT1155Upgradeable, a => a.setProxyApproval(addressBook.DIDRegistry, true))
         addresses.stage = 3
     }
 
@@ -370,17 +370,17 @@ async function setupContracts({
         addresses.stage = 9
     }
 
-    if (addressBook.TransferNFTCondition && addressBook.NFTUpgradeable && addresses.stage < 10) {
+    if (addressBook.TransferNFTCondition && addressBook.NFT1155Upgradeable && addresses.stage < 10) {
         console.log('TransferNFTCondition : ' + addressBook.TransferNFTCondition)
-        await callContract(artifacts.NFTUpgradeable, a => a.setProxyApproval(addressBook.TransferNFTCondition, true))
+        await callContract(artifacts.NFT1155Upgradeable, a => a.setProxyApproval(addressBook.TransferNFTCondition, true))
         addresses.stage = 10
     }
 
     if (addressBook.TransferNFTCondition && addressBook.DIDRegistry && addresses.stage < 11) {
         console.log('DIDRegistry : ' + addressBook.DIDRegistry)
-        await callContract(artifacts.NFTUpgradeable, a => a.setProxyApproval(addressBook.DIDRegistry, true))
-        await callContract(artifacts.NFTUpgradeable, a => a.setProxyApproval(addressBook.TransferNFTCondition, true))
-        await callContract(artifacts.NFTUpgradeable, a => a.addMinter(addressBook.TransferNFTCondition))
+        await callContract(artifacts.NFT1155Upgradeable, a => a.setProxyApproval(addressBook.DIDRegistry, true))
+        await callContract(artifacts.NFT1155Upgradeable, a => a.setProxyApproval(addressBook.TransferNFTCondition, true))
+        await callContract(artifacts.NFT1155Upgradeable, a => a.addMinter(addressBook.TransferNFTCondition))
         addresses.stage = 11
     }
 
@@ -510,9 +510,9 @@ async function setupContracts({
         addresses.stage = 19
     }
 
-    if (addressBook.NFTLockCondition && addressBook.NFTUpgradeable && addresses.stage < 20) {
-        console.log('Grant Proxy Approval (NFTUpgradeable) : ' + addressBook.NFTLockCondition)
-        await callContract(artifacts.NFTUpgradeable, a => a.setProxyApproval(addressBook.NFTLockCondition, true))
+    if (addressBook.NFTLockCondition && addressBook.NFT1155Upgradeable && addresses.stage < 20) {
+        console.log('Grant Proxy Approval (NFT1155Upgradeable) : ' + addressBook.NFTLockCondition)
+        await callContract(artifacts.NFT1155Upgradeable, a => a.setProxyApproval(addressBook.NFTLockCondition, true))
         addresses.stage = 20
     }
 
@@ -527,8 +527,8 @@ async function setupContracts({
         if (gsn) {
             await callContract(artifacts.NeverminedConfig, a => a.setTrustedForwarder(gsn))
         }
-        if (addressBook.NFTUpgradeable) {
-            await callContract(artifacts.NFTUpgradeable, a => a.setNvmConfigAddress(addressBook.NeverminedConfig))
+        if (addressBook.NFT1155Upgradeable) {
+            await callContract(artifacts.NFT1155Upgradeable, a => a.setNvmConfigAddress(addressBook.NeverminedConfig))
         }
         if (addressBook.NFT721Upgradeable) {
             await callContract(artifacts.NFT721Upgradeable, a => a.setNvmConfigAddress(addressBook.NeverminedConfig))
