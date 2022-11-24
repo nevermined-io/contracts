@@ -7,7 +7,7 @@ chai.use(chaiAsPromised)
 
 const DIDRegistryLibrary = artifacts.require('DIDRegistryLibrary')
 const DIDRegistry = artifacts.require('DIDRegistry')
-const NFT = artifacts.require('NFTUpgradeable')
+const NFT = artifacts.require('NFT1155Upgradeable')
 const testUtils = require('../../helpers/utils.js')
 const constants = require('../../helpers/constants.js')
 

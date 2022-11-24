@@ -19,7 +19,7 @@ const EscrowPaymentCondition = artifacts.require('EscrowPaymentCondition')
 const NFTEscrowPaymentCondition = artifacts.require('NFTEscrowPaymentCondition')
 const NFT721EscrowPaymentCondition = artifacts.require('NFT721EscrowPaymentCondition')
 
-const NFT = artifacts.require('NFTUpgradeable')
+const NFT = artifacts.require('NFT1155Upgradeable')
 const NFT721 = artifacts.require('NFT721Upgradeable')
 
 const constants = require('../../../helpers/constants.js')
@@ -173,8 +173,8 @@ function testMultiEscrow(EscrowPaymentCondition, LockPaymentCondition, Token, nf
                 )
 
                 if (nft) {
-                    await testUtils.approveProxy('NFTUpgradeable', sender, token.address, lockPaymentCondition.address)
-                    await testUtils.approveProxy('NFTUpgradeable', sender, token.address, escrowPayment.address)
+                    await testUtils.approveProxy('NFT1155Upgradeable', sender, token.address, lockPaymentCondition.address)
+                    await testUtils.approveProxy('NFT1155Upgradeable', sender, token.address, escrowPayment.address)
                 }
 
                 await lockPaymentCondition.fulfillWrap(agreementId, did, escrowPayment.address, token.address, amounts, receivers)

@@ -16,7 +16,7 @@ const AgreementStoreManager = artifacts.require('AgreementStoreManager')
 const TransferNFTCondition = artifacts.require('TransferNFTCondition')
 const LockPaymentCondition = artifacts.require('LockPaymentCondition')
 const EscrowPaymentCondition = artifacts.require('EscrowPaymentCondition')
-const NFT = artifacts.require('NFTUpgradeable')
+const NFT = artifacts.require('NFT1155Upgradeable')
 const constants = require('../../helpers/constants.js')
 const testUtils = require('../../helpers/utils.js')
 

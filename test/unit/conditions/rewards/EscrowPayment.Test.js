@@ -20,7 +20,7 @@ const NFT721LockCondition = artifacts.require('NFT721LockCondition')
 const NFTEscrowPaymentCondition = artifacts.require('NFTEscrowPaymentCondition')
 const NFT721EscrowPaymentCondition = artifacts.require('NFT721EscrowPaymentCondition')
 
-const NFT = artifacts.require('NFTUpgradeable')
+const NFT = artifacts.require('NFT1155Upgradeable')
 const NFT721 = artifacts.require('NFT721Upgradeable')
 
 const constants = require('../../../helpers/constants.js')
@@ -213,8 +213,8 @@ function escrowTest(EscrowPaymentCondition, LockPaymentCondition, Token, nft, nf
                     { from: sender })
 
                 if (nft) {
-                    await testUtils.approveProxy('NFTUpgradeable', sender, token.address, lockPaymentCondition.address)
-                    await testUtils.approveProxy('NFTUpgradeable', sender, token.address, escrowPayment.address)
+                    await testUtils.approveProxy('NFT1155Upgradeable', sender, token.address, lockPaymentCondition.address)
+                    await testUtils.approveProxy('NFT1155Upgradeable', sender, token.address, escrowPayment.address)
                 }
                 if (nft721) {
                     await testUtils.approveProxy('NFT721Upgradeable', sender, token.address, lockPaymentCondition.address)
@@ -256,7 +256,7 @@ function escrowTest(EscrowPaymentCondition, LockPaymentCondition, Token, nft, nf
                 assert.strictEqual(await token.getBalance(receivers[0]), totalAmount)
 
                 if (nft721 || nft) {
-                    await testUtils.approveProxy('NFTUpgradeable', sender, token.address, receivers[0])
+                    await testUtils.approveProxy('NFT1155Upgradeable', sender, token.address, receivers[0])
                     await testUtils.approveProxy('NFT721Upgradeable', sender, token.address, receivers[0])
                     await token.transferWrap(escrowPayment.address, totalAmount, { from: receivers[0] })
                 } else {
@@ -875,7 +875,7 @@ function escrowTest(EscrowPaymentCondition, LockPaymentCondition, Token, nft, nf
                 await token.mintWrap(didRegistry, sender, 100, owner)
 
                 if (nft) {
-                    await testUtils.approveProxy('NFTUpgradeable', sender, token.address, sender)
+                    await testUtils.approveProxy('NFT1155Upgradeable', sender, token.address, sender)
                 }
                 await token.transferWrap(escrowPayment.address, 100, { from: sender })
                 const lockConditionId = conditionLockId

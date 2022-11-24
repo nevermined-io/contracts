@@ -134,9 +134,9 @@ async function initializeContracts({
         })
     }
 
-    if (contracts.indexOf('NFTUpgradeable') > -1) {
-        addressBook.NFTUpgradeable = await zosCreate({
-            contract: 'NFTUpgradeable',
+    if (contracts.indexOf('NFT1155Upgradeable') > -1) {
+        addressBook.NFT1155Upgradeable = await zosCreate({
+            contract: 'NFT1155Upgradeable',
             ctx,
             args: [''],
             verbose
@@ -156,7 +156,7 @@ async function initializeContracts({
         addressBook.DIDRegistry = await zosCreate({
             contract: 'DIDRegistry',
             ctx,
-            args: [roles.deployer, addressBook.NFTUpgradeable || ZeroAddress, addressBook.NFT721Upgradeable || ZeroAddress, addressBook.NeverminedConfig || ZeroAddress, ZeroAddress],
+            args: [roles.deployer, addressBook.NFT1155Upgradeable || ZeroAddress, addressBook.NFT721Upgradeable || ZeroAddress, addressBook.NeverminedConfig || ZeroAddress, ZeroAddress],
             libraries: { DIDRegistryLibrary: didRegistryLibrary },
             verbose
         })
@@ -468,7 +468,7 @@ async function initializeContracts({
         }
     }
     if (getAddress('ConditionStoreManager') &&
-        getAddress('NFTUpgradeable')) {
+        getAddress('NFT1155Upgradeable')) {
         if (contracts.indexOf('NFTHolderCondition') > -1) {
             addressBook.NFTHolderCondition = await zosCreate({
                 contract: 'NFTHolderCondition',
@@ -476,7 +476,7 @@ async function initializeContracts({
                 args: [
                     roles.ownerWallet,
                     getAddress('ConditionStoreManager'),
-                    getAddress('NFTUpgradeable')
+                    getAddress('NFT1155Upgradeable')
                 ],
                 verbose
             })
@@ -489,7 +489,7 @@ async function initializeContracts({
                 args: [
                     roles.ownerWallet,
                     getAddress('ConditionStoreManager'),
-                    getAddress('NFTUpgradeable')
+                    getAddress('NFT1155Upgradeable')
                 ],
                 verbose
             })
@@ -498,7 +498,7 @@ async function initializeContracts({
 
     if (getAddress('ConditionStoreManager') &&
         getAddress('DIDRegistry') &&
-        getAddress('NFTUpgradeable')) {
+        getAddress('NFT1155Upgradeable')) {
         if (contracts.indexOf('TransferNFTCondition') > -1) {
             addressBook.TransferNFTCondition = await zosCreate({
                 contract: 'TransferNFTCondition',
@@ -507,7 +507,7 @@ async function initializeContracts({
                     roles.deployer,
                     getAddress('ConditionStoreManager'),
                     getAddress('DIDRegistry'),
-                    getAddress('NFTUpgradeable'),
+                    getAddress('NFT1155Upgradeable'),
                     ZeroAddress
                 ],
                 verbose

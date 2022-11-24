@@ -6,7 +6,7 @@ pragma solidity ^0.8.0;
 
 import '../Common.sol';
 import './DIDFactory.sol';
-import '../token/erc1155/NFTUpgradeable.sol';
+import '../token/erc1155/NFT1155Upgradeable.sol';
 import '../token/erc721/NFT721Upgradeable.sol';
 import '../royalties/StandardRoyalties.sol';
 
@@ -20,7 +20,7 @@ contract DIDRegistry is DIDFactory {
 
     using DIDRegistryLibrary for DIDRegistryLibrary.DIDRegisterList;
 
-    NFTUpgradeable public erc1155;
+    NFT1155Upgradeable public erc1155;
     NFT721Upgradeable public erc721;
 
     mapping (address => bool) public royaltiesCheckers;
@@ -58,7 +58,7 @@ contract DIDRegistry is DIDFactory {
     initializer
     {
         OwnableUpgradeable.__Ownable_init();
-        erc1155 = NFTUpgradeable(_erc1155);
+        erc1155 = NFT1155Upgradeable(_erc1155);
         erc721 = NFT721Upgradeable(_erc721);
         transferOwnership(_owner);
         manager = _owner;

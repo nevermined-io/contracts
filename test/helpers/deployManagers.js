@@ -11,7 +11,7 @@ const deployManagers = async function(deployer, owner, governor = owner, subscri
 
     const token = await testUtils.deploy('NeverminedToken', [owner, owner], deployer)
     const nvmConfig = await testUtils.deploy('NeverminedConfig', [owner, governor, false], deployer)
-    const nft = await testUtils.deploy('NFTUpgradeable', [''], deployer)
+    const nft = await testUtils.deploy('NFT1155Upgradeable', [''], deployer)
     let nft721
     if (subscription) {
         nft721 = await testUtils.deploy('NFT721SubscriptionUpgradeable', ['NFT721', 'NVM', '', 0], deployer, [], 'initializeWithAttributes')

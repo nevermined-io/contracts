@@ -10,7 +10,7 @@ import '../NFTBase.sol';
  * @dev Implementation of the basic standard multi-token.
  * See https://eips.ethereum.org/EIPS/eip-1155
  */
-contract NFTUpgradeable is ERC1155Upgradeable, NFTBase {
+contract NFT1155Upgradeable is ERC1155Upgradeable, NFTBase {
 
     // Token name
     string public name;
@@ -64,7 +64,7 @@ contract NFTUpgradeable is ERC1155Upgradeable, NFTBase {
     {
         require(AddressUpgradeable.isContract(_implementation), 'Invalid contract address');
         address cloneAddress = ClonesUpgradeable.clone(_implementation);
-        NFTUpgradeable(cloneAddress).initializeWithName(_name, _symbol, _uri);
+        NFT1155Upgradeable(cloneAddress).initializeWithName(_name, _symbol, _uri);
         emit NFTCloned(cloneAddress, _implementation, 1155);
         return cloneAddress;
     }    

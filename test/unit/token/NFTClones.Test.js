@@ -9,7 +9,7 @@ chai.use(chaiAsPromised)
 const { ethers } = require('hardhat')
 
 const NFT721 = artifacts.require('NFT721Upgradeable')
-const NFT1155 = artifacts.require('NFTUpgradeable')
+const NFT1155 = artifacts.require('NFT1155Upgradeable')
 
 const testUtils = require('../../helpers/utils.js')
 const constants = require('../../helpers/constants.js')
@@ -84,7 +84,7 @@ contract('NFT Clones', (accounts) => {
             assert.strictEqual(1155, new BigNumber(ercType).toNumber())
 
             const signer = await ethers.provider.getSigner(account1)
-            const instance = await ethers.getContractAt('NFTUpgradeable', cloneAddress, signer)
+            const instance = await ethers.getContractAt('NFT1155Upgradeable', cloneAddress, signer)
             const newName = await instance.name()
 
             assert.strictEqual('My 1155', newName)
