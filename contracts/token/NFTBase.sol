@@ -155,6 +155,26 @@ abstract contract NFTBase is IERC2981Upgradeable, CommonOwnable, AccessControlUp
     returns (string memory) {
         return _contractMetadataUri;
     }
+
+    function addMinter(
+        address account
+    )
+    public
+    virtual
+    onlyOwner
+    {
+        AccessControlUpgradeable._setupRole(MINTER_ROLE, account);
+    }
+
+    function revokeMinter(
+        address account
+    )
+    public
+    virtual
+    onlyOwner
+    {
+        AccessControlUpgradeable._revokeRole(MINTER_ROLE, account);
+    }    
     
     function _msgSender() internal override(CommonOwnable,ContextUpgradeable) virtual view returns (address ret) {
         return Common._msgSender();

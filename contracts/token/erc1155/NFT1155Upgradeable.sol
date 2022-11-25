@@ -91,11 +91,7 @@ contract NFT1155Upgradeable is ERC1155Upgradeable, NFTBase {
         );
         _burn(to, id, amount);
     }
-
-    function addMinter(address account) public onlyOwner {
-        AccessControlUpgradeable._setupRole(MINTER_ROLE, account);
-    }
-
+    
     function uri(uint256 tokenId) public view override returns (string memory) {
         return _metadata[tokenId].nftURI;
     }

@@ -105,15 +105,6 @@ contract NFT721Upgradeable is ERC721Upgradeable, NFTBase {
         return super.isApprovedForAll(account, operator) || _proxyApprovals[operator];
     }
     
-    function addMinter(
-        address account
-    ) 
-    public 
-    onlyOwner 
-    {
-        AccessControlUpgradeable._setupRole(MINTER_ROLE, account);
-    }    
-    
     function mint(
         address to,
         uint256 tokenId
