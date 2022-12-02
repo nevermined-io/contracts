@@ -40,7 +40,7 @@ contract('NFT Clones', (accounts) => {
         it('I can clone an existing ERC-721 NFT Contract', async () => {
             await setupTest()
 
-            const result = await nft721.createClone(nft721.address, 'My Name', 'xXx', 'cid', 100, { from: account1 })
+            const result = await nft721.createClone('My Name', 'xXx', 'cid', 100, { from: account1 })
 
             const eventArgs = testUtils.getEventArgsFromTx(result, 'NFTCloned')
 
@@ -59,19 +59,13 @@ contract('NFT Clones', (accounts) => {
             assert.strictEqual('My Name', newName)
         })
 
-        it('If the address is wrong the clone fails', async () => {
-            await assert.isRejected(
-                nft721.createClone(constants.address.dummy, 'My Name', 'xXx', 'cid', 100, { from: account1 }),
-                'Invalid contract address'
-            )
-        })
     })
 
     describe('As a user I want to clone an existing ERC-1155 NFT Contract', () => {
         it('I can clone an existing ERC-1155 NFT Contract', async () => {
             await setupTest()
 
-            const result = await nft1155.createClone(nft1155.address, 'My 1155', 'yYy', 'cid', { from: account1 })
+            const result = await nft1155.createClone('My 1155', 'yYy', 'cid', { from: account1 })
 
             const eventArgs = testUtils.getEventArgsFromTx(result, 'NFTCloned')
 
@@ -90,11 +84,5 @@ contract('NFT Clones', (accounts) => {
             assert.strictEqual('My 1155', newName)
         })
 
-        it('If the address is wrong the clone fails', async () => {
-            await assert.isRejected(
-                nft1155.createClone(constants.address.dummy, 'My Name', 'xXx', 'cid', { from: account1 }),
-                'Invalid contract address'
-            )
-        })
     })
 })

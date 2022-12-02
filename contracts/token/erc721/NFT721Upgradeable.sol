@@ -75,7 +75,6 @@ contract NFT721Upgradeable is ERC721Upgradeable, NFTBase {
     }
 
     function createClone(
-        address implementation,
         string memory name,
         string memory symbol,
         string memory uri,
@@ -85,7 +84,10 @@ contract NFT721Upgradeable is ERC721Upgradeable, NFTBase {
     virtual
     returns (address)
     {
-        require(AddressUpgradeable.isContract(implementation), 'Invalid contract address');
+        address implementation = StorageSlotUpgradeable.getAddressSlot(0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc).value;
+        if (implementation == address(0)) {
+            implementation = address(this);
+        }        
         address cloneAddress = ClonesUpgradeable.clone(implementation);
         NFT721Upgradeable(cloneAddress).initializeWithAttributes(name, symbol, uri, cap);
         emit NFTCloned(cloneAddress, implementation, 721);

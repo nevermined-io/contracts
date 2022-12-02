@@ -53,7 +53,6 @@ contract NFT1155Upgradeable is ERC1155Upgradeable, NFTBase {
 
 
     function createClone(
-        address _implementation,
         string memory _name,
         string memory _symbol,
         string memory _uri
@@ -62,10 +61,13 @@ contract NFT1155Upgradeable is ERC1155Upgradeable, NFTBase {
     virtual
     returns (address)
     {
-        require(AddressUpgradeable.isContract(_implementation), 'Invalid contract address');
-        address cloneAddress = ClonesUpgradeable.clone(_implementation);
+        address implementation = StorageSlotUpgradeable.getAddressSlot(0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc).value;
+        if (implementation == address(0)) {
+            implementation = address(this);
+        }
+        address cloneAddress = ClonesUpgradeable.clone(implementation);
         NFT1155Upgradeable(cloneAddress).initializeWithName(_name, _symbol, _uri);
-        emit NFTCloned(cloneAddress, _implementation, 1155);
+        emit NFTCloned(cloneAddress, implementation, 1155);
         return cloneAddress;
     }    
     
