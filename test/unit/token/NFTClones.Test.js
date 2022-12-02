@@ -12,7 +12,6 @@ const NFT721 = artifacts.require('NFT721Upgradeable')
 const NFT1155 = artifacts.require('NFT1155Upgradeable')
 
 const testUtils = require('../../helpers/utils.js')
-const constants = require('../../helpers/constants.js')
 const BigNumber = require('bignumber.js')
 
 contract('NFT Clones', (accounts) => {
@@ -58,7 +57,6 @@ contract('NFT Clones', (accounts) => {
 
             assert.strictEqual('My Name', newName)
         })
-
     })
 
     describe('As a user I want to clone an existing ERC-1155 NFT Contract', () => {
@@ -83,6 +81,5 @@ contract('NFT Clones', (accounts) => {
 
             assert.strictEqual('My 1155', newName)
         })
-
     })
 })
