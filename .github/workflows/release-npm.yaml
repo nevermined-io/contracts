@@ -20,10 +20,6 @@ jobs:
         with:
           node-version: 14
           registry-url: https://registry.npmjs.org/
-      - name: Pre-install
-        run: |
-          rm -rf node_modules
-          yarn install --frozen-lockfile
       - name: Copy contracts
         run: mkdir -p lib && cp -R contracts/* lib
       - name: Publish package
