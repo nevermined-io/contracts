@@ -1,5 +1,5 @@
-const initializeContracts = require('./deploy/initializeContracts.js')
-const setupContracts = require('./deploy/setupContracts.js')
+const initializeContracts = require('./initializeContracts.js')
+const setupContracts = require('./setupContracts.js')
 const evaluateContracts = require('./evaluateContracts.js')
 const { ethers, web3 } = require('hardhat')
 const { exportArtifacts, exportLibraryArtifacts } = require('./artifacts')

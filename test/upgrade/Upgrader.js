@@ -1,5 +1,5 @@
-const { upgradeContracts } = require('../../scripts/deploy/truffle-wrapper/upgradeContracts')
-const { deployContracts } = require('../../scripts/deploy/truffle-wrapper/deployContracts')
+const { upgradeContracts } = require('../../scripts/deploy/upgradeContracts')
+const { deployContracts } = require('../../scripts/deploy/deployContracts')
 
 const deploy = async function({
     web3,
