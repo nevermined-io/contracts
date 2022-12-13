@@ -90,6 +90,10 @@ contract DIDRegistry is DIDFactory {
         conditionManagers[_manager] = state;
     }
 
+    function setNFT1155(address _erc1155) public onlyOwner {
+        erc1155 = NFT1155Upgradeable(_erc1155);
+    }
+
     /**
      * Sets the manager role. Should be the TransferCondition contract address
      */

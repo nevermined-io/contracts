@@ -545,6 +545,12 @@ async function setupContracts({
         }
         addresses.stage = 23
     }
+
+    if (addresses.stage < 24 && addressBook.NFT1155Upgradeable) {
+        console.log('Setting up NFT-1155')
+        await callContract(artifacts.DIDRegistry, a => a.setNFT1155(addressBook.NFT1155Upgradeable))
+        addresses.stage = 24
+    }
 }
 
 module.exports = setupContracts
