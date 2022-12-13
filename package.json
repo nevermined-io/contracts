@@ -135,7 +135,8 @@
   },
   "files": [
     "lib/*",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
   "resolutions": {
     "web3-eth-accounts/scrypt.js": "0.3.0"
