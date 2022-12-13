@@ -19,6 +19,7 @@ cache
 # Build / Travis
 build/
 node_modules/
+lib
 dist
 ganache-cli.log
 yarn-error.log
