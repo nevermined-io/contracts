@@ -37,7 +37,7 @@ const PROXY_ADMIN_ABI = `[{
 }]`
 
 async function deployContracts({ contracts: origContracts, verbose, testnet, makeWallet, addresses, deeperClean }) {
-    const contracts = evaluateContracts({
+    const { core, contracts } = evaluateContracts({
         contracts: origContracts,
         verbose,
         testnet
@@ -79,6 +79,7 @@ async function deployContracts({ contracts: origContracts, verbose, testnet, mak
 
     const { cache, addressBook, proxies } = await initializeContracts({
         contracts,
+        core,
         roles,
         network: '',
         didRegistryLibrary: didRegistryLibraryAddress,
@@ -128,12 +129,9 @@ async function deployContracts({ contracts: origContracts, verbose, testnet, mak
     if (process.env.NO_PROXY === 'true') {
         await exportLibraryArtifacts(contracts, addressBook)
     } else {
-        await exportArtifacts(contracts.filter(a => a !== 'AaveCreditVault' && a !== 'PlonkVerifier'), addressBook, libraries)
-        await exportLibraryArtifacts(['EpochLibrary', 'DIDRegistryLibrary', 'PlonkVerifier'], addressBook)
-
-        if (contracts.indexOf('AaveCreditVault') > -1) {
-            await exportLibraryArtifacts(['AaveCreditVault'], addressBook)
-        }
+        await exportLibraryArtifacts(contracts, addressBook, libraries)
+        await exportArtifacts(core, addressBook, libraries)
+        await exportLibraryArtifacts(['EpochLibrary', 'DIDRegistryLibrary'], addressBook)
     }
 
     return addressBook

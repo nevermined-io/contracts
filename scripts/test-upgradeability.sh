@@ -15,7 +15,7 @@ npx hardhat node --port 18545 > /dev/null 2>&1 &
 
 sleep 10
 
-npx hardhat run ./scripts/deploy/deployContractsWrapper.js --network external || exit 1
+yarn deploy:external || exit 1
 
 git checkout $BRANCH
 yarn

@@ -1,9 +1,4 @@
 [
-  "NeverminedConfig",
-  "DIDRegistry",
-  "NFT1155Upgradeable",
-  "NFT721Upgradeable",
-  "NFT721SubscriptionUpgradeable",
   "ConditionStoreManager",
   "TemplateStoreManager",
   "AgreementStoreManager",
@@ -42,7 +37,6 @@
   "NFT721SalesTemplate",
   "EscrowComputeExecutionTemplate",
   "DistributeNFTCollateralCondition",
-  "StandardRoyalties",
   "RewardsDistributor",
   "AaveBorrowCondition",
   "AaveCollateralDepositCondition",
