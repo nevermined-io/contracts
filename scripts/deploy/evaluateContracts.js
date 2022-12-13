@@ -11,7 +11,7 @@ function evaluateContracts({
     verbose
 } = {}) {
     console.log('testnet', testnet)
-    let core = coreContractNames
+    const core = coreContractNames
     if (!contracts || contracts.length === 0) {
         // contracts not supplied, loading from disc
         contracts = contractNames

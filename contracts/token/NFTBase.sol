@@ -48,7 +48,7 @@ abstract contract NFTBase is IERC2981Upgradeable, CommonOwnable, AccessControlUp
         address indexed _newAddress,
         address indexed _fromAddress,
         uint _ercType
-    );    
+    );
     
     /**
      * @dev getNvmConfigAddress get the address of the NeverminedConfig contract

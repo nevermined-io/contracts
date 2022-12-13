@@ -19,7 +19,6 @@ function processLibraries(libraries, addresses) {
 // Only upgrade core contracts
 async function upgradeContracts({ verbose, testnet, fail, strict }) {
     const { core: contracts } = evaluateContracts({
-        contracts,
         verbose,
         testnet
     })
