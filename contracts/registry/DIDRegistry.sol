@@ -29,11 +29,23 @@ contract DIDRegistry is DIDFactory {
     INVMConfig public nvmConfig;
     address public conditionManager;
 
+    mapping (address => bool) public conditionManagers;
+    mapping (address => bool) public managers;
+
     modifier onlyConditionManager
     {
         require(
-            _msgSender() == conditionManager,
+            conditionManagers[_msgSender()],
             'Only condition store manager'
+        );
+        _;
+    }
+
+    modifier onlyManager
+    {
+        require(
+            managers[_msgSender()],
+            'Only transfer manager'
         );
         _;
     }
@@ -74,8 +86,15 @@ contract DIDRegistry is DIDFactory {
         royaltiesCheckers[_addr] = true;
     }
 
-    function setConditionManager(address _manager) public onlyOwner {
-        conditionManager = _manager;
+    function setConditionManager(address _manager, bool state) public onlyOwner {
+        conditionManagers[_manager] = state;
+    }
+
+    /**
+     * Sets the manager role. Should be the TransferCondition contract address
+     */
+    function setManager(address _addr, bool state) external onlyOwner {
+        managers[_addr] = state;
     }
 
     event DIDRoyaltiesAdded(bytes32 indexed did, address indexed addr);
@@ -110,6 +129,18 @@ contract DIDRegistry is DIDFactory {
             _did,
             _recipient
         );
+    }
+
+    /**
+     * @notice transferDIDOwnershipManaged transfer DID ownership
+     * @param _did refers to decentralized identifier (a bytes32 length ID)
+     * @param _newOwner new owner address
+     */
+    function transferDIDOwnershipManaged(address _sender, bytes32 _did, address _newOwner)
+    external
+    onlyManager
+    {
+        _transferDIDOwnership(_sender, _did, _newOwner);
     }
 
     /**

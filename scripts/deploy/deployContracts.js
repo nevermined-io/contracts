@@ -44,7 +44,7 @@ async function deployContracts({ contracts: origContracts, verbose, testnet, mak
     })
 
     if (!deeperClean) {
-        for (const el of contracts.concat(['DIDRegistryLibrary', 'EpochLibrary'])) {
+        for (const el of core.concat(['DIDRegistryLibrary', 'EpochLibrary'])) {
             const afact = readArtifact(el)
             if (afact.address) {
                 console.log(`Using existing artifact for ${el}`)

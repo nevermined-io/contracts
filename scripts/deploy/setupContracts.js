@@ -367,7 +367,7 @@ async function setupContracts({
 
     if (addressBook.TransferDIDOwnershipCondition && addressBook.DIDRegistry && addresses.stage < 9) {
         console.log('TransferDIDOwnershipCondition : ' + addressBook.TransferDIDOwnershipCondition)
-        await callContract(artifacts.DIDRegistry, a => a.setManager(addressBook.TransferDIDOwnershipCondition))
+        await callContract(artifacts.DIDRegistry, a => a.setManager(addressBook.TransferDIDOwnershipCondition, true))
         addresses.stage = 9
     }
 

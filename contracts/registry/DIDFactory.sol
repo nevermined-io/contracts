@@ -45,15 +45,6 @@ abstract contract DIDFactory is ProvenanceRegistry {
         _;
     }
 
-    modifier onlyManager
-    {
-        require(
-            _msgSender() == manager,
-            'Only manager'
-        );
-        _;
-    }
-
     modifier onlyOwnerProviderOrDelegated(bytes32 _did)
     {
         require(isOwnerProviderOrDelegate(_did),
@@ -152,13 +143,6 @@ abstract contract DIDFactory is ProvenanceRegistry {
         bytes32 _did,
         address _delegate
     );
-
-    /**
-     * Sets the manager role. Should be the TransferCondition contract address
-     */
-    function setManager(address _addr) external onlyOwner {
-        manager = _addr;
-    }
 
     /**
      * @notice Register DID attributes.
@@ -501,18 +485,6 @@ abstract contract DIDFactory is ProvenanceRegistry {
     external
     {
         _transferDIDOwnership(_msgSender(), _did, _newOwner);
-    }
-
-    /**
-     * @notice transferDIDOwnershipManaged transfer DID ownership
-     * @param _did refers to decentralized identifier (a bytes32 length ID)
-     * @param _newOwner new owner address
-     */
-    function transferDIDOwnershipManaged(address _sender, bytes32 _did, address _newOwner)
-    external
-    onlyManager
-    {
-        _transferDIDOwnership(_sender, _did, _newOwner);
     }
 
     function _transferDIDOwnership(address _sender, bytes32 _did, address _newOwner) internal
