@@ -5,7 +5,6 @@ const { assert } = chai
 const chaiAsPromised = require('chai-as-promised')
 chai.use(chaiAsPromised)
 
-const DIDRegistryLibrary = artifacts.require('DIDRegistryLibrary')
 const DIDRegistry = artifacts.require('DIDRegistry')
 const testUtils = require('../../helpers/utils.js')
 const constants = require('../../helpers/constants')
@@ -34,8 +33,6 @@ contract('DIDRegistry', (accounts) => {
 
     async function setupTest() {
         if (!didRegistry) {
-            const didRegistryLibrary = await DIDRegistryLibrary.new()
-            await DIDRegistry.link(didRegistryLibrary)
             didRegistry = await DIDRegistry.new()
             await didRegistry.initialize(owner, constants.address.zero, constants.address.zero, constants.address.zero, constants.address.zero)
         }

@@ -16,8 +16,6 @@ const AaveCollateralDeposit = artifacts.require('AaveCollateralDepositCondition'
 const AaveBorrowCredit = artifacts.require('AaveBorrowCondition')
 const AaveRepayCredit = artifacts.require('AaveRepayCondition')
 const AaveCollateralWithdraw = artifacts.require('AaveCollateralWithdrawCondition')
-const EpochLibrary = artifacts.require('EpochLibrary')
-const DIDRegistryLibrary = artifacts.require('DIDRegistryLibrary')
 const DIDRegistry = artifacts.require('DIDRegistry')
 const ConditionStoreManager = artifacts.require('ConditionStoreManager')
 const TemplateStoreManager = artifacts.require('TemplateStoreManager')
@@ -80,13 +78,9 @@ contract('End to End NFT Collateral Scenario [@skip-on-coverage]', (accounts) =>
         const nvmConfig = await NeverminedConfig.new()
         await nvmConfig.initialize(owner, governor, false)
 
-        const didRegistryLibrary = await DIDRegistryLibrary.new()
-        await DIDRegistry.link(didRegistryLibrary)
         didRegistry = await DIDRegistry.new({ gas: 19000000 })
         await didRegistry.initialize(owner, constants.address.zero, constants.address.zero, constants.address.zero, constants.address.zero)
 
-        const epochLibrary = await EpochLibrary.new()
-        await ConditionStoreManager.link(epochLibrary)
         conditionStoreManager = await ConditionStoreManager.new()
 
         templateStoreManager = await TemplateStoreManager.new()

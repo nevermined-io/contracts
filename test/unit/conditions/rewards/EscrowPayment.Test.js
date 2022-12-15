@@ -6,8 +6,6 @@ const { assert } = chai
 const chaiAsPromised = require('chai-as-promised')
 chai.use(chaiAsPromised)
 
-const EpochLibrary = artifacts.require('EpochLibrary')
-const DIDRegistryLibrary = artifacts.require('DIDRegistryLibrary')
 const DIDRegistry = artifacts.require('DIDRegistry')
 const ConditionStoreManager = artifacts.require('ConditionStoreManager')
 const NeverminedToken = artifacts.require('NeverminedToken')
@@ -45,15 +43,6 @@ function escrowTest(EscrowPaymentCondition, LockPaymentCondition, Token, nft, nf
         const deployer = accounts[8]
         const checksum = testUtils.generateId()
         const url = 'https://nevermined.io/did/test-attr-example.txt'
-
-        before(async () => {
-            if (!nft) {
-                const epochLibrary = await EpochLibrary.new()
-                await ConditionStoreManager.link(epochLibrary)
-                const didRegistryLibrary = await DIDRegistryLibrary.new()
-                await DIDRegistry.link(didRegistryLibrary)
-            }
-        })
 
         beforeEach(async () => {
             await setupTest()

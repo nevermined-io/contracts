@@ -8,7 +8,6 @@ chai.use(chaiAsPromised)
 
 const NeverminedConfig = artifacts.require('NeverminedConfig')
 const HashLockCondition = artifacts.require('HashLockCondition')
-const EpochLibrary = artifacts.require('EpochLibrary')
 const ConditionStoreManager = artifacts.require('ConditionStoreManager')
 
 const constants = require('../../helpers/constants.js')
@@ -28,8 +27,6 @@ contract('ConditionStoreManager', (accounts) => {
     before(async () => {
         nvmConfig = await NeverminedConfig.new()
         await nvmConfig.initialize(owner, governor, false)
-        const epochLibrary = await EpochLibrary.new()
-        await ConditionStoreManager.link(epochLibrary)
     })
 
     beforeEach(async () => {

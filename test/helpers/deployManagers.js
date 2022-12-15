@@ -1,14 +1,9 @@
 /* global artifacts */
-const EpochLibrary = artifacts.require('EpochLibrary')
-const DIDRegistryLibrary = artifacts.require('DIDRegistryLibrary')
 
 const constants = require('./constants.js')
 const testUtils = require('./utils')
 
 const deployManagers = async function(deployer, owner, governor = owner, subscription = false) {
-    const didRegistryLibrary = await DIDRegistryLibrary.new()
-    const epochLibrary = await EpochLibrary.new({ from: deployer })
-
     const token = await testUtils.deploy('NeverminedToken', [owner, owner], deployer)
     const nvmConfig = await testUtils.deploy('NeverminedConfig', [owner, governor, false], deployer)
     const nft = await testUtils.deploy('NFT1155Upgradeable', [''], deployer)
@@ -19,7 +14,7 @@ const deployManagers = async function(deployer, owner, governor = owner, subscri
         nft721 = await testUtils.deploy('NFT721Upgradeable', ['NFT721', 'NVM', '', 0], deployer, [], 'initializeWithAttributes')
     }
 
-    const didRegistry = await testUtils.deploy('DIDRegistry', [owner, nft.address, nft721.address, nvmConfig.address, constants.address.zero], deployer, [didRegistryLibrary])
+    const didRegistry = await testUtils.deploy('DIDRegistry', [owner, nft.address, nft721.address, nvmConfig.address, constants.address.zero], deployer)
     const royaltyManager = await testUtils.deploy('StandardRoyalties', [didRegistry.address], deployer)
 
     const templateStoreManager = await testUtils.deploy('TemplateStoreManager', [owner], deployer)
@@ -28,7 +23,6 @@ const deployManagers = async function(deployer, owner, governor = owner, subscri
         'ConditionStoreManager',
         [deployer, owner, nvmConfig.address],
         deployer,
-        [epochLibrary]
     )
 
     const agreementStoreManager = await testUtils.deploy(

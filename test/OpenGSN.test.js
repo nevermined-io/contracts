@@ -47,9 +47,6 @@ describe('using ethers with OpenGSN', () => {
         accounts = await web3.eth.getAccounts()
         const owner = accounts[0]
         const governor = accounts[1]
-        // const owner = accounts[0]
-
-        const didlib = await deployLibrary('DIDRegistryLibrary', deployer)
 
         const nvmConfig = await deployContract('NeverminedConfig', deployer, {}, [owner, governor, false])
 
@@ -58,7 +55,7 @@ describe('using ethers with OpenGSN', () => {
         didRegistry = await deployContract(
             'DIDRegistry',
             deployer,
-            { DIDRegistryLibrary: didlib },
+            {},
             [owner, nft.address, constants.address.zero, nvmConfig.address, constants.address.zero]
         )
 

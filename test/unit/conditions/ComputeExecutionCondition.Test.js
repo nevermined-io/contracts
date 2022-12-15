@@ -6,11 +6,9 @@ const { assert } = chai
 const chaiAsPromised = require('chai-as-promised')
 chai.use(chaiAsPromised)
 const deployManagers = require('../../helpers/deployManagers.js')
-const EpochLibrary = artifacts.require('EpochLibrary')
 const ConditionStoreManager = artifacts.require('ConditionStoreManager')
 const AgreementStoreManager = artifacts.require('AgreementStoreManager')
 const DIDRegistry = artifacts.require('DIDRegistry')
-const DIDRegistryLibrary = artifacts.require('DIDRegistryLibrary')
 const ComputeExecutionCondition = artifacts.require('ComputeExecutionCondition')
 const constants = require('../../helpers/constants.js')
 const testUtils = require('../../helpers/utils.js')
@@ -75,12 +73,8 @@ contract('ComputeExecutionCondition constructor', (accounts) => {
 
     describe('deploy and setup', () => {
         it('contract should deploy', async () => {
-            const epochLibrary = await EpochLibrary.new()
-            await ConditionStoreManager.link(epochLibrary)
             const conditionStoreManager = await ConditionStoreManager.new()
             const agreementStoreManager = await AgreementStoreManager.new()
-            const didRegistryLibrary = await DIDRegistryLibrary.new()
-            await DIDRegistry.link(didRegistryLibrary)
             const didRegistry = await DIDRegistry.new()
             await didRegistry.initialize(accounts[0], constants.address.zero, constants.address.zero, constants.address.zero, constants.address.zero)
             const computeExecutionCondition = await ComputeExecutionCondition.new()
