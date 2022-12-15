@@ -28,48 +28,6 @@ library EpochLibrary {
     }
 
    /**
-    * @notice create creates new Epoch
-    * @param _self is the Epoch storage pointer
-    * @param _timeLock value in block count (can not fulfill before)
-    * @param _timeOut value in block count (can not fulfill after)
-    */
-    function create(
-        EpochList storage _self,
-        bytes32 _id,
-        uint256 _timeLock,
-        uint256 _timeOut
-    )
-        internal
-    {
-        require(
-            _self.epochs[_id].blockNumber == 0,
-            'Id already exists'
-        );
-
-        require(
-            _timeLock + block.number >= block.number &&
-            _timeOut + block.number >= block.number,
-            'Indicating integer overflow/underflow'
-        );
-
-        if (_timeOut > 0 && _timeLock > 0) {
-            require(
-                _timeLock < _timeOut,
-                'Invalid time margin'
-            );
-        }
-
-        _self.epochs[_id] = Epoch({
-            timeLock : _timeLock,
-            timeOut : _timeOut,
-            blockNumber : block.number
-        });
-
-        // _self.epochIds.push(_id);
-
-    }
-
-   /**
     * @notice isTimedOut means you cannot fulfill after
     * @param _self is the Epoch storage pointer
     * @return true if the current block number is gt timeOut
@@ -78,7 +36,7 @@ library EpochLibrary {
         EpochList storage _self,
         bytes32 _id
     )
-        external
+        internal
         view
         returns (bool)
     {
@@ -98,7 +56,7 @@ library EpochLibrary {
         EpochList storage _self,
         bytes32 _id
     )
-        external
+        internal
         view
         returns (bool)
     {
@@ -112,7 +70,7 @@ library EpochLibrary {
     function getEpochTimeOut(
         Epoch storage _self
     )
-        public
+        internal
         view
         returns (uint256)
     {
@@ -126,7 +84,7 @@ library EpochLibrary {
     function getEpochTimeLock(
         Epoch storage _self
     )
-        public
+        internal
         view
         returns (uint256)
     {

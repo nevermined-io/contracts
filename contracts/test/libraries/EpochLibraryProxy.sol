@@ -8,7 +8,7 @@ import '../../libraries/EpochLibrary.sol';
 
 
 contract EpochLibraryProxy {
-
+/*
     using EpochLibrary for EpochLibrary.EpochList;
     using EpochLibrary for EpochLibrary.Epoch;
 
@@ -28,4 +28,5 @@ contract EpochLibraryProxy {
             _timeOut
         );
     }
+*/
 }

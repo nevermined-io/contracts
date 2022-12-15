@@ -67,11 +67,11 @@ library DIDRegistryLibrary {
         DIDRegisterList storage _self,
         bytes32 _did,
         bytes32 _checksum,
-        string calldata _url,
+        string memory _url,
         address _sender,
-        string calldata _immutableUrl
+        string memory _immutableUrl
     )
-    external
+    internal
     {
         address didOwner = _self.didRegisters[_did].owner;
         address creator = _self.didRegisters[_did].creator;
@@ -286,7 +286,7 @@ library DIDRegistryLibrary {
         bytes32 _did,
         address _provider
     )
-    public
+    internal
     view
     returns(bool)
     {
@@ -387,7 +387,7 @@ library DIDRegistryLibrary {
         bytes32 _did,
         address _delegate
     )
-    public
+    internal
     view
     returns(bool)
     {

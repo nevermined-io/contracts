@@ -86,6 +86,48 @@ contract ConditionStoreManager is CommonAccessControl {
         _;
     }
 
+   /**
+    * @notice create creates new Epoch
+    * @param _self is the Epoch storage pointer
+    * @param _timeLock value in block count (can not fulfill before)
+    * @param _timeOut value in block count (can not fulfill after)
+    */
+    function createEpoch(
+        EpochLibrary.EpochList storage _self,
+        bytes32 _id,
+        uint256 _timeLock,
+        uint256 _timeOut
+    )
+        internal
+    {
+        require(
+            _self.epochs[_id].blockNumber == 0,
+            'Id already exists'
+        );
+
+        require(
+            _timeLock + block.number >= block.number &&
+            _timeOut + block.number >= block.number,
+            'Indicating integer overflow/underflow'
+        );
+
+        if (_timeOut > 0 && _timeLock > 0) {
+            require(
+                _timeLock < _timeOut,
+                'Invalid time margin'
+            );
+        }
+
+        _self.epochs[_id] = EpochLibrary.Epoch({
+            timeLock : _timeLock,
+            timeOut : _timeOut,
+            blockNumber : block.number
+        });
+
+        // _self.epochIds.push(_id);
+
+    }
+
 
     /**
      * @dev initialize ConditionStoreManager Initializer
@@ -273,7 +315,7 @@ contract ConditionStoreManager is CommonAccessControl {
         onlyCreateRole
         onlyValidType(_typeRef)
     {
-        epochList.create(_id, _timeLock, _timeOut);
+        createEpoch(epochList, _id, _timeLock, _timeOut);
 
         conditionList.create(_id, _typeRef);
 
