@@ -1,8 +1,8 @@
-name: Build and Tests Nightly
+name: Tests Nightly
 
 on:
-    schedule:
-        - cron:  '30 5 * * *'
+  schedule:
+    - cron: '30 5 * * *'
 
 jobs:
     tests:
