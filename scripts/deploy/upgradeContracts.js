@@ -16,21 +16,9 @@ function processLibraries(libraries, addresses) {
     return libraries
 }
 
-async function upgradeContracts({ contracts: origContracts, verbose, testnet, fail, strict }) {
-    const table = {}
-    let contracts = []
-    for (const e of origContracts) {
-        if (e.match(':')) {
-            const [a, b] = e.split(':')
-            table[b] = a
-            contracts.push(b)
-        } else {
-            table[e] = e
-            contracts.push(e)
-        }
-    }
-    contracts = evaluateContracts({
-        contracts,
+// Only upgrade core contracts
+async function upgradeContracts({ verbose, testnet, fail, strict }) {
+    const { core: contracts } = evaluateContracts({
         verbose,
         testnet
     })
@@ -75,7 +63,7 @@ async function upgradeContracts({ contracts: origContracts, verbose, testnet, fa
             continue
         }
         const libraries = processLibraries(afact.libraries, addresses)
-        const C = await (await ethers.getContractFactory(table[c] || c, { libraries })).connect(ethers.provider.getSigner(roles.deployer))
+        const C = await (await ethers.getContractFactory(c, { libraries })).connect(ethers.provider.getSigner(roles.deployer))
         if (verbose) {
             console.log(`upgrading ${c} at ${afact.address}`)
         }

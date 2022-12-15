@@ -27,7 +27,7 @@ We follow the standard Nevermined release pattern:
 
 > :warning: wallets.json file is needed if using a MultiSig Wallet for the deployment. Currently none of the Nevermined contract deployments is using Multisig wallets.
 
-We define six roles (check code configuration in [wallets.js](../scripts/deploy/truffle-wrapper/wallets.js)):
+We define six roles (check code configuration in [wallets.js](../scripts/deploy/wallets.js)):
 
 - `deployer`: represented as `accounts[8]`
 - `upgrader`: represented as `accounts[8]`

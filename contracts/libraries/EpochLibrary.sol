@@ -5,8 +5,6 @@ pragma solidity ^0.8.0;
 // Code is Apache-2.0 and docs are CC-BY-4.0
 
 
-import '@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol';
-
 /**
  * @title Epoch Library
  * @author Nevermined
@@ -17,8 +15,6 @@ import '@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol';
  *      handling the time window between conditions in an agreement.
  */
 library EpochLibrary {
-
-    using SafeMathUpgradeable for uint256;
 
     struct Epoch {
         uint256 timeLock;
@@ -51,8 +47,8 @@ library EpochLibrary {
         );
 
         require(
-            _timeLock.add(block.number) >= block.number &&
-            _timeOut.add(block.number) >= block.number,
+            _timeLock + block.number >= block.number &&
+            _timeOut + block.number >= block.number,
             'Indicating integer overflow/underflow'
         );
 
@@ -120,7 +116,7 @@ library EpochLibrary {
         view
         returns (uint256)
     {
-        return _self.timeOut.add(_self.blockNumber);
+        return _self.timeOut + _self.blockNumber;
     }
 
     /**
@@ -134,6 +130,6 @@ library EpochLibrary {
         view
         returns (uint256)
     {
-        return _self.timeLock.add(_self.blockNumber);
+        return _self.timeLock + _self.blockNumber;
     }
 }

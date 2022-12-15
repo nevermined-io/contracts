@@ -96,7 +96,7 @@ contract('TransferNFT721 Condition constructor', (accounts) => {
             )
 
             await conditionStoreManager.setProvenanceRegistry(didRegistry.address, { from: owner })
-            await didRegistry.setConditionManager(conditionStoreManager.address, { from: owner })
+            await didRegistry.setConditionManager(conditionStoreManager.address, true, { from: owner })
 
             lockPaymentCondition = await LockPaymentCondition.new()
 

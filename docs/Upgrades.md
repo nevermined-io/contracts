@@ -27,7 +27,7 @@ Here we provide more details into each step of the initial deploy and the approa
 Before going into more details about the deployment. We should differentiate between different roles in the system which
 govern the upgradeability in nevermined-contracts.
 
-Roles are defined as follows (check code configuration in [wallets.js](../scripts/deploy/truffle-wrapper/wallets.js)):
+Roles are defined as follows (check code configuration in [wallets.js](../scripts/deploy/wallets.js)):
 
 ```text
 deployer: represented as accounts[8]
@@ -149,7 +149,7 @@ This process will show multiple errors for the contracts that are being upgraded
 
 ##### Upgrade the plonk verifier contract to the new version
 
-- To upgrade the plonk verifier contract to the new version run `npx hardhat run ./scripts/deploy/truffle-wrapper/upgradePlonkVerifier.js --network $NETWORK`
+- To upgrade the plonk verifier contract to the new version run `npx hardhat run ./scripts/deploy/upgradePlonkVerifier.js --network $NETWORK`
 
 ##### Upload the artifacts to the repository and persist any change in `openzeppelin/` file
 

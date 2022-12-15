@@ -18,10 +18,10 @@ function getSignatureOfMethod(
     return foundMethod.format()
 }
 
-async function doDeploy(signer, args) {
+async function doDeploy(signer, args, isCore) {
     const methodSignature = getSignatureOfMethod(signer, 'initialize', args)
 
-    if (process.env.NO_PROXY === 'true') {
+    if (!isCore && process.env.NO_PROXY === 'true') {
         const c = await signer.deploy()
         await c.deployed()
         const tx = await c[methodSignature](...args)
@@ -34,7 +34,7 @@ async function doDeploy(signer, args) {
     }
 }
 
-async function zosCreate({ contract, args, libraries, verbose, ctx }) {
+async function zosCreate({ contract, args, libraries, verbose, ctx, isCore }) {
     const { cache, addresses, roles } = ctx
     if (addresses[contract]) {
         console.log(`Contract ${contract} found from cache`)
@@ -43,7 +43,7 @@ async function zosCreate({ contract, args, libraries, verbose, ctx }) {
         return addresses[contract]
     } else {
         const C = await ethers.getContractFactory(contract, { libraries })
-        const c = await doDeploy(C.connect(ethers.provider.getSigner(roles.deployer)), args)
+        const c = await doDeploy(C.connect(ethers.provider.getSigner(roles.deployer)), args, isCore)
         cache[contract] = c
         if (verbose) {
             console.log(`${contract}: ${c.address}`)
@@ -73,12 +73,14 @@ async function deployLibrary(name, addresses, cache, signer) {
 
 async function initializeContracts({
     contracts,
+    core,
     roles,
     didRegistryLibrary,
     epochLibrary,
     addresses,
     verbose = true
 } = {}) {
+    contracts = contracts.concat(core)
     // Deploy all implementations in the specified network.
     // NOTE: Creates another zos.<network_name>.json file, specific to the network used,
     // which keeps track of deployed addresses, etc.
@@ -130,6 +132,7 @@ async function initializeContracts({
             contract: 'NeverminedConfig',
             ctx,
             args: [roles.deployer, roles.deployer, false],
+            isCore: true,
             verbose
         })
     }
@@ -139,6 +142,7 @@ async function initializeContracts({
             contract: 'NFT1155Upgradeable',
             ctx,
             args: [''],
+            isCore: true,
             verbose
         })
     }
@@ -148,6 +152,7 @@ async function initializeContracts({
             contract: 'NFT721Upgradeable',
             ctx,
             args: [],
+            isCore: true,
             verbose
         })
     }
@@ -158,6 +163,7 @@ async function initializeContracts({
             ctx,
             args: [roles.deployer, addressBook.NFT1155Upgradeable || ZeroAddress, addressBook.NFT721Upgradeable || ZeroAddress, addressBook.NeverminedConfig || ZeroAddress, ZeroAddress],
             libraries: { DIDRegistryLibrary: didRegistryLibrary },
+            isCore: true,
             verbose
         })
     }
@@ -167,6 +173,7 @@ async function initializeContracts({
             contract: 'StandardRoyalties',
             ctx,
             args: [addressBook.DIDRegistry],
+            isCore: true,
             verbose
         })
     }
@@ -175,6 +182,7 @@ async function initializeContracts({
     if (contracts.indexOf('NeverminedToken') > -1) {
         addressBook.NeverminedToken = await zosCreate({
             contract: 'NeverminedToken',
+            isCore: true,
             ctx,
             args: [
                 roles.ownerWallet,

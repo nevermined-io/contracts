@@ -367,7 +367,7 @@ async function setupContracts({
 
     if (addressBook.TransferDIDOwnershipCondition && addressBook.DIDRegistry && addresses.stage < 9) {
         console.log('TransferDIDOwnershipCondition : ' + addressBook.TransferDIDOwnershipCondition)
-        await callContract(artifacts.DIDRegistry, a => a.setManager(addressBook.TransferDIDOwnershipCondition))
+        await callContract(artifacts.DIDRegistry, a => a.setManager(addressBook.TransferDIDOwnershipCondition, true))
         addresses.stage = 9
     }
 
@@ -544,6 +544,12 @@ async function setupContracts({
             await callContract(artifacts.NeverminedToken, a => a.setNvmConfigAddress(addressBook.NeverminedConfig))
         }
         addresses.stage = 23
+    }
+
+    if (addresses.stage < 24 && addressBook.NFT1155Upgradeable) {
+        console.log('Setting up NFT-1155')
+        await callContract(artifacts.DIDRegistry, a => a.setNFT1155(addressBook.NFT1155Upgradeable))
+        addresses.stage = 24
     }
 }
 
