@@ -6,17 +6,6 @@ const { loadWallet } = require('./wallets')
 const EthersAdapter = require('@gnosis.pm/safe-ethers-lib').default
 const fs = require('fs')
 
-/*
-function processLibraries(libraries, addresses) {
-    if (!libraries) {
-        libraries = {}
-    }
-    for (const k of Object.keys(libraries)) {
-        libraries[k] = addresses[k] || libraries[k]
-    }
-    return libraries
-} */
-
 // Only upgrade core contracts
 async function upgradeContracts({ verbose, testnet, fail, strict }) {
     const { core: contracts } = evaluateContracts({
@@ -37,8 +26,6 @@ async function upgradeContracts({ verbose, testnet, fail, strict }) {
 
     const { roles, contractNetworks } = await loadWallet({})
 
-    // const addresses = {}
-
     for (const c of contracts) {
         if (success[c]) {
             console.log(`Already upgraded ${c}`)
@@ -57,7 +44,7 @@ async function upgradeContracts({ verbose, testnet, fail, strict }) {
             console.log(`contract ${c} didn't exist`)
             continue
         }
-        const libraries = {} // processLibraries(afact.libraries, addresses)
+        const libraries = {}
         const C = await (await ethers.getContractFactory(c, { libraries })).connect(ethers.provider.getSigner(roles.deployer))
         if (verbose) {
             console.log(`upgrading ${c} at ${afact.address}`)

@@ -124,8 +124,6 @@ contract ConditionStoreManager is CommonAccessControl {
             blockNumber : block.number
         });
 
-        // _self.epochIds.push(_id);
-
     }
 
 

@@ -214,7 +214,6 @@ async function initializeContracts({
         addressBook.ConditionStoreManager = await zosCreate({
             contract: 'ConditionStoreManager',
             ctx,
-            // libraries: { EpochLibrary: epochLibrary },
             args: [roles.deployer, roles.deployer, getAddress('NeverminedConfig')],
             verbose
         })

@@ -43,7 +43,6 @@ contract('End to End NFT Collateral Scenario [@skip-on-coverage]', (accounts) =>
     const agreementFee = '15'
     const INTEREST_RATE_MODE = 1
 
-    // const account0 = accounts[0]
     const owner = accounts[6]
     const deployer = accounts[7]
     const governor = accounts[2]

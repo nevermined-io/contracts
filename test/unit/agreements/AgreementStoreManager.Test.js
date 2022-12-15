@@ -86,16 +86,12 @@ contract('AgreementStoreManager', (accounts) => {
 
     describe('deploy and setup', () => {
         it('contract should deploy', async () => {
-            // const agreementStoreLibrary = await AgreementStoreLibrary.new()
-            // await AgreementStoreManager.link(agreementStoreLibrary)
             await AgreementStoreManager.new()
         })
 
         it('contract should not initialize with zero address', async () => {
             const createRole = accounts[0]
 
-            // const agreementStoreLibrary = await AgreementStoreLibrary.new()
-            // await AgreementStoreManager.link(agreementStoreLibrary)
             const agreementStoreManager = await AgreementStoreManager.new()
 
             // setup with zero fails
@@ -148,8 +144,6 @@ contract('AgreementStoreManager', (accounts) => {
         })
 
         it('contract should not initialize without arguments', async () => {
-            // const agreementStoreLibrary = await AgreementStoreLibrary.new()
-            // await AgreementStoreManager.link(agreementStoreLibrary)
             const agreementStoreManager = await AgreementStoreManager.new()
 
             // setup with zero fails

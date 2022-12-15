@@ -53,15 +53,11 @@ describe('using ethers with OpenGSN', () => {
         await nvmConfig.connect(await deploymentProvider.getSigner(governor)).setTrustedForwarder(forwarderAddress)
 
         const config = await {
-            // loggerConfiguration: { logLevel: 'error'},
             paymasterAddress: paymasterAddress,
             auditorsCount: 0
         }
-        // const hdweb3provider = new HDWallet('0x123456', 'http://localhost:8545')
         const gsnProvider = RelayProvider.newProvider({ provider: web3provider, config })
         await gsnProvider.init()
-        // The above is the full provider configuration. can use the provider returned by startGsn:
-        // const gsnProvider = env.relayProvider
 
         const wallet = new ethers.Wallet(Buffer.from('1'.repeat(64), 'hex'))
         gsnProvider.addAccount(wallet.privateKey)
