@@ -1,5 +1,3 @@
-/* global artifacts */
-
 const constants = require('./constants.js')
 const testUtils = require('./utils')
 
@@ -22,7 +20,7 @@ const deployManagers = async function(deployer, owner, governor = owner, subscri
     const conditionStoreManager = await testUtils.deploy(
         'ConditionStoreManager',
         [deployer, owner, nvmConfig.address],
-        deployer,
+        deployer
     )
 
     const agreementStoreManager = await testUtils.deploy(

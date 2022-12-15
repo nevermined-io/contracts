@@ -7,16 +7,6 @@ const constants = require('./helpers/constants.js')
 const testUtils = require('./helpers/utils.js')
 const Web3HttpProvider = require('web3-providers-http')
 
-async function deployLibrary(name, signer) {
-    const factory = await ethers.getContractFactory(name, signer)
-    const library = await factory.deploy()
-    const h1 = library.deployTransaction.hash
-    await library.deployed()
-    const address = (await web3.eth.getTransactionReceipt(h1)).contractAddress
-    console.log(`Library ${name} deployed into address ${address}`)
-    return address
-}
-
 async function deployContract(contract, deployer, libraries, args) {
     const C = await ethers.getContractFactory(contract, { libraries })
     const signer = C.connect(deployer)

@@ -17,7 +17,6 @@ contract('StandardRoyalties', (accounts) => {
     const consumer = accounts[3]
     const value = 'https://nevermined.io/did/nevermined/test-attr-example.txt'
     let didRegistry
-    let didRegistryLibrary
     let royalties
 
     beforeEach(async () => {
