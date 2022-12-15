@@ -55,7 +55,6 @@ async function deployContracts({ contracts: origContracts, verbose, testnet, mak
 
     const { roles } = await loadWallet({ makeWallet })
 
-    console.log('wallet', roles)
     console.log('addresses', addresses)
 
     const didRegistryLibraryAddress = await deployLibrary('DIDRegistryLibrary', addresses, roles.deployerSigner)
