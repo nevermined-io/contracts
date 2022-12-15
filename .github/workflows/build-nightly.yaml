@@ -3,9 +3,7 @@ name: Build and Tests Nightly
 on:
     schedule:
         - cron:  '30 5 * * *'
-    branches:
-        - master
-        - develop
+
 jobs:
     tests:
         runs-on: ubuntu-latest
