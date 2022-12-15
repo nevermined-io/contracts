@@ -5,7 +5,6 @@ const { assert } = chai
 const chaiAsPromised = require('chai-as-promised')
 chai.use(chaiAsPromised)
 
-const DIDRegistryLibrary = artifacts.require('DIDRegistryLibrary')
 const DIDRegistry = artifacts.require('DIDRegistry')
 const CurveRoyalties = artifacts.require('CurveRoyalties')
 const NFT = artifacts.require('NFT1155Upgradeable')
@@ -19,7 +18,6 @@ contract('CurveRoyalties', (accounts) => {
     const consumer = accounts[3]
     const value = 'https://nevermined.io/did/nevermined/test-attr-example.txt'
     let didRegistry
-    let didRegistryLibrary
     let royalties
     let nft
 
@@ -29,9 +27,6 @@ contract('CurveRoyalties', (accounts) => {
 
     async function setupTest() {
         if (!didRegistry) {
-            didRegistryLibrary = await DIDRegistryLibrary.new()
-            await DIDRegistry.link(didRegistryLibrary)
-
             nft = await NFT.new()
             await nft.initialize('')
 

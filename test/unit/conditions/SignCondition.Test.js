@@ -7,7 +7,6 @@ const chaiAsPromised = require('chai-as-promised')
 chai.use(chaiAsPromised)
 
 const NeverminedConfig = artifacts.require('NeverminedConfig')
-const EpochLibrary = artifacts.require('EpochLibrary')
 const ConditionStoreManager = artifacts.require('ConditionStoreManager')
 const SignCondition = artifacts.require('SignCondition')
 
@@ -24,8 +23,6 @@ contract('SignCondition constructor', (accounts) => {
     before(async () => {
         nvmConfig = await NeverminedConfig.new()
         await nvmConfig.initialize(owner, owner, false)
-        const epochLibrary = await EpochLibrary.new()
-        await ConditionStoreManager.link(epochLibrary)
     })
 
     async function setupTest({

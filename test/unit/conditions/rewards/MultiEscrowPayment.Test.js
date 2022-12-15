@@ -6,8 +6,6 @@ const { assert } = chai
 const chaiAsPromised = require('chai-as-promised')
 chai.use(chaiAsPromised)
 
-const EpochLibrary = artifacts.require('EpochLibrary')
-const DIDRegistryLibrary = artifacts.require('DIDRegistryLibrary')
 const DIDRegistry = artifacts.require('DIDRegistry')
 const ConditionStoreManager = artifacts.require('ConditionStoreManager')
 const NeverminedToken = artifacts.require('NeverminedToken')
@@ -41,15 +39,6 @@ function testMultiEscrow(EscrowPaymentCondition, LockPaymentCondition, Token, nf
         const createRole = accounts[0]
         const owner = accounts[9]
         const deployer = accounts[8]
-
-        before(async () => {
-            if (!nft) {
-                const epochLibrary = await EpochLibrary.new()
-                await ConditionStoreManager.link(epochLibrary)
-                const didRegistryLibrary = await DIDRegistryLibrary.new()
-                await DIDRegistry.link(didRegistryLibrary)
-            }
-        })
 
         beforeEach(async () => {
             await setupTest()

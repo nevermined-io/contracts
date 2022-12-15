@@ -40,7 +40,6 @@ contract('NFTMarkedLockCondition', (accounts) => {
                 nft.address,
                 { from: createRole }
             )
-            console.log('Approving NFTLockCondition as proxy in the NFT contract')
             await nft.setProxyApproval(lockCondition.address, true)
         }
     }

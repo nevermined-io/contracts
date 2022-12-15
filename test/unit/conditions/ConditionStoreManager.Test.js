@@ -8,7 +8,6 @@ chai.use(chaiAsPromised)
 
 const NeverminedConfig = artifacts.require('NeverminedConfig')
 const HashLockCondition = artifacts.require('HashLockCondition')
-const EpochLibrary = artifacts.require('EpochLibrary')
 const ConditionStoreManager = artifacts.require('ConditionStoreManager')
 
 const constants = require('../../helpers/constants.js')
@@ -28,8 +27,6 @@ contract('ConditionStoreManager', (accounts) => {
     before(async () => {
         nvmConfig = await NeverminedConfig.new()
         await nvmConfig.initialize(owner, governor, false)
-        const epochLibrary = await EpochLibrary.new()
-        await ConditionStoreManager.link(epochLibrary)
     })
 
     beforeEach(async () => {
@@ -300,9 +297,7 @@ contract('ConditionStoreManager', (accounts) => {
         it('successful create should get unfulfilled condition', async () => {
             const conditionId = testUtils.generateId()
 
-            // const blockNumber = await common.getCurrentBlockNumber()
             // returns true on create
-            // await conditionStoreManager.createCondition(conditionId, conditionType, { from: createRole })
             await conditionStoreManager.methods['createCondition(bytes32,address)'](
                 conditionId,
                 hashLockCondition.address,
@@ -319,12 +314,6 @@ contract('ConditionStoreManager', (accounts) => {
             assert.strictEqual(state.toNumber(), constants.condition.state.unfulfilled)
             assert.strictEqual(timeLock.toNumber(), 0)
             assert.strictEqual(timeOut.toNumber(), 0)
-            /*
-            expect(lastUpdatedBy)
-                .to.equal(accounts[0])
-            expect(blockNumberUpdated.toNumber())
-                .to.equal(blockNumber.toNumber() + 1)
-            */
         })
 
         it('no create should get uninitialized Condition', async () => {

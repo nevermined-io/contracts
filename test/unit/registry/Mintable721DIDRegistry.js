@@ -5,7 +5,6 @@ const { assert } = chai
 const chaiAsPromised = require('chai-as-promised')
 chai.use(chaiAsPromised)
 
-const DIDRegistryLibrary = artifacts.require('DIDRegistryLibrary')
 const DIDRegistry = artifacts.require('DIDRegistry')
 const NFT = artifacts.require('NFT721Upgradeable')
 const testUtils = require('../../helpers/utils.js')
@@ -18,7 +17,6 @@ contract('Mintable DIDRegistry (ERC-721)', (accounts) => {
     const value = 'https://nevermined.io/did/nevermined/test-attr-example.txt'
     const nftMetadataURL = 'https://nevermined.io/metadata/'
     let didRegistry
-    let didRegistryLibrary
     let nft
 
     beforeEach(async () => {
@@ -27,9 +25,6 @@ contract('Mintable DIDRegistry (ERC-721)', (accounts) => {
 
     async function setupTest() {
         if (!didRegistry) {
-            didRegistryLibrary = await DIDRegistryLibrary.new()
-            await DIDRegistry.link(didRegistryLibrary)
-
             nft = await NFT.new()
             await nft.initializeWithAttributes('', '', nftMetadataURL, 0)
 

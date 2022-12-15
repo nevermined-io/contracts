@@ -5,8 +5,6 @@ const chai = require('chai')
 const { assert } = chai
 const chaiAsPromised = require('chai-as-promised')
 chai.use(chaiAsPromised)
-const EpochLibrary = artifacts.require('EpochLibrary')
-const DIDRegistryLibrary = artifacts.require('DIDRegistryLibrary')
 const DIDRegistry = artifacts.require('DIDRegistry')
 const NeverminedToken = artifacts.require('NeverminedToken')
 const NeverminedConfig = artifacts.require('NeverminedConfig')
@@ -41,13 +39,6 @@ contract('TransferNFT Condition constructor', (accounts) => {
         escrowCondition,
         transferCondition,
         nft
-
-    before(async () => {
-        const epochLibrary = await EpochLibrary.new()
-        await ConditionStoreManager.link(epochLibrary)
-        const didRegistryLibrary = await DIDRegistryLibrary.new()
-        await DIDRegistry.link(didRegistryLibrary)
-    })
 
     async function setupTest({
         conditionId = testUtils.generateId(),

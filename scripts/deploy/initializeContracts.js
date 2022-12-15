@@ -162,7 +162,6 @@ async function initializeContracts({
             contract: 'DIDRegistry',
             ctx,
             args: [roles.deployer, addressBook.NFT1155Upgradeable || ZeroAddress, addressBook.NFT721Upgradeable || ZeroAddress, addressBook.NeverminedConfig || ZeroAddress, ZeroAddress],
-            libraries: { DIDRegistryLibrary: didRegistryLibrary },
             isCore: true,
             verbose
         })
@@ -215,7 +214,6 @@ async function initializeContracts({
         addressBook.ConditionStoreManager = await zosCreate({
             contract: 'ConditionStoreManager',
             ctx,
-            libraries: { EpochLibrary: epochLibrary },
             args: [roles.deployer, roles.deployer, getAddress('NeverminedConfig')],
             verbose
         })
