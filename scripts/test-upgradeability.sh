@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export BASE=v2.0.0-fast
+export BASE=v2.0.0
 export BRANCH=$(git rev-parse --abbrev-ref HEAD)
 
 export TESTNET=true
