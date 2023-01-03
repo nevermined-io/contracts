@@ -19,7 +19,7 @@ yarn deploy:external || exit 1
 
 git checkout $BRANCH
 yarn
-./scripts/build-circuit.sh
+sh ./scripts/build-circuit.sh || exit 1
 
 export FAIL=true
 

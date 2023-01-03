@@ -6,9 +6,6 @@ COPY --from=polygon /usr/local/bin/polygon-edge /usr/local/bin/polygon-edge
 
 RUN apt-get update -y && apt-get install -y musl psmisc
 
-RUN curl https://sh.rustup.rs -sSf | bash -s -- -y
-ENV PATH="/root/.cargo/bin:${PATH}"
-
 COPY networks/polygon-localnet/genesis.json /polygon-sdk/genesis.json
 
 COPY . /nevermined-contracts
