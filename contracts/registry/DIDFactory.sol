@@ -195,9 +195,8 @@ abstract contract DIDFactory is ProvenanceRegistry {
     {
         bytes32 _did = hashDID(_didSeed, _msgSender());
         require(
-            didRegisterList.didRegisters[_did].owner == address(0x0) ||
-            didRegisterList.didRegisters[_did].owner == _msgSender(),
-            'Only DID Owners or not registered DID'
+            didRegisterList.didRegisters[_did].owner == address(0x0),
+            'DID already registered'
         );
 
         didRegisterList.update(_did, _checksum, _url, _msgSender(), _immutableUrl);
