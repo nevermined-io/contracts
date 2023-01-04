@@ -557,7 +557,7 @@ async function setupContracts({
             'NFTAccessProofTemplate',
             'NFTSalesWithAccessTemplate',
             'NFT721AccessProofTemplate',
-            'NFT721SalesWithAccessTemplate',
+            'NFT721SalesWithAccessTemplate'
         ]
         for (const a of agreements) {
             if (addressBook[a] && addressBook.AgreementStoreManager) {
@@ -567,8 +567,6 @@ async function setupContracts({
         }
         addresses.stage = 25
     }
-
-
 }
 
 module.exports = setupContracts
