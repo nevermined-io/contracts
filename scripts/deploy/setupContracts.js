@@ -551,6 +551,24 @@ async function setupContracts({
         await callContract(artifacts.DIDRegistry, a => a.setNFT1155(addressBook.NFT1155Upgradeable))
         addresses.stage = 24
     }
+
+    if (addressBook.AgreementStoreManager && addresses.stage < 25) {
+        const agreements = [
+            'NFTAccessProofTemplate',
+            'NFTSalesWithAccessTemplate',
+            'NFT721AccessProofTemplate',
+            'NFT721SalesWithAccessTemplate',
+        ]
+        for (const a of agreements) {
+            if (addressBook[a] && addressBook.AgreementStoreManager) {
+                console.log('Set agreement manager proxy : ' + addressBook[a])
+                await callContract(artifacts.AgreementStoreManager, c => c.grantProxyRole(addressBook[a]))
+            }
+        }
+        addresses.stage = 25
+    }
+
+
 }
 
 module.exports = setupContracts
