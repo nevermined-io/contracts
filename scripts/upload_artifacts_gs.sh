@@ -95,6 +95,7 @@ function upload_contracts_gs {
   gsutil cp "$OUTPUT_FOLDER/contracts_$version.zip" "gs://$BUCKET/$network_id/$TAG/"
   gsutil cp "$OUTPUT_FOLDER/contracts_$version.tar.gz" "gs://$BUCKET/$network_id/$TAG/"
   # index.html is needed in each folder to enable browsing at https://console.cloud.google.com/storage/browser/nevermined-network-public-artifacts/
+  # https://nevermined-network-public-artifacts.storage.googleapis.com/
   gsutil cp "gs://$BUCKET/index.html" "gs://$BUCKET/$network_id/$TAG/index.html"
 }
 
