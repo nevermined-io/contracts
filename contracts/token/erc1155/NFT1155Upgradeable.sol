@@ -16,9 +16,10 @@ contract NFT1155Upgradeable is ERC1155Upgradeable, NFTBase {
     string public name;
 
     // Token symbol
-    string public symbol;    
+    string public symbol;
     
     function initializeWithName(
+        address owner,
         string memory name_,
         string memory symbol_,
         string memory uri_
@@ -31,11 +32,14 @@ contract NFT1155Upgradeable is ERC1155Upgradeable, NFTBase {
         __ERC165_init_unchained();
         __ERC1155_init_unchained(uri_);
         __Ownable_init_unchained();
+        
         AccessControlUpgradeable.__AccessControl_init();
         AccessControlUpgradeable._setupRole(MINTER_ROLE, msg.sender);
         setContractMetadataUri(uri_);
         name = name_;
         symbol = symbol_;
+
+        if (owner != _msgSender()) transferOwnership(owner);
     }
     
     // solhint-disable-next-line
@@ -66,7 +70,7 @@ contract NFT1155Upgradeable is ERC1155Upgradeable, NFTBase {
             implementation = address(this);
         }
         address cloneAddress = ClonesUpgradeable.clone(implementation);
-        NFT1155Upgradeable(cloneAddress).initializeWithName(_name, _symbol, _uri);
+        NFT1155Upgradeable(cloneAddress).initializeWithName(_msgSender(), _name, _symbol, _uri);
         emit NFTCloned(cloneAddress, implementation, 1155);
         return cloneAddress;
     }    
