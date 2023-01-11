@@ -38,8 +38,8 @@ contract('NFT721 Subscription', (accounts) => {
 
     async function setupTest() {
         nft = await TestERC721.new({ from: deployer })
-        await nft.initializeWithName('TestERC721', 'TEST', '', { from: owner })
-        await nft.addMinter(minter)
+        await nft.initializeWithName('TestERC721', 'TEST', { from: owner })
+        await nft.grantOperatorRole(minter)
     }
 
     describe('As a minter I want to use NFTs as subscriptions', () => {

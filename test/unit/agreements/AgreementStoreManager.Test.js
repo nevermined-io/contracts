@@ -10,12 +10,10 @@ const { web3 } = require('hardhat')
 chai.use(chaiAsPromised)
 
 const NeverminedConfig = artifacts.require('NeverminedConfig')
-const EpochLibrary = artifacts.require('EpochLibrary')
 const ConditionStoreManager = artifacts.require('ConditionStoreManager')
 const AgreementStoreManager = artifacts.require('AgreementStoreManager')
 const TemplateStoreManager = artifacts.require('TemplateStoreManager')
 const NeverminedToken = artifacts.require('NeverminedToken')
-const DIDRegistryLibrary = artifacts.require('DIDRegistryLibrary')
 const DIDRegistry = artifacts.require('DIDRegistry')
 
 const constants = require('../../helpers/constants.js')
@@ -35,11 +33,6 @@ contract('AgreementStoreManager', (accounts) => {
         templateStoreManager,
         token
 
-    before(async () => {
-        const epochLibrary = await EpochLibrary.new({ from: deployer })
-        await ConditionStoreManager.link(epochLibrary)
-    })
-
     beforeEach(async () => {
         await setupTest()
     })
@@ -52,8 +45,6 @@ contract('AgreementStoreManager', (accounts) => {
             const nvmConfig = await NeverminedConfig.new()
             await nvmConfig.initialize(owner, owner, false)
 
-            const didRegistryLibrary = await DIDRegistryLibrary.new()
-            await DIDRegistry.link(didRegistryLibrary)
             didRegistry = await DIDRegistry.new()
             await didRegistry.initialize(owner, constants.address.zero, constants.address.zero, constants.address.zero, constants.address.zero)
 
@@ -95,16 +86,12 @@ contract('AgreementStoreManager', (accounts) => {
 
     describe('deploy and setup', () => {
         it('contract should deploy', async () => {
-            // const agreementStoreLibrary = await AgreementStoreLibrary.new()
-            // await AgreementStoreManager.link(agreementStoreLibrary)
             await AgreementStoreManager.new()
         })
 
         it('contract should not initialize with zero address', async () => {
             const createRole = accounts[0]
 
-            // const agreementStoreLibrary = await AgreementStoreLibrary.new()
-            // await AgreementStoreManager.link(agreementStoreLibrary)
             const agreementStoreManager = await AgreementStoreManager.new()
 
             // setup with zero fails
@@ -157,8 +144,6 @@ contract('AgreementStoreManager', (accounts) => {
         })
 
         it('contract should not initialize without arguments', async () => {
-            // const agreementStoreLibrary = await AgreementStoreLibrary.new()
-            // await AgreementStoreManager.link(agreementStoreLibrary)
             const agreementStoreManager = await AgreementStoreManager.new()
 
             // setup with zero fails

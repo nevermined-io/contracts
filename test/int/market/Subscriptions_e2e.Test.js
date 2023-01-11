@@ -134,7 +134,7 @@ contract('End to End NFT721 Scenarios', (accounts) => {
             await templateStoreManager.approveTemplate(nftAccessTemplate.address, { from: owner })
 
             // IMPORTANT: Here we give ERC-721 transfer grants to the TransferNFTCondition condition
-            await nft.setProxyApproval(transferCondition.address, true, { from: deployer })
+            await nft.grantOperatorRole(transferCondition.address, { from: deployer })
         }
 
         const checkpoint = await getCheckpoint(token, [artist, collector1, collector2, gallery, someone, lockPaymentCondition.address, escrowCondition.address])
@@ -214,7 +214,7 @@ contract('End to End NFT721 Scenarios', (accounts) => {
             nft721 = nft
             nftSubscriptionAddress = nft721.address
             console.log('SubscriptionERC721 contract deployed to ' + nftSubscriptionAddress)
-            await nft.addMinter(transferCondition.address, { from: owner })
+            await nft.grantOperatorRole(transferCondition.address, { from: owner })
 
             did = await didRegistry.hashDID(didSeed, artist)
 

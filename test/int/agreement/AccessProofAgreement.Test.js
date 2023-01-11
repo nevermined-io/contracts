@@ -238,6 +238,89 @@ contract('Access Proof Template integration test', (accounts) => {
             assert.strictEqual(origHash, F.toObject(poseidon([plain.xL, plain.xR])))
         })
 
+        it('the provider should be able to fulfill too', async () => {
+            const { owner } = await setupTest()
+            const provider = accounts[5]
+
+            // prepare: escrow agreement
+            const { agreementId, data, did, didSeed, agreement, sender, receivers, escrowAmounts, checksum, url, buyerK, providerPub, origHash, conditionIds } = await prepareEscrowAgreementMultipleEscrow()
+            const totalAmount = escrowAmounts[0] + escrowAmounts[1]
+            const receiver = receivers[0]
+            // register DID
+            await didRegistry.registerAttribute(didSeed, checksum, [provider], url, { from: receiver })
+
+            const checkpoint = await getCheckpoint(token, [sender, receiver, receivers[1], lockPaymentCondition.address, escrowPaymentCondition.address])
+            const getBalance = async (a, b) => getTokenBalance(a, b, checkpoint)
+
+            // create agreement
+            await accessTemplate.createAgreement(...Object.values(agreement))
+
+            // check state of agreement and conditions
+            // expect((await agreementStoreManager.getAgreement(agreementId)).did).to.equal(did)
+
+            const conditionTypes = await accessTemplate.getConditionTypes()
+            await Promise.all(conditionIds.map(async (conditionId, i) => {
+                const storedCondition = await conditionStoreManager.getCondition(conditionId)
+                expect(storedCondition.typeRef).to.equal(conditionTypes[i])
+                expect(storedCondition.state.toNumber()).to.equal(constants.condition.state.unfulfilled)
+            }))
+
+            // fill up wallet
+            await token.mint(sender, totalAmount, { from: owner })
+
+            assert.strictEqual(await getBalance(token, sender), totalAmount)
+            assert.strictEqual(await getBalance(token, lockPaymentCondition.address), 0)
+            assert.strictEqual(await getBalance(token, escrowPaymentCondition.address), 0)
+            assert.strictEqual(await getBalance(token, receiver), 0)
+
+            // fulfill lock reward
+            await token.approve(lockPaymentCondition.address, totalAmount, { from: sender })
+            await lockPaymentCondition.fulfill(agreementId, did, escrowPaymentCondition.address, token.address, escrowAmounts, receivers, { from: sender })
+
+            assert.strictEqual(await getBalance(token, sender), 0)
+            assert.strictEqual(await getBalance(token, lockPaymentCondition.address), 0)
+            assert.strictEqual(await getBalance(token, escrowPaymentCondition.address), totalAmount)
+            assert.strictEqual(await getBalance(token, receiver), 0)
+
+            assert.strictEqual(
+                (await conditionStoreManager.getConditionState(conditionIds[1])).toNumber(),
+                constants.condition.state.fulfilled)
+
+            // fulfill access
+            // await disputeManager.setAccepted(...Object.values(data))
+            await accessProofCondition.fulfill(agreementId, ...Object.values(data), { from: provider })
+
+            assert.strictEqual(
+                (await conditionStoreManager.getConditionState(conditionIds[0])).toNumber(),
+                constants.condition.state.fulfilled)
+
+            // get reward
+            await escrowPaymentCondition.fulfill(agreementId, did, escrowAmounts, receivers, sender, escrowPaymentCondition.address, token.address, conditionIds[1], conditionIds[0], { from: receiver })
+
+            assert.strictEqual(
+                (await conditionStoreManager.getConditionState(conditionIds[2])).toNumber(),
+                constants.condition.state.fulfilled
+            )
+
+            assert.strictEqual(await getBalance(token, sender), 0)
+            assert.strictEqual(await getBalance(token, lockPaymentCondition.address), 0)
+            assert.strictEqual(await getBalance(token, escrowPaymentCondition.address), 0)
+            assert.strictEqual(await getBalance(token, receivers[0]), escrowAmounts[0])
+            assert.strictEqual(await getBalance(token, receivers[1]), escrowAmounts[1])
+
+            // make sure decryption works
+            const ev = await accessProofCondition.getPastEvents('Fulfilled', { fromBlock: 0, toBlock: 'latest', filter: { _agreementId: agreementId } })
+
+            const poseidon = await circomlib.buildPoseidonReference()
+            const babyJub = await circomlib.buildBabyjub()
+            const F = poseidon.F
+            const [cipherL, cipherR] = ev[0].returnValues._cipher
+            const k2 = babyJub.mulPointEscalar([F.e(providerPub[0]), F.e(providerPub[1])], buyerK)
+
+            const plain = mimcdecrypt(cipherL, cipherR, F.toObject(k2[0]))
+            assert.strictEqual(origHash, F.toObject(poseidon([plain.xL, plain.xR])))
+        })
+
         it('should create escrow agreement and abort after timeout', async () => {
             const { owner } = await setupTest()
 

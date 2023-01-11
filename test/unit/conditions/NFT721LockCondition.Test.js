@@ -7,7 +7,7 @@ const chaiAsPromised = require('chai-as-promised')
 chai.use(chaiAsPromised)
 
 const NFTLockCondition = artifacts.require('NFT721LockCondition')
-const TestERC721 = artifacts.require('TestERC721')
+const NFT721Upgradeable = artifacts.require('NFT721Upgradeable')
 
 const constants = require('../../helpers/constants.js')
 const testUtils = require('../../helpers/utils.js')
@@ -43,10 +43,12 @@ contract('NFT721LockCondition', (accounts) => {
         }
 
         // We deploy the ERC-721 in each test iteration
-        erc721 = await TestERC721.new()
+        erc721 = await NFT721Upgradeable.new()
         await erc721.initialize({ from: accounts[0] })
         nftTokenAddress = erc721.address
-        console.log('ERC-721 deployed on address ' + nftTokenAddress)
+        // ERC-721 deployed on address `nftTokenAddress`
+        // Approving NFT721LockCondition as proxy in the NFT contract
+        await erc721.grantOperatorRole(lockCondition.address)
     }
 
     describe('fulfill correctly', () => {
@@ -59,8 +61,9 @@ contract('NFT721LockCondition', (accounts) => {
 
             // register DID
             await didRegistry.registerMintableDID(
-                didSeed, checksum, [], url, amount, 0, false, constants.activities.GENERATED, '')
-            await erc721.mint(did)
+                didSeed, checksum, [], url, amount, 0, false, constants.activities.GENERATED, '', '')
+            const tokenId = did
+            await erc721.mint(accounts[0], tokenId)
             await erc721.approve(lockCondition.address, did)
 
             const hashValues = await lockCondition.hashValues(did, lockAddress, amount, nftTokenAddress)
@@ -95,8 +98,9 @@ contract('NFT721LockCondition', (accounts) => {
 
             // register DID
             await didRegistry.registerMintableDID(
-                didSeed, checksum, [], url, amount, 0, false, constants.activities.GENERATED, '')
-            await erc721.mint(did)
+                didSeed, checksum, [], url, amount, 0, false, constants.activities.GENERATED, '', '')
+            await erc721.mint(accounts[0], did)
+
             await erc721.approve(lockCondition.address, did)
 
             await assert.isRejected(
@@ -114,8 +118,9 @@ contract('NFT721LockCondition', (accounts) => {
 
             // register DID
             await didRegistry.registerMintableDID(
-                didSeed, checksum, [], url, amount, 0, false, constants.activities.GENERATED, '')
-            await erc721.mint(did)
+                didSeed, checksum, [], url, amount, 0, false, constants.activities.GENERATED, '', '')
+            await erc721.mint(accounts[0], did)
+
             await erc721.approve(lockCondition.address, did)
 
             const hashValues = await lockCondition.hashValues(did, lockAddress, amount, nftTokenAddress)
@@ -140,7 +145,7 @@ contract('NFT721LockCondition', (accounts) => {
 
             // register DID
             await didRegistry.registerMintableDID(
-                didSeed, checksum, [], url, amount, 0, false, constants.activities.GENERATED, '')
+                didSeed, checksum, [], url, amount, 0, false, constants.activities.GENERATED, '', '')
             await erc721.mint(did)
             await erc721.approve(lockCondition.address, did)
 
@@ -178,7 +183,7 @@ contract('NFT721LockCondition', (accounts) => {
 
             // register DID
             await didRegistry.registerMintableDID(
-                didSeed, checksum, [], url, amount, 0, false, constants.activities.GENERATED, '')
+                didSeed, checksum, [], url, amount, 0, false, constants.activities.GENERATED, '', '')
             await erc721.mint(did)
             await erc721.approve(lockCondition.address, did)
 

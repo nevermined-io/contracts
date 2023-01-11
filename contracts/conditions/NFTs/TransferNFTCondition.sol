@@ -6,7 +6,7 @@ pragma solidity ^0.8.0;
 
 import '../Condition.sol';
 import '../ICondition.sol';
-import '../../token/erc1155/NFTUpgradeable.sol';
+import '../../token/erc1155/NFT1155Upgradeable.sol';
 import './ITransferNFT.sol';
 import '@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol';
 
@@ -24,7 +24,7 @@ contract TransferNFTCondition is Condition, ITransferNFT, ReentrancyGuardUpgrade
 
     bytes32 private constant MARKET_ROLE = keccak256('MARKETPLACE_ROLE');
     
-    NFTUpgradeable private erc1155;
+    NFT1155Upgradeable private erc1155;
 
     DIDRegistry internal didRegistry;
 
@@ -76,7 +76,7 @@ contract TransferNFTCondition is Condition, ITransferNFT, ReentrancyGuardUpgrade
             _didRegistryAddress
         );
         
-        erc1155 = NFTUpgradeable(
+        erc1155 = NFT1155Upgradeable(
             _ercAddress
         );
 
@@ -281,7 +281,7 @@ contract TransferNFTCondition is Condition, ITransferNFT, ReentrancyGuardUpgrade
             conditionStoreManager.getConditionState(_lockPaymentCondition) == ConditionStoreLibrary.ConditionState.Fulfilled, 'LockCondition needs to be Fulfilled'
         );
 
-        NFTUpgradeable token = NFTUpgradeable(_nftContractAddress);
+        NFT1155Upgradeable token = NFT1155Upgradeable(_nftContractAddress);
 
         if (_nftAmount > 0) {
             if (_transfer) // Transfer only works if `_account` (_msgSender()) is holder
@@ -373,7 +373,7 @@ contract TransferNFTCondition is Condition, ITransferNFT, ReentrancyGuardUpgrade
 
     returns (ConditionStoreLibrary.ConditionState)
     {
-        require(hasRole(MARKET_ROLE, _msgSender()) || NFTUpgradeable(_nftContractAddress).isApprovedForAll(_nftHolder, _msgSender()), 'Only Market role or approvedForAll');
+        require(hasRole(MARKET_ROLE, _msgSender()) || NFT1155Upgradeable(_nftContractAddress).isApprovedForAll(_nftHolder, _msgSender()), 'Only Market role or approvedForAll');
         return fulfillInternal(_nftHolder, _agreementId, _did, _nftReceiver, _nftAmount, _lockPaymentCondition, _nftContractAddress, _transfer);
     }
 

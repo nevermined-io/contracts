@@ -3,8 +3,6 @@ pragma solidity ^0.8.0;
 // SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 // Code is Apache-2.0 and docs are CC-BY-4.0
 
-import '../libraries/CloneFactory.sol';
-
 import './BaseEscrowTemplate.sol';
 import '../conditions/rewards/EscrowPaymentCondition.sol';
 import '../registry/DIDRegistry.sol';
@@ -32,7 +30,7 @@ import '../conditions/defi/aave/AaveCreditVault.sol';
  *      5.a if AaveRepayCondition was fulfilled, it will allow transfer back to the Delegatee or Borrower
  *      5.b if AaveRepayCondition was aborted, it will allow transfer the NFT to the Delegator or Lender
  */
-contract AaveCreditTemplate is BaseEscrowTemplate, CloneFactory {
+contract AaveCreditTemplate is BaseEscrowTemplate {
     DIDRegistry internal didRegistry;
 
     INFTLock internal nftLockCondition;
@@ -162,8 +160,7 @@ contract AaveCreditTemplate is BaseEscrowTemplate, CloneFactory {
     ) 
     public 
     {
-        AaveCreditVault _vault = AaveCreditVault(createClone(vaultLibrary));
-        _vault.initialize(
+        address _cloneAddress = AaveCreditVault(vaultLibrary).createClone(
             _lendingPool,
             _dataProvider,
             _weth,
@@ -172,8 +169,9 @@ contract AaveCreditTemplate is BaseEscrowTemplate, CloneFactory {
             _treasuryAddress,
             _msgSender(), // borrower
             _lender,
-            conditionTypes
+            conditionTypes    
         );
+        AaveCreditVault _vault = AaveCreditVault(_cloneAddress);
         vaultAddress[keccak256(abi.encode(_id, _msgSender()))] = address(_vault);
         emit VaultCreated(address(_vault), _msgSender(), _lender, _msgSender());
 
@@ -199,8 +197,7 @@ contract AaveCreditTemplate is BaseEscrowTemplate, CloneFactory {
     public
     returns (address)
     {
-        AaveCreditVault _vault = AaveCreditVault(createClone(vaultLibrary));
-        _vault.initialize(
+        address _cloneAddress = AaveCreditVault(vaultLibrary).createClone(
             _lendingPool,
             _dataProvider,
             _weth,
@@ -211,6 +208,8 @@ contract AaveCreditTemplate is BaseEscrowTemplate, CloneFactory {
             _lender,
             conditionTypes
         );
+        AaveCreditVault _vault = AaveCreditVault(_cloneAddress);        
+        
         emit VaultCreated(address(_vault), _msgSender(), _lender, _borrower);
         return address(_vault);
     }

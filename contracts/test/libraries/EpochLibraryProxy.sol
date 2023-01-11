@@ -4,16 +4,10 @@ pragma solidity ^0.8.0;
 // SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 // Code is Apache-2.0 and docs are CC-BY-4.0
 
-import '../../libraries/EpochLibrary.sol';
+import '../../conditions/ConditionStoreManager.sol';
 
 
-contract EpochLibraryProxy {
-
-    using EpochLibrary for EpochLibrary.EpochList;
-    using EpochLibrary for EpochLibrary.Epoch;
-
-    EpochLibrary.Epoch private epoch;
-    EpochLibrary.EpochList private epochList;
+contract EpochLibraryProxy is ConditionStoreManager {
 
     function create(
         bytes32 _id,
@@ -22,7 +16,8 @@ contract EpochLibraryProxy {
     )
         external
     {
-        epochList.create(
+        createEpoch(
+            epochList,
             _id,
             _timeLock,
             _timeOut

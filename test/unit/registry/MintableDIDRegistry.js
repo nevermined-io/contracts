@@ -5,9 +5,8 @@ const { assert } = chai
 const chaiAsPromised = require('chai-as-promised')
 chai.use(chaiAsPromised)
 
-const DIDRegistryLibrary = artifacts.require('DIDRegistryLibrary')
 const DIDRegistry = artifacts.require('DIDRegistry')
-const NFT = artifacts.require('NFTUpgradeable')
+const NFT = artifacts.require('NFT1155Upgradeable')
 const testUtils = require('../../helpers/utils.js')
 const constants = require('../../helpers/constants.js')
 
@@ -18,7 +17,6 @@ contract('Mintable DIDRegistry', (accounts) => {
     const value = 'https://nevermined.io/did/nevermined/test-attr-example.txt'
     const nftMetadataURL = 'https://nevermined.io/metadata.json'
     let didRegistry
-    let didRegistryLibrary
     let nft
 
     beforeEach(async () => {
@@ -27,9 +25,6 @@ contract('Mintable DIDRegistry', (accounts) => {
 
     async function setupTest() {
         if (!didRegistry) {
-            didRegistryLibrary = await DIDRegistryLibrary.new()
-            await DIDRegistry.link(didRegistryLibrary)
-
             nft = await NFT.new()
             await nft.initialize('')
             const StandardRoyalties = artifacts.require('StandardRoyalties')
@@ -38,7 +33,7 @@ contract('Mintable DIDRegistry', (accounts) => {
             didRegistry = await DIDRegistry.new()
             await didRegistry.initialize(owner, nft.address, constants.address.zero, constants.address.zero, standardRoyalties.address)
             await standardRoyalties.initialize(didRegistry.address)
-            await nft.addMinter(didRegistry.address)
+            await nft.grantOperatorRole(didRegistry.address)
         }
     }
 
@@ -99,7 +94,7 @@ contract('Mintable DIDRegistry', (accounts) => {
             const checksum = testUtils.generateId()
 
             await didRegistry.registerMintableDID(
-                didSeed, checksum, [], value, 20, 0, constants.activities.GENERATED, nftMetadataURL, { from: owner })
+                didSeed, checksum, [], value, 20, 0, constants.activities.GENERATED, nftMetadataURL, '', { from: owner })
             await didRegistry.mint(did, 20, { from: owner })
 
             let balance = await nft.balanceOf(owner, did)
@@ -120,7 +115,7 @@ contract('Mintable DIDRegistry', (accounts) => {
             const checksum = testUtils.generateId()
 
             await didRegistry.registerMintableDID(
-                didSeed, checksum, [], value, 1, 0, constants.activities.GENERATED, nftMetadataURL, { from: owner })
+                didSeed, checksum, [], value, 1, 0, constants.activities.GENERATED, nftMetadataURL, '', { from: owner })
 
             await didRegistry.methods['mint(bytes32,uint256,address)'](
                 did,
@@ -152,7 +147,7 @@ contract('Mintable DIDRegistry', (accounts) => {
             const did = await didRegistry.hashDID(didSeed, owner)
             const checksum = testUtils.generateId()
             await didRegistry.registerMintableDID(
-                didSeed, checksum, [], value, 10, 0, constants.activities.GENERATED, '', { from: owner })
+                didSeed, checksum, [], value, 10, 0, constants.activities.GENERATED, '', '', { from: owner })
             await didRegistry.mint(did, 10, { from: owner })
 
             const balance = await nft.balanceOf(owner, did)
@@ -164,7 +159,7 @@ contract('Mintable DIDRegistry', (accounts) => {
             const did = await didRegistry.hashDID(didSeed, owner)
             const checksum = testUtils.generateId()
             await didRegistry.registerMintableDID(
-                didSeed, checksum, [], value, 999, 10, constants.activities.GENERATED, '', { from: owner })
+                didSeed, checksum, [], value, 999, 10, constants.activities.GENERATED, '', '', { from: owner })
 
             const { receiver, royaltyAmount } = await nft.royaltyInfo(did, 500)
             assert.strictEqual(owner, receiver)
@@ -190,7 +185,7 @@ contract('Mintable DIDRegistry', (accounts) => {
             const checksum = testUtils.generateId()
 
             await didRegistry.registerMintableDID(
-                didSeed, checksum, [], value, 0, 0, constants.activities.GENERATED, '', { from: owner })
+                didSeed, checksum, [], value, 0, 0, constants.activities.GENERATED, '', '', { from: owner })
             await didRegistry.mint(did, 10, { from: owner })
 
             const balance = await nft.balanceOf(owner, did)
@@ -202,7 +197,7 @@ contract('Mintable DIDRegistry', (accounts) => {
             const did = await didRegistry.hashDID(didSeed, owner)
             const checksum = testUtils.generateId()
             await didRegistry.registerMintableDID(
-                didSeed, checksum, [], value, 5, 0, constants.activities.GENERATED, '', { from: owner })
+                didSeed, checksum, [], value, 5, 0, constants.activities.GENERATED, '', '', { from: owner })
 
             await assert.isRejected(
                 // Must not allow to mint tokens without previous initialization

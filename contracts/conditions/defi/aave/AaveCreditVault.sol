@@ -11,6 +11,9 @@ import '@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol'
 import '@openzeppelin/contracts-upgradeable/token/ERC721/IERC721ReceiverUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol';
+import '@openzeppelin/contracts-upgradeable/proxy/ClonesUpgradeable.sol';
+import '@openzeppelin/contracts-upgradeable/utils/StorageSlotUpgradeable.sol';
+
 
 contract AaveCreditVault is
     ReentrancyGuardUpgradeable,
@@ -46,9 +49,9 @@ contract AaveCreditVault is
     * @param _lendingPool Aave lending pool address
     * @param _dataProvider Aave data provider address
     * @param _weth WETH address
-    * @param _nvmFee Nevermined fee that will apply to this agreeement
+    * @param _nvmFee Nevermined fee that will apply to this agreement
     * @param _agreementFee Agreement fee that lender will receive on agreement maturity
-    * @param _treasuryAddress Address of nevermined contract to store fees
+    * @param _treasuryAddress Address of Nevermined contract to store fees
     */
     function initialize(
         address _lendingPool,
@@ -79,6 +82,30 @@ contract AaveCreditVault is
             AccessControlUpgradeable._setupRole(CONDITION_ROLE, _conditions[i]);
         }        
     }
+
+    function createClone(
+        address _lendingPool,
+        address _dataProvider,
+        address _weth,
+        uint256 _nvmFee,
+        uint256 _agreementFee,
+        address _treasuryAddress,
+        address _borrower,
+        address _lender,
+        address[] memory _conditions
+    )
+    external
+    virtual
+    returns (address)
+    {
+        address implementation = StorageSlotUpgradeable.getAddressSlot(0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc).value;
+        if (implementation == address(0)) {
+            implementation = address(this);
+        }
+        address cloneAddress = ClonesUpgradeable.clone(implementation);
+        AaveCreditVault(cloneAddress).initialize(_lendingPool, _dataProvider, _weth, _nvmFee, _agreementFee, _treasuryAddress, _borrower, _lender, _conditions);
+        return cloneAddress;
+    }    
     
     function isLender(
         address _address
