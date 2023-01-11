@@ -15,29 +15,22 @@ const testUtils = require('../../helpers/utils.js')
 const BigNumber = require('bignumber.js')
 
 contract('NFT Clones', (accounts) => {
-    const [
-        owner,
-        deployer,
-        account1
-    ] = accounts
-
     before(async () => {
     })
 
     let nft721
     let nft1155
 
-    async function setupTest() {
-        nft721 = await NFT721.new({ from: deployer })
-        await nft721.initializeWithAttributes('TestERC721', 'TEST', 'http', 10, { from: owner })
-
-        nft1155 = await NFT1155.new({ from: deployer })
-        await nft1155.initializeWithName('TestERC1155', '1155', 'http', { from: owner })
-    }
-
     describe('As a user I want to clone an existing ERC-721 NFT Contract', () => {
         it('I can clone an existing ERC-721 NFT Contract', async () => {
-            await setupTest()
+            const [
+                owner,
+                deployer,
+                account1
+            ] = await accounts
+
+            nft721 = await NFT721.new({ from: deployer })
+            await nft721.initializeWithAttributes(owner, 'TestERC721', 'TEST', 'http', 10, { from: owner })
 
             const result = await nft721.createClone('My Name', 'xXx', 'cid', 100, { from: account1 })
 
@@ -56,12 +49,22 @@ contract('NFT Clones', (accounts) => {
             const newName = await instance.name()
 
             assert.strictEqual('My Name', newName)
+
+            const contractOwner = await instance.owner()
+            assert.strictEqual(account1, contractOwner)
         })
     })
 
     describe('As a user I want to clone an existing ERC-1155 NFT Contract', () => {
         it('I can clone an existing ERC-1155 NFT Contract', async () => {
-            await setupTest()
+            const [
+                owner,
+                deployer,
+                account1
+            ] = await accounts
+
+            nft1155 = await NFT1155.new({ from: deployer })
+            await nft1155.initializeWithName(owner, 'TestERC1155', '1155', 'http', { from: owner })
 
             const result = await nft1155.createClone('My 1155', 'yYy', 'cid', { from: account1 })
 
