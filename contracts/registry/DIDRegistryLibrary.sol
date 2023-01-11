@@ -3,7 +3,6 @@ pragma solidity ^0.8.0;
 // SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 // Code is Apache-2.0 and docs are CC-BY-4.0
 
-import '@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol';
 import '../interfaces/IRoyaltyScheme.sol';
 
 /**
@@ -13,8 +12,6 @@ import '../interfaces/IRoyaltyScheme.sol';
  * @dev All function calls are currently implemented without side effects
  */
 library DIDRegistryLibrary {
-
-    using SafeMathUpgradeable for uint256;
 
     // DIDRegistry Entity
     struct DIDRegister {
@@ -46,6 +43,8 @@ library DIDRegistryLibrary {
         uint256 mintCap;
         address royaltyRecipient;
         IRoyaltyScheme royaltyScheme;
+        // URL to the Metadata in Immutable storage 
+        string  immutableUrl;        
     }
 
     // List of DID's registered in the system
@@ -61,15 +60,18 @@ library DIDRegistryLibrary {
      * @param _did refers to decentralized identifier (a byte32 length ID)
      * @param _checksum includes a one-way HASH calculated using the DDO content
      * @param _url includes the url resolving to the DID Document (DDO)
+     * @param _sender the address of the user updating the entry
+     * @param _immutableUrl includes the url to the DDO in immutable storage     
      */
     function update(
         DIDRegisterList storage _self,
         bytes32 _did,
         bytes32 _checksum,
-        string calldata _url,
-        address _sender
+        string memory _url,
+        address _sender,
+        string memory _immutableUrl
     )
-    external
+    internal
     {
         address didOwner = _self.didRegisters[_did].owner;
         address creator = _self.didRegisters[_did].creator;
@@ -86,6 +88,7 @@ library DIDRegistryLibrary {
         _self.didRegisters[_did].lastUpdatedBy = _sender;
         _self.didRegisters[_did].owner = didOwner;
         _self.didRegisters[_did].blockNumberUpdated = block.number;
+        _self.didRegisters[_did].immutableUrl = _immutableUrl;
     }
 
     /**
@@ -164,7 +167,7 @@ library DIDRegistryLibrary {
         // returns true;
         uint256 _totalAmount = 0;
         for(uint i = 0; i < _amounts.length; i++)
-            _totalAmount = _totalAmount.add(_amounts[i]);
+            _totalAmount = _totalAmount + _amounts[i];
         if (_totalAmount == 0)
             return true;
         
@@ -190,7 +193,7 @@ library DIDRegistryLibrary {
 
         // If the amount to receive by the creator is lower than royalties the calculation is not valid
         // return false;
-        uint256 _requiredRoyalties = ((_totalAmount.mul(_self.didRegisters[_did].royalties)) / 100);
+        uint256 _requiredRoyalties = _totalAmount * _self.didRegisters[_did].royalties / 100;
 
         // Check if royalties are enough
         // Are we paying enough royalties in the secondary market to the original creator?
@@ -283,7 +286,7 @@ library DIDRegistryLibrary {
         bytes32 _did,
         address _provider
     )
-    public
+    internal
     view
     returns(bool)
     {
@@ -384,7 +387,7 @@ library DIDRegistryLibrary {
         bytes32 _did,
         address _delegate
     )
-    public
+    internal
     view
     returns(bool)
     {

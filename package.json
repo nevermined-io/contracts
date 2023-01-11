@@ -1,6 +1,6 @@
 {
   "name": "@nevermined-io/contracts",
-  "version": "2.1.2",
+  "version": "3.0.0",
   "description": "Nevermined implementation of Nevermined in Solidity",
   "bugs": {
     "url": "https://github.com/nevermined-io/contracts/issues"
@@ -9,7 +9,7 @@
   "main": "README.md",
   "scripts": {
     "compile": "hardhat compile",
-    "audit": "npx truffle exec ./scripts/deploy/truffle-wrapper/auditWrapper.js",
+    "audit": "npx truffle exec ./scripts/deploy/auditWrapper.js",
     "audit:development": "export NETWORK=development&&yarn run audit --network development",
     "audit:aurora-testnet": "export NETWORK=aurora-testnet&&yarn run audit --network aurora-testnet",
     "audit:aurora": "export NETWORK=aurora&&yarn run audit --network aurora",
@@ -23,7 +23,7 @@
     "audit:mainnet": "export NETWORK=mainnet&&yarn run audit --network mainnet",
     "audit:matic": "export NETWORK=matic&&yarn run audit --network matic",
     "audit:arbitrum-one": "export NETWORK=arbitrum-one&&yarn run audit --network arbitrum-one",
-    "deploy": "npx hardhat run ./scripts/deploy/truffle-wrapper/deployContractsWrapper.js",
+    "deploy": "npx hardhat run ./scripts/deploy/deployContractsWrapper.js",
     "deploy:development": "export NETWORK=development&&export TESTNET=true&&yarn deploy --network development",
     "deploy:external": "export NETWORK=development&&export TESTNET=true&&yarn deploy --network external",
     "deploy:aurora-testnet": "export NETWORK=aurora-testnet&&export TESTNET=true&&yarn deploy --network aurora-testnet",
@@ -43,7 +43,7 @@
     "deploy:matic": "export NETWORK=matic&&export TESTNET=false&&yarn deploy --network matic",
     "download-artifacts": "./scripts/download_artifacts_s3.sh",
     "upload-artifacts": "./scripts/upload_artifacts_s3.sh",
-    "upgrade": "npx hardhat run ./scripts/deploy/truffle-wrapper/upgradeContractsWrapper.js",
+    "upgrade": "npx hardhat run ./scripts/deploy/upgradeContractsWrapper.js",
     "upgrade:development": "export NETWORK=development&&yarn run upgrade --network development --testnet true",
     "upgrade:external": "export NETWORK=external&&export TESTNET=true&&yarn run upgrade --network external",
     "upgrade:aurora-testnet": "export NETWORK=aurora-testnet&&yarn run upgrade --network aurora-testnet --testnet true",
@@ -73,7 +73,7 @@
     "clean:build": "rm -rf ./build/ ./artifacts/*.development.json ./artifacts/*.spree.json ./artifacts/*.hardhat.json ./artifacts/*.external.json",
     "clean:cache": "rm -rf ./cache/ ./deploy-cache.json ./upgrade-cache.json ./transactions.json",
     "clean:coverage": "rm -rf ./coverage/ ./coverageEnv/ ./coverage.json",
-    "clean:zos": "rm -rf ./zos.json ./zos.dev-8996.json ./zos.dev-8997.json ./.zos.session ./wallets.json deploy-cache.json .openzeppelin/unknown-31337.json zos/",
+    "clean:zos": "rm -rf ./zos.json ./zos.dev-8996.json ./zos.dev-8997.json ./.zos.session ./wallets.json deploy-cache.json .openzeppelin/unknown-31337.json zos/ ./artifacts/*.development.json ./artifacts/*.spree.json ./artifacts/*.hardhat.json ./artifacts/*.external.json",
     "lint": "yarn lint:eslint&&yarn lint:ethlint",
     "lint:eslint": "eslint --ignore-path .gitignore --ignore-pattern circuits --ext .js .",
     "lint:ethlint": "solhint --max-warnings 0 'contracts/**/*.sol'",
@@ -99,15 +99,12 @@
     "@gnosis.pm/safe-deployments": "^1.4.0",
     "@gnosis.pm/safe-ethers-lib": "^1.1.0",
     "@nomiclabs/hardhat-ethers": "^2.2.0",
+    "@nomiclabs/hardhat-etherscan": "^3.1.0",
     "@nomiclabs/hardhat-truffle5": "^2.0.7",
     "@nomiclabs/hardhat-web3": "^2.0.0",
-    "@nomiclabs/hardhat-etherscan": "^3.1.0",
     "@opengsn/dev": "^2.2.6",
     "@opengsn/provider": "^2.2.6",
     "@openzeppelin/hardhat-upgrades": "^1.21.0",
-    "hardhat": "^2.12.0",
-    "hardhat-dependency-compiler": "^1.1.3",
-    "hardhat-gas-reporter": "^1.0.8",
     "bignumber.js": "^9.0.0",
     "chai": "^4.3.4",
     "chai-as-promised": "^7.1.1",
@@ -124,6 +121,11 @@
     "ffjavascript": "^0.2.50",
     "findit": "^2.0.0",
     "glob": "^8.0.1",
+    "hardhat": "^2.12.2",
+    "hardhat-contract-sizer": "^2.6.1",
+    "hardhat-dependency-compiler": "^1.1.3",
+    "hardhat-gas-reporter": "^1.0.8",
+    "hardhat-ignore-warnings": "^0.2.4",
     "mathjs": "~7.5.1",
     "prettier": "^2.6.2",
     "snarkjs": "^0.4.24",
@@ -142,6 +144,6 @@
     "web3-eth-accounts/scrypt.js": "0.3.0"
   },
   "dependencies": {
-    "@openzeppelin/contracts-upgradeable": "^4.7.3"
+    "@openzeppelin/contracts-upgradeable": "^4.8.0"
   }
 }

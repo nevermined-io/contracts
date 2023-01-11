@@ -6,7 +6,6 @@ const { assert } = chai
 const chaiAsPromised = require('chai-as-promised')
 chai.use(chaiAsPromised)
 
-const EpochLibrary = artifacts.require('EpochLibrary')
 const NeverminedConfig = artifacts.require('NeverminedConfig')
 const ConditionStoreManager = artifacts.require('ConditionStoreManager')
 const ThresholdCondition = artifacts.require('ThresholdCondition')
@@ -28,8 +27,6 @@ contract('Threshold Condition', (accounts) => {
     before(async () => {
         nvmConfig = await NeverminedConfig.new()
         await nvmConfig.initialize(owner, owner, false)
-        const epochLibrary = await EpochLibrary.new()
-        await ConditionStoreManager.link(epochLibrary)
     })
 
     async function setupTest({

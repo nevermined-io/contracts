@@ -6,9 +6,9 @@ sidebar_position: 4
 
 ## Build a new version
 
-We follow the standard Nevermined release pattern:
+Nevermined contracts follow the semantic versioning pattern. To release a new version it's necessary:
 
-- Make sure the versions are up to date: `package.json`, `setup.py`, `pom.xml`
+- Make sure the versions is correctly updated in the: `package.json`
 - Create a tag:
 
   ```bash
@@ -27,7 +27,7 @@ We follow the standard Nevermined release pattern:
 
 > :warning: wallets.json file is needed if using a MultiSig Wallet for the deployment. Currently none of the Nevermined contract deployments is using Multisig wallets.
 
-We define six roles (check code configuration in [wallets.js](../scripts/deploy/truffle-wrapper/wallets.js)):
+We define six roles (check code configuration in [wallets.js](../scripts/deploy/wallets.js)):
 
 - `deployer`: represented as `accounts[8]`
 - `upgrader`: represented as `accounts[8]`
@@ -38,8 +38,8 @@ We define six roles (check code configuration in [wallets.js](../scripts/deploy/
 
 ### Flags
 
-- `--testnet` Deploys the Dispenser, the NeverminedToken and the contracts from `contracts.json`
-- `--with-token` Deploys the NeverminedToken and the contracts from `contracts.json`
+- `--testnet` Deploys the `Dispenser`, the `NeverminedToken` and the contracts from `contracts.json`
+- `--with-token` Deploys the `NeverminedToken` and the contracts from `contracts.json`
 
 ### Nevermined Configuration
 
@@ -79,7 +79,7 @@ Deployment configurations are on `hardhat.config.js`.
 
 > :warning: The following steps shows how to perform contracts deployment for new deployments (check `[Upgrades.md](./Upgrades.md)` for upgrading details)
 
-- Export the `NETWORK_ID` (check in [Chainlist](https://chainlist.org/)) and contract's tag `TAG`:
+- Export the `NETWORK` (check in the `hardhat.config.js` for the supported networks) and contract's tag `TAG`:
 
 ```bash
 export NETWORK=mumbai
@@ -87,6 +87,22 @@ export TAG=common
 ```
 
 - run `export MNEMONIC=<deployment's mnemonic>`. You will find them in the password manager.
+
+Here a full example:
+
+```bash
+MNEMONIC="my 24 words mnemonic"
+DEPLOYER=0xe08A1dAe983BC701D05E492DB80e0144f8f4b909
+UPGRADER=0xe08A1dAe983BC701D05E492DB80e0144f8f4b909
+GOVERNOR=0xbcE5A3468386C64507D30136685A99cFD5603135
+
+NVM_MARKETPLACE_FEE=010000
+
+NVM_RECEIVER_FEE=0x309039F6A4e876bE0a3FCA8c1e32292358D7f07c
+
+NETWORK=mumbai
+TAG=public
+```
 
 #### Deploy and initialize the contracts
 
@@ -109,7 +125,7 @@ This step will create `cache/` and `deploy-cache.json` used to resume the deploy
 Once the contracts are deployed to a public network or a new con.tract version whose contract abis has to been uploaded, use `scripts/upload_artifacts_s3.sh` to upload
 the contracts or artifacts to [nevermined repository](https://artifacts-nevermined-rocks.s3.amazonaws.com).
 
-*Your environment has to be configured and authorized to use aws cli to upload files to `artifacts-nevermined-rocks` bucket.*.
+> :warning: Your environment has to be configured and authorized to use aws cli to upload files to `artifacts-nevermined-rocks` bucket.
 
 The script has the next variables:
 
@@ -118,35 +134,12 @@ The script has the next variables:
 - `network` refers to network name, based on filename/hardhat config. Not used if `abis` is selected.
 - `tag` refers to deployment tag. Defaults to common. Not used if `abis` is selected.
 
-This workflows uses the script `scripts/upload_artifacts_s3.sh` that can be used using the next syntax:
+This workflow uses the script `scripts/upload_artifacts_s3.sh` that can be used using the next syntax:
 
 ```bash
 ./scripts/upload_artifacts_s3.sh abis
-./scripts/upload_artifacts_s3.sh contracts mumbai awesome_tag
+./scripts/upload_artifacts_s3.sh contracts mumbai $TAG
 ```
-
-
-## Script for uploading the artifacts (abis/contracts) to Contract Repository
-
-Once the contracts are deployed to a public network or a new con.tract version whose contract abis has to been uploaded, use `scripts/upload_artifacts_s3.sh` to upload
-the contracts or artifacts to [nevermined repository](https://artifacts-nevermined-rocks.s3.amazonaws.com).
-
-*Your environment has to be configured and authorized to use aws cli to upload files to `artifacts-nevermined-rocks` bucket.*.
-
-The script has the next variables:
-
-- `branch` is the branch from where the workflow and artifacts will be used.
-- `asset` can be `abis`/`contracts`. Use abis if you want to upload the contract ABIs that not contain deployment information. Contracts for uploading abis with deployment information to `network`.
-- `network` refers to network name, based on filename/hardhat config. Not used if `abis` is selected.
-- `tag` refers to deployment tag. Defaults to common. Not used if `abis` is selected.
-
-This workflows uses the script `scripts/upload_artifacts_s3.sh` that can be used using the next syntax:
-
-```bash
-./scripts/upload_artifacts_s3.sh abis
-./scripts/upload_artifacts_s3.sh contracts mumbai awesome_tag
-```
-
 
 ## Verifying contracts code in different networks
 
@@ -162,7 +155,7 @@ The script to do that is `scripts/contracts/verify-contracts.js` and requires th
 An example of an execution is:
 
 ```bash
-./scripts/contracts/verify-contracts.js v2.1.0 goerli public
+nodejs ./scripts/contracts/verify-contracts.js v2.1.0 goerli public
 ```
 
 
@@ -191,8 +184,6 @@ The release itself is done by `github actions` based on the tagged commit.
 It will deploy the following components:
 
 - [npm](https://www.npmjs.com/package/@nevermined-io/contracts)
-- [pypi](https://pypi.org/project/nevermined-contracts/)
-- [maven](https://search.maven.org/artifact/io.keyko.nevermined/contracts)
 - [docker](https://hub.docker.com/r/neverminedio/contracts)
 
 The npm, pypi and maven packages contain the contract artifacts for the contracts already deployed in different networks

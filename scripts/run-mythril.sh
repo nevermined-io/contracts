@@ -5,7 +5,7 @@ sleep 5
 
 export NO_PROXY=true
 
-npx hardhat run ./scripts/deploy/truffle-wrapper/deployContractsWrapper.js --network external
+npx hardhat run ./scripts/deploy/deployContractsWrapper.js --network external
 
 for i in artifacts/*.external.json; do
   echo $i

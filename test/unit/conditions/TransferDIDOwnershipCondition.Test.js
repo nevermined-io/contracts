@@ -49,7 +49,7 @@ contract('TransferDIDOwnership Condition constructor', (accounts) => {
                 { from: deployer }
             )
 
-            await didRegistry.setManager(transferCondition.address, { from: owner })
+            await didRegistry.grantRegistryOperatorRole(transferCondition.address, { from: owner })
         }
 
         const did = await didRegistry.hashDID(didSeed, owner)

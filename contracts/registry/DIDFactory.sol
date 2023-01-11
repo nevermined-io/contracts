@@ -45,15 +45,6 @@ abstract contract DIDFactory is ProvenanceRegistry {
         _;
     }
 
-    modifier onlyManager
-    {
-        require(
-            _msgSender() == manager,
-            'Only manager'
-        );
-        _;
-    }
-
     modifier onlyOwnerProviderOrDelegated(bytes32 _did)
     {
         require(isOwnerProviderOrDelegate(_did),
@@ -105,6 +96,14 @@ abstract contract DIDFactory is ProvenanceRegistry {
         uint256 _blockNumberUpdated
     );
 
+    event DIDMetadataUpdated(
+        bytes32 indexed _did,
+        address indexed _owner,
+        bytes32 _checksum,
+        string _url,
+        string _immutableUrl
+    );
+    
     event DIDProviderRemoved(
         bytes32 _did,
         address _provider,
@@ -146,13 +145,6 @@ abstract contract DIDFactory is ProvenanceRegistry {
     );
 
     /**
-     * Sets the manager role. Should be the TransferCondition contract address
-     */
-    function setManager(address _addr) external onlyOwner {
-        manager = _addr;
-    }
-
-    /**
      * @notice Register DID attributes.
      *
      * @dev The first attribute of a DID registered sets the DID owner.
@@ -188,7 +180,7 @@ abstract contract DIDFactory is ProvenanceRegistry {
      * @param _url refers to the url resolving the DID into a DID Document (DDO), limited to 2048 bytes.
      * @param _providers list of DID providers addresses
      * @param _activityId refers to activity
-     * @param _attributes refers to the provenance attributes     
+     * @param _immutableUrl refers to url stored in an immutable storage network like IPFS, Filecoin, Arweave
      */
     function registerDID(
         bytes32 _didSeed,
@@ -196,20 +188,18 @@ abstract contract DIDFactory is ProvenanceRegistry {
         address[] memory _providers,
         string memory _url,
         bytes32 _activityId,
-        string memory _attributes
+        string memory _immutableUrl
     )
     public
     virtual
-    onlyValidAttributes(_attributes)
     {
         bytes32 _did = hashDID(_didSeed, _msgSender());
         require(
-            didRegisterList.didRegisters[_did].owner == address(0x0) ||
-            didRegisterList.didRegisters[_did].owner == _msgSender(),
-            'Only DID Owners or not registered DID'
+            didRegisterList.didRegisters[_did].owner == address(0x0),
+            'DID already registered'
         );
 
-        didRegisterList.update(_did, _checksum, _url, _msgSender());
+        didRegisterList.update(_did, _checksum, _url, _msgSender(), _immutableUrl);
 
         // push providers to storage
         for (uint256 i = 0; i < _providers.length; i++) {
@@ -228,10 +218,37 @@ abstract contract DIDFactory is ProvenanceRegistry {
             block.number
         );
         
-        _wasGeneratedBy(_did, _did, _msgSender(), _activityId, _attributes);
+        _wasGeneratedBy(_did, _did, _msgSender(), _activityId, _immutableUrl);
 
     }
 
+    function updateMetadataUrl(
+        bytes32 _did,
+        bytes32 _checksum,
+        string memory _url,
+        string memory _immutableUrl
+    )
+    public
+    onlyDIDOwner(_did)
+    virtual {
+        didRegisterList.update(_did, _checksum, _url, _msgSender(), _immutableUrl);
+        used(
+            keccak256(abi.encode(_did, _checksum, _url, _immutableUrl, block.number, _msgSender())),
+            _did,
+            _msgSender(),
+            keccak256('updateMetadataUrl'),
+            '',
+            _immutableUrl
+        );
+        emit DIDMetadataUpdated(
+            _did,
+            _msgSender(),
+            _checksum,
+            _url,
+            _immutableUrl
+        ); 
+    }
+    
     /**
      * @notice It generates a DID using as seed a bytes32 and the address of the DID creator
      * @param _didSeed refers to DID Seed used as base to generate the final DID
@@ -469,18 +486,6 @@ abstract contract DIDFactory is ProvenanceRegistry {
         _transferDIDOwnership(_msgSender(), _did, _newOwner);
     }
 
-    /**
-     * @notice transferDIDOwnershipManaged transfer DID ownership
-     * @param _did refers to decentralized identifier (a bytes32 length ID)
-     * @param _newOwner new owner address
-     */
-    function transferDIDOwnershipManaged(address _sender, bytes32 _did, address _newOwner)
-    external
-    onlyManager
-    {
-        _transferDIDOwnership(_sender, _did, _newOwner);
-    }
-
     function _transferDIDOwnership(address _sender, bytes32 _did, address _newOwner) internal
     {
         require(isDIDOwner(_sender, _did), 'Only owner');
@@ -583,6 +588,7 @@ abstract contract DIDFactory is ProvenanceRegistry {
     * @return nftSupply the supply of nfts
     * @return mintCap the maximum number of nfts that can be minted
     * @return royalties the royalties amount
+    * @return immutableUrl includes the url to the DDO in immutable storage
     */
     function getDIDRegister(
         bytes32 _did
@@ -598,7 +604,8 @@ abstract contract DIDFactory is ProvenanceRegistry {
         address[] memory providers,
         uint256 nftSupply,
         uint256 mintCap,
-        uint256 royalties
+        uint256 royalties,
+        string memory immutableUrl
     )
     {
         owner = didRegisterList.didRegisters[_did].owner;
@@ -611,6 +618,7 @@ abstract contract DIDFactory is ProvenanceRegistry {
         nftSupply = didRegisterList.didRegisters[_did].nftSupply;
         mintCap = didRegisterList.didRegisters[_did].mintCap;
         royalties = didRegisterList.didRegisters[_did].royalties;
+        immutableUrl = didRegisterList.didRegisters[_did].immutableUrl;
     }
 
     function getDIDSupply(

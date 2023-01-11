@@ -154,12 +154,14 @@ contract('NFT Access Proof Template integration test', (accounts) => {
             did = await didRegistry.hashDID(didSeed, artist)
 
             await didRegistry.registerMintableDID(
-                didSeed, checksum, [], url, cappedAmount, royalties, constants.activities.GENERATED, '', { from: artist })
+                didSeed, checksum, [], url, cappedAmount, royalties, constants.activities.GENERATED, '', '', { from: artist })
             await didRegistry.mint(did, 5, { from: artist })
 
             const balance = await nft.balanceOf(artist, did)
             assert.strictEqual(5, balance.toNumber())
 
+            // We give the artist permissions to transfer the NFT
+            await nft.grantOperatorRole(artist, { from: owner })
             await nft.safeTransferFrom(artist, receiver, did, 2, '0x', { from: artist })
         })
     })

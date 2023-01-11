@@ -1,20 +1,7 @@
-FROM node:14-alpine
+FROM node:16
 LABEL maintainer="Nevermined <root@nevermined.io>"
 
-RUN apk add --no-cache --update\
-      bash\
-      g++\
-      gcc\
-      git\
-      krb5-dev\
-      krb5-libs\
-      krb5\
-      make\
-      python3\
-      curl
-
-RUN curl https://sh.rustup.rs -sSf | bash -s -- -y
-ENV PATH="/root/.cargo/bin:${PATH}"
+RUN apt-get update -y && apt-get install -y musl psmisc
 
 COPY . /nevermined-contracts
 WORKDIR /nevermined-contracts

@@ -8,7 +8,6 @@ chai.use(chaiAsPromised)
 
 const NeverminedConfig = artifacts.require('NeverminedConfig')
 const HashLists = artifacts.require('HashLists')
-const EpochLibrary = artifacts.require('EpochLibrary')
 const HashListLibrary = artifacts.require('HashListLibrary')
 const ConditionStoreManager = artifacts.require('ConditionStoreManager')
 const WhitelistingCondition = artifacts.require('WhitelistingCondition')
@@ -25,10 +24,8 @@ contract('Whitelisting Condition', (accounts) => {
     let whitelistingCondition
 
     before(async () => {
-        const epochLibrary = await EpochLibrary.new()
         const hashListLibrary = await HashListLibrary.new()
         await HashLists.link(hashListLibrary)
-        await ConditionStoreManager.link(epochLibrary)
     })
 
     beforeEach(async () => {

@@ -6,8 +6,6 @@ const { assert } = chai
 const chaiAsPromised = require('chai-as-promised')
 chai.use(chaiAsPromised)
 
-const EpochLibrary = artifacts.require('EpochLibrary')
-const DIDRegistryLibrary = artifacts.require('DIDRegistryLibrary')
 const DIDRegistry = artifacts.require('DIDRegistry')
 const ConditionStoreManager = artifacts.require('ConditionStoreManager')
 const NeverminedToken = artifacts.require('NeverminedToken')
@@ -20,7 +18,7 @@ const NFT721LockCondition = artifacts.require('NFT721LockCondition')
 const NFTEscrowPaymentCondition = artifacts.require('NFTEscrowPaymentCondition')
 const NFT721EscrowPaymentCondition = artifacts.require('NFT721EscrowPaymentCondition')
 
-const NFT = artifacts.require('NFTUpgradeable')
+const NFT = artifacts.require('NFT1155Upgradeable')
 const NFT721 = artifacts.require('NFT721Upgradeable')
 
 const constants = require('../../../helpers/constants.js')
@@ -45,15 +43,6 @@ function escrowTest(EscrowPaymentCondition, LockPaymentCondition, Token, nft, nf
         const deployer = accounts[8]
         const checksum = testUtils.generateId()
         const url = 'https://nevermined.io/did/test-attr-example.txt'
-
-        before(async () => {
-            if (!nft) {
-                const epochLibrary = await EpochLibrary.new()
-                await ConditionStoreManager.link(epochLibrary)
-                const didRegistryLibrary = await DIDRegistryLibrary.new()
-                await DIDRegistry.link(didRegistryLibrary)
-            }
-        })
 
         beforeEach(async () => {
             await setupTest()
@@ -212,6 +201,14 @@ function escrowTest(EscrowPaymentCondition, LockPaymentCondition, Token, nft, nf
                     totalAmount,
                     { from: sender })
 
+                if (nft) {
+                    await testUtils.approveProxy('NFT1155Upgradeable', sender, token.address, lockPaymentCondition.address)
+                    await testUtils.approveProxy('NFT1155Upgradeable', sender, token.address, escrowPayment.address)
+                }
+                if (nft721) {
+                    await testUtils.approveProxy('NFT721Upgradeable', sender, token.address, lockPaymentCondition.address)
+                    await testUtils.approveProxy('NFT721Upgradeable', sender, token.address, escrowPayment.address)
+                }
                 await lockPaymentCondition.fulfillWrap(agreementId, did, escrowPayment.address, token.address, amounts, receivers)
 
                 assert.strictEqual(await token.getBalance(lockPaymentCondition.address), 0)
@@ -247,7 +244,9 @@ function escrowTest(EscrowPaymentCondition, LockPaymentCondition, Token, nft, nf
                 assert.strictEqual(await token.getBalance(escrowPayment.address), 0)
                 assert.strictEqual(await token.getBalance(receivers[0]), totalAmount)
 
-                if (nft721) {
+                if (nft721 || nft) {
+                    await testUtils.approveProxy('NFT1155Upgradeable', sender, token.address, receivers[0])
+                    await testUtils.approveProxy('NFT721Upgradeable', sender, token.address, receivers[0])
                     await token.transferWrap(escrowPayment.address, totalAmount, { from: receivers[0] })
                 } else {
                     await token.mintWrap(didRegistry, sender, totalAmount, owner)
@@ -255,6 +254,7 @@ function escrowTest(EscrowPaymentCondition, LockPaymentCondition, Token, nft, nf
                         lockPaymentCondition.address,
                         totalAmount,
                         { from: sender })
+
                     await token.transferWrap(escrowPayment.address, totalAmount, { from: sender })
                 }
 
@@ -279,7 +279,7 @@ function escrowTest(EscrowPaymentCondition, LockPaymentCondition, Token, nft, nf
 
                 // register DID
                 await didRegistry.registerMintableDID(
-                    didSeed, checksum, [], url, amounts[0], 0, false, constants.activities.GENERATED, '')
+                    didSeed, checksum, [], url, amounts[0], 0, false, constants.activities.GENERATED, '', '')
 
                 const hashValuesLock = await lockPaymentCondition.hashValues(
                     did, escrowPayment.address, constants.address.zero, amounts, receivers)
@@ -372,7 +372,7 @@ function escrowTest(EscrowPaymentCondition, LockPaymentCondition, Token, nft, nf
 
                 // register DID
                 await didRegistry.registerMintableDID(
-                    didSeed, checksum, [], url, amounts[0], 0, false, constants.activities.GENERATED, '')
+                    didSeed, checksum, [], url, amounts[0], 0, false, constants.activities.GENERATED, '', '')
 
                 const hashValuesLock = await lockPaymentCondition.hashValues(
                     did, escrowPayment.address, constants.address.zero, amounts, receivers)
@@ -862,8 +862,11 @@ function escrowTest(EscrowPaymentCondition, LockPaymentCondition, Token, nft, nf
 
                 /* simulate a real environment by giving the EscrowPayment contract a bunch of tokens: */
                 await token.mintWrap(didRegistry, sender, 100, owner)
-                await token.transferWrap(escrowPayment.address, 100, { from: sender })
 
+                if (nft) {
+                    await testUtils.approveProxy('NFT1155Upgradeable', sender, token.address, sender)
+                }
+                await token.transferWrap(escrowPayment.address, 100, { from: sender })
                 const lockConditionId = conditionLockId
                 const releaseConditionId = conditionLockId
 

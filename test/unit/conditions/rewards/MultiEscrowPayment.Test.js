@@ -6,8 +6,6 @@ const { assert } = chai
 const chaiAsPromised = require('chai-as-promised')
 chai.use(chaiAsPromised)
 
-const EpochLibrary = artifacts.require('EpochLibrary')
-const DIDRegistryLibrary = artifacts.require('DIDRegistryLibrary')
 const DIDRegistry = artifacts.require('DIDRegistry')
 const ConditionStoreManager = artifacts.require('ConditionStoreManager')
 const NeverminedToken = artifacts.require('NeverminedToken')
@@ -19,7 +17,7 @@ const EscrowPaymentCondition = artifacts.require('EscrowPaymentCondition')
 const NFTEscrowPaymentCondition = artifacts.require('NFTEscrowPaymentCondition')
 const NFT721EscrowPaymentCondition = artifacts.require('NFT721EscrowPaymentCondition')
 
-const NFT = artifacts.require('NFTUpgradeable')
+const NFT = artifacts.require('NFT1155Upgradeable')
 const NFT721 = artifacts.require('NFT721Upgradeable')
 
 const constants = require('../../../helpers/constants.js')
@@ -41,15 +39,6 @@ function testMultiEscrow(EscrowPaymentCondition, LockPaymentCondition, Token, nf
         const createRole = accounts[0]
         const owner = accounts[9]
         const deployer = accounts[8]
-
-        before(async () => {
-            if (!nft) {
-                const epochLibrary = await EpochLibrary.new()
-                await ConditionStoreManager.link(epochLibrary)
-                const didRegistryLibrary = await DIDRegistryLibrary.new()
-                await DIDRegistry.link(didRegistryLibrary)
-            }
-        })
 
         beforeEach(async () => {
             await setupTest()
@@ -171,6 +160,11 @@ function testMultiEscrow(EscrowPaymentCondition, LockPaymentCondition, Token, nf
                     lockConditionId,
                     [conditionLockId, conditionLockId2])
                 )
+
+                if (nft) {
+                    await testUtils.approveProxy('NFT1155Upgradeable', sender, token.address, lockPaymentCondition.address)
+                    await testUtils.approveProxy('NFT1155Upgradeable', sender, token.address, escrowPayment.address)
+                }
 
                 await lockPaymentCondition.fulfillWrap(agreementId, did, escrowPayment.address, token.address, amounts, receivers)
 

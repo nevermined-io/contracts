@@ -5,7 +5,6 @@ const { assert } = chai
 const chaiAsPromised = require('chai-as-promised')
 chai.use(chaiAsPromised)
 
-const DIDRegistryLibrary = artifacts.require('DIDRegistryLibrary')
 const DIDRegistry = artifacts.require('DIDRegistry')
 const testUtils = require('../../helpers/utils.js')
 const constants = require('../../helpers/constants')
@@ -34,8 +33,6 @@ contract('DIDRegistry', (accounts) => {
 
     async function setupTest() {
         if (!didRegistry) {
-            const didRegistryLibrary = await DIDRegistryLibrary.new()
-            await DIDRegistry.link(didRegistryLibrary)
             didRegistry = await DIDRegistry.new()
             await didRegistry.initialize(owner, constants.address.zero, constants.address.zero, constants.address.zero, constants.address.zero)
         }
@@ -185,7 +182,72 @@ contract('DIDRegistry', (accounts) => {
         })
     })
 
-    describe('register DID providers', () => {
+    describe('Update DID Metadata URLs', () => {
+        it('should be able to update the metadata urls', async () => {
+            const didSeed = testUtils.generateId()
+            const did = await didRegistry.hashDID(didSeed, _from)
+            const url = 'http://whatever.io'
+            const immutableUrl = 'cid://aabbcc'
+
+            await didRegistry.registerDID(
+                didSeed,
+                testUtils.generateId(),
+                providers,
+                'http://hithere.io',
+                Activities.GENERATED,
+                'cid://12345'
+            )
+
+            const result = await didRegistry.updateMetadataUrl(
+                did,
+                testUtils.generateId(),
+                url,
+                immutableUrl
+            )
+
+            testUtils.assertEmitted(
+                result,
+                1,
+                'DIDMetadataUpdated'
+            )
+            testUtils.assertEmitted(
+                result,
+                1,
+                'Used'
+            )
+
+            const didEntry = await didRegistry.getDIDRegister(did)
+            assert.strictEqual(didEntry.url, url)
+            assert.strictEqual(didEntry.immutableUrl, immutableUrl)
+        })
+
+        it('should not be able to update if not the owner', async () => {
+            const didSeed = testUtils.generateId()
+            const did = await didRegistry.hashDID(didSeed, _from)
+
+            await didRegistry.registerDID(
+                didSeed,
+                testUtils.generateId(),
+                providers,
+                'http://hithere.io',
+                Activities.GENERATED,
+                'cid://12345',
+                { from: _from }
+            )
+
+            await assert.isRejected(didRegistry.updateMetadataUrl(
+                did,
+                testUtils.generateId(),
+                'http://nevermined.io',
+                'cid://1234',
+                { from: accounts[3] }
+            ),
+            'Only owner'
+            )
+        })
+    })
+
+    describe('Register DID providers', () => {
         it('should register did with providers', async () => {
             const didSeed = testUtils.generateId()
             const did = await didRegistry.hashDID(didSeed, _from)
@@ -743,38 +805,6 @@ contract('DIDRegistry', (accounts) => {
     })
 
     describe('Provenance #actedOnBehalf()', () => {
-        it('we can validate owner signature', async () => {
-            const _sourceMessage = 'hi there' // _did + owner
-
-            const _message = testUtils.toEthSignedMessageHash(
-                web3.utils.sha3(_sourceMessage))
-            const _messageHash = testUtils.toEthSignedMessageHash(_message)
-            const _signature = testUtils.fixSignature(
-                await web3.eth.sign(_message, owner)
-            )
-
-            const valid = await didRegistry.provenanceSignatureIsCorrect(
-                owner, _messageHash, _signature)
-
-            assert.isOk(valid, 'Signature doesnt match')
-        })
-
-        it('we can generate the same signatures', async () => {
-            const did = testUtils.generateId()
-
-            const _message = testUtils.toEthSignedMessageHash(
-                web3.utils.sha3(did + delegates[1]))
-            const _messageHash = testUtils.toEthSignedMessageHash(_message)
-            const _signature = testUtils.fixSignature(
-                await web3.eth.sign(_message, delegates[1])
-            )
-
-            const valid = await didRegistry.provenanceSignatureIsCorrect(
-                delegates[1], _messageHash, _signature)
-
-            assert.isOk(valid, 'Signature doesnt match')
-        })
-
         it('should act in behalf of delegate 2', async () => {
             const didSeed = testUtils.generateId()
             const did = await didRegistry.hashDID(didSeed, _from)
@@ -796,9 +826,6 @@ contract('DIDRegistry', (accounts) => {
             const _signatureDelegate = testUtils.fixSignature(
                 await web3.eth.sign(_message, delegates[1])
             )
-
-            assert.isOk(await didRegistry.provenanceSignatureIsCorrect(
-                delegates[1], testUtils.toEthSignedMessageHash(_message), _signatureDelegate))
 
             const result = await didRegistry.actedOnBehalf(
                 testUtils.toEthSignedMessageHash(_message),

@@ -5,10 +5,9 @@ const { assert } = chai
 const chaiAsPromised = require('chai-as-promised')
 chai.use(chaiAsPromised)
 
-const DIDRegistryLibrary = artifacts.require('DIDRegistryLibrary')
 const DIDRegistry = artifacts.require('DIDRegistry')
 const CurveRoyalties = artifacts.require('CurveRoyalties')
-const NFT = artifacts.require('NFTUpgradeable')
+const NFT = artifacts.require('NFT1155Upgradeable')
 
 const testUtils = require('../../helpers/utils.js')
 const constants = require('../../helpers/constants.js')
@@ -19,7 +18,6 @@ contract('CurveRoyalties', (accounts) => {
     const consumer = accounts[3]
     const value = 'https://nevermined.io/did/nevermined/test-attr-example.txt'
     let didRegistry
-    let didRegistryLibrary
     let royalties
     let nft
 
@@ -29,15 +27,12 @@ contract('CurveRoyalties', (accounts) => {
 
     async function setupTest() {
         if (!didRegistry) {
-            didRegistryLibrary = await DIDRegistryLibrary.new()
-            await DIDRegistry.link(didRegistryLibrary)
-
             nft = await NFT.new()
             await nft.initialize('')
 
             didRegistry = await DIDRegistry.new()
             await didRegistry.initialize(owner, nft.address, constants.address.zero, constants.address.zero, constants.address.zero)
-            await nft.addMinter(didRegistry.address)
+            await nft.grantOperatorRole(didRegistry.address)
 
             royalties = await CurveRoyalties.new()
             await royalties.initialize(didRegistry.address)

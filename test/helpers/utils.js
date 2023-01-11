@@ -1,7 +1,7 @@
 /* eslint-env mocha */
 /* global artifacts, assert, web3 */
 
-const { hardhatArguments } = require('hardhat')
+const { ethers, hardhatArguments } = require('hardhat')
 const network = hardhatArguments.network || 'hardhat'
 const deploying = network === 'hardhat' || network === 'coverage'
 const constants = require('./constants')
@@ -82,15 +82,9 @@ const utils = {
         const DIDRegistry = artifacts.require('DIDRegistry')
         const NeverminedConfig = artifacts.require('NeverminedConfig')
         const ConditionStoreManager = artifacts.require('ConditionStoreManager')
-        const EpochLibrary = artifacts.require('EpochLibrary')
-        const DIDRegistryLibrary = artifacts.require('DIDRegistryLibrary')
-        const NFT = artifacts.require('NFTUpgradeable')
+        const NFT = artifacts.require('NFT1155Upgradeable')
         const Royalties = artifacts.require('StandardRoyalties')
 
-        const epochLibrary = await EpochLibrary.new()
-        await ConditionStoreManager.link(epochLibrary)
-        const didRegistryLibrary = await DIDRegistryLibrary.new()
-        await DIDRegistry.link(didRegistryLibrary)
         const nvmConfig = await NeverminedConfig.new()
         await nvmConfig.initialize(owner, owner, false)
         const royalties = await Royalties.new()
@@ -101,13 +95,19 @@ const utils = {
         await royalties.initialize(didRegistry.address)
         const conditionStoreManager = await ConditionStoreManager.new()
         await conditionStoreManager.initialize(createRole, owner, nvmConfig.address, { from: owner })
-        await nft.addMinter(didRegistry.address)
+        await nft.grantOperatorRole(didRegistry.address)
         return {
             didRegistry,
             nvmConfig,
             conditionStoreManager,
             nft
         }
+    },
+
+    approveProxy: async (name, owner, nftAddress, contractAddress) => {
+        const signer = await ethers.provider.getSigner(owner)
+        const instance = await ethers.getContractAt(name, nftAddress, signer)
+        await instance.grantOperatorRole(contractAddress, { gasLimit: 100000 })
     }
 
 }

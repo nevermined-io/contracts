@@ -113,51 +113,11 @@ yarn lint
 ## Networks
 
 When Nevermined contracts are deployed into different networks, the ABIs referring to the specific
-version deployed are copied into the [Artifacts repository](https://artifacts.nevermined.rocks/).
+version deployed are copied into the [Artifacts repository](https://artifacts.nevermined.network/).
+
 You can find more information about the this into the [Release Process documentation](docs/ReleaseProcess.md).
 
-You can browse the different artifacts deployed here: http://artifacts-nevermined-rocks.s3-website-us-east-1.amazonaws.com/
-Also you can find a complete list here: https://artifacts.nevermined.rocks/
-
-
-## Packages
-
-To facilitate the integration of `nevermined-contracts` there are `Python`, `JavaScript` packages ready to be integrated. Those libraries include the Smart Contract ABI's.
-Using these packages helps to avoid compiling the Smart Contracts and copying the ABI's manually to your project. In that way the integration is cleaner and easier.
-The packages provided currently are:
-
-* JavaScript `NPM` package - As part of the [@nevermined-io npm organization](https://www.npmjs.com/settings/nevermined-io/packages),
-  the [npm nevermined-contracts package](https://www.npmjs.com/package/@nevermined-io/contracts) provides the ABI's
-  to be imported from your `JavaScript` code.
-* Python `Pypi` package - The [Pypi nevermined-contracts package](https://pypi.org/project/nevermined-contracts/) provides
-  the same ABI's to be used from `Python`.
-
-The packages contains all the content from the `doc/` and `artifacts/` folders.
-
-In `JavaScript` they can be used like this:
-
-Install the `nevermined-contracts` `npm` package.
-
-```bash
-npm install @nevermined-io/contracts
-```
-
-Load the ABI of the `NeverminedToken` contract on the `Rinkeby` network:
-
-```javascript
-const NeverminedToken = require('@nevermined-io/contracts/artifacts/NeverminedToken.rinkeby.json')
-```
-
-The structure of the `artifacts` is:
-
-```json
-{
-  "abi": "...",
-  "bytecode": "0x60806040523...",
-  "address": "0x45DE141F8Efc355F1451a102FB6225F1EDd2921d",
-  "version": "v0.9.1"
-}
-```
+For contracts older to v3.x please see the [Legacy Artifacts Repository](https://artifacts.nevermined.rocks/).
 
 ## Documentation
 

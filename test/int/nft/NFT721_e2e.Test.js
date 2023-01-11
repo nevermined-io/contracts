@@ -148,7 +148,7 @@ contract('End to End NFT721 Scenarios', (accounts) => {
             await templateStoreManager.approveTemplate(nftAccessTemplate.address, { from: owner })
 
             // IMPORTANT: Here we give ERC1155 transfer grants to the TransferNFTCondition condition
-            await nft.setProxyApproval(transferCondition.address, true, { from: deployer })
+            await nft.grantOperatorRole(transferCondition.address, { from: deployer })
         }
 
         const checkpoint = await getCheckpoint(token, [artist, collector1, collector2, gallery, someone, lockPaymentCondition.address, escrowCondition.address])
@@ -286,8 +286,6 @@ contract('End to End NFT721 Scenarios', (accounts) => {
             })
 
             it('The artist can check the payment and transfer the NFT to the collector', async () => {
-                await nft.setApprovalForAll(transferCondition.address, true, { from: artist })
-
                 await transferCondition.fulfill(
                     agreementId,
                     did,
@@ -297,7 +295,6 @@ contract('End to End NFT721 Scenarios', (accounts) => {
                     nft.address,
                     true,
                     { from: artist })
-                await nft.setApprovalForAll(transferCondition.address, false, { from: artist })
 
                 const { state } = await conditionStoreManager.getCondition(conditionIds[1])
                 assert.strictEqual(state.toNumber(), constants.condition.state.fulfilled)
@@ -428,7 +425,6 @@ contract('End to End NFT721 Scenarios', (accounts) => {
                 await token.approve(escrowCondition.address, nftPrice2, { from: collector2 })
                 await token.approve(escrowCondition.address, nftPrice2, { from: collector2 })
 
-                await nft.setApprovalForAll(transferCondition.address, true, { from: collector1 })
                 await nftSalesTemplate.nftSale(nft.address, did, token.address, amounts2[0], { from: collector1 })
 
                 const result = await nftSalesTemplate.createAgreementFulfill(...Object.values(agreementFullfill), { from: collector2 })
@@ -498,8 +494,6 @@ contract('End to End NFT721 Scenarios', (accounts) => {
 
                 await didRegistry.registerMintableDID721(
                     didSeed, checksum, [], url, royalties, true, constants.activities.GENERATED, '', { from: artist })
-
-                await nft.setApprovalForAll(transferCondition.address, true, { from: artist })
             })
         })
 
@@ -517,7 +511,6 @@ contract('End to End NFT721 Scenarios', (accounts) => {
             await didRegistry.registerMintableDID721(
                 didSeed2, checksum, [], url, royalties, false, constants.activities.GENERATED, '', { from: artist })
             await didRegistry.mint721(did, { from: artist })
-            await nft.setApprovalForAll(transferCondition.address, true, { from: artist })
 
             assert.strictEqual(artist, await nft.ownerOf(did))
         })
