@@ -32,7 +32,7 @@ contract('CurveRoyalties', (accounts) => {
 
             didRegistry = await DIDRegistry.new()
             await didRegistry.initialize(owner, nft.address, constants.address.zero, constants.address.zero, constants.address.zero)
-            await nft.addMinter(didRegistry.address)
+            await nft.grantOperatorRole(didRegistry.address)
 
             royalties = await CurveRoyalties.new()
             await royalties.initialize(didRegistry.address)

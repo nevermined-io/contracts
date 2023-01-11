@@ -387,7 +387,7 @@ contract ConditionStoreManager is CommonAccessControl {
     {
         ConditionStoreLibrary.ConditionState state = _updateConditionState(_id, _newState);
         if (address(didRegistry) != address(0)) {
-            didRegistry.condition(_did, _id, name, user);
+            didRegistry.registerUsedProvenance(_did, _id, name, user);
         }
         return state;
     }

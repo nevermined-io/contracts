@@ -14,7 +14,7 @@ import '../Common.sol';
  * @dev All function calls are currently implemented without side effects
  */
 /* solium-disable-next-line */
-abstract contract ProvenanceRegistry is CommonOwnable {
+abstract contract ProvenanceRegistry is CommonOwnable, AccessControlUpgradeable {
 
     // solhint-disable-next-line
     function __ProvenanceRegistry_init() internal initializer {
@@ -452,4 +452,10 @@ abstract contract ProvenanceRegistry is CommonOwnable {
         return true;
     }
 
+    function _msgSender() internal override(CommonOwnable,ContextUpgradeable) virtual view returns (address ret) {
+        return Common._msgSender();
+    }
+    function _msgData() internal override(CommonOwnable,ContextUpgradeable) virtual view returns (bytes calldata ret) {
+        return Common._msgData();
+    }    
 }

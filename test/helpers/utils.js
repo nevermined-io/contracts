@@ -95,7 +95,7 @@ const utils = {
         await royalties.initialize(didRegistry.address)
         const conditionStoreManager = await ConditionStoreManager.new()
         await conditionStoreManager.initialize(createRole, owner, nvmConfig.address, { from: owner })
-        await nft.addMinter(didRegistry.address)
+        await nft.grantOperatorRole(didRegistry.address)
         return {
             didRegistry,
             nvmConfig,
@@ -107,7 +107,7 @@ const utils = {
     approveProxy: async (name, owner, nftAddress, contractAddress) => {
         const signer = await ethers.provider.getSigner(owner)
         const instance = await ethers.getContractAt(name, nftAddress, signer)
-        await instance.setProxyApproval(contractAddress, true, { gasLimit: 100000 })
+        await instance.grantOperatorRole(contractAddress, { gasLimit: 100000 })
     }
 
 }

@@ -129,7 +129,7 @@ contract('NFT Access integration test', (accounts) => {
             // mint and transfer the nft
             await didRegistry.mint(agreement.did, nftAmount, { from: sender })
 
-            await nft.setProxyApproval(sender, true, { from: deployer })
+            await nft.grantOperatorRole(sender, { from: deployer })
 
             await nft.safeTransferFrom(
                 sender, receiver, BigInt(agreement.did), nftAmount, '0x', { from: sender })

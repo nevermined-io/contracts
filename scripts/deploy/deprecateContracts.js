@@ -34,12 +34,12 @@ async function main() {
     const lock721 = await readContract('NFT721LockCondition')
     const transfer1155 = await readContract('TransferNFTCondition')
     // Remove contracts from managers
-    await callContract(didRegistry, a => a.setManager(transferCondition.address, false))
-    await callContract(nft1155, a => a.setProxyApproval(nftLock.address, false))
-    await callContract(nft721, a => a.setProxyApproval(lock721.address, false))
-    await callContract(nft721, a => a.setProxyApproval(nftLock.address, false))
-    await callContract(nft1155, a => a.setProxyApproval(transfer1155.address, false))
-    await callContract(nft721, a => a.setProxyApproval(transfer721.address, false))
+    await callContract(didRegistry, a => a.revokeRegistryOperatorRole(transferCondition.address))
+    await callContract(nft1155, a => a.revokeOperatorRole(nftLock.address))
+    await callContract(nft721, a => a.revokeOperatorRole(lock721.address))
+    await callContract(nft721, a => a.revokeOperatorRole(nftLock.address))
+    await callContract(nft1155, a => a.revokeOperatorRole(transfer1155.address))
+    await callContract(nft721, a => a.revokeOperatorRole(transfer721.address))
     await callContract(nft1155, a => a.revokeMinter(transfer1155.address))
     await callContract(nft721, a => a.revokeMinter(transfer721.address))
 }

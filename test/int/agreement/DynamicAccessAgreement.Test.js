@@ -147,7 +147,7 @@ contract('Dynamic Access Template integration test', (accounts) => {
             // Mint and Transfer
             await didRegistry.mint(agreement.did, 10, { from: receiver })
 
-            await nft.setProxyApproval(receiver, true, { from: deployer })
+            await nft.grantOperatorRole(receiver, { from: deployer })
             await nft.safeTransferFrom(
                 receiver, holder, BigInt(agreement.did), 10, '0x', { from: receiver })
 
