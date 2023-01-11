@@ -34,7 +34,7 @@ async function main() {
     const lock721 = await readContract('NFT721LockCondition')
     const transfer1155 = await readContract('TransferNFTCondition')
     // Remove contracts from managers
-    await callContract(didRegistry, a => a.setManager(transferCondition.address, false))
+    await callContract(didRegistry, a => a.revokeRegistryOperatorRole(transferCondition.address))
     await callContract(nft1155, a => a.revokeOperatorRole(nftLock.address))
     await callContract(nft721, a => a.revokeOperatorRole(lock721.address))
     await callContract(nft721, a => a.revokeOperatorRole(nftLock.address))

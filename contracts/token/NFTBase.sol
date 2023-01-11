@@ -12,6 +12,9 @@ import '@openzeppelin/contracts-upgradeable/proxy/ClonesUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/utils/StorageSlotUpgradeable.sol';
 
 /**
+ * @title Nevermined NFT Base
+ * @author Nevermined
+ *
  * It provides base functionality for all the Nevermined NFT implementations (ERC-1155 or ERC-721).
  * 
  * Nevermined NFT permissions are organized in different levels:

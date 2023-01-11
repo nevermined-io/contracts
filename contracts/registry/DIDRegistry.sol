@@ -11,10 +11,22 @@ import '../token/erc721/NFT721Upgradeable.sol';
 import '../royalties/StandardRoyalties.sol';
 
 /**
- * @title Mintable DID Registry
+ * @title DID Registry
  * @author Nevermined
  *
- * @dev Implementation of a Mintable DID Registry.
+ * @dev Implementation of an on-chain registry of assets. It allows users to register their digital assets
+ * and the on-chain resolution of them via a Decentralized Identifier (DID) into their Metadata (DDO).  
+ *
+ * The permissions are organized in different levels:
+ *
+ * 1. Contract Ownership Level. At the top level the DID Registry contract is 'Ownable' so the owner (typically the deployer) of the contract
+ *    can manage everything in the registry.
+ * 2. Contract Operator Level. At the second level we have the Registry contract operator `REGISTRY_OPERATOR_ROLE`. Typically this role is 
+ *    granted to some Nevermined contracts to automate the execution of common functions.
+ *    This role is managed using the  `grantRegistryOperatorRole` and `revokeRegistryOperatorRole` function
+ * 3. Asset Access Level. Asset owners can provide individual asset permissions to external providers via the `addProvider` function.
+ *    Providers typically (Nevermined Nodes) can manage asset access. 
+ * 4. Asset Provenance Level. Provenance delegates can register provenance events at asset level.
  */
 contract DIDRegistry is DIDFactory {
 
@@ -27,29 +39,19 @@ contract DIDRegistry is DIDFactory {
     StandardRoyalties public defaultRoyalties;
 
     INVMConfig public nvmConfig;
-    address public conditionManager;
 
-    mapping (address => bool) public conditionManagers;
-    mapping (address => bool) public managers;
-
-    modifier onlyConditionManager
+    // Role to operate the NFT contract
+    bytes32 public constant REGISTRY_OPERATOR_ROLE = keccak256('REGISTRY_OPERATOR_ROLE');
+    
+    modifier onlyRegistryOperator
     {
         require(
-            conditionManagers[_msgSender()],
-            'Only condition store manager'
+            isRegistryOperator(_msgSender()),
+            'Only registry operator'
         );
         _;
-    }
-
-    modifier onlyManager
-    {
-        require(
-            managers[_msgSender()],
-            'Only transfer manager'
-        );
-        _;
-    }
-
+    }    
+    
     //////////////////////////////////////////////////////////////
     ////////  EVENTS  ////////////////////////////////////////////
     //////////////////////////////////////////////////////////////
@@ -70,6 +72,9 @@ contract DIDRegistry is DIDFactory {
     initializer
     {
         OwnableUpgradeable.__Ownable_init();
+        AccessControlUpgradeable.__AccessControl_init();
+        AccessControlUpgradeable._setupRole(REGISTRY_OPERATOR_ROLE, _owner);
+        
         erc1155 = NFT1155Upgradeable(_erc1155);
         erc721 = NFT721Upgradeable(_erc721);
         transferOwnership(_owner);
@@ -86,19 +91,40 @@ contract DIDRegistry is DIDFactory {
         royaltiesCheckers[_addr] = true;
     }
 
-    function setConditionManager(address _manager, bool state) public onlyOwner {
-        conditionManagers[_manager] = state;
-    }
-
     function setNFT1155(address _erc1155) public onlyOwner {
         erc1155 = NFT1155Upgradeable(_erc1155);
     }
 
-    /**
-     * Sets the manager role. Should be the TransferCondition contract address
-     */
-    function setManager(address _addr, bool state) external onlyOwner {
-        managers[_addr] = state;
+    ///// PERMISSIONS
+    function grantRegistryOperatorRole(
+        address account
+    )
+    public
+    virtual
+    onlyOwner
+    {
+        AccessControlUpgradeable._setupRole(REGISTRY_OPERATOR_ROLE, account);
+    }
+
+    function revokeRegistryOperatorRole(
+        address account
+    )
+    public
+    virtual
+    onlyOwner
+    {
+        AccessControlUpgradeable._revokeRole(REGISTRY_OPERATOR_ROLE, account);
+    }
+
+    function isRegistryOperator(
+        address operator
+    )
+    public
+    view
+    virtual
+    returns (bool)
+    {
+        return AccessControlUpgradeable.hasRole(REGISTRY_OPERATOR_ROLE, operator);
     }
 
     event DIDRoyaltiesAdded(bytes32 indexed did, address indexed addr);
@@ -142,7 +168,7 @@ contract DIDRegistry is DIDFactory {
      */
     function transferDIDOwnershipManaged(address _sender, bytes32 _did, address _newOwner)
     external
-    onlyManager
+    onlyRegistryOperator
     {
         _transferDIDOwnership(_sender, _did, _newOwner);
     }
@@ -455,7 +481,7 @@ contract DIDRegistry is DIDFactory {
         return address(nvmConfig) == address(0) || nvmConfig.getProvenanceStorage();
     }
 
-    function condition(bytes32 _did, bytes32 _cond, string memory name, address user) public onlyConditionManager {
+    function registerUsedProvenance(bytes32 _did, bytes32 _cond, string memory name, address user) public onlyRegistryOperator {
         _used(_cond, _did, user, keccak256(bytes(name)), '', name);
     }
 
