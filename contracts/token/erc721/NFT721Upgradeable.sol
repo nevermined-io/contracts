@@ -41,6 +41,7 @@ contract NFT721Upgradeable is ERC721Upgradeable, NFTBase {
     
     // solhint-disable-next-line
     function initializeWithAttributes(
+        address owner,
         string memory name,
         string memory symbol,
         string memory uri,
@@ -54,10 +55,13 @@ contract NFT721Upgradeable is ERC721Upgradeable, NFTBase {
         __ERC165_init_unchained();
         __ERC721_init_unchained(name, symbol);
         __Ownable_init_unchained();
+        
         AccessControlUpgradeable.__AccessControl_init();
         AccessControlUpgradeable._setupRole(MINTER_ROLE, _msgSender());
         setContractMetadataUri(uri);
         _nftContractCap = cap;
+
+        if (owner != _msgSender()) transferOwnership(owner);
     }    
     
     // solhint-disable-next-line
@@ -89,7 +93,7 @@ contract NFT721Upgradeable is ERC721Upgradeable, NFTBase {
             implementation = address(this);
         }        
         address cloneAddress = ClonesUpgradeable.clone(implementation);
-        NFT721Upgradeable(cloneAddress).initializeWithAttributes(name, symbol, uri, cap);
+        NFT721Upgradeable(cloneAddress).initializeWithAttributes(_msgSender(), name, symbol, uri, cap);
         emit NFTCloned(cloneAddress, implementation, 721);
         return cloneAddress;
     }

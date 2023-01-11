@@ -7,9 +7,9 @@ const deployManagers = async function(deployer, owner, governor = owner, subscri
     const nft = await testUtils.deploy('NFT1155Upgradeable', [''], deployer)
     let nft721
     if (subscription) {
-        nft721 = await testUtils.deploy('NFT721SubscriptionUpgradeable', ['NFT721', 'NVM', '', 0], deployer, [], 'initializeWithAttributes')
+        nft721 = await testUtils.deploy('NFT721SubscriptionUpgradeable', [deployer, 'NFT721', 'NVM', '', 0], deployer, [], 'initializeWithAttributes')
     } else {
-        nft721 = await testUtils.deploy('NFT721Upgradeable', ['NFT721', 'NVM', '', 0], deployer, [], 'initializeWithAttributes')
+        nft721 = await testUtils.deploy('NFT721Upgradeable', [deployer, 'NFT721', 'NVM', '', 0], deployer, [], 'initializeWithAttributes')
     }
 
     const didRegistry = await testUtils.deploy('DIDRegistry', [owner, nft.address, nft721.address, nvmConfig.address, constants.address.zero], deployer)

@@ -11,6 +11,7 @@ const testUtils = require('../../helpers/utils.js')
 const constants = require('../../helpers/constants.js')
 
 contract('Mintable DIDRegistry (ERC-721)', (accounts) => {
+    const deployer = accounts[0]
     const owner = accounts[1]
     const other = accounts[2]
     const consumer = accounts[3]
@@ -26,7 +27,7 @@ contract('Mintable DIDRegistry (ERC-721)', (accounts) => {
     async function setupTest() {
         if (!didRegistry) {
             nft = await NFT.new()
-            await nft.initializeWithAttributes('', '', nftMetadataURL, 0)
+            await nft.initializeWithAttributes(deployer, '', '', nftMetadataURL, 0, { from: deployer })
 
             const StandardRoyalties = artifacts.require('StandardRoyalties')
             const standardRoyalties = await StandardRoyalties.new()
