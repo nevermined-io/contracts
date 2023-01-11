@@ -21,7 +21,7 @@ import '@openzeppelin/contracts-upgradeable/utils/StorageSlotUpgradeable.sol';
  * 2. At the second level we have the NFT contract operator role. The accounts having that role can do some
  *    operations like mint/burn/transfer. Typically this role is granted to some Nevermined contracts to 
  *    automate the execution of common functions, like the interaction with the service agreements.
- *    This role is managed using the  @see {grantOperatorRole} and {revokeOperatorRole} function
+ *    This role is managed using the  `grantOperatorRole` and `revokeOperatorRole` function
  * 3. At the bottom level the token/edition owners can provide some permissions to token/editions holders 
  *    via `setApprovalForAll`
  *   
