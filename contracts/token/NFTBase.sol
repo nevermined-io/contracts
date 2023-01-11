@@ -12,16 +12,26 @@ import '@openzeppelin/contracts-upgradeable/proxy/ClonesUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/utils/StorageSlotUpgradeable.sol';
 
 /**
+ * It provides base functionality for all the Nevermined NFT implementations (ERC-1155 or ERC-721).
+ * 
+ * Nevermined NFT permissions are organized in different levels:
  *
+ * 1. At the top level the NFT contracts are 'Ownable' so the owner (typically the deployer) of the contract
+ *    can manage totally the NFT contract.
+ * 2. At the second level we have the NFT contract operator role. The accounts having that role can do some
+ *    operations like mint/burn/transfer. Typically this role is granted to some Nevermined contracts to 
+ *    automate the execution of common functions, like the interaction with the service agreements.
+ *    This role is managed using the  @see {grantOperatorRole} and {revokeOperatorRole} function
+ * 3. At the bottom level the token/edition owners can provide some permissions to token/editions holders 
+ *    via `setApprovalForAll`
+ *   
  * @dev Implementation of the Royalties EIP-2981 base contract
  * See https://eips.ethereum.org/EIPS/eip-2981
  */
 abstract contract NFTBase is IERC2981Upgradeable, CommonOwnable, AccessControlUpgradeable {
 
-    // Mapping from account to proxy approvals
-    mapping (address => bool) internal _proxyApprovals;
-
-    bytes32 public constant MINTER_ROLE = keccak256('MINTER_ROLE');    
+    // Role to operate the NFT contract
+    bytes32 public constant NVM_OPERATOR_ROLE = keccak256('NVM_OPERATOR_ROLE');    
     
     struct RoyaltyInfo {
         address receiver;
@@ -70,33 +80,6 @@ abstract contract NFTBase is IERC2981Upgradeable, CommonOwnable, AccessControlUp
         nvmConfig = _addr;
     }
 
-    /** 
-     * Event for recording proxy approvals.
-     */
-    event ProxyApproval(address sender, address operator, bool approved);
-    
-    function setProxyApproval(
-        address operator, 
-        bool approved
-    ) 
-    public 
-    onlyOwner 
-    virtual 
-    {
-        _proxyApprovals[operator] = approved;
-        emit ProxyApproval(_msgSender(), operator, approved);
-    }
-
-    function isApprovedProxy(
-        address operator
-    )
-    public
-    virtual
-    returns (bool)
-    {
-        return _proxyApprovals[operator];
-    }    
-    
     function _setNFTMetadata(
         uint256 tokenId,
         string memory tokenURI
@@ -157,26 +140,37 @@ abstract contract NFTBase is IERC2981Upgradeable, CommonOwnable, AccessControlUp
         return _contractMetadataUri;
     }
 
-    function addMinter(
+    function grantOperatorRole(
         address account
     )
     public
     virtual
     onlyOwner
     {
-        AccessControlUpgradeable._setupRole(MINTER_ROLE, account);
+        AccessControlUpgradeable._setupRole(NVM_OPERATOR_ROLE, account);
     }
 
-    function revokeMinter(
+    function revokeOperatorRole(
         address account
     )
     public
     virtual
     onlyOwner
     {
-        AccessControlUpgradeable._revokeRole(MINTER_ROLE, account);
-    }    
-    
+        AccessControlUpgradeable._revokeRole(NVM_OPERATOR_ROLE, account);
+    }
+
+    function isOperator(
+        address operator
+    )
+    public
+    view
+    virtual
+    returns (bool)
+    {
+        return AccessControlUpgradeable.hasRole(NVM_OPERATOR_ROLE, operator);
+    }
+
     function _msgSender() internal override(CommonOwnable,ContextUpgradeable) virtual view returns (address ret) {
         return Common._msgSender();
     }

@@ -49,7 +49,7 @@ describe('using ethers with OpenGSN', () => {
             [owner, nft.address, constants.address.zero, nvmConfig.address, constants.address.zero]
         )
 
-        await nft.connect(deployer).addMinter(didRegistry.address)
+        await nft.connect(deployer).grantOperatorRole(didRegistry.address)
         await nvmConfig.connect(await deploymentProvider.getSigner(governor)).setTrustedForwarder(forwarderAddress)
 
         const config = await {

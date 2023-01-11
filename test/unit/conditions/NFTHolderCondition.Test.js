@@ -35,7 +35,7 @@ contract('NFTHolderCondition', (accounts) => {
                 nft.address,
                 { from: createRole })
 
-            await nft.setProxyApproval(owner, true, { from: createRole })
+            await nft.grantOperatorRole(owner, { from: createRole })
         }
     }
 

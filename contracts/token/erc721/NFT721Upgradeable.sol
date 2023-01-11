@@ -36,7 +36,7 @@ contract NFT721Upgradeable is ERC721Upgradeable, NFTBase {
         __ERC721_init_unchained(name, symbol);
         __Ownable_init_unchained();
         AccessControlUpgradeable.__AccessControl_init();
-        AccessControlUpgradeable._setupRole(MINTER_ROLE, _msgSender());
+        AccessControlUpgradeable._setupRole(NVM_OPERATOR_ROLE, _msgSender());
     }
     
     // solhint-disable-next-line
@@ -57,7 +57,7 @@ contract NFT721Upgradeable is ERC721Upgradeable, NFTBase {
         __Ownable_init_unchained();
         
         AccessControlUpgradeable.__AccessControl_init();
-        AccessControlUpgradeable._setupRole(MINTER_ROLE, _msgSender());
+        AccessControlUpgradeable._setupRole(NVM_OPERATOR_ROLE, _msgSender());
         setContractMetadataUri(uri);
         _nftContractCap = cap;
 
@@ -75,7 +75,7 @@ contract NFT721Upgradeable is ERC721Upgradeable, NFTBase {
         __ERC721_init_unchained('Nevermined ERC721', 'NVM721');
         __Ownable_init_unchained();
         AccessControlUpgradeable.__AccessControl_init();
-        AccessControlUpgradeable._setupRole(MINTER_ROLE, _msgSender());
+        AccessControlUpgradeable._setupRole(NVM_OPERATOR_ROLE, _msgSender());
     }
 
     function createClone(
@@ -108,7 +108,7 @@ contract NFT721Upgradeable is ERC721Upgradeable, NFTBase {
     override
     returns (bool) 
     {
-        return super.isApprovedForAll(account, operator) || _proxyApprovals[operator];
+        return super.isApprovedForAll(account, operator) || isOperator(operator);
     }
     
     function mint(
@@ -118,7 +118,7 @@ contract NFT721Upgradeable is ERC721Upgradeable, NFTBase {
     public
     virtual
     {
-        require(hasRole(MINTER_ROLE, _msgSender()), 'only minter can mint');
+        require(isOperator(_msgSender()), 'only nft operator can mint');
         require(_nftContractCap == 0 || _counterMinted.current() < _nftContractCap,
             'ERC721: Cap exceed'
         );
@@ -153,7 +153,7 @@ contract NFT721Upgradeable is ERC721Upgradeable, NFTBase {
     public 
     {
         require(
-            hasRole(MINTER_ROLE, _msgSender()) || // Or the DIDRegistry is burning the NFT 
+            isOperator(_msgSender()) || // Or the DIDRegistry is burning the NFT 
             balanceOf(_msgSender()) > 0, // Or the _msgSender() is owner and have balance
             'ERC721: caller is not owner or not have balance'
         );        
@@ -181,7 +181,7 @@ contract NFT721Upgradeable is ERC721Upgradeable, NFTBase {
     )
     public
     {
-        require(hasRole(MINTER_ROLE, _msgSender()), 'only minter');
+        require(isOperator(_msgSender()), 'only nft operator');
         _setNFTMetadata(tokenId, nftURI);
     }
 
@@ -214,7 +214,7 @@ contract NFT721Upgradeable is ERC721Upgradeable, NFTBase {
     )
     public
     {
-        require(hasRole(MINTER_ROLE, _msgSender()), 'only minter');
+        require(isOperator(_msgSender()), 'only nft operator');
         _setTokenRoyalty(tokenId, receiver, royaltyAmount);
     }
 
@@ -255,7 +255,7 @@ contract NFT721Upgradeable is ERC721Upgradeable, NFTBase {
         require(
             from == address(0) || // We exclude mints
             to == address(0) || // We exclude burns
-            isApprovedProxy(_msgSender()) // Only proxies (Nevermined condition contracts)
+            isOperator(_msgSender()) // Only NFT Contract Operators (Nevermined condition contracts)
         , 'only proxy'
         );
         super._beforeTokenTransfer(from, to, 0, batchSize);

@@ -94,7 +94,7 @@ contract('NFT Sales with Access Proof Template integration test', (accounts) => 
         )
 
         if (testUtils.deploying) {
-            await nft.setProxyApproval(transferCondition.address, true, { from: deployer })
+            await nft.grantOperatorRole(transferCondition.address, { from: deployer })
             await templateStoreManager.proposeTemplate(nftSalesTemplate.address)
             await templateStoreManager.approveTemplate(nftSalesTemplate.address, { from: owner })
         }
@@ -180,7 +180,7 @@ contract('NFT Sales with Access Proof Template integration test', (accounts) => 
             const balance = await nft.balanceOf(artist, did)
             assert.strictEqual(5, balance.toNumber())
 
-            await nft.setProxyApproval(artist, true, { from: owner })
+            await nft.grantOperatorRole(artist, { from: owner })
             await nft.safeTransferFrom(artist, receiver, did, 2, '0x', { from: artist })
         })
     })

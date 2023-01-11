@@ -31,7 +31,7 @@ contract('POAP', (accounts) => {
     async function setupTest() {
         nft = await POAPUpgradeable.new({ from: deployer })
         await nft.initializeWithName('TestPOAP', 'TEST', { from: owner })
-        await nft.addMinter(minter)
+        await nft.grantOperatorRole(minter)
     }
 
     describe('As a minter I want to distribute POAPs', () => {

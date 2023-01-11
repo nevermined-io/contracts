@@ -115,8 +115,8 @@ contract('TransferNFT Condition constructor', (accounts) => {
             )
 
             // We allow DIDRegistry and TransferCondition to mint NFTs
-            await nft.addMinter(didRegistry.address)
-            await nft.addMinter(transferCondition.address)
+            await nft.grantOperatorRole(didRegistry.address)
+            await nft.grantOperatorRole(transferCondition.address)
         }
 
         const did = await didRegistry.hashDID(didSeed, seller)
@@ -128,7 +128,7 @@ contract('TransferNFT Condition constructor', (accounts) => {
             )
             if (mintDID) {
                 await didRegistry.mint(did, mintCap, { from: seller })
-                await nft.setProxyApproval(seller, true)
+                await nft.grantOperatorRole(seller)
                 await nft.safeTransferFrom(seller, other, did, 10, [], { from: seller })
             }
         }
@@ -246,7 +246,7 @@ contract('TransferNFT Condition constructor', (accounts) => {
                 { from: owner }
             )
 
-            await nft.setProxyApproval(transferCondition.address, true)
+            await nft.grantOperatorRole(transferCondition.address)
             const result = await transferCondition.methods['fulfill(bytes32,bytes32,address,uint256,bytes32)'](
                 agreementId, did, rewardAddress, numberNFTs,
                 conditionIdPayment,

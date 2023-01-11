@@ -12,7 +12,7 @@ contract NFT721SubscriptionUpgradeable is NFT721Upgradeable {
      * @dev This mint function allows to define when the NFT expires. 
      * The minter should calculate this block number depending on the network velocity
      * 
-     * @dev TransferNFT721Condition needs to have the `MINTER_ROLE`
+     * @dev TransferNFT721Condition needs to have the `NVM_OPERATOR_ROLE`
      */
     function mint(address to, uint256 tokenId, uint256 expirationBlock) public {
         super.mint(to, tokenId);

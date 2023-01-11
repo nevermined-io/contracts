@@ -34,7 +34,7 @@ contract NFT1155Upgradeable is ERC1155Upgradeable, NFTBase {
         __Ownable_init_unchained();
         
         AccessControlUpgradeable.__AccessControl_init();
-        AccessControlUpgradeable._setupRole(MINTER_ROLE, msg.sender);
+        AccessControlUpgradeable._setupRole(NVM_OPERATOR_ROLE, msg.sender);
         setContractMetadataUri(uri_);
         name = name_;
         symbol = symbol_;
@@ -49,7 +49,7 @@ contract NFT1155Upgradeable is ERC1155Upgradeable, NFTBase {
         __ERC1155_init_unchained(uri_);
         __Ownable_init_unchained();
         AccessControlUpgradeable.__AccessControl_init();
-        AccessControlUpgradeable._setupRole(MINTER_ROLE, _msgSender());
+        AccessControlUpgradeable._setupRole(NVM_OPERATOR_ROLE, _msgSender());
         setContractMetadataUri(uri_);
         name = 'Nevermined ERC1155';
         symbol = 'NVM1155';        
@@ -79,18 +79,18 @@ contract NFT1155Upgradeable is ERC1155Upgradeable, NFTBase {
      * @dev See {IERC1155-isApprovedForAll}.
      */
     function isApprovedForAll(address account, address operator) public view virtual override returns (bool) {
-        return super.isApprovedForAll(account, operator) || _proxyApprovals[operator];
+        return super.isApprovedForAll(account, operator) || isOperator(operator);
     }
 
     function mint(address to, uint256 id, uint256 amount, bytes memory data) public {
-        require(hasRole(MINTER_ROLE, _msgSender()), 'only minter can mint');
+        require(isOperator(_msgSender()), 'only minter can mint');
         _mint(to, id, amount, data);
     }
 
     function burn(address to, uint256 id, uint256 amount) public {
         require(balanceOf(to, id) >= amount, 'ERC1155: burn amount exceeds balance');
         require(
-            hasRole(MINTER_ROLE, _msgSender()) || // Or the DIDRegistry is burning the NFT 
+            isOperator(_msgSender()) || // Or the DIDRegistry is burning the NFT 
             to == _msgSender() || // Or the NFT owner is _msgSender() 
             isApprovedForAll(to, _msgSender()), // Or the _msgSender() is approved
             'ERC1155: caller is not owner nor approved'
@@ -113,7 +113,7 @@ contract NFT1155Upgradeable is ERC1155Upgradeable, NFTBase {
     )
     public
     {
-        require(hasRole(MINTER_ROLE, _msgSender()), 'only minter');
+        require(isOperator(_msgSender()), 'only nft operator');
         _setNFTMetadata(tokenId, nftURI);
     }    
     
@@ -130,7 +130,7 @@ contract NFT1155Upgradeable is ERC1155Upgradeable, NFTBase {
     ) 
     public
     {
-        require(hasRole(MINTER_ROLE, _msgSender()), 'only minter');
+        require(isOperator(_msgSender()), 'only nft operator');
         _setTokenRoyalty(tokenId, receiver, royaltyAmount);
     }
     
@@ -174,7 +174,7 @@ contract NFT1155Upgradeable is ERC1155Upgradeable, NFTBase {
         require(
             from == address(0) || // We exclude mints
             to == address(0) || // We exclude burns
-            isApprovedProxy(_msgSender()) // Only proxies (Nevermined condition contracts)
+            isOperator(_msgSender()) // Only NFT Contract Operators (Nevermined condition contracts)
             , 'only proxy'
         );
     }    
