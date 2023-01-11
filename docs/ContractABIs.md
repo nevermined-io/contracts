@@ -44,9 +44,7 @@ Because of this, the releasing and deployment process of the contracts take care
 A new tag of Nevermined contracts will generate the ABIs that will be uploaded using the following structure:
 
 ```
-https://artifacts.nevermined.rocks/abis/abis_<VERSION>.zip | tar.gz
-https://artifacts.nevermined.rocks/abis/<VERSION>/ContractNameA.json
-https://artifacts.nevermined.rocks/abis/<VERSION>/ContractNameB.json
+https://artifacts.nevermined.network/abis/abis_<VERSION>.zip | tar.gz
 ```
 
 ### Deployment of the contracts in a network
@@ -66,16 +64,16 @@ A new deployment (fresh install or upgrade) of the contracts will generate 2 dif
 Taking all the above into account, after a deployment 2 new files are generated with the contracts addresses and abis
 using the following structure:
 ```
-https://artifacts.nevermined.rocks/deployment/<NETWORK_ID>/<TAG_NAME>/abis_<VERSION>.zip | .tar.gz
-https://artifacts.nevermined.rocks/deployment/<NETWORK_ID>/<TAG_NAME>/contracts_<VERSION>.json
+https://artifacts.nevermined.network/<NETWORK_ID>/<TAG_NAME>/contracts_<VERSION>.zip | .tar.gz
+https://artifacts.nevermined.network/<NETWORK_ID>/<TAG_NAME>/contracts_<VERSION>.json
 ```
 
-For example, for a new deployment of contracts `v2.1.0` on `mumbai` that will be used for `common` environments, it will
-be generated the following 2 files:
+For example, for a new deployment of contracts `v3.0.0` on `mumbai` (network id 80001) and tag `public`, it will
+have the following 2 files:
 
 ```
-https://artifacts.nevermined.rocks/deployment/mumbai/common/abis_v2.1.0.zip
-https://artifacts.nevermined.rocks/deployment/mumbai/common/contracts_v2.1.0.json
+https://artifacts.nevermined.network/80001/public/contracts_v3.0.0.zip
+https://artifacts.nevermined.network/80001/public/contracts_v3.0.0.json
 ```
 
 ## Integration
