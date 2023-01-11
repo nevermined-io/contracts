@@ -135,6 +135,11 @@
     "web3": "^1.7.3",
     "yargs": "~15.3.1"
   },
+  "files": [
+    "lib/*",
+    "README.md",
+    "LICENSE"
+  ],
   "resolutions": {
     "web3-eth-accounts/scrypt.js": "0.3.0"
   },

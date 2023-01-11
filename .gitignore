@@ -86,3 +86,4 @@ cache/
 deploy-cache.json
 upgrade-cache.json
 transactions.json
+lib
