@@ -9,6 +9,7 @@ require('hardhat-gas-reporter')
 require('solidity-coverage')
 require('solidity-docgen')
 require('hardhat-ignore-warnings')
+require('hardhat-contract-sizer')
 
 const utils = require('web3-utils')
 
