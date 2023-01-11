@@ -31,7 +31,7 @@ CONTRACTS_DIR="$SCRIPT_DIR/../artifacts"
 CIRCUITS_DIR="$SCRIPT_DIR/../circuits"
 ABIS_DIR="$SCRIPT_DIR/../build/contracts"
 OPENZEPPELIN_DIR="$SCRIPT_DIR/../.openzeppelin"
-BUCKET="nevermined-network-public-artifacts"
+BUCKET="artifacts.nevermined.network"
 OUTPUT_FOLDER="/tmp"
 DEPENDENCIES=(gsutil zip tar jq)
 declare -A NETWORKS_MAP
