@@ -7,6 +7,7 @@ import '../NFTBase.sol';
 import '@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/utils/StringsUpgradeable.sol';
+import '../../interfaces/INFTRegistry.sol';
 
 
 /**
@@ -17,31 +18,17 @@ contract NFT721Upgradeable is ERC721Upgradeable, NFTBase {
     
     uint256 private _nftContractCap;
 
+    IExternalRegistry internal nftRegistry;
+
     using CountersUpgradeable for CountersUpgradeable.Counter;
     using StringsUpgradeable for uint256;
 
     CountersUpgradeable.Counter private _counterMinted;
-
-    // solhint-disable-next-line
-    function initializeWithName(
-        string memory name, 
-        string memory symbol
-    ) 
-    public 
-    virtual 
-    initializer 
-    {
-        __Context_init_unchained();
-        __ERC165_init_unchained();
-        __ERC721_init_unchained(name, symbol);
-        __Ownable_init_unchained();
-        AccessControlUpgradeable.__AccessControl_init();
-        AccessControlUpgradeable._setupRole(NVM_OPERATOR_ROLE, _msgSender());
-    }
     
     // solhint-disable-next-line
-    function initializeWithAttributes(
+    function initialize(
         address owner,
+        address didRegistryAddress,
         string memory name,
         string memory symbol,
         string memory uri,
@@ -61,28 +48,16 @@ contract NFT721Upgradeable is ERC721Upgradeable, NFTBase {
         setContractMetadataUri(uri);
         _nftContractCap = cap;
 
+        nftRegistry = IExternalRegistry(didRegistryAddress);
         if (owner != _msgSender()) transferOwnership(owner);
-    }    
-    
-    // solhint-disable-next-line
-    function initialize()
-    public
-    virtual
-    initializer
-    {
-        __Context_init_unchained();
-        __ERC165_init_unchained();
-        __ERC721_init_unchained('Nevermined ERC721', 'NVM721');
-        __Ownable_init_unchained();
-        AccessControlUpgradeable.__AccessControl_init();
-        AccessControlUpgradeable._setupRole(NVM_OPERATOR_ROLE, _msgSender());
     }
 
     function createClone(
         string memory name,
         string memory symbol,
         string memory uri,
-        uint256 cap
+        uint256 cap,
+        address[] memory _operators
     )
     external
     virtual
@@ -93,7 +68,11 @@ contract NFT721Upgradeable is ERC721Upgradeable, NFTBase {
             implementation = address(this);
         }        
         address cloneAddress = ClonesUpgradeable.clone(implementation);
-        NFT721Upgradeable(cloneAddress).initializeWithAttributes(_msgSender(), name, symbol, uri, cap);
+        NFT721Upgradeable nftContract = NFT721Upgradeable(cloneAddress);
+        nftContract.initialize(_msgSender(), address(nftRegistry), name, symbol, uri, cap);
+        for (uint256 i = 0; i < _operators.length; i++) {
+            nftContract.grantOperatorRole(_operators[i]);
+        }
         emit NFTCloned(cloneAddress, implementation, 721);
         return cloneAddress;
     }
@@ -119,10 +98,20 @@ contract NFT721Upgradeable is ERC721Upgradeable, NFTBase {
     virtual
     {
         require(isOperator(_msgSender()), 'only nft operator can mint');
+        require(_nftAttributes[tokenId].nftInitialized, 'NFT not initialized');
         require(_nftContractCap == 0 || _counterMinted.current() < _nftContractCap,
             'ERC721: Cap exceed'
         );
+        
+        // Update nftSupply
         _counterMinted.increment();
+        _nftAttributes[tokenId].nftSupply = _counterMinted.current();
+
+        // Register provenance event
+        nftRegistry.used(
+            keccak256(abi.encode(tokenId, _msgSender(), 'mint', 1, block.number)),
+            bytes32(tokenId), _msgSender(), keccak256('mint'), '', 'mint');
+        
         _mint(to, tokenId);
     }
 
@@ -156,7 +145,14 @@ contract NFT721Upgradeable is ERC721Upgradeable, NFTBase {
             isOperator(_msgSender()) || // Or the DIDRegistry is burning the NFT 
             balanceOf(_msgSender()) > 0, // Or the _msgSender() is owner and have balance
             'ERC721: caller is not owner or not have balance'
-        );        
+        );
+        // Update nftSupply
+        _nftAttributes[tokenId].nftSupply -= 1;
+        // Register provenance event
+        nftRegistry.used(
+            keccak256(abi.encode(tokenId, _msgSender(), 'burn', 1, block.number)),
+                bytes32(tokenId), _msgSender(), keccak256('burn'), '', 'burn');
+        
         _burn(tokenId);
     }
 

@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 
 import '@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol';
 import '../NFTBase.sol';
+import '../../interfaces/INFTRegistry.sol';
 
 /**
  *
@@ -17,9 +18,12 @@ contract NFT1155Upgradeable is ERC1155Upgradeable, NFTBase {
 
     // Token symbol
     string public symbol;
+
+    IExternalRegistry internal nftRegistry;
     
-    function initializeWithName(
+    function initialize(
         address owner,
+        address didRegistryAddress,
         string memory name_,
         string memory symbol_,
         string memory uri_
@@ -28,6 +32,10 @@ contract NFT1155Upgradeable is ERC1155Upgradeable, NFTBase {
     virtual
     initializer  
     {
+        require(
+            owner != address(0) && didRegistryAddress != address(0),
+            'Invalid address'
+        );
         __Context_init_unchained();
         __ERC165_init_unchained();
         __ERC1155_init_unchained(uri_);
@@ -39,27 +47,15 @@ contract NFT1155Upgradeable is ERC1155Upgradeable, NFTBase {
         name = name_;
         symbol = symbol_;
 
+        nftRegistry = IExternalRegistry(didRegistryAddress);
         if (owner != _msgSender()) transferOwnership(owner);
     }
-    
-    // solhint-disable-next-line
-    function initialize(string memory uri_) public initializer {
-        __Context_init_unchained();
-        __ERC165_init_unchained();
-        __ERC1155_init_unchained(uri_);
-        __Ownable_init_unchained();
-        AccessControlUpgradeable.__AccessControl_init();
-        AccessControlUpgradeable._setupRole(NVM_OPERATOR_ROLE, _msgSender());
-        setContractMetadataUri(uri_);
-        name = 'Nevermined ERC1155';
-        symbol = 'NVM1155';        
-    }
-
 
     function createClone(
         string memory _name,
         string memory _symbol,
-        string memory _uri
+        string memory _uri,
+        address[] memory _operators
     )
     external
     virtual
@@ -70,7 +66,11 @@ contract NFT1155Upgradeable is ERC1155Upgradeable, NFTBase {
             implementation = address(this);
         }
         address cloneAddress = ClonesUpgradeable.clone(implementation);
-        NFT1155Upgradeable(cloneAddress).initializeWithName(_msgSender(), _name, _symbol, _uri);
+        NFT1155Upgradeable nftContract = NFT1155Upgradeable(cloneAddress);
+        nftContract.initialize(_msgSender(), address(nftRegistry), _name, _symbol, _uri);
+        for (uint256 i = 0; i < _operators.length; i++) {
+            nftContract.grantOperatorRole(_operators[i]);
+        }
         emit NFTCloned(cloneAddress, implementation, 1155);
         return cloneAddress;
     }    
@@ -84,6 +84,19 @@ contract NFT1155Upgradeable is ERC1155Upgradeable, NFTBase {
 
     function mint(address to, uint256 id, uint256 amount, bytes memory data) public {
         require(isOperator(_msgSender()), 'only minter can mint');
+        
+        require(_nftAttributes[id].nftInitialized, 'NFT not initialized');
+        if (_nftAttributes[id].mintCap > 0)    {
+            require(_nftAttributes[id].nftSupply + amount <= _nftAttributes[id].mintCap, 'Cap exceeded');
+        }
+        
+        // Update nftSupply
+        _nftAttributes[id].nftSupply += amount;
+        // Register provenance event
+        nftRegistry.used(
+            keccak256(abi.encode(id, _msgSender(), 'mint', amount, block.number)),
+            bytes32(id), _msgSender(), keccak256('mint'), '', 'mint');
+        
         _mint(to, id, amount, data);
     }
 
@@ -95,12 +108,39 @@ contract NFT1155Upgradeable is ERC1155Upgradeable, NFTBase {
             isApprovedForAll(to, _msgSender()), // Or the _msgSender() is approved
             'ERC1155: caller is not owner nor approved'
         );
+
+        // Update nftSupply
+        _nftAttributes[id].nftSupply -= amount;
+        // Register provenance event
+        nftRegistry.used(
+            keccak256(abi.encode(id, _msgSender(), 'burn', amount, block.number)),
+                bytes32(id), _msgSender(), keccak256('burn'), '', 'burn');
+        
         _burn(to, id, amount);
     }
     
     function uri(uint256 tokenId) public view override returns (string memory) {
-        return _metadata[tokenId].nftURI;
+        return _nftAttributes[tokenId].nftURI;
     }
+
+    /**
+    * @dev Record some NFT Metadata
+    * @param tokenId the id of the asset with the royalties associated
+    * @param nftSupply the NFTs supply
+    * @param mintCap the max number of editions that can be minted
+    * @param nftURI the URI (https, ipfs, etc) to the metadata describing the NFT
+    */
+    function setNFTAttributes(
+        uint256 tokenId,
+        uint256 nftSupply,
+        uint256 mintCap,    
+        string memory nftURI
+    )
+    public
+    {
+        require(isOperator(_msgSender()), 'only nft operator');
+        _setNFTAttributes(tokenId, nftSupply, mintCap, nftURI);
+    }    
     
     /**
     * @dev Record some NFT Metadata

@@ -22,7 +22,7 @@ library DIDRegistryLibrary {
         // Flag to control if NFTs config was already initialized
         bool nftInitialized;
         // Flag to control if NFTs config was already initialized (erc 721)
-        bool nft721Initialized;
+        // bool nft721Initialized;
         // DIDRegistry original creator, this can't be modified after the asset is registered 
         address creator;
         // Checksum associated to the DID
@@ -99,13 +99,12 @@ library DIDRegistryLibrary {
      * @dev update the DID registry providers list by adding the mintCap and royalties configuration
      * @param _self refers to storage pointer
      * @param _did refers to decentralized identifier (a byte32 length ID)
-     * @param _cap refers to the mint cap
      * @param _royaltyHandler contract for handling royalties
      */
     function initializeNftConfig(
         DIDRegisterList storage _self,
         bytes32 _did,
-        uint256 _cap,
+//        uint256 _cap,
         IRoyaltyScheme _royaltyHandler
     )
     internal
@@ -114,7 +113,7 @@ library DIDRegistryLibrary {
         
         require(!_self.didRegisters[_did].nftInitialized, 'NFT already initialized');
         
-        _self.didRegisters[_did].mintCap = _cap;
+//        _self.didRegisters[_did].mintCap = _cap;
         _self.didRegisters[_did].royaltyScheme = _royaltyHandler;
         _self.didRegisters[_did].nftInitialized = true;
     }
@@ -128,10 +127,10 @@ library DIDRegistryLibrary {
     {
         require(_self.didRegisters[_did].owner != address(0), 'DID not stored');
         
-        require(!_self.didRegisters[_did].nft721Initialized, 'NFT already initialized');
+        require(!_self.didRegisters[_did].nftInitialized, 'NFT already initialized');
         
         _self.didRegisters[_did].royaltyScheme = _royaltyHandler;
-        _self.didRegisters[_did].nft721Initialized = true;
+        _self.didRegisters[_did].nftInitialized = true;
     }
 
 

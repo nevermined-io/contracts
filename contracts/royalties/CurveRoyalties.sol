@@ -51,7 +51,7 @@ contract CurveRoyalties is IRoyaltyScheme, Initializable, Common {
         if (_token != address(registry.erc1155())) {
             return false;
         }
-        (uint256 supply, uint256 cap) = registry.getDIDSupply(_did);
+        (uint256 supply, uint256 cap,) = registry.getDIDSupply(_did);
         // If there are no royalties everything is good
         uint256 rate = royaltyCurve(supply, cap, royalties[_did]);
         if (rate == 0) {

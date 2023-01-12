@@ -71,14 +71,14 @@ abstract contract DIDFactory is ProvenanceRegistry {
         _;
     }    
     
-    modifier nft721IsInitialized(bytes32 _did)
-    {
-        require(
-            didRegisterList.didRegisters[_did].nft721Initialized,
-            'NFT721 not initialized'
-        );
-        _;
-    }    
+//    modifier nft721IsInitialized(bytes32 _did)
+//    {
+//        require(
+//            didRegisterList.didRegisters[_did].nftInitialized,
+//            'NFT721 not initialized'
+//        );
+//        _;
+//    }    
     
     //////////////////////////////////////////////////////////////
     ////////  EVENTS  ////////////////////////////////////////////
@@ -589,6 +589,7 @@ abstract contract DIDFactory is ProvenanceRegistry {
     * @return mintCap the maximum number of nfts that can be minted
     * @return royalties the royalties amount
     * @return immutableUrl includes the url to the DDO in immutable storage
+    * @return nftInitialized if the NFT has been initialized
     */
     function getDIDRegister(
         bytes32 _did
@@ -605,7 +606,8 @@ abstract contract DIDFactory is ProvenanceRegistry {
         uint256 nftSupply,
         uint256 mintCap,
         uint256 royalties,
-        string memory immutableUrl
+        string memory immutableUrl,
+        bool nftInitialized
     )
     {
         owner = didRegisterList.didRegisters[_did].owner;
@@ -619,6 +621,7 @@ abstract contract DIDFactory is ProvenanceRegistry {
         mintCap = didRegisterList.didRegisters[_did].mintCap;
         royalties = didRegisterList.didRegisters[_did].royalties;
         immutableUrl = didRegisterList.didRegisters[_did].immutableUrl;
+        nftInitialized = didRegisterList.didRegisters[_did].nftInitialized;
     }
 
     function getDIDSupply(
@@ -628,11 +631,13 @@ abstract contract DIDFactory is ProvenanceRegistry {
     view
     returns (
         uint256 nftSupply,
-        uint256 mintCap
+        uint256 mintCap,
+        bool nftInitialized
     )
     {
         nftSupply = didRegisterList.didRegisters[_did].nftSupply;
         mintCap = didRegisterList.didRegisters[_did].mintCap;
+        nftInitialized = didRegisterList.didRegisters[_did].nftInitialized;
     }
     
     /**
