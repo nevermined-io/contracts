@@ -330,7 +330,7 @@ contract DIDRegistry is DIDFactory {
         _nftInstance.setNFTAttributes(uint256(_did), 0, _cap,_nftMetadata);
         
         if (_royalties > 0) {
-            erc1155.setTokenRoyalty(uint256(_did), _msgSender(), _royalties);
+            _nftInstance.setTokenRoyalty(uint256(_did), _msgSender(), _royalties);
             if (address(defaultRoyalties) != address(0)) defaultRoyalties.setRoyalty(_did, _royalties);
         }
         
@@ -374,9 +374,9 @@ contract DIDRegistry is DIDFactory {
         
         if (_royalties > 0) {
             if (address(defaultRoyalties) != address(0)) defaultRoyalties.setRoyalty(_did, _royalties);
-            erc721.setTokenRoyalty(uint256(_did), _msgSender(), _royalties);
+            _nftInstance.setTokenRoyalty(uint256(_did), _msgSender(), _royalties);
         }
-
+        
         if (_mint)
             _nftInstance.mint(_msgSender() ,uint256(_did));
         

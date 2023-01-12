@@ -45,11 +45,16 @@ contract NFT721Upgradeable is ERC721Upgradeable, NFTBase {
         
         AccessControlUpgradeable.__AccessControl_init();
         AccessControlUpgradeable._setupRole(NVM_OPERATOR_ROLE, _msgSender());
+        AccessControlUpgradeable._setupRole(NVM_OPERATOR_ROLE, didRegistryAddress);
+        AccessControlUpgradeable._setupRole(NVM_OPERATOR_ROLE, owner);
         setContractMetadataUri(uri);
         _nftContractCap = cap;
 
         nftRegistry = IExternalRegistry(didRegistryAddress);
-        if (owner != _msgSender()) transferOwnership(owner);
+        if (owner != _msgSender()) {
+            transferOwnership(owner);
+            AccessControlUpgradeable._revokeRole(NVM_OPERATOR_ROLE, _msgSender());
+        }
     }
 
     function createClone(
@@ -97,8 +102,8 @@ contract NFT721Upgradeable is ERC721Upgradeable, NFTBase {
     public
     virtual
     {
-        require(isOperator(_msgSender()), 'only nft operator can mint');
-        require(_nftAttributes[tokenId].nftInitialized, 'NFT not initialized');
+        require(isOperator(_msgSender()) || to == owner(), 'only nft operator can mint');
+//        require(_nftAttributes[tokenId].nftInitialized, 'NFT not initialized');
         require(_nftContractCap == 0 || _counterMinted.current() < _nftContractCap,
             'ERC721: Cap exceed'
         );

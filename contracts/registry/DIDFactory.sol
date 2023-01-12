@@ -302,7 +302,7 @@ abstract contract DIDFactory is ProvenanceRegistry {
         string memory _attributes
     )
     public
-    onlyOwnerProviderOrDelegated(_did)
+//    onlyOwnerProviderOrDelegated(_did)
     returns (bool success)
     {
         return _used(

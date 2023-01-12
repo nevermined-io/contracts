@@ -42,13 +42,18 @@ contract NFT1155Upgradeable is ERC1155Upgradeable, NFTBase {
         __Ownable_init_unchained();
         
         AccessControlUpgradeable.__AccessControl_init();
-        AccessControlUpgradeable._setupRole(NVM_OPERATOR_ROLE, msg.sender);
+        AccessControlUpgradeable._setupRole(NVM_OPERATOR_ROLE, _msgSender());
+        AccessControlUpgradeable._setupRole(NVM_OPERATOR_ROLE, didRegistryAddress);
+        AccessControlUpgradeable._setupRole(NVM_OPERATOR_ROLE, owner);
         setContractMetadataUri(uri_);
         name = name_;
         symbol = symbol_;
 
         nftRegistry = IExternalRegistry(didRegistryAddress);
-        if (owner != _msgSender()) transferOwnership(owner);
+        if (owner != _msgSender()) {
+            transferOwnership(owner);
+            AccessControlUpgradeable._revokeRole(NVM_OPERATOR_ROLE, _msgSender());
+        }
     }
 
     function createClone(
@@ -82,8 +87,15 @@ contract NFT1155Upgradeable is ERC1155Upgradeable, NFTBase {
         return super.isApprovedForAll(account, operator) || isOperator(operator);
     }
 
+    function mint(uint256 id, uint256 amount) public {
+        mint(_msgSender(), id, amount, '');
+    }
+    
     function mint(address to, uint256 id, uint256 amount, bytes memory data) public {
-        require(isOperator(_msgSender()), 'only minter can mint');
+        require(isOperator(_msgSender()) || 
+            to == owner()
+            , // Is operator or the NFT owner is _msgSender() 
+            'only operator can mint');
         
         require(_nftAttributes[id].nftInitialized, 'NFT not initialized');
         if (_nftAttributes[id].mintCap > 0)    {
@@ -100,6 +112,10 @@ contract NFT1155Upgradeable is ERC1155Upgradeable, NFTBase {
         _mint(to, id, amount, data);
     }
 
+    function burn(uint256 id, uint256 amount) public {
+        burn(_msgSender(), id, amount); 
+    }
+    
     function burn(address to, uint256 id, uint256 amount) public {
         require(balanceOf(to, id) >= amount, 'ERC1155: burn amount exceeds balance');
         require(

@@ -15,24 +15,32 @@ const testUtils = require('../../helpers/utils.js')
 const BigNumber = require('bignumber.js')
 
 contract('NFT Clones', (accounts) => {
-    before(async () => {
-    })
+
+    const owner = accounts[0]
+    const deployer = accounts[1]
+    const account1 = accounts[2]
 
     let nft721
     let nft1155
+    let didRegistry
+
+    beforeEach(async () => {
+        await setupTest()
+    })
+
+    async function setupTest() {
+        if (!didRegistry) {
+            didRegistry = await DIDRegistry.new()
+            await didRegistry.initialize(owner, constants.address.zero, constants.address.zero, constants.address.zero, constants.address.zero)
+        }
+    }
 
     describe('As a user I want to clone an existing ERC-721 NFT Contract', () => {
         it('I can clone an existing ERC-721 NFT Contract', async () => {
-            const [
-                owner,
-                deployer,
-                account1
-            ] = await accounts
-
             nft721 = await NFT721.new({ from: deployer })
-            await nft721.initializeWithAttributes(owner, 'TestERC721', 'TEST', 'http', 10, { from: owner })
+            await nft721.initialize(owner, didRegistry.address, 'TestERC721', 'TEST', 'http', 10, { from: owner })
 
-            const result = await nft721.createClone('My Name', 'xXx', 'cid', 100, { from: account1 })
+            const result = await nft721.createClone('My Name', 'xXx', 'cid', 100, [], { from: account1 })
 
             const eventArgs = testUtils.getEventArgsFromTx(result, 'NFTCloned')
 
@@ -57,16 +65,10 @@ contract('NFT Clones', (accounts) => {
 
     describe('As a user I want to clone an existing ERC-1155 NFT Contract', () => {
         it('I can clone an existing ERC-1155 NFT Contract', async () => {
-            const [
-                owner,
-                deployer,
-                account1
-            ] = await accounts
-
             nft1155 = await NFT1155.new({ from: deployer })
-            await nft1155.initializeWithName(owner, 'TestERC1155', '1155', 'http', { from: owner })
+            await nft1155.initialize(owner, didRegistry.address, 'TestERC1155', '1155', 'http', { from: owner })
 
-            const result = await nft1155.createClone('My 1155', 'yYy', 'cid', { from: account1 })
+            const result = await nft1155.createClone('My 1155', 'yYy', 'cid', [], { from: account1 })
 
             const eventArgs = testUtils.getEventArgsFromTx(result, 'NFTCloned')
 
