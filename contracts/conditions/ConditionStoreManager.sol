@@ -7,10 +7,11 @@ pragma solidity ^0.8.0;
 
 import '../libraries/EpochLibrary.sol';
 import './ConditionStoreLibrary.sol';
-import '../registry/DIDRegistry.sol';
 import '../governance/INVMConfig.sol';
 import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol';
+import '../interfaces/IExternalRegistry.sol';
+import '../Common.sol';
 
 /**
  * @title Condition Store Manager
@@ -40,7 +41,7 @@ contract ConditionStoreManager is CommonAccessControl {
 
     address internal nvmConfigAddress;
 
-    DIDRegistry public didRegistry;
+    IExternalRegistry public didRegistry;
     
     event ConditionCreated(
         bytes32 indexed _id,
@@ -169,7 +170,7 @@ contract ConditionStoreManager is CommonAccessControl {
      * @param _didAddress did registry address. can be zero
      */
     function setProvenanceRegistry(address _didAddress) public {
-        didRegistry = DIDRegistry(_didAddress);
+        didRegistry = IExternalRegistry(_didAddress);
     }
 
     /**
@@ -387,8 +388,9 @@ contract ConditionStoreManager is CommonAccessControl {
     {
         ConditionStoreLibrary.ConditionState state = _updateConditionState(_id, _newState);
         if (address(didRegistry) != address(0)) {
-            didRegistry.registerUsedProvenance(_did, _id, name, user);
+            didRegistry.used(_id, _did, user, keccak256(bytes(name)), '', name);
         }
+        
         return state;
     }
 

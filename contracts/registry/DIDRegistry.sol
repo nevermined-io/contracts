@@ -336,7 +336,6 @@ contract DIDRegistry is DIDFactory {
         
         if (_mint)
             _nftInstance.mint(_msgSender() ,uint256(_did), _cap, '');
-            //mint(_did, _cap);
         
         return super.used(
             keccak256(abi.encode(_did, _cap, _royalties, _msgSender())),
@@ -380,125 +379,11 @@ contract DIDRegistry is DIDFactory {
 
         if (_mint)
             _nftInstance.mint(_msgSender() ,uint256(_did));
-            //mint721(_did, _msgSender());
         
         return super.used(
             keccak256(abi.encode(_did, 1, _royalties, _msgSender())),
             _did, _msgSender(), keccak256('enableNft721'), '', 'nft initialization');
     }
-
-//    /**
-//     * @notice Mints a NFT associated to the DID
-//     *
-//     * @dev Because ERC-1155 uses uint256 and DID's are bytes32, there is a conversion between both
-//     *      Only the DID owner can mint NFTs associated to the DID
-//     *
-//     * @param _did refers to decentralized identifier (a bytes32 length ID).
-//     * @param _amount amount to mint
-//     * @param _receiver the address that will receive the new nfts minted
-//     */    
-//    function mint(
-//        bytes32 _did,
-//        uint256 _amount,
-//        address _receiver
-//    )
-//    public
-//    onlyDIDOwner(_did)
-//    nftIsInitialized(_did)
-//    {
-//        if (didRegisterList.didRegisters[_did].mintCap > 0) {
-//            require(
-//                didRegisterList.didRegisters[_did].nftSupply + _amount <= didRegisterList.didRegisters[_did].mintCap,
-//                'Cap exceeded'
-//            );
-//        }
-//        
-//        didRegisterList.didRegisters[_did].nftSupply = didRegisterList.didRegisters[_did].nftSupply + _amount;
-//        
-//        super.used(
-//            keccak256(abi.encode(_did, _msgSender(), 'mint', _amount, block.number)),
-//            _did, _msgSender(), keccak256('mint'), '', 'mint');
-//
-//        erc1155.mint(_receiver, uint256(_did), _amount, '');
-//    }
-//
-//    function mint(
-//        bytes32 _did,
-//        uint256 _amount
-//    )
-//    public
-//    {
-//        mint(_did, _amount, _msgSender());
-//    }
-
-
-//    /**
-//     * @notice Mints a ERC-721 NFT associated to the DID
-//     *
-//     * @param _did refers to decentralized identifier (a bytes32 length ID).
-//     * @param _receiver the address that will receive the new nfts minted
-//     */
-//    function mint721(
-//        bytes32 _did,
-//        address _receiver
-//    )
-//    public
-//    onlyDIDOwner(_did)
-//    nftIsInitialized(_did)
-//    {
-//        erc721.mint(_receiver, uint256(_did));
-//        super.used(
-//            keccak256(abi.encode(_did, _msgSender(), 'mint721', 1, block.number)),
-//            _did, _msgSender(), keccak256('mint721'), '', 'mint721');
-//    }
-//
-//    function mint721(
-//        bytes32 _did
-//    )
-//    public
-//    {
-//        mint721(_did, _msgSender());
-//    }
-    
-    
-//    /**
-//     * @notice Burns NFTs associated to the DID
-//     *
-//     * @dev Because ERC-1155 uses uint256 and DID's are bytes32, there is a conversion between both
-//     *      Only the DID owner can burn NFTs associated to the DID
-//     *
-//     * @param _did refers to decentralized identifier (a bytes32 length ID).
-//     * @param _amount amount to burn
-//     */
-//    function burn(
-//        bytes32 _did,
-//        uint256 _amount
-//    )
-//    public
-//    nftIsInitialized(_did)
-//    {
-//        erc1155.burn(_msgSender(), uint256(_did), _amount);
-//        didRegisterList.didRegisters[_did].nftSupply -= _amount;
-//        
-//        super._used(
-//            keccak256(abi.encode(_did, _msgSender(), 'burn', _amount, block.number)),
-//            _did, _msgSender(), keccak256('burn'), '', 'burn');
-//    }
-//
-//    function burn721(
-//        bytes32 _did,
-//        uint256 _tokenId
-//    )
-//    public
-//    nftIsInitialized(_did)
-//    {
-//        require(erc721.ownerOf(_tokenId) == _msgSender(), 'ERC721: burn amount exceeds balance');
-//        erc721.burn(uint256(_tokenId));
-//
-//        super._used(
-//            keccak256(abi.encode(_did, _msgSender(), 'burn721', 1, block.number)),
-//            _did, _msgSender(), keccak256('burn721'), '', 'burn721');
-//    }
 
     function _provenanceStorage() override internal view returns (bool) {
         return address(nvmConfig) == address(0) || nvmConfig.getProvenanceStorage();

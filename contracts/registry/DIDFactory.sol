@@ -71,15 +71,6 @@ abstract contract DIDFactory is ProvenanceRegistry {
         _;
     }    
     
-//    modifier nft721IsInitialized(bytes32 _did)
-//    {
-//        require(
-//            didRegisterList.didRegisters[_did].nftInitialized,
-//            'NFT721 not initialized'
-//        );
-//        _;
-//    }    
-    
     //////////////////////////////////////////////////////////////
     ////////  EVENTS  ////////////////////////////////////////////
     //////////////////////////////////////////////////////////////

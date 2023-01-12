@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 
 import '@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol';
 import '../NFTBase.sol';
-import '../../interfaces/INFTRegistry.sol';
+import '../../interfaces/IExternalRegistry.sol';
 
 /**
  *
