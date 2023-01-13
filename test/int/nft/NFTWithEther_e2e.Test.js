@@ -526,7 +526,7 @@ contract('End to End NFT Scenarios (with Ether)', (accounts) => {
             did = await didRegistry.hashDID(didSeed2, artist)
 
             await didRegistry.registerMintableDID(
-                didSeed2, checksum, [], url, cappedAmount, royalties, constants.activities.GENERATED, '', '', { from: artist })
+                didSeed2, nft.address, checksum, [], url, cappedAmount, royalties, constants.activities.GENERATED, '', '', { from: artist })
             await nft.methods['mint(uint256,uint256)'](did, 5, { from: artist })
 
             const balance = await nft.balanceOf(artist, did)
