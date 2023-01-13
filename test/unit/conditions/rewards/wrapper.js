@@ -124,9 +124,9 @@ function tokenTokenWrapper(contract) {
 
 function nftTokenWrapper(contract) {
     contract.initWrap = async (owner, _b, registry) => {
-        await contract.initialize('')
-        await contract.grantOperatorRole(registry.address)
-        await contract.grantOperatorRole(registry.address)
+        await contract.initialize(owner, registry.address, '', '', '')
+        await contract.grantOperatorRole(registry.address, { from: owner })
+        //        await contract.grantOperatorRole(registry.address)
     }
     contract.getBalance = async (addr) => {
         if (!contract.did) {
@@ -139,15 +139,15 @@ function nftTokenWrapper(contract) {
         const checksum = testUtils.generateId()
         contract.did = await registry.hashDID(didSeed, sender)
         await registry.registerMintableDID(
-            didSeed, checksum, [], '', 1000, 0, constants.activities.GENERATED, '', '', { from: sender }
+            didSeed, contract.address, checksum, [], '', 1000, 0, constants.activities.GENERATED, '', '', { from: sender }
         )
         return contract.did
     }
     contract.mintWrap = async (registry, target, amount, from) => {
-        await registry.mint(contract.did, amount, { from: target })
+        await contract.mint(contract.did, amount, { from: target })
     }
     contract.approveWrap = (addr, amount, args) => {
-        return contract.setApprovalForAll(addr, true, args)
+        return contract.grantOperatorRole(addr, args)
     }
     contract.transferWrap = async (target, amount, { from }) => {
         await contract.safeTransferFrom(from, target, contract.did, amount, '0x', { from })
@@ -156,10 +156,11 @@ function nftTokenWrapper(contract) {
 }
 
 function nft721TokenWrapper(contract) {
-    contract.initWrap = async (_a, _b, registry, _owner) => {
-        await contract.initialize()
-        await contract.grantOperatorRole(registry.address)
-        await contract.grantOperatorRole(registry.address)
+    contract.initWrap = async (owner, _b, registry) => {
+        await contract.initialize(owner, registry.address, '', '', '', 0)
+        await contract.grantOperatorRole(registry.address, { from: owner })
+        //        await contract.grantOperatorRole(registry.address)
+        //        await contract.grantOperatorRole(registry.address)
     }
     contract.getBalance = async (addr) => {
         if (!contract.did) {
@@ -177,15 +178,15 @@ function nft721TokenWrapper(contract) {
         const checksum = testUtils.generateId()
         contract.did = await registry.hashDID(didSeed, sender)
         await registry.registerMintableDID721(
-            didSeed, checksum, [], '', 0, false, constants.activities.GENERATED, '', { from: sender }
+            didSeed, contract.address, checksum, [], '', 0, false, constants.activities.GENERATED, '', { from: sender }
         )
         return contract.did
     }
     contract.mintWrap = async (registry, target, amount, from) => {
-        await registry.mint721(contract.did, { from: target })
+        await contract.mint(target, contract.did, { from: target })
     }
     contract.approveWrap = (addr, amount, args) => {
-        return contract.setApprovalForAll(addr, true, args)
+        return contract.grantOperatorRole(addr, args)
     }
     contract.transferWrap = async (target, amount, { from }) => {
         await contract.safeTransferFrom(from, target, contract.did, { from })

@@ -66,6 +66,7 @@ function testMultiEscrow(EscrowPaymentCondition, LockPaymentCondition, Token, nf
                 await didRegistry.initialize(owner, token.address, token.address, constants.address.zero, constants.address.zero)
 
                 await token.initWrap(owner, owner, didRegistry)
+                //                await token.approveWrap(sender, 1, { from: owner})
 
                 lockPaymentCondition = lockWrapper(await LockPaymentCondition.new())
                 await lockPaymentCondition.initWrap(
@@ -74,6 +75,11 @@ function testMultiEscrow(EscrowPaymentCondition, LockPaymentCondition, Token, nf
                     didRegistry.address,
                     { from: deployer }
                 )
+                try {
+                    await token.approveWrap(lockPaymentCondition.address, 0, owner)
+                } catch {
+                    // Function not required for this token
+                }
 
                 escrowPayment = escrowWrapper(await EscrowPaymentCondition.new())
                 await escrowPayment.initialize(
@@ -81,6 +87,11 @@ function testMultiEscrow(EscrowPaymentCondition, LockPaymentCondition, Token, nf
                     conditionStoreManager.address,
                     { from: deployer }
                 )
+                try {
+                    await token.approveWrap(escrowPayment.address, 0, owner)
+                } catch {
+                    // Function not required for this token
+                }
 
                 await conditionStoreManager.grantProxyRole(
                     escrowPayment.address,
@@ -143,12 +154,21 @@ function testMultiEscrow(EscrowPaymentCondition, LockPaymentCondition, Token, nf
                     escrowConditionId,
                     escrowPayment.address)
 
+                try {
+                    await token.approveWrap(sender, totalAmount, { from: owner })
+                } catch {
+                    // Function not required for this token
+                }
                 await token.mintWrap(didRegistry, sender, totalAmount, owner)
-                await token.approveWrap(
-                    lockPaymentCondition.address,
-                    totalAmount,
-                    { from: sender })
 
+                try {
+                    await token.approveWrap(
+                        lockPaymentCondition.address,
+                        totalAmount,
+                        { from: sender })
+                } catch {
+                    // Function not required for this token
+                }
                 await assert.isRejected(escrowPayment.fulfillWrap(
                     agreementId,
                     did,
@@ -265,12 +285,20 @@ function testMultiEscrow(EscrowPaymentCondition, LockPaymentCondition, Token, nf
                     escrowConditionId,
                     escrowPayment.address)
 
+                try {
+                    await token.approveWrap(sender, totalAmount, { from: owner })
+                } catch {
+                    // Function not required for this token
+                }
                 await token.mintWrap(didRegistry, sender, totalAmount, owner)
-                await token.approveWrap(
-                    lockPaymentCondition.address,
-                    totalAmount,
-                    { from: sender })
-
+                try {
+                    await token.approveWrap(
+                        lockPaymentCondition.address,
+                        totalAmount,
+                        { from: sender })
+                } catch {
+                    // Function not required for this token
+                }
                 await assert.isRejected(escrowPayment.fulfillWrap(
                     agreementId,
                     did,
@@ -282,6 +310,19 @@ function testMultiEscrow(EscrowPaymentCondition, LockPaymentCondition, Token, nf
                     lockConditionId,
                     [conditionLockId, conditionLockId2])
                 )
+
+                try {
+                    await testUtils.approveProxy('NFT1155Upgradeable', owner, token.address, lockPaymentCondition.address)
+                    await testUtils.approveProxy('NFT1155Upgradeable', owner, token.address, escrowPayment.address)
+                } catch {
+                    // Function not required for this token
+                }
+                try {
+                    await testUtils.approveProxy('NFT721Upgradeable', owner, token.address, lockPaymentCondition.address)
+                    await testUtils.approveProxy('NFT721Upgradeable', owner, token.address, escrowPayment.address)
+                } catch {
+                    // Function not required for this token
+                }
 
                 await lockPaymentCondition.fulfillWrap(agreementId, did, escrowPayment.address, token.address, amounts, receivers)
 

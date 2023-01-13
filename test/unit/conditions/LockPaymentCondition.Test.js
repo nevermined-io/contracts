@@ -19,6 +19,7 @@ contract('LockPaymentCondition', (accounts) => {
     let token
     let lockPaymentCondition
     let didRegistry
+    let nft
 
     const owner = accounts[1]
     const createRole = accounts[0]
@@ -31,7 +32,7 @@ contract('LockPaymentCondition', (accounts) => {
 
     async function setupTest() {
         if (!conditionStoreManager) {
-            ({ didRegistry, conditionStoreManager, nvmConfig } = await testUtils.deployManagers(owner, createRole))
+            ({ didRegistry, conditionStoreManager, nvmConfig, nft } = await testUtils.deployManagers(owner, createRole))
 
             token = await NeverminedToken.new()
             await token.initialize(owner, owner)
@@ -83,7 +84,7 @@ contract('LockPaymentCondition', (accounts) => {
 
             // register DID
             await didRegistry.registerMintableDID(
-                didSeed, checksum, [], url, amounts[0], 0, constants.activities.GENERATED, '', '')
+                didSeed, nft.address, checksum, [], url, amounts[0], 0, constants.activities.GENERATED, '', '')
 
             const hashValues = await lockPaymentCondition.hashValues(did, rewardAddress, token.address, amounts, receivers)
             const conditionId = await lockPaymentCondition.generateId(agreementId, hashValues)
@@ -140,7 +141,7 @@ contract('LockPaymentCondition', (accounts) => {
 
             // register DID
             await didRegistry.registerMintableDID(
-                didSeed, checksum, [], url, amounts[0], 0, constants.activities.GENERATED, '', '')
+                didSeed, nft.address, checksum, [], url, amounts[0], 0, constants.activities.GENERATED, '', '')
 
             const hashValues = await lockPaymentCondition.hashValues(did, rewardAddress, constants.address.zero, amounts, receivers)
             const conditionId = await lockPaymentCondition.generateId(agreementId, hashValues)
@@ -210,7 +211,7 @@ contract('LockPaymentCondition', (accounts) => {
             const receivers = [accounts[1]]
 
             await didRegistry.registerMintableDID(
-                didSeed, checksum, [], url, amounts[0], 0, constants.activities.GENERATED, '', '')
+                didSeed, nft.address, checksum, [], url, amounts[0], 0, constants.activities.GENERATED, '', '')
 
             await token.mint(sender, 10, { from: owner })
             await token.approve(lockPaymentCondition.address, 10, { from: sender })
@@ -232,7 +233,7 @@ contract('LockPaymentCondition', (accounts) => {
             const receivers = [accounts[1]]
 
             await didRegistry.registerMintableDID(
-                didSeed, checksum, [], url, amounts[0], 0, constants.activities.GENERATED, '', '')
+                didSeed, nft.address, checksum, [], url, amounts[0], 0, constants.activities.GENERATED, '', '')
 
             await token.mint(sender, 5, { from: owner })
             await token.approve(lockPaymentCondition.address, 5, { from: sender })
@@ -261,7 +262,7 @@ contract('LockPaymentCondition', (accounts) => {
             const receivers = [accounts[1]]
 
             await didRegistry.registerMintableDID(
-                didSeed, checksum, [], url, amounts[0], 0, constants.activities.GENERATED, '', '')
+                didSeed, nft.address, checksum, [], url, amounts[0], 0, constants.activities.GENERATED, '', '')
 
             await token.mint(sender, 500, { from: owner })
             await token.approve(lockPaymentCondition.address, 500, { from: sender })
@@ -290,7 +291,7 @@ contract('LockPaymentCondition', (accounts) => {
             const receivers = [accounts[1]]
 
             await didRegistry.registerMintableDID(
-                didSeed, checksum, [], url, amounts[0], 0, constants.activities.GENERATED, '', '')
+                didSeed, nft.address, checksum, [], url, amounts[0], 0, constants.activities.GENERATED, '', '')
 
             await token.mint(sender, 10, { from: owner })
             await token.approve(lockPaymentCondition.address, 10, { from: sender })
@@ -333,7 +334,7 @@ contract('LockPaymentCondition', (accounts) => {
             const receivers = [accounts[1]]
 
             await didRegistry.registerMintableDID(
-                didSeed, checksum, [], url, amounts[0], 0, constants.activities.GENERATED, '', '')
+                didSeed, nft.address, checksum, [], url, amounts[0], 0, constants.activities.GENERATED, '', '')
 
             const hashValues = await lockPaymentCondition.hashValues(did, rewardAddress, token.address, amounts, receivers)
             const conditionId = await lockPaymentCondition.generateId(agreementId, hashValues)
@@ -369,7 +370,7 @@ contract('LockPaymentCondition', (accounts) => {
 
             // register DID
             await didRegistry.registerMintableDID(
-                didSeed, checksum, [], url, amounts[0], 200000, constants.activities.GENERATED, '', '')
+                didSeed, nft.address, checksum, [], url, amounts[0], 200000, constants.activities.GENERATED, '', '')
 
             await didRegistry.transferDIDOwnership(did, accounts[4])
 
@@ -398,7 +399,7 @@ contract('LockPaymentCondition', (accounts) => {
 
             // register DID
             await didRegistry.registerMintableDID(
-                didSeed, checksum, [], url, amounts[0], 50, constants.activities.GENERATED, '', '')
+                didSeed, nft.address, checksum, [], url, amounts[0], 50, constants.activities.GENERATED, '', '')
 
             await didRegistry.transferDIDOwnership(did, current)
 
@@ -442,7 +443,7 @@ contract('LockPaymentCondition', (accounts) => {
 
             // register DID
             await didRegistry.registerMintableDID(
-                didSeed, checksum, [], url, 10, 0, constants.activities.GENERATED, '', '')
+                didSeed, nft.address, checksum, [], url, 10, 0, constants.activities.GENERATED, '', '')
 
             const hashValues = await lockPaymentCondition.hashValues(did, rewardAddress, token.address, amounts, receivers)
             const conditionId = await lockPaymentCondition.generateId(agreementId, hashValues)
@@ -473,7 +474,7 @@ contract('LockPaymentCondition', (accounts) => {
 
             // register DID
             await didRegistry.registerMintableDID(
-                didSeed, checksum, [], url, 10, 0, constants.activities.GENERATED, '', '', { from: rewardAddress })
+                didSeed, nft.address, checksum, [], url, 10, 0, constants.activities.GENERATED, '', '', { from: rewardAddress })
 
             const hashValues = await lockPaymentCondition.hashValues(did, rewardAddress, token.address, amounts, receivers)
             const conditionId = await lockPaymentCondition.generateId(agreementId, hashValues)

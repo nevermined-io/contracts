@@ -320,14 +320,14 @@ contract DIDRegistry is DIDFactory {
     onlyDIDOwner(_did)
     returns (bool success)
     {
-        didRegisterList.initializeNftConfig(_did, _royalties > 0 ? defaultRoyalties : IRoyaltyScheme(address(0)));
+        didRegisterList.initializeNftConfig(_did, _nftAddress, _royalties > 0 ? defaultRoyalties : IRoyaltyScheme(address(0)));
         NFT1155Upgradeable _nftInstance;
         if (_nftAddress == address(0))
             _nftInstance = erc1155;
         else
             _nftInstance = NFT1155Upgradeable(_nftAddress);
         
-        _nftInstance.setNFTAttributes(uint256(_did), 0, _cap,_nftMetadata);
+        _nftInstance.setNFTAttributes(uint256(_did), 0, _cap, _nftMetadata);
         
         if (_royalties > 0) {
             _nftInstance.setTokenRoyalty(uint256(_did), _msgSender(), _royalties);
@@ -364,7 +364,7 @@ contract DIDRegistry is DIDFactory {
     onlyDIDOwner(_did)
     returns (bool success)
     {
-        didRegisterList.initializeNft721Config(_did, _royalties > 0 ? defaultRoyalties : IRoyaltyScheme(address(0)));
+        didRegisterList.initializeNft721Config(_did, _nftContractAddress, _royalties > 0 ? defaultRoyalties : IRoyaltyScheme(address(0)));
 
         NFT721Upgradeable _nftInstance;
         if (_nftContractAddress == address(0))

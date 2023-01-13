@@ -34,7 +34,7 @@ contract('Mintable DIDRegistry (ERC-721)', (accounts) => {
             await standardRoyalties.initialize(didRegistry.address)
 
             nft = await NFT.new()
-            await nft.initialize(deployer, didRegistry.address, '', '', nftMetadataURL, 0, { from: deployer })
+            await nft.initialize(owner, didRegistry.address, '', '', nftMetadataURL, 0, { from: deployer })
         }
     }
 
@@ -162,8 +162,7 @@ contract('Mintable DIDRegistry (ERC-721)', (accounts) => {
 
             await assert.isRejected(nft.ownerOf(did))
 
-//            await nft.mint(did, { from: owner })
-            await nft.methods['mint(uint256)'](did, { from: owner})
+            await nft.methods['mint(uint256)'](did, { from: owner })
 
             const nftOwner = await nft.ownerOf(did)
             assert.strictEqual(owner, nftOwner)
@@ -177,12 +176,12 @@ contract('Mintable DIDRegistry (ERC-721)', (accounts) => {
                 didSeed, checksum, [], value, { from: owner })
             await didRegistry.enableAndMintDidNft721(did, nft.address, 0, false, { from: owner })
 
-            await nft.mint(did, { from: owner })
+            await nft.methods['mint(uint256)'](did, { from: owner })
             let nftOwner = await nft.ownerOf(did)
             assert.strictEqual(owner, nftOwner)
 
             await assert.isRejected(
-                nft.mint(did, { from: owner }),
+                nft.methods['mint(uint256)'](did, { from: owner }),
                 'ERC721: token already minted'
             )
             nftOwner = await nft.ownerOf(did)
@@ -205,8 +204,8 @@ contract('Mintable DIDRegistry (ERC-721)', (accounts) => {
             await didRegistry.enableAndMintDidNft721(did, nft.address, 0, true, { from: owner })
             await assert.isRejected(
                 // Must not allow to mint tokens without previous initialization
-                nft.mint(did, { from: other }),
-                'Only owner'
+                nft.methods['mint(uint256)'](did, { from: other }),
+                'only nft operator can mint'
             )
         })
 
@@ -219,16 +218,16 @@ contract('Mintable DIDRegistry (ERC-721)', (accounts) => {
 
             await didRegistry.enableAndMintDidNft721(did, nft.address, 0, false, { from: owner })
 
-            await nft.methods['mint(bytes32,address)'](
-                did,
+            await nft.methods['mint(address,uint256)'](
                 other,
+                did,
                 { from: owner }
             )
 
             await assert.isRejected(
                 // Must not allow to burn if not NFT holder
                 nft.burn(did, { from: consumer }),
-                'ERC721: burn amount exceeds balance'
+                'ERC721: caller is not owner or not have balance'
             )
 
             await nft.burn(did, { from: other })

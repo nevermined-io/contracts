@@ -121,15 +121,15 @@ contract('NFT Access integration test', (accounts) => {
 
             // register DID
             await didRegistry.registerMintableDID(
-                didSeed, checksum, [], url, 10, 0, constants.activities.GENERATED, '', '', { from: sender })
+                didSeed, nft.address, checksum, [], url, 10, 0, constants.activities.GENERATED, '', '', { from: sender })
 
             // create agreement
             await nftAccessTemplate.createAgreement(...Object.values(agreement))
 
-            // mint and transfer the nft
-            await didRegistry.mint(agreement.did, nftAmount, { from: sender })
-
             await nft.grantOperatorRole(sender, { from: deployer })
+            // mint and transfer the nft
+            //            await didRegistry.mint(agreement.did, nftAmount, { from: sender })
+            await nft.methods['mint(uint256,uint256)'](agreement.did, nftAmount, { from: sender })
 
             await nft.safeTransferFrom(
                 sender, receiver, BigInt(agreement.did), nftAmount, '0x', { from: sender })

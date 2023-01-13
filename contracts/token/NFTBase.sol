@@ -69,7 +69,16 @@ abstract contract NFTBase is IERC2981Upgradeable, CommonOwnable, AccessControlUp
         address indexed _fromAddress,
         uint _ercType
     );
-    
+
+    modifier onlyOperatorOrOwner
+    {
+        require(
+            owner() == _msgSender() || isOperator(_msgSender()),
+            'Only operator or owner'
+        );
+        _;
+    }
+
     /**
      * @dev getNvmConfigAddress get the address of the NeverminedConfig contract
      * @return NeverminedConfig contract address
@@ -167,7 +176,7 @@ abstract contract NFTBase is IERC2981Upgradeable, CommonOwnable, AccessControlUp
         string memory _uri
     )
     public
-    onlyOwner
+    onlyOperatorOrOwner
     virtual
     {
         _contractMetadataUri = _uri;
@@ -185,7 +194,7 @@ abstract contract NFTBase is IERC2981Upgradeable, CommonOwnable, AccessControlUp
     )
     public
     virtual
-    onlyOwner
+    onlyOperatorOrOwner
     {
         AccessControlUpgradeable._setupRole(NVM_OPERATOR_ROLE, account);
     }
@@ -195,7 +204,7 @@ abstract contract NFTBase is IERC2981Upgradeable, CommonOwnable, AccessControlUp
     )
     public
     virtual
-    onlyOwner
+    onlyOperatorOrOwner
     {
         AccessControlUpgradeable._revokeRole(NVM_OPERATOR_ROLE, account);
     }

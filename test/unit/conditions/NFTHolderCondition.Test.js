@@ -34,8 +34,6 @@ contract('NFTHolderCondition', (accounts) => {
                 conditionStoreManager.address,
                 nft.address,
                 { from: createRole })
-
-            await nft.grantOperatorRole(owner, { from: createRole })
         }
     }
 
@@ -57,8 +55,9 @@ contract('NFTHolderCondition', (accounts) => {
                 nftHolderCondition.address)
 
             await didRegistry.registerMintableDID(
-                didSeed, checksum, [], value, 100, 0, constants.activities.GENERATED, '', '', { from: owner })
-            await didRegistry.mint(did, 10, { from: owner })
+                didSeed, nft.address, checksum, [], value, 100, 0, constants.activities.GENERATED, '', '', { from: owner })
+
+            await nft.methods['mint(uint256,uint256)'](did, 10, { from: owner })
 
             await nft.safeTransferFrom(
                 owner, holderAddress, BigInt(did), 10, '0x', { from: owner })
@@ -88,8 +87,9 @@ contract('NFTHolderCondition', (accounts) => {
             const amount = 10
 
             await didRegistry.registerMintableDID(
-                didSeed, checksum, [], value, 100, 0, constants.activities.GENERATED, '', '', { from: owner })
-            await didRegistry.mint(did, 10, { from: owner })
+                didSeed, nft.address, checksum, [], value, 100, 0, constants.activities.GENERATED, '', '', { from: owner })
+
+            await nft.methods['mint(uint256,uint256)'](did, 10, { from: owner })
 
             await nft.safeTransferFrom(
                 owner, holderAddress, BigInt(did), 10, '0x', { from: owner })
@@ -119,8 +119,8 @@ contract('NFTHolderCondition', (accounts) => {
                 nftHolderCondition.address)
 
             await didRegistry.registerMintableDID(
-                didSeed, checksum, [], value, 100, 0, constants.activities.GENERATED, '', '', { from: owner })
-            await didRegistry.mint(did, 10, { from: owner })
+                didSeed, nft.address, checksum, [], value, 100, 0, constants.activities.GENERATED, '', '', { from: owner })
+            await nft.methods['mint(uint256,uint256)'](did, 10, { from: owner })
 
             await nft.safeTransferFrom(
                 owner, holderAddress, BigInt(did), 1, '0x', { from: owner })

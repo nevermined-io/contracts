@@ -82,8 +82,8 @@ describe('using ethers with OpenGSN', () => {
             let balance = await nft.balanceOf(account, did)
             assert.strictEqual(20, balance.toNumber())
 
-            await didRegistry.burn(did, 5, { from: account })
-
+            //            await didRegistry.burn(did, 5, { from: account })
+            await nft.methods['burn(uint256,uint256)'](did, 5, { from: account })
             balance = await nft.balanceOf(account, did)
             assert.strictEqual(15, balance.toNumber())
 

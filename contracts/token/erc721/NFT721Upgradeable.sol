@@ -103,7 +103,6 @@ contract NFT721Upgradeable is ERC721Upgradeable, NFTBase {
     virtual
     {
         require(isOperator(_msgSender()) || to == owner(), 'only nft operator can mint');
-//        require(_nftAttributes[tokenId].nftInitialized, 'NFT not initialized');
         require(_nftContractCap == 0 || _counterMinted.current() < _nftContractCap,
             'ERC721: Cap exceed'
         );
@@ -111,7 +110,8 @@ contract NFT721Upgradeable is ERC721Upgradeable, NFTBase {
         // Update nftSupply
         _counterMinted.increment();
         _nftAttributes[tokenId].nftSupply = _counterMinted.current();
-
+        _nftAttributes[tokenId].nftURI = '';
+        
         // Register provenance event
         nftRegistry.used(
             keccak256(abi.encode(tokenId, _msgSender(), 'mint', 1, block.number)),

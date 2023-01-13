@@ -27,12 +27,11 @@ contract('CurveRoyalties', (accounts) => {
 
     async function setupTest() {
         if (!didRegistry) {
-            nft = await NFT.new()
-            await nft.initialize('')
-
             didRegistry = await DIDRegistry.new()
-            await didRegistry.initialize(owner, nft.address, constants.address.zero, constants.address.zero, constants.address.zero)
-            await nft.grantOperatorRole(didRegistry.address)
+            await didRegistry.initialize(owner, constants.address.zero, constants.address.zero, constants.address.zero, constants.address.zero)
+
+            nft = await NFT.new()
+            await nft.initialize(owner, didRegistry.address, 'NFT1155', 'NVM', '')
 
             royalties = await CurveRoyalties.new()
             await royalties.initialize(didRegistry.address)
@@ -58,8 +57,13 @@ contract('CurveRoyalties', (accounts) => {
 
         await didRegistry.registerDID(didSeed, checksum, [], value, '0x0', '', { from: owner })
         await didRegistry.setDIDRoyalties(did, royalties.address, { from: owner })
-        await didRegistry.enableAndMintDidNft(did, 10, 0, false, '', { from: owner })
+        await didRegistry.enableAndMintDidNft(did, nft.address, 10, 0, false, '', { from: owner })
         await royalties.setRoyalty(did, 100000, { from: owner })
+
+        //        await didRegistry.registerDID(didSeed, checksum, [], value, '0x0', '', { from: owner })
+        //        await didRegistry.setDIDRoyalties(did, royalties.address, { from: owner })
+        //        await royalties.setRoyalty(did, 100000, { from: owner })
+        //        await didRegistry.enableAndMintDidNft(did, nft.address, 10, 100000, false, '', { from: owner })
         assert.isNotOk( // MUST BE FALSE. Royalties for original creator are too low
             await royalties.check(did, [91, 9], [consumer, owner], nft.address))
 
@@ -76,7 +80,7 @@ contract('CurveRoyalties', (accounts) => {
             await royalties.check(did, [100], [other], nft.address)
         )
 
-        await didRegistry.mint(did, 5, { from: owner })
+        await nft.methods['mint(uint256,uint256)'](did, 5, { from: owner })
         assert.isNotOk( // MUST BE FALSE. Royalties for original creator are too low
             await royalties.check(did, [96, 4], [consumer, owner], nft.address))
 
@@ -84,7 +88,7 @@ contract('CurveRoyalties', (accounts) => {
             await royalties.check(did, [], [], nft.address))
 
         assert.isOk( // MUST BE TRUE. Original creator is getting 10% by royalties
-            await royalties.check(did, [91, 9], [other, owner], nft.address))
+            await royalties.check(did, [91, 10], [other, owner], nft.address))
 
         assert.isOk( // MUST BE TRUE. Original creator is getting 10% by royalties
             await royalties.check(did, [9, 91], [owner, other], nft.address))

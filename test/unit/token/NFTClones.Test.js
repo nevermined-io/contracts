@@ -8,14 +8,15 @@ const chaiAsPromised = require('chai-as-promised')
 chai.use(chaiAsPromised)
 const { ethers } = require('hardhat')
 
+const DIDRegistry = artifacts.require('DIDRegistry')
 const NFT721 = artifacts.require('NFT721Upgradeable')
 const NFT1155 = artifacts.require('NFT1155Upgradeable')
 
 const testUtils = require('../../helpers/utils.js')
+const constants = require('../../helpers/constants.js')
 const BigNumber = require('bignumber.js')
 
 contract('NFT Clones', (accounts) => {
-
     const owner = accounts[0]
     const deployer = accounts[1]
     const account1 = accounts[2]

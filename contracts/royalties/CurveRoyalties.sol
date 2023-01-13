@@ -48,10 +48,14 @@ contract CurveRoyalties is IRoyaltyScheme, Initializable, Common {
         address _token)
     external view returns (bool)
     {
-        if (_token != address(registry.erc1155())) {
+        (address nftContractAddress,) = registry.getNFTInfo(_did);
+        
+        if (_token != nftContractAddress) {
             return false;
         }
-        (uint256 supply, uint256 cap,) = registry.getDIDSupply(_did);
+        NFT1155Upgradeable _nftInstance = NFT1155Upgradeable(nftContractAddress);
+        (,uint256 supply,uint256 cap,) = _nftInstance.getNFTAttributes(uint256(_did));
+        
         // If there are no royalties everything is good
         uint256 rate = royaltyCurve(supply, cap, royalties[_did]);
         if (rate == 0) {

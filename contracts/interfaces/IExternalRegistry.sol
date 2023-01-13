@@ -19,6 +19,9 @@ interface IExternalRegistry {
     )
     external
     returns (bool success);
-    
-    
+
+    function getDIDOwner(bytes32 _did)
+    external
+    view
+    returns (address didOwner);
 }
