@@ -88,7 +88,7 @@ describe('using ethers with OpenGSN', () => {
 
             const nftAttr = await nft.getNFTAttributes(did)
             assert.strictEqual(nftMetadataURL, nftAttr.nftURI)
-            
+
             /*
             // TODO: Review error:
             //  paymaster rejected in local view call to 'relayCall()' : invalid forwarder for recipient
