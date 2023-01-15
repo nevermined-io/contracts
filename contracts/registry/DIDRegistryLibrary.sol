@@ -50,7 +50,6 @@ library DIDRegistryLibrary {
     // List of DID's registered in the system
     struct DIDRegisterList {
         mapping(bytes32 => DIDRegister) didRegisters;
-        bytes32[] didRegisterIds; // UNUSED
     }
 
     /**

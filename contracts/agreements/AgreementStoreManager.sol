@@ -174,9 +174,7 @@ contract AgreementStoreManager is CommonAccessControl {
         }
         agreementList.create(
             _id,
-            _did,
-            _msgSender(),
-            _conditionIds
+            _msgSender()
         );
     }
 

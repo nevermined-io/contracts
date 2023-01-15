@@ -24,7 +24,6 @@ library EpochLibrary {
 
     struct EpochList {
         mapping(bytes32 => Epoch) epochs;
-        bytes32[] epochIds; // UNUSED
     }
 
    /**
