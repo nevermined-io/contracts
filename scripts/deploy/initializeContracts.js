@@ -137,26 +137,6 @@ async function initializeContracts({
         })
     }
 
-    if (contracts.indexOf('NFT1155Upgradeable') > -1) {
-        addressBook.NFT1155Upgradeable = await zosCreate({
-            contract: 'NFT1155Upgradeable',
-            ctx,
-            args: [''],
-            isCore: true,
-            verbose
-        })
-    }
-
-    if (contracts.indexOf('NFT721Upgradeable') > -1) {
-        addressBook.NFT721Upgradeable = await zosCreate({
-            contract: 'NFT721Upgradeable',
-            ctx,
-            args: [],
-            isCore: true,
-            verbose
-        })
-    }
-
     if (contracts.indexOf('DIDRegistry') > -1) {
         addressBook.DIDRegistry = await zosCreate({
             contract: 'DIDRegistry',
@@ -172,6 +152,39 @@ async function initializeContracts({
             contract: 'StandardRoyalties',
             ctx,
             args: [addressBook.DIDRegistry],
+            isCore: true,
+            verbose
+        })
+    }
+
+    if (contracts.indexOf('NFT1155Upgradeable') > -1 && contracts.indexOf('DIDRegistry') > -1) {
+        addressBook.NFT1155Upgradeable = await zosCreate({
+            contract: 'NFT1155Upgradeable',
+            ctx,
+            args: [
+                roles.ownerWallet,
+                getAddress('DIDRegistry'),
+                'Nevermined NFT-1155',
+                'NVM',
+                ''
+            ],
+            isCore: true,
+            verbose
+        })
+    }
+
+    if (contracts.indexOf('NFT721Upgradeable') > -1 && contracts.indexOf('DIDRegistry') > -1) {
+        addressBook.NFT721Upgradeable = await zosCreate({
+            contract: 'NFT721Upgradeable',
+            ctx,
+            args: [
+                roles.ownerWallet,
+                getAddress('DIDRegistry'),
+                'Nevermined NFT-721',
+                'NVM',
+                '',
+                0
+            ],
             isCore: true,
             verbose
         })
