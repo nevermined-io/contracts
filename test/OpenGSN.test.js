@@ -50,6 +50,7 @@ describe('using ethers with OpenGSN', () => {
             [owner, constants.address.zero, constants.address.zero, nvmConfig.address, constants.address.zero]
         )
         nft = await deployContract('NFT1155Upgradeable', deployer, {}, [owner, didRegistry.address, '', '', ''])
+        nft.connect(await deploymentProvider.getSigner(owner)).setNvmConfigAddress(nvmConfig.address)
 
         const config = await {
             paymasterAddress: paymasterAddress,
@@ -79,35 +80,29 @@ describe('using ethers with OpenGSN', () => {
             console.log('Registering DID')
 
             await didRegistry['registerMintableDID(bytes32,address,bytes32,address[],string,uint256,uint256,bytes32,string,string)'](
-                didSeed, nft.address, checksum, [], value, 20, 0, constants.activities.GENERATED, nftMetadataURL, '', { from: account })
-
+                didSeed, nft.address, checksum, [], value, 20, 0, constants.activities.GENERATED, nftMetadataURL, '', { from: account, gasLimit: 5000000 })
+            
             const didEntry = await didRegistry.getDIDRegister(did)
-            console.log(`DID Owner ${didEntry.owner}`)
-
             assert.strictEqual(account, didEntry.owner)
 
             const nftAttr = await nft.getNFTAttributes(did)
             assert.strictEqual(nftMetadataURL, nftAttr.nftURI)
 
-            /*
-            // TODO: Review error:
-            //  paymaster rejected in local view call to 'relayCall()' : invalid forwarder for recipient
-
             console.log(`Minting`)
-            await nft['mint(uint256,uint256)'](did, 20, { from: account })
+            await nft['mint(uint256,uint256)'](did, 20, { from: account, gasLimit: 1000000 })
 
             console.log(`Balance`)
             let balance = await nft.balanceOf(account, did)
             assert.strictEqual(20, balance.toNumber())
 
             console.log(`Burn`)
-            await nft['burn(uint256,uint256)'](did, 5, { from: account })
+            await nft['burn(uint256,uint256)'](did, 5, { from: account, gasLimit: 1000000 })
 
             balance = await nft.balanceOf(account, did)
             assert.strictEqual(15, balance.toNumber())
 
             const _nftURI = await nft.uri(did)
-            assert.strictEqual(nftMetadataURL, _nftURI) */
+            assert.strictEqual(nftMetadataURL, _nftURI)
         })
     })
 })

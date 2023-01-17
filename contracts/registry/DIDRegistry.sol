@@ -10,6 +10,8 @@ import '../token/erc1155/NFT1155Upgradeable.sol';
 import '../token/erc721/NFT721Upgradeable.sol';
 import '../royalties/StandardRoyalties.sol';
 
+import 'hardhat/console.sol';
+
 /**
  * @title DID Registry
  * @author Nevermined
@@ -207,6 +209,8 @@ contract DIDRegistry is DIDFactory {
     public
     onlyValidAttributes(_nftMetadata)
     {
+        console.log("what happen");
+        console.log(_msgSender());
         registerDID(_didSeed, _checksum, _providers, _url, _activityId, _immutableUrl);
         enableAndMintDidNft(
             hashDID(_didSeed, _msgSender()),
