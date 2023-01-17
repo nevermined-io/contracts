@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 // Code is Apache-2.0 and docs are CC-BY-4.0
 
 import '../interfaces/IRoyaltyScheme.sol';
-import 'hardhat/console.sol';
+
 /**
  * @title DID Registry Library
  * @author Nevermined
@@ -81,10 +81,6 @@ library DIDRegistryLibrary {
         }
 
         _self.didRegisters[_did].owner = didOwner;
-        console.log("DID");
-        console.log(uint256(_did));
-        console.log("owner");
-        console.log(didOwner);
         _self.didRegisters[_did].creator = creator;
         _self.didRegisters[_did].lastChecksum = _checksum;
         _self.didRegisters[_did].url = _url;

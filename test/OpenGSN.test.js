@@ -81,21 +81,21 @@ describe('using ethers with OpenGSN', () => {
 
             await didRegistry['registerMintableDID(bytes32,address,bytes32,address[],string,uint256,uint256,bytes32,string,string)'](
                 didSeed, nft.address, checksum, [], value, 20, 0, constants.activities.GENERATED, nftMetadataURL, '', { from: account, gasLimit: 5000000 })
-            
+
             const didEntry = await didRegistry.getDIDRegister(did)
             assert.strictEqual(account, didEntry.owner)
 
             const nftAttr = await nft.getNFTAttributes(did)
             assert.strictEqual(nftMetadataURL, nftAttr.nftURI)
 
-            console.log(`Minting`)
+            console.log('Minting')
             await nft['mint(uint256,uint256)'](did, 20, { from: account, gasLimit: 1000000 })
 
-            console.log(`Balance`)
+            console.log('Balance')
             let balance = await nft.balanceOf(account, did)
             assert.strictEqual(20, balance.toNumber())
 
-            console.log(`Burn`)
+            console.log('Burn')
             await nft['burn(uint256,uint256)'](did, 5, { from: account, gasLimit: 1000000 })
 
             balance = await nft.balanceOf(account, did)
