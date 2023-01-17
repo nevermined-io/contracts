@@ -60,10 +60,6 @@ contract('CurveRoyalties', (accounts) => {
         await didRegistry.enableAndMintDidNft(did, nft.address, 10, 0, false, '', { from: owner })
         await royalties.setRoyalty(did, 100000, { from: owner })
 
-        //        await didRegistry.registerDID(didSeed, checksum, [], value, '0x0', '', { from: owner })
-        //        await didRegistry.setDIDRoyalties(did, royalties.address, { from: owner })
-        //        await royalties.setRoyalty(did, 100000, { from: owner })
-        //        await didRegistry.enableAndMintDidNft(did, nft.address, 10, 100000, false, '', { from: owner })
         assert.isNotOk( // MUST BE FALSE. Royalties for original creator are too low
             await royalties.check(did, [91, 9], [consumer, owner], nft.address))
 

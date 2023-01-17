@@ -155,7 +155,6 @@ contract('NFT Access Proof Template integration test', (accounts) => {
 
             await didRegistry.registerMintableDID(
                 didSeed, nft.address, checksum, [], url, cappedAmount, royalties, constants.activities.GENERATED, '', '', { from: artist })
-            //            await didRegistry.mint(did, 5, { from: artist })
             await nft.methods['mint(uint256,uint256)'](did, 5, { from: artist })
 
             const balance = await nft.balanceOf(artist, did)

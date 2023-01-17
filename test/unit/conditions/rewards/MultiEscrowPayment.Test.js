@@ -66,7 +66,6 @@ function testMultiEscrow(EscrowPaymentCondition, LockPaymentCondition, Token, nf
                 await didRegistry.initialize(owner, token.address, token.address, constants.address.zero, constants.address.zero)
 
                 await token.initWrap(owner, owner, didRegistry)
-                //                await token.approveWrap(sender, 1, { from: owner})
 
                 lockPaymentCondition = lockWrapper(await LockPaymentCondition.new())
                 await lockPaymentCondition.initWrap(

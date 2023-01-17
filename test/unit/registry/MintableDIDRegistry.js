@@ -186,8 +186,6 @@ contract('Mintable DIDRegistry', (accounts) => {
             await didRegistry.methods[
                 'registerMintableDID(bytes32,address,bytes32,address[],string,uint256,uint256,bool,bytes32,string,string)'
             ](didSeed, nft.address, checksum, [], value, 0, 0, false, constants.activities.GENERATED, '', '', { from: owner })
-            //            await didRegistry.registerMintableDID(
-            //                didSeed, nft.address, checksum, [], value, 0, 0, false, constants.activities.GENERATED, '', '', { from: owner })
             await nft.mint(did, 10, { from: owner })
 
             const balance = await nft.balanceOf(owner, did)

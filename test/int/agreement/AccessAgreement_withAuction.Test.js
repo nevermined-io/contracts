@@ -194,8 +194,6 @@ contract('Access with Auction integration test', (accounts) => {
 
             // register DID
             await didRegistry.registerAttribute(didSeed, checksum, [], url, { from: creator })
-            //            await didRegistry.registerMintableDID(
-            //                didSeed, nft.address, checksum, [], url, 10, 0, constants.activities.GENERATED, '', '', { from: creator })
 
             // create agreement
             await accessTemplate.createAgreement(initAgreementId, ...Object.values(agreement))

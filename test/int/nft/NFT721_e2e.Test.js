@@ -510,7 +510,6 @@ contract('End to End NFT721 Scenarios', (accounts) => {
 
             await didRegistry.registerMintableDID721(
                 didSeed2, nft.address, checksum, [], url, royalties, false, constants.activities.GENERATED, '', { from: artist })
-            //            await didRegistry.mint721(did, { from: artist })
             await nft.methods['mint(uint256)'](did, { from: artist })
 
             assert.strictEqual(artist, await nft.ownerOf(did))
