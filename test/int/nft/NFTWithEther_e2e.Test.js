@@ -142,7 +142,7 @@ contract('End to End NFT Scenarios (with Ether)', (accounts) => {
 
         if (testUtils.deploying) {
             // IMPORTANT: Here we give ERC1155 transfer grants to the TransferNFTCondition condition
-            await nft.setProxyApproval(transferCondition.address, true, { from: deployer })
+            await nft.grantOperatorRole(transferCondition.address, { from: deployer })
 
             await conditionStoreManager.grantProxyRole(
                 escrowCondition.address,
@@ -252,9 +252,8 @@ contract('End to End NFT Scenarios (with Ether)', (accounts) => {
             did = await didRegistry.hashDID(didSeed, artist)
 
             await didRegistry.registerMintableDID(
-                didSeed, checksum, [], url, cappedAmount, royalties, constants.activities.GENERATED, '', { from: artist })
-            await didRegistry.mint(did, 5, { from: artist })
-            await nft.setApprovalForAll(transferCondition.address, true, { from: artist })
+                didSeed, nft.address, checksum, [], url, cappedAmount, royalties, constants.activities.GENERATED, '', '', { from: artist })
+            await nft.methods['mint(uint256,uint256)'](did, 5, { from: artist })
 
             const balance = await nft.balanceOf(artist, did)
             assert.strictEqual(5, balance.toNumber())
@@ -311,7 +310,6 @@ contract('End to End NFT Scenarios (with Ether)', (accounts) => {
             const nftBalanceArtistBefore = await nft.balanceOf(artist, did)
             const nftBalanceCollectorBefore = await nft.balanceOf(collector1, did)
 
-            await nft.setApprovalForAll(transferCondition.address, true, { from: artist })
             await transferCondition.methods['fulfill(bytes32,bytes32,address,uint256,bytes32)'](
                 agreementId,
                 did,
@@ -319,7 +317,6 @@ contract('End to End NFT Scenarios (with Ether)', (accounts) => {
                 numberNFTs,
                 conditionIds[0],
                 { from: artist })
-            await nft.setApprovalForAll(transferCondition.address, false, { from: artist })
 
             const { state } = await conditionStoreManager.getCondition(conditionIds[1])
             assert.strictEqual(state.toNumber(), constants.condition.state.fulfilled)
@@ -437,7 +434,6 @@ contract('End to End NFT Scenarios (with Ether)', (accounts) => {
             assert.strictEqual(state.toNumber(), constants.condition.state.fulfilled)
 
             // Collector1: Transfer the NFT
-            await nft.setApprovalForAll(transferCondition.address, true, { from: collector1 })
             await transferCondition.methods['fulfill(bytes32,bytes32,address,uint256,bytes32)'](
                 agreementId2,
                 did,
@@ -445,7 +441,6 @@ contract('End to End NFT Scenarios (with Ether)', (accounts) => {
                 numberNFTs2,
                 conditionIds[0],
                 { from: collector1 })
-            await nft.setApprovalForAll(transferCondition.address, true, { from: collector1 })
 
             let condition = await conditionStoreManager.getCondition(conditionIds[1])
             assert.strictEqual(condition[1].toNumber(), constants.condition.state.fulfilled)
@@ -531,9 +526,8 @@ contract('End to End NFT Scenarios (with Ether)', (accounts) => {
             did = await didRegistry.hashDID(didSeed2, artist)
 
             await didRegistry.registerMintableDID(
-                didSeed2, checksum, [], url, cappedAmount, royalties, constants.activities.GENERATED, '', { from: artist })
-            await didRegistry.mint(did, 5, { from: artist })
-            await nft.setApprovalForAll(transferCondition.address, true, { from: artist })
+                didSeed2, nft.address, checksum, [], url, cappedAmount, royalties, constants.activities.GENERATED, '', '', { from: artist })
+            await nft.methods['mint(uint256,uint256)'](did, 5, { from: artist })
 
             const balance = await nft.balanceOf(artist, did)
             assert.strictEqual(5, balance.toNumber())

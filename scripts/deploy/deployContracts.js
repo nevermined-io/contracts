@@ -1,10 +1,10 @@
-const initializeContracts = require('./deploy/initializeContracts.js')
-const setupContracts = require('./deploy/setupContracts.js')
+const initializeContracts = require('./initializeContracts.js')
+const setupContracts = require('./setupContracts.js')
 const evaluateContracts = require('./evaluateContracts.js')
 const { ethers, web3 } = require('hardhat')
 const { exportArtifacts, exportLibraryArtifacts } = require('./artifacts')
 const { loadWallet } = require('./wallets.js')
-const { readArtifact, deployLibrary } = require('./artifacts')
+const { readArtifact } = require('./artifacts')
 const { GsnTestEnvironment } = require('@opengsn/dev')
 const fs = require('fs')
 
@@ -37,14 +37,14 @@ const PROXY_ADMIN_ABI = `[{
 }]`
 
 async function deployContracts({ contracts: origContracts, verbose, testnet, makeWallet, addresses, deeperClean }) {
-    const contracts = evaluateContracts({
+    const { core, contracts } = evaluateContracts({
         contracts: origContracts,
         verbose,
         testnet
     })
 
     if (!deeperClean) {
-        for (const el of contracts.concat(['DIDRegistryLibrary', 'EpochLibrary'])) {
+        for (const el of core) {
             const afact = readArtifact(el)
             if (afact.address) {
                 console.log(`Using existing artifact for ${el}`)
@@ -55,14 +55,7 @@ async function deployContracts({ contracts: origContracts, verbose, testnet, mak
 
     const { roles } = await loadWallet({ makeWallet })
 
-    console.log('wallet', roles)
     console.log('addresses', addresses)
-
-    const didRegistryLibraryAddress = await deployLibrary('DIDRegistryLibrary', addresses, roles.deployerSigner)
-    console.log('Registry library', didRegistryLibraryAddress)
-
-    const epochLibraryAddress = await deployLibrary('EpochLibrary', addresses, roles.deployerSigner)
-    console.log('Epoch library', epochLibraryAddress)
 
     let gsn
     // Add OpenGSN contracts
@@ -79,10 +72,9 @@ async function deployContracts({ contracts: origContracts, verbose, testnet, mak
 
     const { cache, addressBook, proxies } = await initializeContracts({
         contracts,
+        core,
         roles,
         network: '',
-        didRegistryLibrary: didRegistryLibraryAddress,
-        epochLibrary: epochLibraryAddress,
         verbose,
         addresses
     })
@@ -112,28 +104,19 @@ async function deployContracts({ contracts: origContracts, verbose, testnet, mak
         console.log('Cannot move proxy admin ownership', err)
     }
 
-    addressBook.DIDRegistryLibrary = didRegistryLibraryAddress
-    addressBook.EpochLibrary = epochLibraryAddress
     if (cache.PlonkVerifier) {
         addressBook.PlonkVerifier = proxies.PlonkVerifier
     }
     if (cache.AaveCreditVault) {
         addressBook.AaveCreditVault = proxies.AaveCreditVault
     }
-    const libraries = {
-        DIDRegistry: { DIDRegistryLibrary: didRegistryLibraryAddress },
-        ConditionStoreManager: { EpochLibrary: epochLibraryAddress }
-    }
+    const libraries = {}
 
     if (process.env.NO_PROXY === 'true') {
         await exportLibraryArtifacts(contracts, addressBook)
     } else {
-        await exportArtifacts(contracts.filter(a => a !== 'AaveCreditVault' && a !== 'PlonkVerifier'), addressBook, libraries)
-        await exportLibraryArtifacts(['EpochLibrary', 'DIDRegistryLibrary', 'PlonkVerifier'], addressBook)
-
-        if (contracts.indexOf('AaveCreditVault') > -1) {
-            await exportLibraryArtifacts(['AaveCreditVault'], addressBook)
-        }
+        await exportLibraryArtifacts(contracts, addressBook, libraries)
+        await exportArtifacts(core, addressBook, libraries)
     }
 
     return addressBook

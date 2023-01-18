@@ -3,7 +3,6 @@ pragma solidity ^0.8.0;
 // SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 // Code is Apache-2.0 and docs are CC-BY-4.0
 
-import '@openzeppelin/contracts-upgradeable/utils/cryptography/ECDSAUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol';
@@ -41,24 +40,6 @@ abstract contract Common {
         // solhint-disable-next-line
         assembly { size := extcodesize(addr) }
         return size > 0;
-    }
-
-    /**
-    * @param _agentId The address of the agent
-    * @param _hash bytes32 message, the hash is the signed message. What is recovered is the signer address.
-    * @param _signature Signatures provided by the agent
-    * @return true if the signature correspond to the agent address        
-    */
-    function provenanceSignatureIsCorrect(
-        address _agentId,
-        bytes32 _hash,
-        bytes memory _signature
-    )
-    public
-    pure
-    returns(bool)
-    {
-        return ECDSAUpgradeable.recover(_hash, _signature) == _agentId;
     }
 
     /**

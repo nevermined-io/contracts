@@ -4,6 +4,24 @@ const testUtils = require('../../../helpers/utils.js')
 const { getBalance } = require('../../../helpers/getBalance.js')
 const constants = require('../../../helpers/constants.js')
 
+function nftLockWrapper(contract) {
+    contract.hashWrap = (did, escrowPaymentAddress, tokenAddress, amounts, receivers) => {
+        return contract.hashValuesMarked(did, escrowPaymentAddress, amounts[0], receivers[0], tokenAddress)
+    }
+    contract.fulfillWrap = async (agreementId, did, escrowPaymentAddress, tokenAddress, amounts, receivers, owner) => {
+        return contract.fulfillMarked(agreementId, did, escrowPaymentAddress, amounts[0], receivers[0], tokenAddress)
+    }
+    contract.initWrap = (owner, conditionStoreManagerAddress, _didRegistryAddress, args) => {
+        return contract.initialize(
+            owner,
+            conditionStoreManagerAddress,
+            owner,
+            args
+        )
+    }
+    return contract
+}
+
 function tokenLockWrapper(contract) {
     contract.hashWrap = (did, escrowPaymentAddress, tokenAddress, amounts, receivers) => {
         return contract.hashValues(did, escrowPaymentAddress, tokenAddress, amounts, receivers)
@@ -23,29 +41,11 @@ function tokenLockWrapper(contract) {
     return contract
 }
 
-function nftLockWrapper(contract) {
-    contract.hashWrap = (did, escrowPaymentAddress, tokenAddress, amounts, receivers) => {
-        return contract.hashValuesMarked(did, escrowPaymentAddress, amounts[0], receivers[0], tokenAddress)
-    }
-    contract.fulfillWrap = (agreementId, did, escrowPaymentAddress, tokenAddress, amounts, receivers) => {
-        return contract.fulfillMarked(agreementId, did, escrowPaymentAddress, amounts[0], receivers[0], tokenAddress)
-    }
-    contract.initWrap = (owner, conditionStoreManagerAddress, _didRegistryAddress, args) => {
-        return contract.initialize(
-            owner,
-            conditionStoreManagerAddress,
-            owner,
-            args
-        )
-    }
-    return contract
-}
-
 function nft721LockWrapper(contract) {
     contract.hashWrap = (did, escrowPaymentAddress, tokenAddress, amounts, receivers) => {
         return contract.hashValuesMarked(did, escrowPaymentAddress, amounts[0], receivers[0], tokenAddress)
     }
-    contract.fulfillWrap = (agreementId, did, escrowPaymentAddress, tokenAddress, amounts, receivers) => {
+    contract.fulfillWrap = async (agreementId, did, escrowPaymentAddress, tokenAddress, amounts, receivers) => {
         return contract.fulfillMarked(agreementId, did, escrowPaymentAddress, amounts[0], receivers[0], tokenAddress)
     }
     contract.initWrap = (owner, conditionStoreManagerAddress, _didRegistryAddress, args) => {
@@ -124,9 +124,8 @@ function tokenTokenWrapper(contract) {
 
 function nftTokenWrapper(contract) {
     contract.initWrap = async (owner, _b, registry) => {
-        await contract.initialize('')
-        await contract.addMinter(registry.address)
-        await contract.setProxyApproval(registry.address, true)
+        await contract.initialize(owner, registry.address, '', '', '')
+        await contract.grantOperatorRole(registry.address, { from: owner })
     }
     contract.getBalance = async (addr) => {
         if (!contract.did) {
@@ -139,15 +138,15 @@ function nftTokenWrapper(contract) {
         const checksum = testUtils.generateId()
         contract.did = await registry.hashDID(didSeed, sender)
         await registry.registerMintableDID(
-            didSeed, checksum, [], '', 1000, 0, constants.activities.GENERATED, '', { from: sender }
+            didSeed, contract.address, checksum, [], '', 1000, 0, constants.activities.GENERATED, '', '', { from: sender }
         )
         return contract.did
     }
     contract.mintWrap = async (registry, target, amount, from) => {
-        await registry.mint(contract.did, amount, { from: target })
+        await contract.mint(contract.did, amount, { from: target })
     }
     contract.approveWrap = (addr, amount, args) => {
-        return contract.setApprovalForAll(addr, true, args)
+        return contract.grantOperatorRole(addr, args)
     }
     contract.transferWrap = async (target, amount, { from }) => {
         await contract.safeTransferFrom(from, target, contract.did, amount, '0x', { from })
@@ -156,10 +155,9 @@ function nftTokenWrapper(contract) {
 }
 
 function nft721TokenWrapper(contract) {
-    contract.initWrap = async (_a, _b, registry, _owner) => {
-        await contract.initialize()
-        await contract.addMinter(registry.address)
-        await contract.setProxyApproval(registry.address, true)
+    contract.initWrap = async (owner, _b, registry) => {
+        await contract.initialize(owner, registry.address, '', '', '', 0)
+        await contract.grantOperatorRole(registry.address, { from: owner })
     }
     contract.getBalance = async (addr) => {
         if (!contract.did) {
@@ -177,15 +175,15 @@ function nft721TokenWrapper(contract) {
         const checksum = testUtils.generateId()
         contract.did = await registry.hashDID(didSeed, sender)
         await registry.registerMintableDID721(
-            didSeed, checksum, [], '', 0, false, constants.activities.GENERATED, '', { from: sender }
+            didSeed, contract.address, checksum, [], '', 0, false, constants.activities.GENERATED, '', { from: sender }
         )
         return contract.did
     }
     contract.mintWrap = async (registry, target, amount, from) => {
-        await registry.mint721(contract.did, { from: target })
+        await contract.mint(target, contract.did, { from: target })
     }
     contract.approveWrap = (addr, amount, args) => {
-        return contract.setApprovalForAll(addr, true, args)
+        return contract.grantOperatorRole(addr, args)
     }
     contract.transferWrap = async (target, amount, { from }) => {
         await contract.safeTransferFrom(from, target, contract.did, { from })

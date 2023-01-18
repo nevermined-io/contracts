@@ -59,7 +59,8 @@ contract('NFT Access integration test', (accounts) => {
 
         return {
             templateId,
-            owner
+            owner,
+            deployer
         }
     }
 
@@ -113,20 +114,23 @@ contract('NFT Access integration test', (accounts) => {
 
     describe('Create and fulfill NFT Agreement', () => {
         it('should create escrow agreement and fulfill', async () => {
-            await setupTest()
+            const { deployer } = await setupTest()
 
             // prepare: nft agreement
             const { agreementId, didSeed, agreement, sender, receiver, nftAmount, checksum, url, conditionIds } = await prepareNFTAccessAgreement({ timeOutAccess: 10 })
 
             // register DID
             await didRegistry.registerMintableDID(
-                didSeed, checksum, [], url, 10, 0, constants.activities.GENERATED, '', { from: sender })
+                didSeed, nft.address, checksum, [], url, 10, 0, constants.activities.GENERATED, '', '', { from: sender })
 
             // create agreement
             await nftAccessTemplate.createAgreement(...Object.values(agreement))
 
+            await nft.grantOperatorRole(sender, { from: deployer })
             // mint and transfer the nft
-            await didRegistry.mint(agreement.did, nftAmount, { from: sender })
+            //            await didRegistry.mint(agreement.did, nftAmount, { from: sender })
+            await nft.methods['mint(uint256,uint256)'](agreement.did, nftAmount, { from: sender })
+
             await nft.safeTransferFrom(
                 sender, receiver, BigInt(agreement.did), nftAmount, '0x', { from: sender })
 

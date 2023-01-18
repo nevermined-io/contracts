@@ -5,8 +5,6 @@ const chai = require('chai')
 const { assert } = chai
 const chaiAsPromised = require('chai-as-promised')
 chai.use(chaiAsPromised)
-const EpochLibrary = artifacts.require('EpochLibrary')
-const DIDRegistryLibrary = artifacts.require('DIDRegistryLibrary')
 const DIDRegistry = artifacts.require('DIDRegistry')
 const NeverminedToken = artifacts.require('NeverminedToken')
 const NeverminedConfig = artifacts.require('NeverminedConfig')
@@ -16,7 +14,7 @@ const AgreementStoreManager = artifacts.require('AgreementStoreManager')
 const TransferNFTCondition = artifacts.require('TransferNFTCondition')
 const LockPaymentCondition = artifacts.require('LockPaymentCondition')
 const EscrowPaymentCondition = artifacts.require('EscrowPaymentCondition')
-const NFT = artifacts.require('NFTUpgradeable')
+const NFT = artifacts.require('NFT1155Upgradeable')
 const constants = require('../../helpers/constants.js')
 const testUtils = require('../../helpers/utils.js')
 
@@ -42,13 +40,6 @@ contract('TransferNFT Condition constructor', (accounts) => {
         transferCondition,
         nft
 
-    before(async () => {
-        const epochLibrary = await EpochLibrary.new()
-        await ConditionStoreManager.link(epochLibrary)
-        const didRegistryLibrary = await DIDRegistryLibrary.new()
-        await DIDRegistry.link(didRegistryLibrary)
-    })
-
     async function setupTest({
         conditionId = testUtils.generateId(),
         conditionType = constants.address.dummy,
@@ -68,11 +59,11 @@ contract('TransferNFT Condition constructor', (accounts) => {
             const nvmConfig = await NeverminedConfig.new()
             await nvmConfig.initialize(owner, owner, false)
 
-            nft = await NFT.new()
-            await nft.initialize('')
-
             didRegistry = await DIDRegistry.new()
-            await didRegistry.initialize(owner, nft.address, constants.address.zero, constants.address.zero, constants.address.zero)
+            await didRegistry.initialize(owner, constants.address.zero, constants.address.zero, constants.address.zero, constants.address.zero)
+
+            nft = await NFT.new()
+            await nft.initialize(owner, didRegistry.address, 'NFT1155', 'NVM', '')
 
             conditionStoreManager = await ConditionStoreManager.new()
 
@@ -124,22 +115,19 @@ contract('TransferNFT Condition constructor', (accounts) => {
             )
 
             // We allow DIDRegistry and TransferCondition to mint NFTs
-            await nft.addMinter(didRegistry.address)
-            await nft.addMinter(transferCondition.address)
-
-            // IMPORTANT: Here we give ERC1155 transfer grants to the TransferNFTCondition condition
-            // await didRegistry.setProxyApproval(transferCondition.address, true, { from: owner })
+            await nft.grantOperatorRole(transferCondition.address, { from: owner })
         }
 
         const did = await didRegistry.hashDID(didSeed, seller)
 
         if (registerDID) {
             await didRegistry.registerMintableDID(
-                didSeed, checksum, [], url, mintCap, 0, constants.activities.GENERATED, '',
+                didSeed, nft.address, checksum, [], url, mintCap, 0, constants.activities.GENERATED, '', '',
                 { from: seller }
             )
             if (mintDID) {
-                await didRegistry.mint(did, mintCap, { from: seller })
+                await nft.grantOperatorRole(seller, { from: owner })
+                await nft.methods['mint(uint256,uint256)'](did, mintCap, { from: seller })
                 await nft.safeTransferFrom(seller, other, did, 10, [], { from: seller })
             }
         }
@@ -257,7 +245,7 @@ contract('TransferNFT Condition constructor', (accounts) => {
                 { from: owner }
             )
 
-            await nft.setApprovalForAll(transferCondition.address, true, { from: seller })
+            await nft.grantOperatorRole(transferCondition.address, { from: owner })
             const result = await transferCondition.methods['fulfill(bytes32,bytes32,address,uint256,bytes32)'](
                 agreementId, did, rewardAddress, numberNFTs,
                 conditionIdPayment,
@@ -320,7 +308,6 @@ contract('TransferNFT Condition constructor', (accounts) => {
                 { from: owner }
             )
 
-            await nft.setApprovalForAll(transferCondition.address, true, { from: seller })
             const result = await transferCondition.methods['fulfill(bytes32,bytes32,address,uint256,bytes32,address,bool)'](
                 agreementId, did, rewardAddress, numberNFTs,
                 conditionIdPayment, nft.address, false,
@@ -382,7 +369,6 @@ contract('TransferNFT Condition constructor', (accounts) => {
                 { from: owner }
             )
 
-            await nft.setApprovalForAll(transferCondition.address, true, { from: other })
             const result = await transferCondition.methods['fulfill(bytes32,bytes32,address,uint256,bytes32,address,bool)'](
                 agreementId, did, rewardAddress, numberNFTs,
                 conditionIdPayment, nft.address, true, { from: other })

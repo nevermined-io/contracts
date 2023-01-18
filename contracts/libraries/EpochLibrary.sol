@@ -5,8 +5,6 @@ pragma solidity ^0.8.0;
 // Code is Apache-2.0 and docs are CC-BY-4.0
 
 
-import '@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol';
-
 /**
  * @title Epoch Library
  * @author Nevermined
@@ -18,8 +16,6 @@ import '@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol';
  */
 library EpochLibrary {
 
-    using SafeMathUpgradeable for uint256;
-
     struct Epoch {
         uint256 timeLock;
         uint256 timeOut;
@@ -28,49 +24,6 @@ library EpochLibrary {
 
     struct EpochList {
         mapping(bytes32 => Epoch) epochs;
-        bytes32[] epochIds; // UNUSED
-    }
-
-   /**
-    * @notice create creates new Epoch
-    * @param _self is the Epoch storage pointer
-    * @param _timeLock value in block count (can not fulfill before)
-    * @param _timeOut value in block count (can not fulfill after)
-    */
-    function create(
-        EpochList storage _self,
-        bytes32 _id,
-        uint256 _timeLock,
-        uint256 _timeOut
-    )
-        internal
-    {
-        require(
-            _self.epochs[_id].blockNumber == 0,
-            'Id already exists'
-        );
-
-        require(
-            _timeLock.add(block.number) >= block.number &&
-            _timeOut.add(block.number) >= block.number,
-            'Indicating integer overflow/underflow'
-        );
-
-        if (_timeOut > 0 && _timeLock > 0) {
-            require(
-                _timeLock < _timeOut,
-                'Invalid time margin'
-            );
-        }
-
-        _self.epochs[_id] = Epoch({
-            timeLock : _timeLock,
-            timeOut : _timeOut,
-            blockNumber : block.number
-        });
-
-        // _self.epochIds.push(_id);
-
     }
 
    /**
@@ -82,7 +35,7 @@ library EpochLibrary {
         EpochList storage _self,
         bytes32 _id
     )
-        external
+        internal
         view
         returns (bool)
     {
@@ -102,7 +55,7 @@ library EpochLibrary {
         EpochList storage _self,
         bytes32 _id
     )
-        external
+        internal
         view
         returns (bool)
     {
@@ -116,11 +69,11 @@ library EpochLibrary {
     function getEpochTimeOut(
         Epoch storage _self
     )
-        public
+        internal
         view
         returns (uint256)
     {
-        return _self.timeOut.add(_self.blockNumber);
+        return _self.timeOut + _self.blockNumber;
     }
 
     /**
@@ -130,10 +83,10 @@ library EpochLibrary {
     function getEpochTimeLock(
         Epoch storage _self
     )
-        public
+        internal
         view
         returns (uint256)
     {
-        return _self.timeLock.add(_self.blockNumber);
+        return _self.timeLock + _self.blockNumber;
     }
 }

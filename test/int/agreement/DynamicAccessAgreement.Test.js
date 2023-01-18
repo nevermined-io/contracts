@@ -81,7 +81,8 @@ contract('Dynamic Access Template integration test', (accounts) => {
 
         return {
             templateId,
-            owner
+            owner,
+            deployer
         }
     }
 
@@ -134,17 +135,19 @@ contract('Dynamic Access Template integration test', (accounts) => {
 
     describe('create and fulfill escrow agreement', () => {
         it('should create escrow agreement and fulfill', async () => {
-            const { owner } = await setupTest()
+            const { owner, deployer } = await setupTest()
 
             // prepare: escrow agreement
             const { agreementId, didSeed, agreement, holder, receiver, nftAmount, checksum, url, conditionIds } = await prepareAgreement()
 
             // register DID
             await didRegistry.registerMintableDID(
-                didSeed, checksum, [], url, 10, 0, Activities.GENERATED, '', { from: receiver })
+                didSeed, nft.address, checksum, [], url, 10, 0, Activities.GENERATED, '', '', { from: receiver })
 
             // Mint and Transfer
-            await didRegistry.mint(agreement.did, 10, { from: receiver })
+            await nft.methods['mint(uint256,uint256)'](agreement.did, 10, { from: receiver })
+
+            await nft.grantOperatorRole(receiver, { from: deployer })
             await nft.safeTransferFrom(
                 receiver, holder, BigInt(agreement.did), 10, '0x', { from: receiver })
 

@@ -302,10 +302,11 @@ async function setupContracts({
         addresses.stage = 2
     }
 
-    if (addressBook.NFTUpgradeable && addressBook.DIDRegistry && addresses.stage < 3) {
-        console.log('Set NFT minter : ' + addressBook.NFTUpgradeable)
-        await callContract(artifacts.NFTUpgradeable, a => a.addMinter(addressBook.DIDRegistry))
-        await callContract(artifacts.NFTUpgradeable, a => a.setProxyApproval(addressBook.DIDRegistry, true))
+    if (addressBook.NFT1155Upgradeable && addressBook.DIDRegistry && addresses.stage < 3) {
+        console.log('Set NFT Operators : ' + addressBook.NFT1155Upgradeable)
+        console.log('No operators needed, DIDRegistry is setup during the initialization')
+        // Leaving this block here to setup operators when necessary
+        //        await callContract(artifacts.NFT1155Upgradeable, a => a.grantOperatorRole(addressBook.DIDRegistry))
         addresses.stage = 3
     }
 
@@ -359,34 +360,33 @@ async function setupContracts({
     }
 
     if (addressBook.NFT721Upgradeable && addressBook.DIDRegistry && addresses.stage < 8) {
-        console.log('Set NFT721 minter : ' + addressBook.NFT721Upgradeable)
-        await callContract(artifacts.NFT721Upgradeable, a => a.addMinter(addressBook.DIDRegistry))
+        console.log('Set NFT721 operators : ' + addressBook.NFT721Upgradeable)
+        console.log('No operators needed, DIDRegistry is setup during the initialization')
+        // Leaving this block here to setup operators when necessary
+        //        await callContract(artifacts.NFT721Upgradeable, a => a.grantOperatorRole(addressBook.DIDRegistry))
         addresses.stage = 8
     }
 
     if (addressBook.TransferDIDOwnershipCondition && addressBook.DIDRegistry && addresses.stage < 9) {
         console.log('TransferDIDOwnershipCondition : ' + addressBook.TransferDIDOwnershipCondition)
-        await callContract(artifacts.DIDRegistry, a => a.setManager(addressBook.TransferDIDOwnershipCondition))
+        await callContract(artifacts.DIDRegistry, a => a.grantRegistryOperatorRole(addressBook.TransferDIDOwnershipCondition))
         addresses.stage = 9
     }
 
-    if (addressBook.TransferNFTCondition && addressBook.NFTUpgradeable && addresses.stage < 10) {
+    if (addressBook.TransferNFTCondition && addressBook.NFT1155Upgradeable && addresses.stage < 10) {
         console.log('TransferNFTCondition : ' + addressBook.TransferNFTCondition)
-        await callContract(artifacts.NFTUpgradeable, a => a.setProxyApproval(addressBook.TransferNFTCondition, true))
+        await callContract(artifacts.NFT1155Upgradeable, a => a.grantOperatorRole(addressBook.TransferNFTCondition))
         addresses.stage = 10
     }
 
     if (addressBook.TransferNFTCondition && addressBook.DIDRegistry && addresses.stage < 11) {
         console.log('DIDRegistry : ' + addressBook.DIDRegistry)
-        await callContract(artifacts.NFTUpgradeable, a => a.setProxyApproval(addressBook.DIDRegistry, true))
-        await callContract(artifacts.NFTUpgradeable, a => a.addMinter(addressBook.TransferNFTCondition))
         addresses.stage = 11
     }
 
     if (addressBook.TransferNFT721Condition && addressBook.NFT721Upgradeable && addresses.stage < 12) {
         console.log('TransferNFT721Condition : ' + addressBook.TransferNFT721Condition)
-        await callContract(artifacts.NFT721Upgradeable, a => a.setProxyApproval(addressBook.TransferNFT721Condition, true))
-        await callContract(artifacts.NFT721Upgradeable, a => a.addMinter(addressBook.TransferNFT721Condition))
+        await callContract(artifacts.NFT721Upgradeable, a => a.grantOperatorRole(addressBook.TransferNFT721Condition))
         addresses.stage = 12
     }
 
@@ -509,13 +509,31 @@ async function setupContracts({
         addresses.stage = 19
     }
 
-    if (addresses.stage < 20 && testnet) {
+    if (addressBook.NFTLockCondition && addressBook.NFT1155Upgradeable && addresses.stage < 20) {
+        console.log('Grant Proxy Approval (NFT1155Upgradeable) : ' + addressBook.NFTLockCondition)
+        await callContract(artifacts.NFT1155Upgradeable, a => a.grantOperatorRole(addressBook.NFTLockCondition))
+        addresses.stage = 20
+    }
+
+    if (addressBook.NFTLockCondition && addressBook.NFT721Upgradeable && addresses.stage < 21) {
+        console.log('Grant Proxy Approval (NFT721Upgradeable): ' + addressBook.NFTLockCondition)
+        await callContract(artifacts.NFT721Upgradeable, a => a.grantOperatorRole(addressBook.NFTLockCondition))
+        addresses.stage = 21
+    }
+
+    if (addressBook.NFT721Upgradeable && addressBook.NFT721LockCondition && addresses.stage < 22) {
+        console.log('Grant Proxy Approval (NFT721Upgradeable): ' + addressBook.NFT721LockCondition)
+        await callContract(artifacts.NFT721Upgradeable, a => a.grantOperatorRole(addressBook.NFT721LockCondition))
+        addresses.stage = 22
+    }
+
+    if (addresses.stage < 23 && testnet) {
         console.log('Setting up OpenGSN forwarder')
         if (gsn) {
             await callContract(artifacts.NeverminedConfig, a => a.setTrustedForwarder(gsn))
         }
-        if (addressBook.NFTUpgradeable) {
-            await callContract(artifacts.NFTUpgradeable, a => a.setNvmConfigAddress(addressBook.NeverminedConfig))
+        if (addressBook.NFT1155Upgradeable) {
+            await callContract(artifacts.NFT1155Upgradeable, a => a.setNvmConfigAddress(addressBook.NeverminedConfig))
         }
         if (addressBook.NFT721Upgradeable) {
             await callContract(artifacts.NFT721Upgradeable, a => a.setNvmConfigAddress(addressBook.NeverminedConfig))
@@ -523,7 +541,29 @@ async function setupContracts({
         if (addressBook.NeverminedToken) {
             await callContract(artifacts.NeverminedToken, a => a.setNvmConfigAddress(addressBook.NeverminedConfig))
         }
-        addresses.stage = 20
+        addresses.stage = 23
+    }
+
+    if (addresses.stage < 24 && addressBook.NFT1155Upgradeable) {
+        console.log('Setting up NFT-1155')
+        await callContract(artifacts.DIDRegistry, a => a.setNFT1155(addressBook.NFT1155Upgradeable))
+        addresses.stage = 24
+    }
+
+    if (addressBook.AgreementStoreManager && addresses.stage < 25) {
+        const agreements = [
+            'NFTAccessProofTemplate',
+            'NFTSalesWithAccessTemplate',
+            'NFT721AccessProofTemplate',
+            'NFT721SalesWithAccessTemplate'
+        ]
+        for (const a of agreements) {
+            if (addressBook[a] && addressBook.AgreementStoreManager) {
+                console.log('Set agreement manager proxy : ' + addressBook[a])
+                await callContract(artifacts.AgreementStoreManager, c => c.grantProxyRole(addressBook[a]))
+            }
+        }
+        addresses.stage = 25
     }
 }
 

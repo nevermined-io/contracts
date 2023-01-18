@@ -94,7 +94,7 @@ contract('NFT Sales with Access Proof Template integration test', (accounts) => 
         )
 
         if (testUtils.deploying) {
-            await nft.setProxyApproval(transferCondition.address, true, { from: deployer })
+            await nft.grantOperatorRole(transferCondition.address, { from: deployer })
             await templateStoreManager.proposeTemplate(nftSalesTemplate.address)
             await templateStoreManager.approveTemplate(nftSalesTemplate.address, { from: owner })
         }
@@ -174,12 +174,13 @@ contract('NFT Sales with Access Proof Template integration test', (accounts) => 
             did = await didRegistry.hashDID(didSeed, artist)
 
             await didRegistry.registerMintableDID(
-                didSeed, checksum, [], url, cappedAmount, royalties, constants.activities.GENERATED, '', { from: artist })
-            await didRegistry.mint(did, 5, { from: artist })
+                didSeed, nft.address, checksum, [], url, cappedAmount, royalties, constants.activities.GENERATED, '', '', { from: artist })
+            await nft.methods['mint(uint256,uint256)'](did, 5, { from: artist })
 
             const balance = await nft.balanceOf(artist, did)
             assert.strictEqual(5, balance.toNumber())
 
+            await nft.grantOperatorRole(artist, { from: owner })
             await nft.safeTransferFrom(artist, receiver, did, 2, '0x', { from: artist })
         })
     })
@@ -218,7 +219,6 @@ contract('NFT Sales with Access Proof Template integration test', (accounts) => 
             const nftBalanceArtistBefore = await nft.balanceOf(artist, did)
             const nftBalanceCollectorBefore = await nft.balanceOf(collector1, did)
 
-            await nft.setApprovalForAll(transferCondition.address, true, { from: artist })
             await transferCondition.methods['fulfill(bytes32,bytes32,address,uint256,bytes32)'](
                 agreementId,
                 did,
@@ -226,7 +226,6 @@ contract('NFT Sales with Access Proof Template integration test', (accounts) => 
                 numberNFTs,
                 conditionIds[0],
                 { from: artist })
-            await nft.setApprovalForAll(transferCondition.address, false, { from: artist })
 
             const { state: state2 } = await conditionStoreManager.getCondition(conditionIds[1])
             assert.strictEqual(state2.toNumber(), constants.condition.state.fulfilled)

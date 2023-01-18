@@ -158,8 +158,8 @@ contract('NFT Sales with Access Proof Template integration test', (accounts) => 
             did = await didRegistry.hashDID(didSeed, artist)
 
             await didRegistry.registerMintableDID(
-                didSeed, checksum, [], url, cappedAmount, royalties, constants.activities.GENERATED, '', { from: artist })
-            await didRegistry.mint(did, 5, { from: artist })
+                didSeed, nft.address, checksum, [], url, cappedAmount, royalties, constants.activities.GENERATED, '', '', { from: artist })
+            await nft.methods['mint(uint256,uint256)'](did, 5, { from: artist })
 
             const balance = await nft.balanceOf(artist, did)
             assert.strictEqual(5, balance.toNumber())
@@ -188,7 +188,11 @@ contract('NFT Sales with Access Proof Template integration test', (accounts) => 
             const nftBalanceArtistBefore = await nft.balanceOf(artist, did)
             const nftBalanceCollectorBefore = await nft.balanceOf(collector1, did)
 
-            await nft.setApprovalForAll(lockPaymentCondition.address, true, { from: artist })
+            const nftOwner = await nft.owner()
+            console.log(`NFT Contract owner: ${nftOwner}`)
+            console.log(`Accounts Owner: ${owner}`)
+            console.log(`Accounts Deployer: ${deployer}`)
+            await nft.grantOperatorRole(lockPaymentCondition.address, { from: nftOwner })
             await lockPaymentCondition.fulfillMarked(agreementId, did, escrowCondition.address, amount, receiver, token.address, { from: artist })
 
             const { state } = await conditionStoreManager.getCondition(conditionIds[0])
@@ -201,6 +205,7 @@ contract('NFT Sales with Access Proof Template integration test', (accounts) => 
                 (await conditionStoreManager.getConditionState(conditionIds[2])).toNumber(),
                 constants.condition.state.fulfilled)
 
+            await nft.grantOperatorRole(escrowCondition.address, { from: nftOwner })
             // escrow
             await escrowCondition.fulfill(
                 agreementId,

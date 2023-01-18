@@ -7,14 +7,15 @@ const { assert } = chai
 const chaiAsPromised = require('chai-as-promised')
 chai.use(chaiAsPromised)
 
+const DIDRegistry = artifacts.require('DIDRegistry')
 const POAPUpgradeable = artifacts.require('POAPUpgradeable')
 
 const testUtils = require('../../helpers/utils.js')
+const constants = require('../../helpers/constants.js')
 const BigNumber = require('bignumber.js')
 
 contract('POAP', (accounts) => {
     const eventId = testUtils.generateId()
-    const url = 'http://nevermined.io'
 
     const [
         owner,
@@ -28,20 +29,23 @@ contract('POAP', (accounts) => {
     })
 
     let nft
+    let didRegistry
 
     async function setupTest() {
+        didRegistry = await DIDRegistry.new()
+        await didRegistry.initialize(owner, constants.address.zero, constants.address.zero, constants.address.zero, constants.address.zero)
+
         nft = await POAPUpgradeable.new({ from: deployer })
-        await nft.initializeWithName('TestPOAP', 'TEST', '', { from: owner })
-        await nft.addMinter(minter)
+        await nft.initialize(owner, didRegistry.address, 'TestPOAP', 'TEST', '', 0, { from: owner })
+        await nft.grantOperatorRole(minter)
     }
 
     describe('As a minter I want to distribute POAPs', () => {
         it('As a minter I am minting a POAP', async () => {
             await setupTest()
 
-            await nft.methods['mint(address,string,uint256)'](
+            await nft.methods['mint(address,uint256)'](
                 account1,
-                url,
                 eventId,
                 { from: minter }
             )
@@ -53,16 +57,14 @@ contract('POAP', (accounts) => {
         })
 
         it('The minter can mint more POAPs for the same and other users', async () => {
-            await nft.methods['mint(address,string,uint256)'](
+            await nft.methods['mint(address,uint256)'](
                 account1,
-                url,
                 eventId,
                 { from: minter }
             )
 
-            await nft.methods['mint(address,string,uint256)'](
+            await nft.methods['mint(address,uint256)'](
                 account2,
-                url,
                 eventId,
                 { from: minter }
             )
@@ -87,8 +89,8 @@ contract('POAP', (accounts) => {
                 .filter((v, i, a) => a.indexOf(v) === i)
 
             assert.strictEqual(poaps.length, 1)
-            assert.strictEqual(new BigNumber(tokenIds[0]).toNumber(), 0)
-            assert.strictEqual(new BigNumber(tokenIds[1]).toNumber(), 1)
+            assert.strictEqual(new BigNumber(tokenIds[0]).toNumber(), 1)
+            assert.strictEqual(new BigNumber(tokenIds[1]).toNumber(), 2)
             assert.strictEqual(new BigNumber(eventIds[0]).toNumber(), BigNumber(eventId).toNumber())
             assert.strictEqual(new BigNumber(eventIds[1]).toNumber(), BigNumber(eventId).toNumber())
         })

@@ -5,14 +5,13 @@ pragma solidity ^0.8.0;
 // Code is Apache-2.0 and docs are CC-BY-4.0
 
 
-import '../Common.sol';
 import '../libraries/EpochLibrary.sol';
 import './ConditionStoreLibrary.sol';
-import '../registry/DIDRegistry.sol';
 import '../governance/INVMConfig.sol';
-
 import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol';
+import '../interfaces/IExternalRegistry.sol';
+import '../Common.sol';
 
 /**
  * @title Condition Store Manager
@@ -42,7 +41,7 @@ contract ConditionStoreManager is CommonAccessControl {
 
     address internal nvmConfigAddress;
 
-    DIDRegistry public didRegistry;
+    IExternalRegistry public didRegistry;
     
     event ConditionCreated(
         bytes32 indexed _id,
@@ -84,11 +83,48 @@ contract ConditionStoreManager is CommonAccessControl {
             typeRef != address(0),
             'Invalid address'
         );
-        require(
-            isContract(typeRef),
-            'Invalid contract address'
-        );
+        require(AddressUpgradeable.isContract(typeRef), 'Invalid contract address');
         _;
+    }
+
+   /**
+    * @notice create creates new Epoch
+    * @param _self is the Epoch storage pointer
+    * @param _timeLock value in block count (can not fulfill before)
+    * @param _timeOut value in block count (can not fulfill after)
+    */
+    function createEpoch(
+        EpochLibrary.EpochList storage _self,
+        bytes32 _id,
+        uint256 _timeLock,
+        uint256 _timeOut
+    )
+        internal
+    {
+        require(
+            _self.epochs[_id].blockNumber == 0,
+            'Id already exists'
+        );
+
+        require(
+            _timeLock + block.number >= block.number &&
+            _timeOut + block.number >= block.number,
+            'Indicating integer overflow/underflow'
+        );
+
+        if (_timeOut > 0 && _timeLock > 0) {
+            require(
+                _timeLock < _timeOut,
+                'Invalid time margin'
+            );
+        }
+
+        _self.epochs[_id] = EpochLibrary.Epoch({
+            timeLock : _timeLock,
+            timeOut : _timeOut,
+            blockNumber : block.number
+        });
+
     }
 
 
@@ -134,7 +170,7 @@ contract ConditionStoreManager is CommonAccessControl {
      * @param _didAddress did registry address. can be zero
      */
     function setProvenanceRegistry(address _didAddress) public {
-        didRegistry = DIDRegistry(_didAddress);
+        didRegistry = IExternalRegistry(_didAddress);
     }
 
     /**
@@ -278,7 +314,7 @@ contract ConditionStoreManager is CommonAccessControl {
         onlyCreateRole
         onlyValidType(_typeRef)
     {
-        epochList.create(_id, _timeLock, _timeOut);
+        createEpoch(epochList, _id, _timeLock, _timeOut);
 
         conditionList.create(_id, _typeRef);
 
@@ -352,8 +388,9 @@ contract ConditionStoreManager is CommonAccessControl {
     {
         ConditionStoreLibrary.ConditionState state = _updateConditionState(_id, _newState);
         if (address(didRegistry) != address(0)) {
-            didRegistry.condition(_did, _id, name, user);
+            didRegistry.used(_id, _did, user, keccak256(bytes(name)), '', name);
         }
+        
         return state;
     }
 

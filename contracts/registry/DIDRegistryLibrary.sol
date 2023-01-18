@@ -3,7 +3,6 @@ pragma solidity ^0.8.0;
 // SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 // Code is Apache-2.0 and docs are CC-BY-4.0
 
-import '@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol';
 import '../interfaces/IRoyaltyScheme.sol';
 
 /**
@@ -14,8 +13,6 @@ import '../interfaces/IRoyaltyScheme.sol';
  */
 library DIDRegistryLibrary {
 
-    using SafeMathUpgradeable for uint256;
-
     // DIDRegistry Entity
     struct DIDRegister {
         // DIDRegistry entry owner
@@ -24,8 +21,8 @@ library DIDRegistryLibrary {
         uint8 royalties;
         // Flag to control if NFTs config was already initialized
         bool nftInitialized;
-        // Flag to control if NFTs config was already initialized (erc 721)
-        bool nft721Initialized;
+        // Address of the NFT Contract
+        address nftContractAddress;
         // DIDRegistry original creator, this can't be modified after the asset is registered 
         address creator;
         // Checksum associated to the DID
@@ -41,17 +38,18 @@ library DIDRegistryLibrary {
         // Delegates able to register provenance events on behalf of the owner or providers
         address[] delegates;
         // The NFTs supply associated to the DID 
-        uint256 nftSupply;
+//        uint256 nftSupply;
         // The max number of NFTs associated to the DID that can be minted 
-        uint256 mintCap;
+//        uint256 mintCap;
         address royaltyRecipient;
         IRoyaltyScheme royaltyScheme;
+        // URL to the Metadata in Immutable storage 
+        string  immutableUrl;        
     }
 
     // List of DID's registered in the system
     struct DIDRegisterList {
         mapping(bytes32 => DIDRegister) didRegisters;
-        bytes32[] didRegisterIds; // UNUSED
     }
 
     /**
@@ -61,15 +59,18 @@ library DIDRegistryLibrary {
      * @param _did refers to decentralized identifier (a byte32 length ID)
      * @param _checksum includes a one-way HASH calculated using the DDO content
      * @param _url includes the url resolving to the DID Document (DDO)
+     * @param _sender the address of the user updating the entry
+     * @param _immutableUrl includes the url to the DDO in immutable storage     
      */
     function update(
         DIDRegisterList storage _self,
         bytes32 _did,
         bytes32 _checksum,
-        string calldata _url,
-        address _sender
+        string memory _url,
+        address _sender,
+        string memory _immutableUrl
     )
-    external
+    internal
     {
         address didOwner = _self.didRegisters[_did].owner;
         address creator = _self.didRegisters[_did].creator;
@@ -86,6 +87,7 @@ library DIDRegistryLibrary {
         _self.didRegisters[_did].lastUpdatedBy = _sender;
         _self.didRegisters[_did].owner = didOwner;
         _self.didRegisters[_did].blockNumberUpdated = block.number;
+        _self.didRegisters[_did].immutableUrl = _immutableUrl;
     }
 
     /**
@@ -93,25 +95,23 @@ library DIDRegistryLibrary {
      * After this initial setup, this data can't be changed anymore for the DID given, even for the owner of the DID.
      * The reason of this is to avoid minting additional NFTs after the initial agreement, what could affect the 
      * valuation of NFTs of a DID already created. 
-     * @dev update the DID registry providers list by adding the mintCap and royalties configuration
+     * @dev update the DID registry providers list by adding the nftContract and royalties configuration
      * @param _self refers to storage pointer
      * @param _did refers to decentralized identifier (a byte32 length ID)
-     * @param _cap refers to the mint cap
      * @param _royaltyHandler contract for handling royalties
      */
     function initializeNftConfig(
         DIDRegisterList storage _self,
         bytes32 _did,
-        uint256 _cap,
+        address _nftContractAddress,
         IRoyaltyScheme _royaltyHandler
     )
     internal
     {
         require(_self.didRegisters[_did].owner != address(0), 'DID not stored');
-        
         require(!_self.didRegisters[_did].nftInitialized, 'NFT already initialized');
         
-        _self.didRegisters[_did].mintCap = _cap;
+        _self.didRegisters[_did].nftContractAddress = _nftContractAddress;
         _self.didRegisters[_did].royaltyScheme = _royaltyHandler;
         _self.didRegisters[_did].nftInitialized = true;
     }
@@ -119,16 +119,17 @@ library DIDRegistryLibrary {
     function initializeNft721Config(
         DIDRegisterList storage _self,
         bytes32 _did,
+        address _nftContractAddress,
         IRoyaltyScheme _royaltyHandler
     )
     internal
     {
         require(_self.didRegisters[_did].owner != address(0), 'DID not stored');
+        require(!_self.didRegisters[_did].nftInitialized, 'NFT already initialized');
         
-        require(!_self.didRegisters[_did].nft721Initialized, 'NFT already initialized');
-        
+        _self.didRegisters[_did].nftContractAddress = _nftContractAddress;
         _self.didRegisters[_did].royaltyScheme = _royaltyHandler;
-        _self.didRegisters[_did].nft721Initialized = true;
+        _self.didRegisters[_did].nftInitialized = true;
     }
 
 
@@ -164,7 +165,7 @@ library DIDRegistryLibrary {
         // returns true;
         uint256 _totalAmount = 0;
         for(uint i = 0; i < _amounts.length; i++)
-            _totalAmount = _totalAmount.add(_amounts[i]);
+            _totalAmount = _totalAmount + _amounts[i];
         if (_totalAmount == 0)
             return true;
         
@@ -190,7 +191,7 @@ library DIDRegistryLibrary {
 
         // If the amount to receive by the creator is lower than royalties the calculation is not valid
         // return false;
-        uint256 _requiredRoyalties = ((_totalAmount.mul(_self.didRegisters[_did].royalties)) / 100);
+        uint256 _requiredRoyalties = _totalAmount * _self.didRegisters[_did].royalties / 100;
 
         // Check if royalties are enough
         // Are we paying enough royalties in the secondary market to the original creator?
@@ -283,7 +284,7 @@ library DIDRegistryLibrary {
         bytes32 _did,
         address _provider
     )
-    public
+    internal
     view
     returns(bool)
     {
@@ -384,7 +385,7 @@ library DIDRegistryLibrary {
         bytes32 _did,
         address _delegate
     )
-    public
+    internal
     view
     returns(bool)
     {

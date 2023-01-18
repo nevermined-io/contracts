@@ -6,8 +6,6 @@ const { assert } = chai
 const chaiAsPromised = require('chai-as-promised')
 chai.use(chaiAsPromised)
 
-const EpochLibrary = artifacts.require('EpochLibrary')
-const DIDRegistryLibrary = artifacts.require('DIDRegistryLibrary')
 const DIDRegistry = artifacts.require('DIDRegistry')
 const NeverminedToken = artifacts.require('NeverminedToken')
 const NeverminedConfig = artifacts.require('NeverminedConfig')
@@ -42,13 +40,6 @@ contract('TransferNFT721 Condition constructor', (accounts) => {
         lockPaymentCondition,
         escrowCondition,
         transferCondition
-
-    before(async () => {
-        const epochLibrary = await EpochLibrary.new()
-        await ConditionStoreManager.link(epochLibrary)
-        const didRegistryLibrary = await DIDRegistryLibrary.new()
-        await DIDRegistry.link(didRegistryLibrary)
-    })
 
     async function setupTest({
         conditionId = testUtils.generateId(),
@@ -96,7 +87,7 @@ contract('TransferNFT721 Condition constructor', (accounts) => {
             )
 
             await conditionStoreManager.setProvenanceRegistry(didRegistry.address, { from: owner })
-            await didRegistry.setConditionManager(conditionStoreManager.address, { from: owner })
+            await didRegistry.grantRegistryOperatorRole(conditionStoreManager.address, { from: owner })
 
             lockPaymentCondition = await LockPaymentCondition.new()
 
