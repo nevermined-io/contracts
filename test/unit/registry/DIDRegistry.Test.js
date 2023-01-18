@@ -703,35 +703,6 @@ contract('DIDRegistry', (accounts) => {
             await didRegistry.used(testUtils.generateId(), did, owner, Activities.USED, [], '', {
                 from: someone
             })
-
-            await didRegistry.removeDIDProvenanceDelegate(did, someone)
-
-            await assert.isRejected(
-                didRegistry.used(testUtils.generateId(), did, owner, Activities.USED, [], '', { from: someone }),
-                ''
-            )
-        })
-
-        it('should fail to use an entity from someone', async () => {
-            const didSeed = testUtils.generateId()
-            const did = await didRegistry.hashDID(didSeed, _from)
-
-            await didRegistry.registerDID(
-                didSeed,
-                testUtils.generateId(),
-                providers,
-                value,
-                Activities.GENERATED,
-                'hi there'
-            )
-
-            await assert.isRejected(
-                // must not be able to add attributes to someone else's DID
-                didRegistry.used(testUtils.generateId(), did, owner, Activities.USED, [], '', {
-                    from: someone
-                }),
-                'Only owner, provider or delegated'
-            )
         })
     })
 

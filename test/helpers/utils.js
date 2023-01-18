@@ -88,14 +88,13 @@ const utils = {
         const nvmConfig = await NeverminedConfig.new()
         await nvmConfig.initialize(owner, owner, false)
         const royalties = await Royalties.new()
-        const nft = await NFT.new()
-        await nft.initialize('')
         const didRegistry = await DIDRegistry.new()
-        await didRegistry.initialize(owner, nft.address, constants.address.zero, nvmConfig.address, royalties.address)
+        await didRegistry.initialize(owner, constants.address.zero, constants.address.zero, nvmConfig.address, royalties.address)
         await royalties.initialize(didRegistry.address)
+        const nft = await NFT.new()
+        await nft.initialize(owner, didRegistry.address, 'NFT1155', 'NVM', '')
         const conditionStoreManager = await ConditionStoreManager.new()
         await conditionStoreManager.initialize(createRole, owner, nvmConfig.address, { from: owner })
-        await nft.grantOperatorRole(didRegistry.address)
         return {
             didRegistry,
             nvmConfig,

@@ -26,16 +26,15 @@ contract('Mintable DIDRegistry (ERC-721)', (accounts) => {
 
     async function setupTest() {
         if (!didRegistry) {
-            nft = await NFT.new()
-            await nft.initializeWithAttributes(deployer, '', '', nftMetadataURL, 0, { from: deployer })
-
             const StandardRoyalties = artifacts.require('StandardRoyalties')
             const standardRoyalties = await StandardRoyalties.new()
 
             didRegistry = await DIDRegistry.new()
-            await didRegistry.initialize(owner, constants.address.zero, nft.address, constants.address.zero, standardRoyalties.address)
+            await didRegistry.initialize(owner, constants.address.zero, constants.address.zero, constants.address.zero, standardRoyalties.address)
             await standardRoyalties.initialize(didRegistry.address)
-            await nft.grantOperatorRole(didRegistry.address)
+
+            nft = await NFT.new()
+            await nft.initialize(owner, didRegistry.address, '', '', nftMetadataURL, 0, { from: deployer })
         }
     }
 
@@ -78,14 +77,12 @@ contract('Mintable DIDRegistry (ERC-721)', (accounts) => {
 
             await assert.isRejected(
                 // Must not allow to mint tokens without previous initialization
-                didRegistry.mint721(did, { from: owner }),
-                'NFT721 not initialized'
+                nft.mint(did, { from: owner })
             )
 
             await assert.isRejected(
                 // Must not allow to mint tokens without previous initialization
-                didRegistry.burn721(did, did, { from: owner }),
-                'NFT721 not initialized'
+                nft.burn(did, did, { from: owner })
             )
         })
 
@@ -96,12 +93,12 @@ contract('Mintable DIDRegistry (ERC-721)', (accounts) => {
 
             await didRegistry.registerAttribute(
                 didSeed, checksum, [], value, { from: owner })
-            await didRegistry.enableAndMintDidNft721(did, 0, true, { from: owner })
+            await didRegistry.enableAndMintDidNft721(did, nft.address, 0, true, { from: owner })
 
             const nftOwner = await nft.ownerOf(did)
             assert.strictEqual(owner, nftOwner)
 
-            await didRegistry.burn721(did, did, { from: owner })
+            await nft.burn(did, { from: owner })
             await assert.isRejected(nft.ownerOf(did))
 
             const _nftURI = await nft.tokenURI(did)
@@ -115,7 +112,7 @@ contract('Mintable DIDRegistry (ERC-721)', (accounts) => {
 
             await didRegistry.registerAttribute(
                 didSeed, checksum, [], value, { from: owner })
-            await didRegistry.enableAndMintDidNft721(did, 0, true, { from: owner })
+            await didRegistry.enableAndMintDidNft721(did, nft.address, 0, true, { from: owner })
 
             const nftOwner = await nft.ownerOf(did)
             assert.strictEqual(owner, nftOwner)
@@ -131,7 +128,7 @@ contract('Mintable DIDRegistry (ERC-721)', (accounts) => {
             await didRegistry.registerAttribute(
                 didSeed, checksum, [], value, { from: owner })
 
-            await didRegistry.enableAndMintDidNft721(did, 10, true, { from: owner })
+            await didRegistry.enableAndMintDidNft721(did, nft.address, 10, true, { from: owner })
 
             const nftOwner = await nft.ownerOf(did)
             assert.strictEqual(owner, nftOwner)
@@ -148,7 +145,7 @@ contract('Mintable DIDRegistry (ERC-721)', (accounts) => {
             await didRegistry.registerAttribute(
                 didSeed, checksum, [], value, { from: owner })
 
-            await didRegistry.enableAndMintDidNft721(did, 0, true, { from: owner })
+            await didRegistry.enableAndMintDidNft721(did, nft.address, 0, true, { from: owner })
 
             const nftOwner = await nft.ownerOf(did)
             assert.strictEqual(owner, nftOwner)
@@ -161,11 +158,11 @@ contract('Mintable DIDRegistry (ERC-721)', (accounts) => {
 
             await didRegistry.registerAttribute(
                 didSeed, checksum, [], value, { from: owner })
-            await didRegistry.enableAndMintDidNft721(did, 0, false, { from: owner })
+            await didRegistry.enableAndMintDidNft721(did, nft.address, 0, false, { from: owner })
 
             await assert.isRejected(nft.ownerOf(did))
 
-            await didRegistry.mint721(did, { from: owner })
+            await nft.methods['mint(uint256)'](did, { from: owner })
 
             const nftOwner = await nft.ownerOf(did)
             assert.strictEqual(owner, nftOwner)
@@ -177,14 +174,14 @@ contract('Mintable DIDRegistry (ERC-721)', (accounts) => {
             const checksum = testUtils.generateId()
             await didRegistry.registerAttribute(
                 didSeed, checksum, [], value, { from: owner })
-            await didRegistry.enableAndMintDidNft721(did, 0, false, { from: owner })
+            await didRegistry.enableAndMintDidNft721(did, nft.address, 0, false, { from: owner })
 
-            await didRegistry.mint721(did, { from: owner })
+            await nft.methods['mint(uint256)'](did, { from: owner })
             let nftOwner = await nft.ownerOf(did)
             assert.strictEqual(owner, nftOwner)
 
             await assert.isRejected(
-                didRegistry.mint721(did, { from: owner }),
+                nft.methods['mint(uint256)'](did, { from: owner }),
                 'ERC721: token already minted'
             )
             nftOwner = await nft.ownerOf(did)
@@ -200,15 +197,15 @@ contract('Mintable DIDRegistry (ERC-721)', (accounts) => {
 
             await assert.isRejected(
                 // Must not allow to initialize NFTs if not the owner
-                didRegistry.enableAndMintDidNft721(did, 0, true, { from: other }),
+                didRegistry.enableAndMintDidNft721(did, nft.address, 0, true, { from: other }),
                 'Only owner'
             )
 
-            await didRegistry.enableAndMintDidNft721(did, 0, true, { from: owner })
+            await didRegistry.enableAndMintDidNft721(did, nft.address, 0, true, { from: owner })
             await assert.isRejected(
                 // Must not allow to mint tokens without previous initialization
-                didRegistry.mint721(did, { from: other }),
-                'Only owner'
+                nft.methods['mint(uint256)'](did, { from: other }),
+                'only nft operator can mint'
             )
         })
 
@@ -219,21 +216,21 @@ contract('Mintable DIDRegistry (ERC-721)', (accounts) => {
             await didRegistry.registerAttribute(
                 didSeed, checksum, [], value, { from: owner })
 
-            await didRegistry.enableAndMintDidNft721(did, 0, false, { from: owner })
+            await didRegistry.enableAndMintDidNft721(did, nft.address, 0, false, { from: owner })
 
-            await didRegistry.methods['mint721(bytes32,address)'](
-                did,
+            await nft.methods['mint(address,uint256)'](
                 other,
+                did,
                 { from: owner }
             )
 
             await assert.isRejected(
                 // Must not allow to burn if not NFT holder
-                didRegistry.burn721(did, did, { from: consumer }),
-                'ERC721: burn amount exceeds balance'
+                nft.burn(did, { from: consumer }),
+                'ERC721: caller is not owner or not have balance'
             )
 
-            await didRegistry.burn721(did, did, { from: other })
+            await nft.burn(did, { from: other })
         })
 
         it('Checks the royalties are right', async () => {
@@ -242,7 +239,7 @@ contract('Mintable DIDRegistry (ERC-721)', (accounts) => {
             const checksum = testUtils.generateId()
 
             await didRegistry.registerAttribute(didSeed, checksum, [], value, { from: owner })
-            await didRegistry.enableAndMintDidNft721(did, 100000, false, { from: owner })
+            await didRegistry.enableAndMintDidNft721(did, nft.address, 100000, false, { from: owner })
             await didRegistry.transferDIDOwnership(did, other, { from: owner })
 
             assert.isNotOk( // MUST BE FALSE. Royalties for original creator are too low

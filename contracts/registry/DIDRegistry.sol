@@ -180,6 +180,7 @@ contract DIDRegistry is DIDFactory {
      *      Subsequent updates record _checksum and update info.
      *
      * @param _didSeed refers to decentralized identifier seed (a bytes32 length ID).
+     * @param _nftContractAddress is the address of the NFT contract associated to the asset
      * @param _checksum includes a one-way HASH calculated using the DDO content.
      * @param _providers list of addresses that can act as an asset provider     
      * @param _url refers to the url resolving the DID into a DID Document (DDO), limited to 2048 bytes.
@@ -192,6 +193,7 @@ contract DIDRegistry is DIDFactory {
      */
     function registerMintableDID(
         bytes32 _didSeed,
+        address _nftContractAddress,
         bytes32 _checksum,
         address[] memory _providers,
         string memory _url,
@@ -208,6 +210,7 @@ contract DIDRegistry is DIDFactory {
         registerDID(_didSeed, _checksum, _providers, _url, _activityId, _immutableUrl);
         enableAndMintDidNft(
             hashDID(_didSeed, _msgSender()),
+            _nftContractAddress,
             _cap,
             _royalties,
             _mint,
@@ -222,6 +225,7 @@ contract DIDRegistry is DIDFactory {
      *      Subsequent updates record _checksum and update info.
      *
      * @param _didSeed refers to decentralized identifier seed (a bytes32 length ID).
+     * @param _nftContractAddress address of the NFT contract associated to the asset
      * @param _checksum includes a one-way HASH calculated using the DDO content.
      * @param _providers list of addresses that can act as an asset provider     
      * @param _url refers to the url resolving the DID into a DID Document (DDO), limited to 2048 bytes.
@@ -232,6 +236,7 @@ contract DIDRegistry is DIDFactory {
      */
     function registerMintableDID721(
         bytes32 _didSeed,
+        address _nftContractAddress,
         bytes32 _checksum,
         address[] memory _providers,
         string memory _url,
@@ -245,6 +250,7 @@ contract DIDRegistry is DIDFactory {
         registerDID(_didSeed, _checksum, _providers, _url, _activityId, _immutableUrl);
         enableAndMintDidNft721(
             hashDID(_didSeed, _msgSender()),
+            _nftContractAddress,
             _royalties,
             _mint
         );
@@ -259,6 +265,7 @@ contract DIDRegistry is DIDFactory {
      *      Subsequent updates record _checksum and update info.
      *
      * @param _didSeed refers to decentralized identifier seed (a bytes32 length ID).
+     * @param _nftContractAddress address of the NFT contract associated to the asset     
      * @param _checksum includes a one-way HASH calculated using the DDO content.
      * @param _providers list of addresses that can act as an asset provider     
      * @param _url refers to the url resolving the DID into a DID Document (DDO), limited to 2048 bytes.
@@ -270,6 +277,7 @@ contract DIDRegistry is DIDFactory {
      */
     function registerMintableDID(
         bytes32 _didSeed,
+        address _nftContractAddress,
         bytes32 _checksum,
         address[] memory _providers,
         string memory _url,
@@ -283,7 +291,7 @@ contract DIDRegistry is DIDFactory {
     onlyValidAttributes(_nftMetadata)
     {
         registerMintableDID(
-            _didSeed, _checksum, _providers, _url, _cap, _royalties, false, _activityId, _nftMetadata, _immutableUrl);
+            _didSeed, _nftContractAddress, _checksum, _providers, _url, _cap, _royalties, false, _activityId, _nftMetadata, _immutableUrl);
     }
 
     
@@ -302,6 +310,7 @@ contract DIDRegistry is DIDFactory {
      */
     function enableAndMintDidNft(
         bytes32 _did,
+        address _nftAddress,
         uint256 _cap,
         uint256 _royalties,
         bool _mint,
@@ -311,18 +320,22 @@ contract DIDRegistry is DIDFactory {
     onlyDIDOwner(_did)
     returns (bool success)
     {
-        didRegisterList.initializeNftConfig(_did, _cap, _royalties > 0 ? defaultRoyalties : IRoyaltyScheme(address(0)));
+        didRegisterList.initializeNftConfig(_did, _nftAddress, _royalties > 0 ? defaultRoyalties : IRoyaltyScheme(address(0)));
+        NFT1155Upgradeable _nftInstance;
+        if (_nftAddress == address(0))
+            _nftInstance = erc1155;
+        else
+            _nftInstance = NFT1155Upgradeable(_nftAddress);
         
-        if (bytes(_nftMetadata).length > 0)
-            erc1155.setNFTMetadata(uint256(_did), _nftMetadata);
+        _nftInstance.setNFTAttributes(uint256(_did), 0, _cap, _nftMetadata);
         
         if (_royalties > 0) {
-            erc1155.setTokenRoyalty(uint256(_did), _msgSender(), _royalties);
+            _nftInstance.setTokenRoyalty(uint256(_did), _msgSender(), _royalties);
             if (address(defaultRoyalties) != address(0)) defaultRoyalties.setRoyalty(_did, _royalties);
         }
         
         if (_mint)
-            mint(_did, _cap);
+            _nftInstance.mint(_msgSender() ,uint256(_did), _cap, '');
         
         return super.used(
             keccak256(abi.encode(_did, _cap, _royalties, _msgSender())),
@@ -337,11 +350,13 @@ contract DIDRegistry is DIDFactory {
       
      * @dev update the DID registry providers list by adding the mintCap and royalties configuration
      * @param _did refers to decentralized identifier (a byte32 length ID)
+     * @param _nftContractAddress address of the NFT contract associated to the asset     
      * @param _royalties refers to the royalties to reward to the DID creator in the secondary market
      * @param _mint if is true mint directly the amount capped tokens and lock in the _lockAddress          
      */    
     function enableAndMintDidNft721(
         bytes32 _did,
+        address _nftContractAddress,
         uint256 _royalties,
         bool _mint
     )
@@ -349,132 +364,25 @@ contract DIDRegistry is DIDFactory {
     onlyDIDOwner(_did)
     returns (bool success)
     {
-        didRegisterList.initializeNft721Config(_did, _royalties > 0 ? defaultRoyalties : IRoyaltyScheme(address(0)));
+        didRegisterList.initializeNft721Config(_did, _nftContractAddress, _royalties > 0 ? defaultRoyalties : IRoyaltyScheme(address(0)));
+
+        NFT721Upgradeable _nftInstance;
+        if (_nftContractAddress == address(0))
+            _nftInstance = erc721;
+        else
+            _nftInstance = NFT721Upgradeable(_nftContractAddress);
         
         if (_royalties > 0) {
             if (address(defaultRoyalties) != address(0)) defaultRoyalties.setRoyalty(_did, _royalties);
-            erc721.setTokenRoyalty(uint256(_did), _msgSender(), _royalties);
+            _nftInstance.setTokenRoyalty(uint256(_did), _msgSender(), _royalties);
         }
-
+        
         if (_mint)
-            mint721(_did, _msgSender());
+            _nftInstance.mint(_msgSender() ,uint256(_did));
         
         return super.used(
             keccak256(abi.encode(_did, 1, _royalties, _msgSender())),
             _did, _msgSender(), keccak256('enableNft721'), '', 'nft initialization');
-    }
-
-    /**
-     * @notice Mints a NFT associated to the DID
-     *
-     * @dev Because ERC-1155 uses uint256 and DID's are bytes32, there is a conversion between both
-     *      Only the DID owner can mint NFTs associated to the DID
-     *
-     * @param _did refers to decentralized identifier (a bytes32 length ID).
-     * @param _amount amount to mint
-     * @param _receiver the address that will receive the new nfts minted
-     */    
-    function mint(
-        bytes32 _did,
-        uint256 _amount,
-        address _receiver
-    )
-    public
-    onlyDIDOwner(_did)
-    nftIsInitialized(_did)
-    {
-        if (didRegisterList.didRegisters[_did].mintCap > 0) {
-            require(
-                didRegisterList.didRegisters[_did].nftSupply + _amount <= didRegisterList.didRegisters[_did].mintCap,
-                'Cap exceeded'
-            );
-        }
-        
-        didRegisterList.didRegisters[_did].nftSupply = didRegisterList.didRegisters[_did].nftSupply + _amount;
-        
-        super.used(
-            keccak256(abi.encode(_did, _msgSender(), 'mint', _amount, block.number)),
-            _did, _msgSender(), keccak256('mint'), '', 'mint');
-
-        erc1155.mint(_receiver, uint256(_did), _amount, '');
-    }
-
-    function mint(
-        bytes32 _did,
-        uint256 _amount
-    )
-    public
-    {
-        mint(_did, _amount, _msgSender());
-    }
-
-
-    /**
-     * @notice Mints a ERC-721 NFT associated to the DID
-     *
-     * @param _did refers to decentralized identifier (a bytes32 length ID).
-     * @param _receiver the address that will receive the new nfts minted
-     */
-    function mint721(
-        bytes32 _did,
-        address _receiver
-    )
-    public
-    onlyDIDOwner(_did)
-    nft721IsInitialized(_did)
-    {
-        erc721.mint(_receiver, uint256(_did));
-        super.used(
-            keccak256(abi.encode(_did, _msgSender(), 'mint721', 1, block.number)),
-            _did, _msgSender(), keccak256('mint721'), '', 'mint721');
-    }
-
-    function mint721(
-        bytes32 _did
-    )
-    public
-    {
-        mint721(_did, _msgSender());
-    }
-    
-    
-    /**
-     * @notice Burns NFTs associated to the DID
-     *
-     * @dev Because ERC-1155 uses uint256 and DID's are bytes32, there is a conversion between both
-     *      Only the DID owner can burn NFTs associated to the DID
-     *
-     * @param _did refers to decentralized identifier (a bytes32 length ID).
-     * @param _amount amount to burn
-     */
-    function burn(
-        bytes32 _did,
-        uint256 _amount
-    )
-    public
-    nftIsInitialized(_did)
-    {
-        erc1155.burn(_msgSender(), uint256(_did), _amount);
-        didRegisterList.didRegisters[_did].nftSupply -= _amount;
-        
-        super._used(
-            keccak256(abi.encode(_did, _msgSender(), 'burn', _amount, block.number)),
-            _did, _msgSender(), keccak256('burn'), '', 'burn');
-    }
-
-    function burn721(
-        bytes32 _did,
-        uint256 _tokenId
-    )
-    public
-    nft721IsInitialized(_did)
-    {
-        require(erc721.ownerOf(_tokenId) == _msgSender(), 'ERC721: burn amount exceeds balance');
-        erc721.burn(uint256(_tokenId));
-
-        super._used(
-            keccak256(abi.encode(_did, _msgSender(), 'burn721', 1, block.number)),
-            _did, _msgSender(), keccak256('burn721'), '', 'burn721');
     }
 
     function _provenanceStorage() override internal view returns (bool) {

@@ -39,7 +39,8 @@ contract('NFTLockCondition', (accounts) => {
                 nft.address,
                 { from: createRole }
             )
-            await nft.grantOperatorRole(lockCondition.address)
+            await nft.grantOperatorRole(lockCondition.address, { from: owner })
+            await nft.grantOperatorRole(accounts[0], { from: owner })
         }
     }
 
@@ -53,8 +54,8 @@ contract('NFTLockCondition', (accounts) => {
 
             // register DID
             await didRegistry.registerMintableDID(
-                didSeed, checksum, [], url, amount, 0, constants.activities.GENERATED, '', '')
-            await didRegistry.mint(did, amount)
+                didSeed, nft.address, checksum, [], url, amount, 0, constants.activities.GENERATED, '', '')
+            await nft.methods['mint(uint256,uint256)'](did, amount)
 
             const hashValues = await lockCondition.hashValues(did, lockAddress, amount)
             const conditionId = await lockCondition.generateId(agreementId, hashValues)
@@ -89,7 +90,7 @@ contract('NFTLockCondition', (accounts) => {
 
             // register DID
             await didRegistry.registerMintableDID(
-                didSeed, checksum, [], url, amount, 0, true, constants.activities.GENERATED, '', '')
+                didSeed, nft.address, checksum, [], url, amount, 0, true, constants.activities.GENERATED, '', '')
 
             await assert.isRejected(
                 lockCondition.fulfill(agreementId, did, lockAddress, amount),
@@ -106,8 +107,8 @@ contract('NFTLockCondition', (accounts) => {
 
             // register DID
             await didRegistry.registerMintableDID(
-                didSeed, checksum, [], url, amount, 0, constants.activities.GENERATED, '', '')
-            await didRegistry.mint(did, amount)
+                didSeed, nft.address, checksum, [], url, amount, 0, constants.activities.GENERATED, '', '')
+            await nft.methods['mint(uint256,uint256)'](did, amount)
 
             const hashValues = await lockCondition.hashValues(did, lockAddress, amount)
             const conditionId = await lockCondition.generateId(agreementId, hashValues)
@@ -131,8 +132,8 @@ contract('NFTLockCondition', (accounts) => {
 
             // register DID
             await didRegistry.registerMintableDID(
-                didSeed, checksum, [], url, amount, 0, constants.activities.GENERATED, '', '')
-            await didRegistry.mint(did, amount)
+                didSeed, nft.address, checksum, [], url, amount, 0, constants.activities.GENERATED, '', '')
+            await nft.methods['mint(uint256,uint256)'](did, amount)
 
             const hashValues = await lockCondition.hashValues(did, lockAddress, amount)
             const conditionId = await lockCondition.generateId(agreementId, hashValues)
@@ -168,8 +169,8 @@ contract('NFTLockCondition', (accounts) => {
 
             // register DID
             await didRegistry.registerMintableDID(
-                didSeed, checksum, [], url, amount, 0, constants.activities.GENERATED, '', '')
-            await didRegistry.mint(did, amount)
+                didSeed, nft.address, checksum, [], url, amount, 0, constants.activities.GENERATED, '', '')
+            await nft.methods['mint(uint256,uint256)'](did, amount)
 
             const hashValues = await lockCondition.hashValues(did, lockAddress, amount)
             const conditionId = await lockCondition.generateId(agreementId, hashValues)

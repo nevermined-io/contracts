@@ -8,9 +8,11 @@ const chaiAsPromised = require('chai-as-promised')
 chai.use(chaiAsPromised)
 const { ethers } = require('hardhat')
 
+const DIDRegistry = artifacts.require('DIDRegistry')
 const TestERC721 = artifacts.require('NFT721SubscriptionUpgradeable')
 
 const testUtils = require('../../helpers/utils.js')
+const constants = require('../../helpers/constants.js')
 const increaseTime = require('../../helpers/increaseTime.js')
 const BigNumber = require('bignumber.js')
 
@@ -35,10 +37,14 @@ contract('NFT721 Subscription', (accounts) => {
     })
 
     let nft
+    let didRegistry
 
     async function setupTest() {
+        didRegistry = await DIDRegistry.new()
+        await didRegistry.initialize(owner, constants.address.zero, constants.address.zero, constants.address.zero, constants.address.zero)
+
         nft = await TestERC721.new({ from: deployer })
-        await nft.initializeWithName('TestERC721', 'TEST', { from: owner })
+        await nft.initialize(owner, didRegistry.address, 'TestERC721', 'TEST', '', 0, { from: owner })
         await nft.grantOperatorRole(minter)
     }
 

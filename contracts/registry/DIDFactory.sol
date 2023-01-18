@@ -71,15 +71,6 @@ abstract contract DIDFactory is ProvenanceRegistry {
         _;
     }    
     
-    modifier nft721IsInitialized(bytes32 _did)
-    {
-        require(
-            didRegisterList.didRegisters[_did].nft721Initialized,
-            'NFT721 not initialized'
-        );
-        _;
-    }    
-    
     //////////////////////////////////////////////////////////////
     ////////  EVENTS  ////////////////////////////////////////////
     //////////////////////////////////////////////////////////////
@@ -311,7 +302,6 @@ abstract contract DIDFactory is ProvenanceRegistry {
         string memory _attributes
     )
     public
-    onlyOwnerProviderOrDelegated(_did)
     returns (bool success)
     {
         return _used(
@@ -585,10 +575,9 @@ abstract contract DIDFactory is ProvenanceRegistry {
     * @return lastUpdatedBy who was the last updating the DID
     * @return blockNumberUpdated In which block was the DID updated
     * @return providers the list of providers
-    * @return nftSupply the supply of nfts
-    * @return mintCap the maximum number of nfts that can be minted
     * @return royalties the royalties amount
     * @return immutableUrl includes the url to the DDO in immutable storage
+    * @return nftInitialized if the NFT has been initialized
     */
     function getDIDRegister(
         bytes32 _did
@@ -602,10 +591,9 @@ abstract contract DIDFactory is ProvenanceRegistry {
         address lastUpdatedBy,
         uint256 blockNumberUpdated,
         address[] memory providers,
-        uint256 nftSupply,
-        uint256 mintCap,
         uint256 royalties,
-        string memory immutableUrl
+        string memory immutableUrl,
+        bool nftInitialized
     )
     {
         owner = didRegisterList.didRegisters[_did].owner;
@@ -615,24 +603,23 @@ abstract contract DIDFactory is ProvenanceRegistry {
         blockNumberUpdated = didRegisterList
             .didRegisters[_did].blockNumberUpdated;
         providers = didRegisterList.didRegisters[_did].providers;
-        nftSupply = didRegisterList.didRegisters[_did].nftSupply;
-        mintCap = didRegisterList.didRegisters[_did].mintCap;
         royalties = didRegisterList.didRegisters[_did].royalties;
         immutableUrl = didRegisterList.didRegisters[_did].immutableUrl;
+        nftInitialized = didRegisterList.didRegisters[_did].nftInitialized;
     }
 
-    function getDIDSupply(
+    function getNFTInfo(
         bytes32 _did
     )
     public
     view
     returns (
-        uint256 nftSupply,
-        uint256 mintCap
+        address nftContractAddress,
+        bool nftInitialized
     )
     {
-        nftSupply = didRegisterList.didRegisters[_did].nftSupply;
-        mintCap = didRegisterList.didRegisters[_did].mintCap;
+        nftContractAddress = didRegisterList.didRegisters[_did].nftContractAddress;
+        nftInitialized = didRegisterList.didRegisters[_did].nftInitialized;
     }
     
     /**

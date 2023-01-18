@@ -76,6 +76,11 @@ function escrowTest(EscrowPaymentCondition, LockPaymentCondition, Token, nft, nf
                     didRegistry.address,
                     { from: deployer }
                 )
+                try {
+                    await token.approveWrap(lockPaymentCondition.address, 0, owner)
+                } catch {
+                    // Function not required for this token
+                }
 
                 escrowPayment = escrowWrapper(await EscrowPaymentCondition.new())
                 await escrowPayment.initialize(
@@ -83,6 +88,11 @@ function escrowTest(EscrowPaymentCondition, LockPaymentCondition, Token, nft, nf
                     conditionStoreManager.address,
                     { from: deployer }
                 )
+                try {
+                    await token.approveWrap(escrowPayment.address, 0, owner)
+                } catch {
+                    // Function not required for this token
+                }
 
                 await conditionStoreManager.grantProxyRole(
                     escrowPayment.address,
@@ -195,20 +205,26 @@ function escrowTest(EscrowPaymentCondition, LockPaymentCondition, Token, nft, nf
                     escrowConditionId,
                     escrowPayment.address)
 
+                if (nft721) { await token.approveWrap(sender, totalAmount, { from: owner }) }
+
                 await token.mintWrap(didRegistry, sender, totalAmount, owner)
-                await token.approveWrap(
-                    lockPaymentCondition.address,
-                    totalAmount,
-                    { from: sender })
+
+                if (!nft && !nft721) {
+                    await token.approveWrap(
+                        lockPaymentCondition.address,
+                        totalAmount,
+                        { from: sender })
+                }
 
                 if (nft) {
-                    await testUtils.approveProxy('NFT1155Upgradeable', sender, token.address, lockPaymentCondition.address)
-                    await testUtils.approveProxy('NFT1155Upgradeable', sender, token.address, escrowPayment.address)
+                    await testUtils.approveProxy('NFT1155Upgradeable', owner, token.address, lockPaymentCondition.address)
+                    await testUtils.approveProxy('NFT1155Upgradeable', owner, token.address, escrowPayment.address)
                 }
                 if (nft721) {
-                    await testUtils.approveProxy('NFT721Upgradeable', sender, token.address, lockPaymentCondition.address)
-                    await testUtils.approveProxy('NFT721Upgradeable', sender, token.address, escrowPayment.address)
+                    await testUtils.approveProxy('NFT721Upgradeable', owner, token.address, lockPaymentCondition.address)
+                    await testUtils.approveProxy('NFT721Upgradeable', owner, token.address, escrowPayment.address)
                 }
+
                 await lockPaymentCondition.fulfillWrap(agreementId, did, escrowPayment.address, token.address, amounts, receivers)
 
                 assert.strictEqual(await token.getBalance(lockPaymentCondition.address), 0)
@@ -244,9 +260,11 @@ function escrowTest(EscrowPaymentCondition, LockPaymentCondition, Token, nft, nf
                 assert.strictEqual(await token.getBalance(escrowPayment.address), 0)
                 assert.strictEqual(await token.getBalance(receivers[0]), totalAmount)
 
-                if (nft721 || nft) {
-                    await testUtils.approveProxy('NFT1155Upgradeable', sender, token.address, receivers[0])
-                    await testUtils.approveProxy('NFT721Upgradeable', sender, token.address, receivers[0])
+                if (nft) {
+                    await testUtils.approveProxy('NFT1155Upgradeable', owner, token.address, receivers[0])
+                    await token.transferWrap(escrowPayment.address, totalAmount, { from: receivers[0] })
+                } else if (nft721) {
+                    await testUtils.approveProxy('NFT721Upgradeable', owner, token.address, receivers[0])
                     await token.transferWrap(escrowPayment.address, totalAmount, { from: receivers[0] })
                 } else {
                     await token.mintWrap(didRegistry, sender, totalAmount, owner)
@@ -278,8 +296,7 @@ function escrowTest(EscrowPaymentCondition, LockPaymentCondition, Token, nft, nf
                 const receivers = [accounts[1]]
 
                 // register DID
-                await didRegistry.registerMintableDID(
-                    didSeed, checksum, [], url, amounts[0], 0, false, constants.activities.GENERATED, '', '')
+                await didRegistry.registerAttribute(didSeed, checksum, [], url)
 
                 const hashValuesLock = await lockPaymentCondition.hashValues(
                     did, escrowPayment.address, constants.address.zero, amounts, receivers)
@@ -371,8 +388,7 @@ function escrowTest(EscrowPaymentCondition, LockPaymentCondition, Token, nft, nf
                 const receivers = [escrowPayment.address]
 
                 // register DID
-                await didRegistry.registerMintableDID(
-                    didSeed, checksum, [], url, amounts[0], 0, false, constants.activities.GENERATED, '', '')
+                await didRegistry.registerAttribute(didSeed, checksum, [], url)
 
                 const hashValuesLock = await lockPaymentCondition.hashValues(
                     did, escrowPayment.address, constants.address.zero, amounts, receivers)
@@ -538,10 +554,12 @@ function escrowTest(EscrowPaymentCondition, LockPaymentCondition, Token, nft, nf
                     escrowPayment.address)
 
                 await token.mintWrap(didRegistry, sender, totalAmount, owner)
-                await token.approveWrap(
-                    lockPaymentCondition.address,
-                    totalAmount,
-                    { from: sender })
+                if (!nft && !nft721) {
+                    await token.approveWrap(
+                        lockPaymentCondition.address,
+                        totalAmount,
+                        { from: sender })
+                }
 
                 await lockPaymentCondition.fulfillWrap(agreementId, did, escrowPayment.address, token.address, amounts, receivers)
 
@@ -605,10 +623,12 @@ function escrowTest(EscrowPaymentCondition, LockPaymentCondition, Token, nft, nf
                     escrowPayment.address)
 
                 await token.mintWrap(didRegistry, sender, totalAmount, owner)
-                await token.approveWrap(
-                    lockPaymentCondition.address,
-                    totalAmount,
-                    { from: sender })
+                if (!nft && !nft721) {
+                    await token.approveWrap(
+                        lockPaymentCondition.address,
+                        totalAmount,
+                        { from: sender })
+                }
 
                 await lockPaymentCondition.fulfillWrap(agreementId, did, escrowPayment.address, token.address, amounts, receivers)
 
@@ -748,10 +768,12 @@ function escrowTest(EscrowPaymentCondition, LockPaymentCondition, Token, nft, nf
                     escrowPayment.address)
 
                 await token.mintWrap(didRegistry, sender, totalAmount, owner)
-                await token.approveWrap(
-                    lockPaymentCondition.address,
-                    totalAmount,
-                    { from: sender })
+                if (!nft && !nft721) {
+                    await token.approveWrap(
+                        lockPaymentCondition.address,
+                        totalAmount,
+                        { from: sender })
+                }
 
                 await lockPaymentCondition.fulfillWrap(agreementId, did, escrowPayment.address, token.address, amounts, receivers)
 
@@ -810,10 +832,14 @@ function escrowTest(EscrowPaymentCondition, LockPaymentCondition, Token, nft, nf
                     escrowPayment.address)
 
                 await token.mintWrap(didRegistry, sender, totalAmount, owner)
-                await token.approveWrap(
-                    lockPaymentCondition.address,
-                    totalAmount,
-                    { from: sender })
+                try {
+                    await token.approveWrap(
+                        lockPaymentCondition.address,
+                        totalAmount,
+                        { from: sender })
+                } catch {
+                    // Function not required for this token
+                }
 
                 await lockPaymentCondition.fulfillWrap(agreementId, did, escrowPayment.address, token.address, amounts, receivers)
 
@@ -864,7 +890,7 @@ function escrowTest(EscrowPaymentCondition, LockPaymentCondition, Token, nft, nf
                 await token.mintWrap(didRegistry, sender, 100, owner)
 
                 if (nft) {
-                    await testUtils.approveProxy('NFT1155Upgradeable', sender, token.address, sender)
+                    await testUtils.approveProxy('NFT1155Upgradeable', owner, token.address, sender)
                 }
                 await token.transferWrap(escrowPayment.address, 100, { from: sender })
                 const lockConditionId = conditionLockId
@@ -964,11 +990,16 @@ function escrowTest(EscrowPaymentCondition, LockPaymentCondition, Token, nft, nf
                     escrowConditionId,
                     escrowPayment.address)
 
+                if (nft721) { await token.approveWrap(sender, totalAmount, { from: owner }) }
                 await token.mintWrap(didRegistry, sender, totalAmount, owner)
-                await token.approveWrap(
-                    lockPaymentCondition.address,
-                    totalAmount,
-                    { from: sender })
+                try {
+                    await token.approveWrap(
+                        lockPaymentCondition.address,
+                        totalAmount,
+                        { from: sender })
+                } catch {
+                    // Function not required for this token
+                }
 
                 await lockPaymentCondition.fulfillWrap(agreementId, did, escrowPayment.address, token.address, amounts, receivers)
 

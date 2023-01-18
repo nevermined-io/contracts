@@ -245,11 +245,11 @@ contract('End to End NFT Scenarios', (accounts) => {
             did = await didRegistry.hashDID(didSeed, artist)
 
             await didRegistry.registerMintableDID(
-                didSeed, checksum, [], url, cappedAmount, 0, constants.activities.GENERATED, '', '', { from: artist }
+                didSeed, nft.address, checksum, [], url, cappedAmount, 0, constants.activities.GENERATED, '', '', { from: artist }
             )
             await didRegistry.setDIDRoyalties(did, royaltyManager.address, { from: artist })
             await royaltyManager.setRoyalty(did, royalties, { from: artist })
-            await didRegistry.mint(did, 5, { from: artist })
+            await nft.methods['mint(uint256,uint256)'](did, 5, { from: artist })
 
             const balance = await nft.balanceOf(artist, did)
             assert.strictEqual(5, balance.toNumber())
@@ -469,8 +469,8 @@ contract('End to End NFT Scenarios', (accounts) => {
             did = await didRegistry.hashDID(didSeed2, artist)
 
             await didRegistry.registerMintableDID(
-                didSeed2, checksum, [], url, cappedAmount, 10, constants.activities.GENERATED, '', '', { from: artist })
-            await didRegistry.mint(did, 5, { from: artist })
+                didSeed2, nft.address, checksum, [], url, cappedAmount, 10, constants.activities.GENERATED, '', '', { from: artist })
+            await nft.methods['mint(uint256,uint256)'](did, 5, { from: artist })
 
             const balance = await nft.balanceOf(artist, did)
             assert.strictEqual(5, balance.toNumber())

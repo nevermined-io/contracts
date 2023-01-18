@@ -25,7 +25,6 @@ contract('End to End NFT721 Scenarios', (accounts) => {
     const url = 'https://raw.githubusercontent.com/nevermined-io/assets/main/images/logo/banner_logo.png'
 
     const [
-        artist,
         collector1,
         collector2,
         gallery,
@@ -37,6 +36,7 @@ contract('End to End NFT721 Scenarios', (accounts) => {
 
     const owner = accounts[8]
     const deployer = accounts[8]
+    const artist = owner // The artist is the deployer of the NFT-721
     const governor = accounts[9]
 
     // Configuration of First Sale:
@@ -493,7 +493,7 @@ contract('End to End NFT721 Scenarios', (accounts) => {
                 did = await didRegistry.hashDID(didSeed, artist)
 
                 await didRegistry.registerMintableDID721(
-                    didSeed, checksum, [], url, royalties, true, constants.activities.GENERATED, '', { from: artist })
+                    didSeed, nft.address, checksum, [], url, royalties, true, constants.activities.GENERATED, '', { from: artist })
             })
         })
 
@@ -509,8 +509,8 @@ contract('End to End NFT721 Scenarios', (accounts) => {
             did = await didRegistry.hashDID(didSeed2, artist)
 
             await didRegistry.registerMintableDID721(
-                didSeed2, checksum, [], url, royalties, false, constants.activities.GENERATED, '', { from: artist })
-            await didRegistry.mint721(did, { from: artist })
+                didSeed2, nft.address, checksum, [], url, royalties, false, constants.activities.GENERATED, '', { from: artist })
+            await nft.methods['mint(uint256)'](did, { from: artist })
 
             assert.strictEqual(artist, await nft.ownerOf(did))
         })

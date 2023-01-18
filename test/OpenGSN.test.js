@@ -20,6 +20,7 @@ async function deployContract(contract, deployer, libraries, args) {
 describe('using ethers with OpenGSN', () => {
     let didRegistry, nft
     let accounts
+    let etherProvider
     // let web3provider
     const value = 'https://nevermined.io/did/nevermined/test-attr-example.txt'
     const nftMetadataURL = 'https://nevermined.io/metadata.json'
@@ -39,18 +40,17 @@ describe('using ethers with OpenGSN', () => {
         const governor = accounts[1]
 
         const nvmConfig = await deployContract('NeverminedConfig', deployer, {}, [owner, governor, false])
-
-        nft = await deployContract('NFT1155Upgradeable', deployer, {}, [''])
+        await nvmConfig.connect(
+            await deploymentProvider.getSigner(governor)).setTrustedForwarder(forwarderAddress)
 
         didRegistry = await deployContract(
             'DIDRegistry',
             deployer,
             {},
-            [owner, nft.address, constants.address.zero, nvmConfig.address, constants.address.zero]
+            [owner, constants.address.zero, constants.address.zero, nvmConfig.address, constants.address.zero]
         )
-
-        await nft.connect(deployer).grantOperatorRole(didRegistry.address)
-        await nvmConfig.connect(await deploymentProvider.getSigner(governor)).setTrustedForwarder(forwarderAddress)
+        nft = await deployContract('NFT1155Upgradeable', deployer, {}, [owner, didRegistry.address, '', '', ''])
+        nft.connect(await deploymentProvider.getSigner(owner)).setNvmConfigAddress(nvmConfig.address)
 
         const config = await {
             paymasterAddress: paymasterAddress,
@@ -64,9 +64,11 @@ describe('using ethers with OpenGSN', () => {
         account = wallet.address
 
         // gsnProvider is now an rpc provider with GSN support. make it an ethers provider:
-        const etherProvider = new ethers.providers.Web3Provider(gsnProvider)
+        etherProvider = new ethers.providers.Web3Provider(gsnProvider)
 
+        console.log(`Connecting with account ${account}`)
         didRegistry = didRegistry.connect(etherProvider.getSigner(account))
+        nft = nft.connect(etherProvider.getSigner(account))
     })
 
     describe('Register an Asset with a DID', () => {
@@ -75,14 +77,26 @@ describe('using ethers with OpenGSN', () => {
             const did = await didRegistry.hashDID(didSeed, account)
             const checksum = testUtils.generateId()
 
-            await didRegistry['registerMintableDID(bytes32,bytes32,address[],string,uint256,uint256,bytes32,string,string)'](
-                didSeed, checksum, [], value, 20, 0, constants.activities.GENERATED, nftMetadataURL, '', { from: account })
-            await didRegistry['mint(bytes32,uint256)'](did, 20, { from: account })
+            console.log('Registering DID')
 
+            await didRegistry['registerMintableDID(bytes32,address,bytes32,address[],string,uint256,uint256,bytes32,string,string)'](
+                didSeed, nft.address, checksum, [], value, 20, 0, constants.activities.GENERATED, nftMetadataURL, '', { from: account, gasLimit: 5000000 })
+
+            const didEntry = await didRegistry.getDIDRegister(did)
+            assert.strictEqual(account, didEntry.owner)
+
+            const nftAttr = await nft.getNFTAttributes(did)
+            assert.strictEqual(nftMetadataURL, nftAttr.nftURI)
+
+            console.log('Minting')
+            await nft['mint(uint256,uint256)'](did, 20, { from: account, gasLimit: 1000000 })
+
+            console.log('Balance')
             let balance = await nft.balanceOf(account, did)
             assert.strictEqual(20, balance.toNumber())
 
-            await didRegistry.burn(did, 5, { from: account })
+            console.log('Burn')
+            await nft['burn(uint256,uint256)'](did, 5, { from: account, gasLimit: 1000000 })
 
             balance = await nft.balanceOf(account, did)
             assert.strictEqual(15, balance.toNumber())

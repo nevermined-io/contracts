@@ -89,7 +89,9 @@ contract('End to End NFT721 Scenarios', (accounts) => {
             token
         ))
 
-        nftUpgradable = await testUtils.deploy('NFT721Upgradeable', [], deployer)
+        nftUpgradable = await testUtils.deploy('NFT721Upgradeable',
+            [owner, didRegistry.address, '', '', '', 0],
+            deployer)
 
         transferCondition = await testUtils.deploy('TransferNFT721Condition', [owner,
             conditionStoreManager.address,
@@ -219,7 +221,7 @@ contract('End to End NFT721 Scenarios', (accounts) => {
             did = await didRegistry.hashDID(didSeed, artist)
 
             await didRegistry.registerMintableDID721(
-                didSeed, checksum, [market], url, royalties, false, constants.activities.GENERATED, '', { from: artist })
+                didSeed, nft.address, checksum, [market], url, royalties, false, constants.activities.GENERATED, '', { from: artist })
             await nft721.setApprovalForAll(transferCondition.address, true, { from: artist })
         })
 

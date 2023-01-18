@@ -41,14 +41,21 @@ abstract contract NFTBase is IERC2981Upgradeable, CommonOwnable, AccessControlUp
         uint256 royaltyAmount;
     }
     
-    struct NFTMetadata {
+    struct NFTAttributes {
+        // Flag to control if NFTs config was already initialized
+        bool nftInitialized;
+        // The NFTs supply associated to the DID 
+        uint256 nftSupply;
+        // The max number of NFTs associated to the DID that can be minted 
+        uint256 mintCap;
+        // URL to NFT metadata        
         string nftURI;
     }
     
     // Mapping of Royalties per asset (DID)
     mapping(uint256 => RoyaltyInfo) internal _royalties;
-    // Mapping of NFT Metadata object per tokenId
-    mapping(uint256 => NFTMetadata) internal _metadata;
+    // Mapping of NFT Attributes object per tokenId
+    mapping(uint256 => NFTAttributes) internal _nftAttributes;
     // Mapping of expiration block number per user (subscription NFT holder)
     mapping(address => uint256) internal _expiration;
 
@@ -62,7 +69,16 @@ abstract contract NFTBase is IERC2981Upgradeable, CommonOwnable, AccessControlUp
         address indexed _fromAddress,
         uint _ercType
     );
-    
+
+    modifier onlyOperatorOrOwner
+    {
+        require(
+            owner() == _msgSender() || isOperator(_msgSender()),
+            'Only operator or owner'
+        );
+        _;
+    }
+
     /**
      * @dev getNvmConfigAddress get the address of the NeverminedConfig contract
      * @return NeverminedConfig contract address
@@ -83,15 +99,45 @@ abstract contract NFTBase is IERC2981Upgradeable, CommonOwnable, AccessControlUp
         nvmConfig = _addr;
     }
 
+    function _setNFTAttributes(
+        uint256 tokenId,
+        uint256 nftSupply,
+        uint256 mintCap,
+        string memory tokenURI
+    )
+    internal
+    {
+        _nftAttributes[tokenId].nftInitialized = true;
+        _nftAttributes[tokenId].nftSupply = nftSupply;
+        _nftAttributes[tokenId].mintCap = mintCap;
+        _nftAttributes[tokenId].nftURI = tokenURI;
+    }
+    
     function _setNFTMetadata(
         uint256 tokenId,
         string memory tokenURI
     )
     internal
     {
-        _metadata[tokenId] = NFTMetadata(tokenURI);
+        _nftAttributes[tokenId].nftInitialized = true;
+        _nftAttributes[tokenId].nftURI = tokenURI;
     }
 
+    function getNFTAttributes(
+        uint256 tokenId
+    )
+    external
+    view
+    virtual
+    returns (bool nftInitialized, uint256 nftSupply, uint256 mintCap, string memory nftURI)
+    {
+        NFTAttributes memory attributes = _nftAttributes[tokenId];
+        nftInitialized = attributes.nftInitialized;
+        nftSupply = attributes.nftSupply;
+        mintCap = attributes.mintCap;
+        nftURI = attributes.nftURI;
+    }    
+    
     function _setTokenRoyalty(
         uint256 tokenId,
         address receiver,
@@ -130,7 +176,7 @@ abstract contract NFTBase is IERC2981Upgradeable, CommonOwnable, AccessControlUp
         string memory _uri
     )
     public
-    onlyOwner
+    onlyOperatorOrOwner
     virtual
     {
         _contractMetadataUri = _uri;
@@ -148,7 +194,7 @@ abstract contract NFTBase is IERC2981Upgradeable, CommonOwnable, AccessControlUp
     )
     public
     virtual
-    onlyOwner
+    onlyOperatorOrOwner
     {
         AccessControlUpgradeable._setupRole(NVM_OPERATOR_ROLE, account);
     }
@@ -158,7 +204,7 @@ abstract contract NFTBase is IERC2981Upgradeable, CommonOwnable, AccessControlUp
     )
     public
     virtual
-    onlyOwner
+    onlyOperatorOrOwner
     {
         AccessControlUpgradeable._revokeRole(NVM_OPERATOR_ROLE, account);
     }

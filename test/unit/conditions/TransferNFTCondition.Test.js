@@ -59,11 +59,11 @@ contract('TransferNFT Condition constructor', (accounts) => {
             const nvmConfig = await NeverminedConfig.new()
             await nvmConfig.initialize(owner, owner, false)
 
-            nft = await NFT.new()
-            await nft.initialize('')
-
             didRegistry = await DIDRegistry.new()
-            await didRegistry.initialize(owner, nft.address, constants.address.zero, constants.address.zero, constants.address.zero)
+            await didRegistry.initialize(owner, constants.address.zero, constants.address.zero, constants.address.zero, constants.address.zero)
+
+            nft = await NFT.new()
+            await nft.initialize(owner, didRegistry.address, 'NFT1155', 'NVM', '')
 
             conditionStoreManager = await ConditionStoreManager.new()
 
@@ -115,20 +115,19 @@ contract('TransferNFT Condition constructor', (accounts) => {
             )
 
             // We allow DIDRegistry and TransferCondition to mint NFTs
-            await nft.grantOperatorRole(didRegistry.address)
-            await nft.grantOperatorRole(transferCondition.address)
+            await nft.grantOperatorRole(transferCondition.address, { from: owner })
         }
 
         const did = await didRegistry.hashDID(didSeed, seller)
 
         if (registerDID) {
             await didRegistry.registerMintableDID(
-                didSeed, checksum, [], url, mintCap, 0, constants.activities.GENERATED, '', '',
+                didSeed, nft.address, checksum, [], url, mintCap, 0, constants.activities.GENERATED, '', '',
                 { from: seller }
             )
             if (mintDID) {
-                await didRegistry.mint(did, mintCap, { from: seller })
-                await nft.grantOperatorRole(seller)
+                await nft.grantOperatorRole(seller, { from: owner })
+                await nft.methods['mint(uint256,uint256)'](did, mintCap, { from: seller })
                 await nft.safeTransferFrom(seller, other, did, 10, [], { from: seller })
             }
         }
@@ -246,7 +245,7 @@ contract('TransferNFT Condition constructor', (accounts) => {
                 { from: owner }
             )
 
-            await nft.grantOperatorRole(transferCondition.address)
+            await nft.grantOperatorRole(transferCondition.address, { from: owner })
             const result = await transferCondition.methods['fulfill(bytes32,bytes32,address,uint256,bytes32)'](
                 agreementId, did, rewardAddress, numberNFTs,
                 conditionIdPayment,
