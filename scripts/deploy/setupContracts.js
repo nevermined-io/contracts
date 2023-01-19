@@ -527,10 +527,14 @@ async function setupContracts({
         addresses.stage = 22
     }
 
-    if (addresses.stage < 23 && testnet) {
+    if (addresses.stage < 23) {
         console.log('Setting up OpenGSN forwarder')
-        if (gsn) {
+        if (testnet && gsn) {
             await callContract(artifacts.NeverminedConfig, a => a.setTrustedForwarder(gsn))
+        } else if (process.env.OPENGSN_FORWARDER) {
+            await callContract(artifacts.NeverminedConfig, a => a.setTrustedForwarder(process.env.OPENGSN_FORWARDER))
+        } else {
+            console.warn('Warning, OPENGSN_FORWARDER environment variable is not set. Meta transactions will not work')
         }
         if (addressBook.NFT1155Upgradeable) {
             await callContract(artifacts.NFT1155Upgradeable, a => a.setNvmConfigAddress(addressBook.NeverminedConfig))
