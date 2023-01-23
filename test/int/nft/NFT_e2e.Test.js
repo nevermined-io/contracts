@@ -469,7 +469,7 @@ contract('End to End NFT Scenarios', (accounts) => {
             did = await didRegistry.hashDID(didSeed2, artist)
 
             await didRegistry.registerMintableDID(
-                didSeed2, nft.address, checksum, [], url, cappedAmount, 10, constants.activities.GENERATED, '', '', { from: artist })
+                didSeed2, nft.address, checksum, [market], url, cappedAmount, 10, constants.activities.GENERATED, '', '', { from: artist })
             await nft.methods['mint(uint256,uint256)'](did, 5, { from: artist })
 
             const balance = await nft.balanceOf(artist, did)
@@ -510,7 +510,10 @@ contract('End to End NFT Scenarios', (accounts) => {
             const nftBalanceArtistBefore = await nft.balanceOf(artist, did)
             const nftBalanceCollectorBefore = await nft.balanceOf(collector1, did)
 
-            await nft.setApprovalForAll(market, true, { from: artist })
+            // Here we disable any potential existing permissions to check `market` can fulfill because is a provider
+            await nft.setApprovalForAll(market, false, { from: artist })
+            await transferCondition.revokeMarketRole(market, { from: deployer })
+
             await transferCondition.fulfillForDelegate(
                 agreementId,
                 did,
