@@ -1,4 +1,4 @@
-FROM ethereum/client-go:latest as geth
+FROM ethereum/client-go:v1.10.26 as geth
 
 FROM node:16 as deploy
 
