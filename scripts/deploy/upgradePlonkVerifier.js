@@ -16,6 +16,15 @@ async function deployLibrary(c, verbose) {
     return address
 }
 
+async function callContract(name, roles, f) {
+    const afact = readArtifact(name)
+    const factory = await ethers.getContractFactory(name)
+    const c = factory.attach(afact.address)
+    // console.log('owner', await cond.owner(), roles.owner, roles)
+    const tx = await f(c.connect(ethers.provider.getSigner(roles.ownerWallet)))
+    await tx.wait()
+}
+
 async function main() {
     const verbose = true
 
@@ -26,26 +35,13 @@ async function main() {
     if (verbose) {
         console.log(`setting dispute manager to ${plonkAddress}`)
     }
-    {
-        const afactCond = readArtifact('AccessProofCondition')
-        const AccessProofCondition = await ethers.getContractFactory('AccessProofCondition')
-        const cond = AccessProofCondition.attach(afactCond.address)
-        // console.log('owner', await cond.owner(), roles.owner, roles)
-        const tx = await cond.connect(ethers.provider.getSigner(roles.ownerWallet)).changeDisputeManager(plonkAddress)
-        await tx.wait()
-    }
+    await callContract('AccessProofCondition', roles, c => c.changeDisputeManager(plonkAddress))
 
     const vaultAddress = await deployLibrary('AaveCreditVault', verbose)
     if (verbose) {
         console.log(`setting aave credit vault to ${vaultAddress}`)
     }
-    {
-        const afactCond = readArtifact('AaveCreditTemplate')
-        const AaveCreditTemplate = await ethers.getContractFactory('AaveCreditTemplate')
-        const cond = AaveCreditTemplate.attach(afactCond.address)
-        const tx = await cond.connect(ethers.provider.getSigner(roles.ownerWallet)).changeCreditVaultLibrary(vaultAddress)
-        await tx.wait()
-    }
+    await callContract('AaveCreditTemplate', roles, c => c.changeCreditVaultLibrary(vaultAddress))
 }
 
 main()

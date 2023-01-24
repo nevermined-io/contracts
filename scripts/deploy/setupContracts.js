@@ -527,10 +527,24 @@ async function setupContracts({
         addresses.stage = 22
     }
 
-    if (addresses.stage < 23 && testnet) {
-        console.log('Setting up OpenGSN forwarder')
-        if (gsn) {
+    if (addresses.stage < 23) {
+        const chainId = await web3.eth.getChainId()
+        console.log(`Setting up OpenGSN forwarder for chain ID ${chainId}`)
+        if (!gsn) {
+            if (process.env.OPENGSN_FORWARDER) {
+                gsn = process.env.OPENGSN_FORWARDER
+            } else if (chainId === 80001) {
+                gsn = '0x4d4581c01A457925410cd3877d17b2fd4553b2C5' // mumbai
+            } else if (chainId === 1) {
+                gsn = '0xAa3E82b4c4093b4bA13Cb5714382C99ADBf750cA' // ethereum mainnet
+            } else if (chainId === 137) {
+                gsn = '0xdA78a11FD57aF7be2eDD804840eA7f4c2A38801d' // polygon
+            }
+        }
+        if (testnet && gsn) {
             await callContract(artifacts.NeverminedConfig, a => a.setTrustedForwarder(gsn))
+        } else {
+            console.warn('Warning, OPENGSN_FORWARDER environment variable is not set. Meta transactions will not work')
         }
         if (addressBook.NFT1155Upgradeable) {
             await callContract(artifacts.NFT1155Upgradeable, a => a.setNvmConfigAddress(addressBook.NeverminedConfig))
