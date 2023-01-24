@@ -339,8 +339,7 @@ contract TransferNFTCondition is Condition, ITransferNFT, ReentrancyGuardUpgrade
     
     returns (ConditionStoreLibrary.ConditionState)
     {
-        require(hasRole(MARKET_ROLE, _msgSender()) || erc1155.isApprovedForAll(_nftHolder, _msgSender()), 'Only Market role or ERC1155 approvedForAll');
-        return fulfillInternal(_nftHolder, _agreementId, _did, _nftReceiver, _nftAmount, _lockPaymentCondition, address(erc1155), _transfer);
+        return fulfillForDelegate(_agreementId, _did, _nftHolder, _nftReceiver, _nftAmount, _lockPaymentCondition, address(erc1155), _transfer);
     }
 
 
@@ -373,7 +372,10 @@ contract TransferNFTCondition is Condition, ITransferNFT, ReentrancyGuardUpgrade
 
     returns (ConditionStoreLibrary.ConditionState)
     {
-        require(hasRole(MARKET_ROLE, _msgSender()) || NFT1155Upgradeable(_nftContractAddress).isApprovedForAll(_nftHolder, _msgSender()), 'Only Market role or approvedForAll');
+        require(hasRole(MARKET_ROLE, _msgSender())
+            || NFT1155Upgradeable(_nftContractAddress).isApprovedForAll(_nftHolder, _msgSender())
+            || didRegistry.isDIDProviderOrOwner(_did, _msgSender())
+        , 'Only Market role or approvedForAll');
         return fulfillInternal(_nftHolder, _agreementId, _did, _nftReceiver, _nftAmount, _lockPaymentCondition, _nftContractAddress, _transfer);
     }
 

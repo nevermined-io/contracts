@@ -1,4 +1,4 @@
-FROM ethereum/client-go:latest as geth
+FROM ethereum/client-go:stable as geth
 
 FROM node:16 as deploy
 
@@ -22,7 +22,7 @@ ENV KEEPER_RPC_PORT=8545
 
 RUN /nevermined-contracts/scripts/keeper_deploy_geth_dockerfile.sh
 
-FROM ethereum/client-go:latest
+FROM ethereum/client-go:stable
 LABEL maintainer="Nevermined <root@nevermined.io>"
 
 COPY scripts/keeper_entrypoint_geth.sh /
