@@ -104,6 +104,9 @@ NETWORK=mumbai
 TAG=public
 ```
 
+To make meta-transactions work, `OPENGSN_FORWARDER` should be set to the correct
+forwarder address for the network. The OpenGSN v2 contract addresses should be used.
+
 #### Deploy and initialize the contracts
 
 - To deploy and initialize all contracts run `yarn deploy:$NETWORK`
