@@ -1,7 +1,7 @@
 const initializeContracts = require('./initializeContracts.js')
 const setupContracts = require('./setupContracts.js')
 const evaluateContracts = require('./evaluateContracts.js')
-const { ethers, web3 } = require('hardhat')
+const { ethers, web3, hardhatArguments } = require('hardhat')
 const { exportArtifacts, exportLibraryArtifacts } = require('./artifacts')
 const { loadWallet } = require('./wallets.js')
 const { readArtifact } = require('./artifacts')
@@ -59,14 +59,14 @@ async function deployContracts({ contracts: origContracts, verbose, testnet, mak
 
     let gsn
     // Add OpenGSN contracts
-    if (testnet) {
+    if (hardhatArguments.network === 'external') {
         try {
             const env = await GsnTestEnvironment.startGsn('localhost')
             const { forwarderAddress } = env.contractsDeployment
             gsn = forwarderAddress
             fs.writeFileSync('artifacts/opengsn.json', JSON.stringify(env.contractsDeployment))
         } catch (e) {
-            console.log('Cannot deploy OpenGSN contracts', e)
+            console.log('Warning: Cannot deploy OpenGSN contracts', e)
         }
     }
 
