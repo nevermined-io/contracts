@@ -86,6 +86,8 @@ export NETWORK=mumbai
 export TAG=common
 ```
 
+- it will be useful to set `export DEPLOY_ERROR_EXIT=true`, then the deploy sript will exit if any error occurs in contract calls. Then the deploy can be retried easily.
+
 - run `export MNEMONIC=<deployment's mnemonic>`. You will find them in the password manager.
 
 Here a full example:

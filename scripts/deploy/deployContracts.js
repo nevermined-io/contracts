@@ -55,7 +55,7 @@ async function deployContracts({ contracts: origContracts, verbose, testnet, mak
 
     const { roles } = await loadWallet({ makeWallet })
 
-    console.log('addresses', addresses)
+    console.log('addresses', addresses, 'roles', roles)
 
     let gsn
     // Add OpenGSN contracts
