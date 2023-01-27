@@ -134,9 +134,9 @@ The script has the next variables:
 This workflow uses the script `scripts/upload_artifacts_g3.sh` that can be used with the next syntax:
 
 ```bash
-./scripts/upload_artifacts_s3.sh contracts $NETWORK $TAG
-./scripts/upload_artifacts_s3.sh abis $NETWORK $TAG
-./scripts/upload_artifacts_s3.sh circuits $NETWORK $TAG
+./scripts/upload_artifacts_gs.sh contracts $NETWORK $TAG
+./scripts/upload_artifacts_gs.sh abis $NETWORK $TAG
+./scripts/upload_artifacts_gs.sh circuits $NETWORK $TAG
 ```
 
 - Commit the changes in `.openzeppelin/unknown-$NETWORK_ID.json.$TAG` file
