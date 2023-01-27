@@ -86,6 +86,7 @@ export NETWORK=mumbai
 export TAG=common
 ```
 
+- for a clean deployment remove all the artifacts existing with the network you are deploying: `rm -f artifacts/*.$NETWORK.json`
 - run `export MNEMONIC=<deployment's mnemonic>`. You will find them in the password manager.
 
 Here a full example:
