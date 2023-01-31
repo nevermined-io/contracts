@@ -86,6 +86,7 @@ export NETWORK=mumbai
 export TAG=common
 ```
 
+- for a clean deployment remove all the artifacts existing with the network you are deploying: `rm -f artifacts/*.$NETWORK.json`
 - run `export MNEMONIC=<deployment's mnemonic>`. You will find them in the password manager.
 
 Here a full example:
@@ -99,6 +100,7 @@ GOVERNOR=0xbcE5A3468386C64507D30136685A99cFD5603135
 NVM_MARKETPLACE_FEE=010000
 
 NVM_RECEIVER_FEE=0x309039F6A4e876bE0a3FCA8c1e32292358D7f07c
+OPENGSN_FORWARDER=0x4d4581c01A457925410cd3877d17b2fd4553b2C5
 
 NETWORK=mumbai
 TAG=public
@@ -113,22 +115,14 @@ forwarder address for the network. The OpenGSN v2 contract addresses should be u
 
 This step will create `cache/` and `deploy-cache.json` used to resume the deployment in case something fails.
 
-##### Upload the artifacts to the repository and persist any change in `openzeppelin/` file
+#### Script for uploading the artifacts (abis/contracts) to Contract Repository
 
-> :warning: The following steps can override the S3 resources you are pushing to S3. Particularly, take care of not overriding the `openzeppelin/` file with some old version of the file.
+Once the contracts are deployed to a public network or a new contract version whose contract abis has to been uploaded, use `scripts/upload_artifacts_gs.sh` to upload
+the contracts or artifacts to [nevermined repository](https://artifacts.nevermined.network/).
 
-- To upload the artifacts to the repository run `./scripts/upload_artifacts_s3.sh contracts $NETWORK $TAG`. This will upload the contracts `tgz`/`zip` packages and the openzeppelin file. It will also rename `.openzeppelin/unknown-$NETWORK_ID.json` to `.openzeppelin/unknown-$NETWORK_ID.json.$TAG`. *You need to have access to artifacts-nevermined-rocks S3 bucket*.
+> :warning: Your environment has to be configured and authorized to use aws cli to upload files to `artifacts-nevermined-network` bucket.
 
-- To upload the circuits to the repository run `./scripts/upload_artifacts_s3.sh circuits $NETWORK $TAG`. This will upload the contracts `tgz`/`zip` packages. *You need to have access to artifacts-nevermined-rocks S3 bucket*.
-
-- Commit the changes in `.openzeppelin/unknown-$NETWORK_ID.json.$TAG` file
-
-## Script for uploading the artifacts (abis/contracts) to Contract Repository
-
-Once the contracts are deployed to a public network or a new con.tract version whose contract abis has to been uploaded, use `scripts/upload_artifacts_s3.sh` to upload
-the contracts or artifacts to [nevermined repository](https://artifacts-nevermined-rocks.s3.amazonaws.com).
-
-> :warning: Your environment has to be configured and authorized to use aws cli to upload files to `artifacts-nevermined-rocks` bucket.
+For all this commands you need to **have access to artifacts-nevermined-rocks Google Cloud bucket**.
 
 The script has the next variables:
 
@@ -137,12 +131,15 @@ The script has the next variables:
 - `network` refers to network name, based on filename/hardhat config. Not used if `abis` is selected.
 - `tag` refers to deployment tag. Defaults to common. Not used if `abis` is selected.
 
-This workflow uses the script `scripts/upload_artifacts_s3.sh` that can be used using the next syntax:
+This workflow uses the script `scripts/upload_artifacts_g3.sh` that can be used with the next syntax:
 
 ```bash
-./scripts/upload_artifacts_s3.sh abis
-./scripts/upload_artifacts_s3.sh contracts mumbai $TAG
+./scripts/upload_artifacts_gs.sh contracts $NETWORK $TAG
+./scripts/upload_artifacts_gs.sh abis $NETWORK $TAG
+./scripts/upload_artifacts_gs.sh circuits $NETWORK $TAG
 ```
+
+- Commit the changes in `.openzeppelin/unknown-$NETWORK_ID.json.$TAG` file
 
 ## Verifying contracts code in different networks
 
