@@ -41,7 +41,7 @@ jobs:
         run: |
           yarn test:integration
 
-  upgradability-version:
+  upgradability:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
