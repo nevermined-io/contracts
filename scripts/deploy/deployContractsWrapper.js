@@ -2,10 +2,17 @@ const { argv } = require('yargs')
 const { deployContracts } = require('./deployContracts')
 const fs = require('fs')
 
+let addresses = {}
+
+process.on('SIGINT', () => {
+    console.log('got interrupted, trying to exit cleanly')
+    fs.writeFileSync('deploy-cache.json', JSON.stringify(addresses, undefined, 2))
+    process.exit(1)
+})
+
 async function main() {
     const verbose = true
     const testnet = process.env.TESTNET === 'true'
-    let addresses = {}
     try {
         try {
             addresses = JSON.parse(fs.readFileSync('deploy-cache.json'))
