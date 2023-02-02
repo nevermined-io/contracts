@@ -59,7 +59,7 @@ async function deployContracts({ contracts: origContracts, verbose, testnet, mak
 
     let gsn
     // Add OpenGSN contracts
-    if (hardhatArguments.network === 'external') {
+    if (hardhatArguments.network === 'external' || hardhatArguments.network === 'geth-localnet' || hardhatArguments.network === 'polygon-localnet') {
         try {
             const env = await GsnTestEnvironment.startGsn('localhost')
             const { forwarderAddress } = env.contractsDeployment
