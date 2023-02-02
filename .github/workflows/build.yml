@@ -41,9 +41,7 @@ jobs:
         run: |
           yarn test:integration
 
-  # Because v3.x is not upgreadable from v2.x we skip this test
-  upgradability-version:
-    if: ${{ false }}  # TODO: Enable for versions after v3.x
+  upgradability:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3

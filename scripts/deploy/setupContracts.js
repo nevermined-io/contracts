@@ -18,6 +18,9 @@ async function callContract(instance, f) {
         console.log('Warning: TX fail')
         console.log(err)
         console.log(tx)
+        if (process.env.DEPLOY_EXIT_ERROR === 'true') {
+            throw new Error('Error in contract call, exiting')
+        }
     }
 }
 
