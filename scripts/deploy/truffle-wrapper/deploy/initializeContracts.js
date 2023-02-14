@@ -21,7 +21,7 @@ function getSignatureOfMethod(
 async function doDeploy(signer, args) {
     const methodSignature = getSignatureOfMethod(signer, 'initialize', args)
 
-    if (process.env.NO_PROXY === 'true') {
+    if (!isCore || process.env.NO_PROXY === 'true') {
         const c = await signer.deploy()
         await c.deployed()
         const tx = await c[methodSignature](...args)
@@ -43,7 +43,7 @@ async function zosCreate({ contract, args, libraries, verbose, ctx }) {
         return addresses[contract]
     } else {
         const C = await ethers.getContractFactory(contract, { libraries })
-        const c = await doDeploy(C.connect(ethers.provider.getSigner(roles.deployer)), args)
+        const c = await doDeploy(C.connect(roles.deployerSigner), args)
         cache[contract] = c
         if (verbose) {
             console.log(`${contract}: ${c.address}`)
@@ -124,6 +124,7 @@ async function initializeContracts({
     }
 
     if (contracts.indexOf('NeverminedConfig') > -1) {
+        console.log('trying to deploy ??')
         addressBook.NeverminedConfig = await zosCreate({
             contract: 'NeverminedConfig',
             ctx,

@@ -8,6 +8,10 @@ const fs = require('fs')
 async function loadWallet({ makeWallet }) {
     const accounts = await web3.eth.getAccounts()
     console.log('Account', accounts)
+
+    while (accounts.length < 10) {
+        accounts.push(accounts[0])
+    }
     let wallets = [
         { name: 'owner', account: accounts[8] },
         { name: 'upgrader', account: accounts[8] },
@@ -65,6 +69,9 @@ async function loadWallet({ makeWallet }) {
         ownerWallet: (wallets.find(a => a.name === 'owner') || { account: accounts[8] }).account,
         upgraderWallet: (wallets.find(a => a.name === 'upgrader') || { account: accounts[8] }).account,
         governorWallet: (wallets.find(a => a.name === 'governor') || { account: accounts[9] }).account,
+        deployerSigner: await ethers.provider.getSigner(accounts[8]),
+        upgraderSigner: await ethers.provider.getSigner(accounts[8]),
+        governorSigner: await ethers.provider.getSigner(accounts[8]),
         contractNetworks
     }
     return { roles, contractNetworks }
