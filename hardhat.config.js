@@ -16,6 +16,8 @@ const utils = require('web3-utils')
 const MNEMONIC = process.env.MNEMONIC || 'taxi music thumb unique chat sand crew more leg another off lamp'
 const url = process.env.KEEPER_RPC_URL
 
+const PRIVATE_KEY = process.env.PRIVATE_KEY || ''
+
 const accounts = {
     mnemonic: MNEMONIC
 }
@@ -107,6 +109,12 @@ module.exports = {
             url: url || 'http://localhost:8545',
             chainId: 1337
         },
+        hyperspace: {
+            chainId: 3141,
+            url: "https://api.hyperspace.node.glif.io/rpc/v1",
+            accounts: [PRIVATE_KEY],
+            from: '0x835bbf678b9Ef3bD892fF3b0ae1eAdac7399e777',
+        },
         'aurora-localnet': {
             url: url || 'http://localhost:8545',
             accounts,
@@ -182,7 +190,8 @@ module.exports = {
         // Polygon: mumbai testnet
         mumbai: {
             url: url || `https://polygon-mumbai.infura.io/v3/${process.env.INFURA_TOKEN}`,
-            accounts,
+            accounts: [PRIVATE_KEY],
+            // accounts,
             chainId: 80001,
             confirmations: 2,
             timeoutBlocks: 200,
