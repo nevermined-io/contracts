@@ -128,7 +128,6 @@ async function initializeContracts({
     }
 
     if (contracts.indexOf('NeverminedConfig') > -1) {
-        console.log('trying to deploy ??')
         addressBook.NeverminedConfig = await zosCreate({
             contract: 'NeverminedConfig',
             ctx,
