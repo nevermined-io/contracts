@@ -16,6 +16,8 @@ const utils = require('web3-utils')
 const MNEMONIC = process.env.MNEMONIC || 'taxi music thumb unique chat sand crew more leg another off lamp'
 const url = process.env.KEEPER_RPC_URL
 
+const PRIVATE_KEY = process.env.PRIVATE_KEY || '0000000000000000000000000000000000000000000000000000000000000000'
+
 const accounts = {
     mnemonic: MNEMONIC
 }
@@ -106,6 +108,14 @@ module.exports = {
         'geth-setup': {
             url: url || 'http://localhost:8545',
             chainId: 1337
+        },
+        hyperspace: {
+            chainId: 3141,
+            url: 'https://api.hyperspace.node.glif.io/rpc/v1',
+            accounts: [PRIVATE_KEY],
+            skipDryRun: true,
+            timeoutBlocks: 200,
+            from: '0x835bbf678b9Ef3bD892fF3b0ae1eAdac7399e777'
         },
         'aurora-localnet': {
             url: url || 'http://localhost:8545',
