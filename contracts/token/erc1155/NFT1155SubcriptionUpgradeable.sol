@@ -19,7 +19,7 @@ contract NFT1155SubscriptionUpgradeable is NFT1155Upgradeable {
      */
     function mint(address to, uint256 tokenId, uint256 amount, uint256 expirationBlock, bytes memory data) public {
         super.mint(to, tokenId, amount, data);
-        _expiration[keccak256(abi.encode(to, tokenId))] = expirationBlock;
+        _expirationBlock[keccak256(abi.encode(to, tokenId))] = expirationBlock;
     }
     
     /**
@@ -27,7 +27,7 @@ contract NFT1155SubscriptionUpgradeable is NFT1155Upgradeable {
      */
     function balanceOf(address account, uint256 tokenId) public view virtual override returns (uint256) {
         bytes32 _expirationKey = keccak256(abi.encode(account, tokenId));
-        if (_expiration[_expirationKey] == 0 || _expiration[_expirationKey] > block.number)
+        if (_expirationBlock[_expirationKey] == 0 || _expirationBlock[_expirationKey] > block.number)
             return super.balanceOf(account, tokenId);
         return 0;
     }

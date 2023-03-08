@@ -16,7 +16,7 @@ contract NFT721SubscriptionUpgradeable is NFT721Upgradeable {
      */
     function mint(address to, uint256 tokenId, uint256 expirationBlock) public {
         super.mint(to, tokenId);
-        _expiration[keccak256(abi.encode(to))] = expirationBlock;
+        _expirationBlock[keccak256(abi.encode(to))] = expirationBlock;
     }
     
     /**
@@ -24,7 +24,7 @@ contract NFT721SubscriptionUpgradeable is NFT721Upgradeable {
      */    
     function balanceOf(address owner) public view override returns (uint256) {
         bytes32 _expirationKey = keccak256(abi.encode(owner));
-        if (_expiration[_expirationKey] == 0 || _expiration[_expirationKey] > block.number)
+        if (_expirationBlock[_expirationKey] == 0 || _expirationBlock[_expirationKey] > block.number)
             return super.balanceOf(owner);
         return 0;
     }
