@@ -7,9 +7,6 @@ import '@openzeppelin/contracts-upgradeable/utils/introspection/ERC165StorageUpg
 // Code is Apache-2.0 and docs are CC-BY-4.0
 
 contract NFT721SubscriptionUpgradeable is NFT721Upgradeable {
-
-    // Mapping of expiration block number per user (subscription NFT holder)
-    mapping(address => uint256) internal _expiration;
     
     /**
      * @dev This mint function allows to define when the NFT expires. 
@@ -19,14 +16,15 @@ contract NFT721SubscriptionUpgradeable is NFT721Upgradeable {
      */
     function mint(address to, uint256 tokenId, uint256 expirationBlock) public {
         super.mint(to, tokenId);
-        _expiration[to] = expirationBlock;
+        _expiration[keccak256(abi.encode(to))] = expirationBlock;
     }
     
     /**
      * @dev See {IERC721-balanceOf}.
      */    
     function balanceOf(address owner) public view override returns (uint256) {
-        if (_expiration[owner] == 0 || _expiration[owner] > block.number)
+        bytes32 _expirationKey = keccak256(abi.encode(owner));
+        if (_expiration[_expirationKey] == 0 || _expiration[_expirationKey] > block.number)
             return super.balanceOf(owner);
         return 0;
     }
