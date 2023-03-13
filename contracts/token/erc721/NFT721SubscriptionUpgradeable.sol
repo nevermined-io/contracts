@@ -8,6 +8,9 @@ import '@openzeppelin/contracts-upgradeable/utils/introspection/ERC165StorageUpg
 
 contract NFT721SubscriptionUpgradeable is NFT721Upgradeable {
     
+    // Mapping of expiration block number per user (subscription NFT holder)
+    mapping(bytes32 => uint256) internal _expirationBlock;
+
     /**
      * @dev This mint function allows to define when the NFT expires. 
      * The minter should calculate this block number depending on the network velocity

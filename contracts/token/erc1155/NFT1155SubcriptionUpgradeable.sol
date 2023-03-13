@@ -8,9 +8,8 @@ import './NFT1155Upgradeable.sol';
 
 contract NFT1155SubscriptionUpgradeable is NFT1155Upgradeable {
 
-    // Mapping of expiration block number per user and tokenId
-    // The key of this mapping is the `keccak256(abi.encode(address,tokenId))
-//    mapping(bytes32 => uint256) internal _expiration;
+    // Mapping of expiration block number per user (subscription NFT holder)
+    mapping(bytes32 => uint256) internal _expirationBlock;
     
     /**
      * @dev This mint function allows to define when the tokenId of the NFT expires. 
