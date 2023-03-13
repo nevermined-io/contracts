@@ -66,9 +66,6 @@ abstract contract NFTBase is IERC2981Upgradeable, CommonOwnable, AccessControlUp
 
     address public nvmConfig;
     
-    // Mapping of expiration block number per user (subscription NFT holder)
-    mapping(bytes32 => uint256) internal _expirationBlock;
-    
     event NFTCloned(
         address indexed _newAddress,
         address indexed _fromAddress,
@@ -232,4 +229,9 @@ abstract contract NFTBase is IERC2981Upgradeable, CommonOwnable, AccessControlUp
         return Common._msgData();
     }
 
+    // Mapping of expiration block number per user (subscription NFT holder)
+    mapping(bytes32 => uint256) internal _expirationBlock;
+
+    uint256[50] __gap;
+    
 }
