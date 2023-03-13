@@ -10,6 +10,9 @@ contract NFT1155SubscriptionUpgradeable is NFT1155Upgradeable {
 
     // Mapping of expiration block number per user (subscription NFT holder)
     mapping(bytes32 => uint256) internal _expirationBlock;
+
+    // Mapping of expiration block number per user (subscription NFT holder)
+    mapping(bytes32 => uint256) internal _mintBlock;
     
     /**
      * @dev This mint function allows to define when the tokenId of the NFT expires. 
@@ -18,7 +21,10 @@ contract NFT1155SubscriptionUpgradeable is NFT1155Upgradeable {
      */
     function mint(address to, uint256 tokenId, uint256 amount, uint256 expirationBlock, bytes memory data) public {
         super.mint(to, tokenId, amount, data);
-        _expirationBlock[keccak256(abi.encode(to, tokenId))] = expirationBlock;
+        bytes32 _key = keccak256(abi.encode(to, tokenId));
+
+        _expirationBlock[_key] = expirationBlock;
+        _mintBlock[_key] = block.number;
     }
     
     /**
@@ -30,4 +36,9 @@ contract NFT1155SubscriptionUpgradeable is NFT1155Upgradeable {
             return super.balanceOf(account, tokenId);
         return 0;
     }
+    
+    function whenWasMinted(address owner, uint256 tokenId) public view returns (uint256) {
+        bytes32 _key = keccak256(abi.encode(owner, tokenId));
+        return _mintBlock[_key];
+    }    
 }

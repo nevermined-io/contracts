@@ -11,6 +11,9 @@ contract NFT721SubscriptionUpgradeable is NFT721Upgradeable {
     // Mapping of expiration block number per user (subscription NFT holder)
     mapping(bytes32 => uint256) internal _expirationBlock;
 
+    // Mapping of expiration block number per user (subscription NFT holder)
+    mapping(bytes32 => uint256) internal _mintBlock;    
+    
     /**
      * @dev This mint function allows to define when the NFT expires. 
      * The minter should calculate this block number depending on the network velocity
@@ -19,7 +22,10 @@ contract NFT721SubscriptionUpgradeable is NFT721Upgradeable {
      */
     function mint(address to, uint256 tokenId, uint256 expirationBlock) public {
         super.mint(to, tokenId);
-        _expirationBlock[keccak256(abi.encode(to))] = expirationBlock;
+        bytes32 _key = keccak256(abi.encode(to));
+        
+        _expirationBlock[_key] = expirationBlock;
+        _mintBlock[_key] = block.number;
     }
     
     /**
@@ -30,5 +36,10 @@ contract NFT721SubscriptionUpgradeable is NFT721Upgradeable {
         if (_expirationBlock[_expirationKey] == 0 || _expirationBlock[_expirationKey] > block.number)
             return super.balanceOf(owner);
         return 0;
+    }
+
+    function whenWasMinted(address owner) public view returns (uint256) {
+        bytes32 _key = keccak256(abi.encode(owner));
+        return _mintBlock[_key];
     }
 }

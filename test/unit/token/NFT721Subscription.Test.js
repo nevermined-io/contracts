@@ -78,5 +78,12 @@ contract('NFT721 Subscription', (accounts) => {
             const balance = new BigNumber(await nft.balanceOf(account2))
             assert.strictEqual(balance.toNumber(), 1)
         })
+
+        it('The block when the NFT was minted is registered', async () => {
+            const now = await ethers.provider.getBlockNumber()
+            const blockWhenMinted = new BigNumber(await nft.whenWasMinted(account1))
+            assert.isTrue(blockWhenMinted > 0)
+            assert.isTrue(blockWhenMinted < now)
+        })
     })
 })
