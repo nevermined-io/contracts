@@ -232,6 +232,6 @@ abstract contract NFTBase is IERC2981Upgradeable, CommonOwnable, AccessControlUp
     // Mapping of expiration block number per user (subscription NFT holder)
     mapping(bytes32 => uint256) internal _expirationBlock;
 
-    uint256[50] __gap;
+    uint256[50] private __gap;
     
 }
