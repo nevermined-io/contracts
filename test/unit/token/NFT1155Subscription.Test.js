@@ -120,9 +120,9 @@ contract('NFT1155 Subscription', (accounts) => {
             const now = await ethers.provider.getBlockNumber()
             const blocksWhenMinted = await nft.whenWasMinted(account1, tokenIdExpiring)
 
-            assert.isTrue(blocksWhenMinted.length == 2)
+            assert.isTrue(blocksWhenMinted.length === 2)
             var _mintedBefore = 0;
-            for (index = 0; index < blocksWhenMinted.length; index++)   {
+            for (var index = 0; index < blocksWhenMinted.length; index++) {
                 const _minted = new BigNumber(blocksWhenMinted[index])
                 assert.isTrue(_minted > 0)
                 assert.isTrue(_minted < now)
