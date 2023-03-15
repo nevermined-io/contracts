@@ -94,7 +94,7 @@ contract('NFT721 Subscription', (accounts) => {
             const blocksWhenMinted = await nft.whenWasMinted(account1)
 
             assert.isTrue(blocksWhenMinted.length === 2)
-            var _mintedBefore = 0;
+            var _mintedBefore = 0
             for (var index = 0; index < blocksWhenMinted.length; index++) {
                 const _minted = new BigNumber(blocksWhenMinted[index])
                 assert.isTrue(_minted > 0)
