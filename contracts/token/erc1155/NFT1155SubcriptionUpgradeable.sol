@@ -8,11 +8,18 @@ import './NFT1155Upgradeable.sol';
 
 contract NFT1155SubscriptionUpgradeable is NFT1155Upgradeable {
 
+    struct MintedTokens {
+        uint256 amountMinted;
+        uint256 expirationBlock;
+        uint256 mintBlock;
+    }
+
+    mapping(bytes32 => MintedTokens[]) internal _tokens;
     // Mapping of expiration block number per user (subscription NFT holder)
-    mapping(bytes32 => uint256) internal _expirationBlock;
+    //mapping(bytes32 => uint256) internal _expirationBlock;
 
     // Mapping of expiration block number per user (subscription NFT holder)
-    mapping(bytes32 => uint256) internal _mintBlock;
+    //mapping(bytes32 => uint256) internal _mintBlock;
     
     /**
      * @dev This mint function allows to define when the tokenId of the NFT expires. 
@@ -23,22 +30,30 @@ contract NFT1155SubscriptionUpgradeable is NFT1155Upgradeable {
         super.mint(to, tokenId, amount, data);
         bytes32 _key = keccak256(abi.encode(to, tokenId));
 
-        _expirationBlock[_key] = expirationBlock;
-        _mintBlock[_key] = block.number;
+        _tokens[_key].push( MintedTokens(amount, expirationBlock, block.number));
+        //_mintBlock[_key] = block.number;
     }
     
     /**
      * @dev See {NFT1155Upgradeableable-balanceOf}.
      */
     function balanceOf(address account, uint256 tokenId) public view virtual override returns (uint256) {
-        bytes32 _expirationKey = keccak256(abi.encode(account, tokenId));
-        if (_expirationBlock[_expirationKey] == 0 || _expirationBlock[_expirationKey] > block.number)
-            return super.balanceOf(account, tokenId);
-        return 0;
+        bytes32 _key = keccak256(abi.encode(account, tokenId));
+        uint256 _balance;
+        for (uint index = 0; index < _tokens[_key].length; index++) {
+            if (_tokens[_key][index].expirationBlock == 0 || _tokens[_key][index].expirationBlock > block.number)
+                _balance += _tokens[_key][index].amountMinted;
+        }
+        
+        return _balance;
     }
     
-    function whenWasMinted(address owner, uint256 tokenId) public view returns (uint256) {
+    function whenWasMinted(address owner, uint256 tokenId) public view returns (uint256[] memory) {
         bytes32 _key = keccak256(abi.encode(owner, tokenId));
-        return _mintBlock[_key];
+        uint256[] memory _whenMinted = new uint256[](_tokens[_key].length);
+        for (uint index = 0; index < _tokens[_key].length; index++) {
+            _whenMinted[index] = _tokens[_key][index].mintBlock;
+        }
+        return _whenMinted;
     }    
 }

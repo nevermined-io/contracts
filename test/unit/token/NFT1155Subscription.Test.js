@@ -86,6 +86,20 @@ contract('NFT1155 Subscription', (accounts) => {
             assert.strictEqual(balance.toNumber(), 0)
         })
 
+        it('The subscriber mints again after expiration and get the right amount of tokens', async () => {
+            // wait to expire the subscription
+            await increaseTime.mineBlocks(web3, blocksExpiring)
+
+            const currentBlockNumber = await ethers.provider.getBlockNumber()
+
+            await nft.methods[
+                'mint(address,uint256,uint256,uint256,bytes)'
+            ](account1, tokenIdExpiring, amount, currentBlockNumber + blocksExpiring, data, { from: minter })
+
+            const balance = new BigNumber(await nft.balanceOf(account1, tokenIdExpiring))
+            assert.strictEqual(balance.toNumber(), amount)
+        })
+
         it('As a minter I am minting a non expiring subscription', async () => {
             tokenIdNonExpiring = await didRegistry.hashDID(didSeedNonExpiring, minter)
             await didRegistry.methods[
@@ -104,9 +118,17 @@ contract('NFT1155 Subscription', (accounts) => {
 
         it('The block when the NFT was minted is registered', async () => {
             const now = await ethers.provider.getBlockNumber()
-            const blockWhenMinted = new BigNumber(await nft.whenWasMinted(account1, tokenIdExpiring))
-            assert.isTrue(blockWhenMinted > 0)
-            assert.isTrue(blockWhenMinted < now)
+            const blocksWhenMinted = await nft.whenWasMinted(account1, tokenIdExpiring)
+
+            assert.isTrue(blocksWhenMinted.length == 2)
+            var _mintedBefore = 0;
+            for (index = 0; index < blocksWhenMinted.length; index++)   {
+                const _minted = new BigNumber(blocksWhenMinted[index])
+                assert.isTrue(_minted > 0)
+                assert.isTrue(_minted < now)
+                assert.isTrue(_minted.gt(_mintedBefore))
+                _mintedBefore = _minted
+            }
         })
     })
 })
