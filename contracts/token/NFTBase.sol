@@ -56,14 +56,16 @@ abstract contract NFTBase is IERC2981Upgradeable, CommonOwnable, AccessControlUp
     mapping(uint256 => RoyaltyInfo) internal _royalties;
     // Mapping of NFT Attributes object per tokenId
     mapping(uint256 => NFTAttributes) internal _nftAttributes;
-    // Mapping of expiration block number per user (subscription NFT holder)
-    mapping(address => uint256) internal _expiration;
+
+    // @dev: Variable out of date. Kept because upgradeability
+    // @dev: Use `_expirationBlock` mapping instead
+    mapping(address => uint256) internal _expiration; // UNUSED 
 
     // Used as a URL where is stored the Metadata describing the NFT contract
     string private _contractMetadataUri;
 
     address public nvmConfig;
-
+    
     event NFTCloned(
         address indexed _newAddress,
         address indexed _fromAddress,
@@ -226,5 +228,5 @@ abstract contract NFTBase is IERC2981Upgradeable, CommonOwnable, AccessControlUp
     function _msgData() internal override(CommonOwnable,ContextUpgradeable) virtual view returns (bytes calldata ret) {
         return Common._msgData();
     }
-
+    
 }

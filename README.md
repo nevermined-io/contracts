@@ -6,8 +6,7 @@
 > [nevermined.io](https://nevermined.io)
 
 [![Docker Build Status](https://img.shields.io/docker/cloud/build/neverminedio/contracts.svg)](https://hub.docker.com/r/neverminedio/contracts/)
-![Build](https://github.com/nevermined-io/contracts/workflows/Build/badge.svg)
-![Pypi Package](https://github.com/nevermined-io/contracts/workflows/Pypi%20Release/badge.svg)
+[![Build and Tests](https://github.com/nevermined-io/contracts/actions/workflows/build.yml/badge.svg)](https://github.com/nevermined-io/contracts/actions/workflows/build.yml)
 
 ## Table of Contents
 
@@ -51,7 +50,7 @@ Clone the project and install all dependencies:
 
 ```bash
 git clone git@github.com:nevermined-io/contracts.git
-cd nevermined-contracts/
+cd contracts/
 ```
 
 Install dependencies:
@@ -142,7 +141,7 @@ It keeps the same Apache v2 License and adds some improvements. See [NOTICE file
 ## License
 
 ```text
-Copyright 2022 Nevermined AG
+Copyright 2023 Nevermined AG
 This product includes software developed at
 BigchainDB GmbH and Ocean Protocol (https://www.oceanprotocol.com/)
 
