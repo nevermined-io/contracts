@@ -3,15 +3,20 @@
  */
 require('@openzeppelin/hardhat-upgrades')
 require('@nomiclabs/hardhat-truffle5')
+require('@nomiclabs/hardhat-etherscan')
 require('hardhat-dependency-compiler')
 require('hardhat-gas-reporter')
 require('solidity-coverage')
 require('solidity-docgen')
+require('hardhat-ignore-warnings')
+require('hardhat-contract-sizer')
 
 const utils = require('web3-utils')
 
 const MNEMONIC = process.env.MNEMONIC || 'taxi music thumb unique chat sand crew more leg another off lamp'
 const url = process.env.KEEPER_RPC_URL
+
+const PRIVATE_KEY = process.env.PRIVATE_KEY || '0000000000000000000000000000000000000000000000000000000000000000'
 
 const accounts = {
     mnemonic: MNEMONIC
@@ -33,6 +38,11 @@ module.exports = {
             }
         ]
     },
+    warnings: {
+        '@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol': {
+            unreachable: 'off'
+        }
+    },
     paths: {
         artifacts: 'build'
     },
@@ -42,6 +52,11 @@ module.exports = {
             '@gnosis.pm/safe-contracts/contracts/libraries/MultiSend.sol',
             '@gnosis.pm/safe-contracts/contracts/proxies/GnosisSafeProxyFactory.sol'
         ]
+    },
+    gasReporter: {
+        enabled: !!(process.env.REPORT_GAS),
+        showTimeSpent: true,
+        currency: 'EUR'
     },
     docgen: {
         outputDir: 'docs/generated/'
@@ -68,6 +83,10 @@ module.exports = {
             url: 'http://localhost:18545',
             timeout: 200000
         },
+        local: {
+            url: 'http://localhost:8545',
+            timeout: 200000
+        },
         'polygon-localnet': {
             url: url || 'http://localhost:8545',
             accounts,
@@ -89,6 +108,17 @@ module.exports = {
         'geth-setup': {
             url: url || 'http://localhost:8545',
             chainId: 1337
+        },
+        hyperspace: {
+            chainId: 3141,
+            url: 'https://api.hyperspace.node.glif.io/rpc/v1',
+            accounts: [PRIVATE_KEY],
+            allowUnlimitedContractSize: true,
+            gasMultiplier: 3,
+            gasLimit: 100 * 1000000,
+            skipDryRun: true,
+            timeoutBlocks: 200,
+            from: '0xeB19733b22B083d01e708093924699e8F29353cB'
         },
         'aurora-localnet': {
             url: url || 'http://localhost:8545',
@@ -217,5 +247,23 @@ module.exports = {
             gas: 6 * 1000000,
             gasPrice: parseInt(utils.toWei('10', 'mwei'))
         }
+    },
+    etherscan: {
+        apiKey: {
+            goerli: process.env.ETHERSCAN_TOKEN,
+            mainnet: process.env.ETHERSCAN_TOKEN,
+            polygonMumbai: process.env.POLYGONSCAN_TOKEN,
+            polygon: process.env.POLYGONSCAN_TOKEN,
+            arbitrumTestnet: process.env.ARBISCAN_TOKEN,
+            arbitrumOne: process.env.ARBISCAN_TOKEN
+        },
+        customChains: [{
+            network: 'arbitrum-goerli',
+            chainId: 421613,
+            urls: {
+                apiURL: 'https://api-testnet.arbiscan.io/api',
+                browserURL: 'https://testnet.arbiscan.io'
+            }
+        }]
     }
 }
