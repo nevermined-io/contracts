@@ -98,7 +98,7 @@ async function deployContracts({ contracts: origContracts, verbose, testnet, mak
         const admin = new ethers.Contract('0x' + addr.substring(26), PROXY_ADMIN_ABI, ethers.provider)
         const adminOwner = await admin.owner()
         console.log('Proxy admin owner', adminOwner)
-        const signer = ethers.provider.getSigner(adminOwner)
+        const signer = adminOwner === roles.deployer ? roles.deployerSigner : ethers.provider.getSigner(adminOwner)
         await admin.connect(signer).transferOwnership(roles.upgraderWallet)
     } catch (err) {
         console.log('Cannot move proxy admin ownership', err)

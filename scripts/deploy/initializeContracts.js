@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 const ZeroAddress = '0x0000000000000000000000000000000000000000'
 const { ethers, upgrades, web3 } = require('hardhat')
+const { writeArtifact, exportLibraryArtifact } = require('./artifacts')
 
 function getSignatureOfMethod(
     contractInstace,
@@ -18,7 +19,7 @@ function getSignatureOfMethod(
     return foundMethod.format()
 }
 
-async function doDeploy(signer, args, isCore) {
+async function doDeploy(contract, signer, args, isCore) {
     const methodSignature = getSignatureOfMethod(signer, 'initialize', args)
 
     if (!isCore || process.env.NO_PROXY === 'true') {
@@ -26,10 +27,12 @@ async function doDeploy(signer, args, isCore) {
         await c.deployed()
         const tx = await c[methodSignature](...args)
         await tx.wait()
+        await exportLibraryArtifact(c, contract.name)
         return c
     } else {
         const c = await upgrades.deployProxy(signer, args, { unsafeAllowLinkedLibraries: true, initializer: methodSignature })
         await c.deployed()
+        await writeArtifact(c, contract.name)
         return c
     }
 }
@@ -39,11 +42,11 @@ async function zosCreate({ contract, args, libraries, verbose, ctx, isCore }) {
     if (addresses[contract]) {
         console.log(`Contract ${contract} found from cache`)
         const C = await ethers.getContractFactory(contract, { libraries })
-        cache[contract] = C.attach(addresses[contract])
+        cache[contract] = C.attach(addresses[contract]).connect(roles.deployerSigner)
         return addresses[contract]
     } else {
         const C = await ethers.getContractFactory(contract, { libraries })
-        const c = await doDeploy(C.connect(roles.deployerSigner), args, isCore)
+        const c = await doDeploy(contract, C.connect(roles.deployerSigner), args, isCore)
         cache[contract] = c
         if (verbose) {
             console.log(`${contract}: ${c.address}`)

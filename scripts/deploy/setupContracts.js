@@ -6,13 +6,15 @@ const { ethers } = require('hardhat')
 async function callContract(instance, f) {
     // console.log('Calling contract ...')
     const contractOwner = await instance.owner()
-    // console.log('Contract Owner: ', contractOwner)
+    console.log('Contract Owner: ', contractOwner, instance.signer.address)
     let tx
     try {
-        const signer = await ethers.provider.getSigner(contractOwner)
-        tx = await f(instance.connect(signer).populateTransaction)
+        // const signer = await ethers.provider.getSigner(contractOwner)
+        // tx = await f(instance.connect(signer).populateTransaction)
+        tx = await f(instance.populateTransaction)
         // console.log('Got tx', tx)
-        const res = await signer.sendTransaction(tx)
+        // console.log('Got tx', tx)
+        const res = await instance.signer.sendTransaction(tx)
         await res.wait()
     } catch (err) {
         console.log('Warning: TX fail')
@@ -28,12 +30,14 @@ async function approveTemplate({
     TemplateStoreManagerInstance,
     templateAddress
 } = {}) {
-    await callContract(TemplateStoreManagerInstance, a => a.approveTemplate(templateAddress, { gasLimit: 100000 }))
+    await callContract(TemplateStoreManagerInstance, a => a.approveTemplate(templateAddress /*, { gasLimit: 1000000 } */))
 }
 
 async function setupTemplate({ verbose, TemplateStoreManagerInstance, templateName, addressBook, roles } = {}) {
     const templateAddress = addressBook[templateName]
     if (templateAddress) {
+        console.log('setup template', templateName, TemplateStoreManagerInstance.address)
+        console.log("?", await TemplateStoreManagerInstance.connect(roles.deployerSigner).getNvmConfigAddress())
         const approved = await TemplateStoreManagerInstance.isTemplateApproved(templateAddress)
 
         if (approved) {
