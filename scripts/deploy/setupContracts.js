@@ -1,18 +1,18 @@
+const { ethers } = require('hardhat')
+
 /* eslint-disable no-console */
 const ZeroAddress = '0x0000000000000000000000000000000000000000'
 
-const { ethers } = require('hardhat')
-
 async function callContract(instance, f) {
-    // console.log('Calling contract ...')
     const contractOwner = await instance.owner()
     // console.log('Contract Owner: ', contractOwner, instance.signer.address)
     let tx
     try {
-        // const signer = await ethers.provider.getSigner(contractOwner)
-        // tx = await f(instance.connect(signer).populateTransaction)
+        if (contractOwner !== instance.signer.address) {
+            const signer = await ethers.provider.getSigner(contractOwner)
+            instance.connect(signer)
+        }
         tx = await f(instance.populateTransaction)
-        // console.log('Got tx', tx)
         // console.log('Got tx', tx)
         const res = await instance.signer.sendTransaction(tx)
         await res.wait()

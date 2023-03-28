@@ -16,7 +16,7 @@ const utils = require('web3-utils')
 const MNEMONIC = process.env.MNEMONIC || 'taxi music thumb unique chat sand crew more leg another off lamp'
 const url = process.env.KEEPER_RPC_URL
 
-const PRIVATE_KEY = process.env.PRIVATE_KEY || '0000000000000000000000000000000000000000000000000000000000000000'
+// const PRIVATE_KEY = process.env.PRIVATE_KEY || '0000000000000000000000000000000000000000000000000000000000000000'
 
 const accounts = {
     mnemonic: MNEMONIC
