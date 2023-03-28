@@ -112,7 +112,8 @@ module.exports = {
         hyperspace: {
             chainId: 3141,
             url: 'https://api.hyperspace.node.glif.io/rpc/v1',
-            accounts: [PRIVATE_KEY],
+            // accounts: [PRIVATE_KEY],
+            accounts,
             skipDryRun: true,
             timeoutBlocks: 200,
             from: '0x835bbf678b9Ef3bD892fF3b0ae1eAdac7399e777'

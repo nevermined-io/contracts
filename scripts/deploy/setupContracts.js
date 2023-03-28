@@ -94,7 +94,7 @@ async function transferOwnership({
     if (contractOwner === roles.owner) {
         console.log(`The owner wallet {roles.owner} is already owner of the contract ${name}`)
     } else if (contractOwner === roles.deployer) {
-        const tx = await ContractInstance.connect(ethers.provider.getSigner(roles.deployer)).transferOwnership(
+        const tx = await ContractInstance.connect(roles.deployerSigner).transferOwnership(
             roles.ownerWallet,
             { from: roles.deployer }
         )
@@ -415,7 +415,7 @@ async function setupContracts({
                 )
             }
 
-            const tx = await token.connect(ethers.provider.getSigner(roles.deployer)).grantRole(
+            const tx = await token.connect(roles.deployerSigner).grantRole(
                 web3.utils.toHex('minter').padEnd(66, '0'),
                 addressBook.Dispenser,
                 { from: roles.deployer }
@@ -429,14 +429,14 @@ async function setupContracts({
             )
         }
 
-        const tx = await token.connect(ethers.provider.getSigner(roles.deployer)).revokeRole(
+        const tx = await token.connect(roles.deployerSigner).revokeRole(
             web3.utils.toHex('minter').padEnd(66, '0'),
             roles.deployer,
             { from: roles.deployer }
         )
         await tx.wait()
 
-        const tx2 = await token.connect(ethers.provider.getSigner(roles.deployer)).grantRole(
+        const tx2 = await token.connect(roles.deployerSigner).grantRole(
             web3.utils.toHex('minter').padEnd(66, '0'),
             roles.ownerWallet,
             { from: roles.deployer }

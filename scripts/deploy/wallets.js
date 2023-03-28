@@ -63,7 +63,9 @@ async function loadWallet({ makeWallet }) {
         }
     }
 
-    const deployerSigner = network === 'hyperspace' ? new ethers.Wallet(process.env.PRIVATE_KEY, ethers.provider) : await ethers.provider.getSigner(accounts[8])
+    // const deployerSigner = network === 'hyperspace' ? new ethers.Wallet(process.env.PRIVATE_KEY, ethers.provider) : await ethers.provider.getSigner(accounts[8])
+    // ethers.HDNode.fromMnemonic(process.env.MNEMONIC).derivePath()
+    const deployerSigner = network === 'hyperspace' ? ethers.Wallet.fromMnemonic(process.env.MNEMONIC, "m/44'/60'/0'/0/8").connect(ethers.provider) : await ethers.provider.getSigner(accounts[8])
 
     const roles = {
         deployer: accounts[8],
