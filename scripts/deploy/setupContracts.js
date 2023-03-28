@@ -6,7 +6,7 @@ const { ethers } = require('hardhat')
 async function callContract(instance, f) {
     // console.log('Calling contract ...')
     const contractOwner = await instance.owner()
-    console.log('Contract Owner: ', contractOwner, instance.signer.address)
+    // console.log('Contract Owner: ', contractOwner, instance.signer.address)
     let tx
     try {
         // const signer = await ethers.provider.getSigner(contractOwner)
@@ -36,8 +36,6 @@ async function approveTemplate({
 async function setupTemplate({ verbose, TemplateStoreManagerInstance, templateName, addressBook, roles } = {}) {
     const templateAddress = addressBook[templateName]
     if (templateAddress) {
-        console.log('setup template', templateName, TemplateStoreManagerInstance.address)
-        console.log("?", await TemplateStoreManagerInstance.connect(roles.deployerSigner).getNvmConfigAddress())
         const approved = await TemplateStoreManagerInstance.isTemplateApproved(templateAddress)
 
         if (approved) {
