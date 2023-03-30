@@ -150,10 +150,7 @@ contract('NFT1155 Subscription', (accounts) => {
 
             await nft.methods[
                 'mint(address,uint256,uint256,uint256,bytes)'
-            ](account2, tokenId3, 10, 500, data, { from: minter })
-
-            console.log(JSON.stringify(await nft.whenWasMinted(account2, tokenId3)))
-            console.log(JSON.stringify(await nft.getMintedEntries(account2, tokenId3)))
+            ](account2, tokenId3, 10, currentBlockNumber + 500, data, { from: minter })
 
             balance = new BigNumber(await nft.balanceOf(account2, tokenId3))
             assert.strictEqual(balance.toNumber(), 17)
@@ -163,18 +160,12 @@ contract('NFT1155 Subscription', (accounts) => {
             balance = new BigNumber(await nft.balanceOf(account2, tokenId3))
             assert.strictEqual(balance.toNumber(), 10)
 
-            console.log(JSON.stringify(await nft.whenWasMinted(account2, tokenId3)))
-            console.log(JSON.stringify(await nft.getMintedEntries(account2, tokenId3)))
-
             await nft.methods[
                 'burn(address,uint256,uint256)'
             ](account2, tokenId3, 15, { from: minter })
 
             balance = new BigNumber(await nft.balanceOf(account2, tokenId3))
             assert.strictEqual(balance.toNumber(), 2)
-
-            console.log(JSON.stringify(await nft.whenWasMinted(account2, tokenId3)))
-            console.log(JSON.stringify(await nft.getMintedEntries(account2, tokenId3)))
         })
     })
 })
