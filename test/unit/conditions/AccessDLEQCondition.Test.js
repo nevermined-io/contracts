@@ -1,6 +1,6 @@
 /* eslint-env mocha */
 /* eslint-disable no-console */
-/* global artifacts, contract, describe, it, expect */
+/* global artifacts, contract, describe, it */
 const chai = require('chai')
 const { assert } = chai
 const chaiAsPromised = require('chai-as-promised')
@@ -13,9 +13,8 @@ const testUtils = require('../../helpers/utils.js')
 
 const AccessCondition = artifacts.require('AccessDLEQCondition')
 
-async function setup({accounts}) {
-
-    let {
+async function setup({ accounts }) {
+    const {
         didRegistry,
         agreementStoreManager,
         conditionStoreManager,
@@ -36,21 +35,21 @@ async function setup({accounts}) {
     const checksum = testUtils.generateId()
     const value = constants.registry.url
     const did = await didRegistry.hashDID(didSeed, accounts[0])
-    await didRegistry.registerAttribute(didSeed, checksum, [accounts[9]], value, {from: accounts[0]})
+    await didRegistry.registerAttribute(didSeed, checksum, [accounts[9]], value, { from: accounts[0] })
 
     return {
         agreementStoreManager,
         conditionStoreManager,
         templateStoreManager,
         accessCondition,
-        did,
+        did
     }
 }
 
 contract('AccessDLEQCondition', (accounts) => {
     describe('deploy and setup', () => {
         it('contract should deploy', async () => {
-            await setup({accounts})
+            await setup({ accounts })
         })
     })
 
@@ -58,7 +57,7 @@ contract('AccessDLEQCondition', (accounts) => {
         it('should not fulfill if condition does not exist', async () => {
             const {
                 accessCondition
-            } = await setup({accounts})
+            } = await setup({ accounts })
 
             const agreementId = constants.bytes32.one
 
@@ -81,7 +80,7 @@ contract('AccessDLEQCondition', (accounts) => {
                 conditionStoreManager,
                 templateStoreManager,
                 accessCondition,
-                did,
+                did
             } = await setup({ accounts: accounts })
 
             const agreementId = constants.bytes32.one
@@ -112,7 +111,7 @@ contract('AccessDLEQCondition', (accounts) => {
             )
 
             const { proof } = await makeProof(info, conditionId)
-            console.log("cond id", conditionId)
+            console.log('cond id', conditionId)
             console.log('proof', proof)
 
             const result = await accessCondition.fulfill(agreementId, cipher, secretId, provider, buyer, reencrypt, proof)
@@ -210,5 +209,4 @@ contract('AccessDLEQCondition', (accounts) => {
         })
     })
     */
-
 })

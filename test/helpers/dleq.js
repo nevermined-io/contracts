@@ -47,18 +47,22 @@ async function setupEG() {
         buyer: toEvm(zG),
         secretId: toEvm(xG),
         reencrypt: toEvm(yR),
-        yG, xG, zG, R, yR, y, z,
+        yG,
+        xG,
+        zG,
+        R,
+        yR,
+        y,
+        z,
         providerSecret: y,
         buyerSecret: z,
         Fr,
         G1,
-        toEvm,
+        toEvm
     }
-
 }
 
 async function makeProof({ Fr, G1, yG, xG, zG, R, yR, y, z, toEvm }, label) {
-
     const G = G1.g
 
     // DLEQ prove, yG == yR
@@ -101,9 +105,8 @@ async function makeProof({ Fr, G1, yG, xG, zG, R, yR, y, z, toEvm }, label) {
 
     return {
         proof: [Fr.toObject(e), Fr.toObject(f)],
-        cipher: 0,
+        cipher: 0
     }
-
 }
 
 module.exports = {

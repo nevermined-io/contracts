@@ -124,8 +124,10 @@ contract AccessDLEQCondition is Condition {
             hashValues(_cipher, _secretId, _provider, _buyer)
         );
 
+        /*
         console.log("label");
         console.log(uint256(_id));
+        */
 
         G1Point memory _rebase = g1Add(g1p(_buyer), g1p(_secretId));
         // check the dleq proof
@@ -184,6 +186,7 @@ contract AccessDLEQCondition is Condition {
             bool
         )
     {
+        /*
         console.log("proof");
         console.log(_proof.e);
         console.log(_proof.f);
@@ -199,9 +202,9 @@ contract AccessDLEQCondition is Condition {
         console.log("rg2 point");
         console.log(_rg2.x);
         console.log(_rg2.y);
-        // w1 = f*G1 + rG1 * e
         G1Point memory w11 = scalarMultiply(_g1, _proof.f);
         G1Point memory w12 = scalarMultiply(_rg1, _proof.e);
+        */
         /*
         console.log("w1 parts");
         console.log(w11.x);
@@ -209,11 +212,13 @@ contract AccessDLEQCondition is Condition {
         console.log(w12.x);
         console.log(w12.y);
         */
+        // w1 = f*G1 + rG1 * e
         G1Point memory w1 = g1Add(scalarMultiply(_g1, _proof.f), scalarMultiply(_rg1, _proof.e));
         // w2 = f*G2 + rG2 * e
         G1Point memory w2 = g1Add(scalarMultiply(_g2, _proof.f), scalarMultiply(_rg2, _proof.e));
         uint256 challenge =
             uint256(keccak256(abi.encodePacked(_label, _rg1.x, _rg1.y, _rg2.x, _rg2.y, w1.x, w1.y, w2.x, w2.y))) % R;
+        /*
         console.log("computed challenge");
         console.log(challenge);
         console.log("w1 point");
@@ -222,6 +227,7 @@ contract AccessDLEQCondition is Condition {
         console.log("w2 point");
         console.log(w2.x);
         console.log(w2.y);
+        */
         if (challenge == _proof.e) {
             return true;
         }
