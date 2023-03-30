@@ -175,7 +175,6 @@ contract('NFT1155 Subscription', (accounts) => {
 
             console.log(JSON.stringify(await nft.whenWasMinted(account2, tokenId3)))
             console.log(JSON.stringify(await nft.getMintedEntries(account2, tokenId3)))
-
         })
     })
 })
