@@ -77,4 +77,8 @@ contract NFT721SubscriptionUpgradeable is NFT721Upgradeable {
         }
         return _whenMinted;
     }
+
+    function getMintedEntries(address owner) public view returns (MintedTokens[] memory) {
+        return _tokens[owner];
+    }    
 }
