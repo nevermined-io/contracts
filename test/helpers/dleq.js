@@ -3,7 +3,7 @@ const assert = require('assert')
 const { buildBn128 } = require('ffjavascript')
 const { ethers } = require('ethers')
 
-async function main() {
+async function setupEG() {
     const ffCurve = await buildBn128()
     const G1 = ffCurve.G1
     const Fr = ffCurve.Fr
@@ -37,21 +37,40 @@ async function main() {
     const R1 = G1.add(yR, G1.neg(G1.timesFr(yG, z)))
     assert(G1.eq(R1, xyG))
 
-    // DLEQ prove, yG == yR
-    const t = Fr.random()
-    const w1 = G1.timesFr(G, t)
-    const w2 = G1.timesFr(R, t)
-
     function toEvm(p) {
         const obj = G1.toObject(G1.toAffine(p))
         return [obj[0].toString(10), obj[1].toString(10)]
     }
 
+    return {
+        provider: toEvm(yG),
+        buyer: toEvm(zG),
+        secretId: toEvm(xG),
+        reencrypt: toEvm(R),
+        yG, xG, zG, R, yR, y, z,
+        providerSecret: y,
+        buyerSecret: z,
+        Fr,
+        G1,
+        toEvm,
+    }
+
+}
+
+async function makeProof({ Fr, G1, yG, xG, zG, R, yR, y, z, toEvm }, label) {
+
+    const G = G1.g
+
+    // DLEQ prove, yG == yR
+    const t = Fr.random()
+    const w1 = G1.timesFr(G, t)
+    const w2 = G1.timesFr(R, t)
+
     // console.log(ethers.utils.solidityKeccak256(['uint256'], ['123']))
     // console.log(ethers.utils.solidityKeccak256([{x: 'uint256', y:'uint256'}], [{x: '123', y: '123'}]))
-    const arr = toEvm(w1).concat(toEvm(w2)).concat(toEvm(G)).concat(toEvm(R))
+    const arr = [label].toEvm(w1).concat(toEvm(w2)).concat(toEvm(G)).concat(toEvm(R))
     const e = Fr.fromObject(BigInt(ethers.utils.solidityKeccak256(arr.map(a => 'uint256'), arr)))
-    console.log('challenge', e)
+    // console.log('challenge', e)
     const f = Fr.add(t, Fr.neg(Fr.mul(y, e)))
 
     // consumer will get e and f
@@ -66,10 +85,18 @@ async function main() {
     assert(G1.eq(w1, ww1))
     assert(G1.eq(w2, ww2))
 
-    const chal = Fr.fromObject(BigInt(ethers.utils.solidityKeccak256(arr.map(a => 'uint256'), arr)))
+    const arr2 = [label].toEvm(ww1).concat(toEvm(ww2)).concat(toEvm(G)).concat(toEvm(R))
+    const chal = Fr.fromObject(BigInt(ethers.utils.solidityKeccak256(arr2.map(a => 'uint256'), arr)))
     assert(Fr.eq(chal, e))
 
-    process.exit()
+    return {
+        proof: [Fr.toObject(e), Fr.toObject(f)],
+        cipher: 0,
+    }
+
 }
 
-main()
+module.exports = {
+    setupEG,
+    makeProof
+}
