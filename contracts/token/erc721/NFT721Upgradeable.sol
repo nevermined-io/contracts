@@ -144,6 +144,7 @@ contract NFT721Upgradeable is ERC721Upgradeable, NFTBase {
     function burn(
         uint256 tokenId
     ) 
+    virtual
     public 
     {
         require(
