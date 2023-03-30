@@ -114,9 +114,9 @@ contract AccessDLEQCondition is Condition {
         );
 
 
-        G1Point memory _rebase = Bn128.g1Add(G1P(_buyer), G1P(_secretId));
+        G1Point memory _rebase = Bn128.g1Add(g1p(_buyer), g1p(_secretId));
         // check the dleq proof
-        Bn128.dleqverify(Bn128.g1(), _rebase, G1P(_provider), G1P(_reencrypt), DleqProof(_proof[0], _proof[1]), _id);
+        require(Bn128.dleqverify(Bn128.g1(), _rebase, g1p(_provider), g1p(_reencrypt), DleqProof(_proof[0], _proof[1]), _id), 'Proof failed');
 
         ConditionStoreLibrary.ConditionState state = super.fulfill(
             _id,
@@ -137,7 +137,7 @@ contract AccessDLEQCondition is Condition {
         return state;
     }
 
-    function G1P(uint[2] memory p) internal returns (G1Point memory) {
+    function g1p(uint[2] memory p) internal pure returns (G1Point memory) {
         return G1Point(p[0], p[1]);
     }
 
