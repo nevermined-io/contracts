@@ -9,13 +9,14 @@ chai.use(chaiAsPromised)
 const constants = require('../../helpers/constants.js')
 const { makeProof, setupEG } = require('../../helpers/dleq')
 const deployManagers = require('../../helpers/deployManagers.js')
-// const testUtils = require('../../helpers/utils.js')
+const testUtils = require('../../helpers/utils.js')
 
 const AccessCondition = artifacts.require('AccessDLEQCondition')
 
 async function setup({accounts}) {
 
     let {
+        didRegistry,
         agreementStoreManager,
         conditionStoreManager,
         templateStoreManager
@@ -31,14 +32,18 @@ async function setup({accounts}) {
         agreementStoreManager.address,
         { from: accounts[0] }
     )
-
-    // compute 
+    const didSeed = constants.bytes32.one
+    const checksum = testUtils.generateId()
+    const value = constants.registry.url
+    const did = await didRegistry.hashDID(didSeed, accounts[0])
+    await didRegistry.registerAttribute(didSeed, checksum, [accounts[9]], value, {from: accounts[0]})
 
     return {
         agreementStoreManager,
         conditionStoreManager,
         templateStoreManager,
         accessCondition,
+        did,
     }
 }
 
@@ -61,7 +66,6 @@ contract('AccessDLEQCondition', (accounts) => {
             const { secretId, provider, buyer, reencrypt } = info
             const label = constants.bytes32.one
             const { proof, cipher } = await makeProof(info, label)
-            // console.log(proof)
 
             await assert.isRejected(
                 accessCondition.fulfill(agreementId, cipher, secretId, provider, buyer, reencrypt, proof),
@@ -70,34 +74,35 @@ contract('AccessDLEQCondition', (accounts) => {
         })
     })
 
-    /*
     describe('fulfill existing condition', () => {
         it('should fulfill if condition exist', async () => {
             const {
                 agreementStoreManager,
                 conditionStoreManager,
                 templateStoreManager,
-                accessCondition
-
+                accessCondition,
+                did,
             } = await setup({ accounts: accounts })
 
             const agreementId = constants.bytes32.one
-            const grantee = accounts[1]
 
             const templateId = accounts[2]
             await templateStoreManager.proposeTemplate(templateId)
             await templateStoreManager.approveTemplate(templateId)
 
-            const hashValues = await accessCondition.hashValues(documentId, grantee)
+            const info = await setupEG()
+            const { secretId, provider, buyer, reencrypt } = info
+            const cipher = 1234n
+
+            const hashValues = await accessCondition.hashValues(cipher, secretId, provider, buyer)
             const conditionId = await accessCondition.generateId(agreementId, hashValues)
 
             const agreement = {
-                did: did,
+                did,
                 conditionTypes: [accessCondition.address],
                 conditionIds: [hashValues],
                 timeLocks: [0],
                 timeOuts: [2]
-
             }
 
             await agreementStoreManager.createAgreement(
@@ -106,21 +111,21 @@ contract('AccessDLEQCondition', (accounts) => {
                 { from: templateId }
             )
 
-            const result = await accessCondition.fulfill(agreementId, documentId, grantee)
+            const { proof } = await makeProof(info, conditionId)
+            console.log("cond id", conditionId)
+            console.log('proof', proof)
+
+            const result = await accessCondition.fulfill(agreementId, cipher, secretId, provider, buyer, reencrypt, proof)
 
             assert.strictEqual(
                 (await conditionStoreManager.getConditionState(conditionId)).toNumber(),
                 constants.condition.state.fulfilled)
 
             testUtils.assertEmitted(result, 1, 'Fulfilled')
-            const eventArgs = testUtils.getEventArgsFromTx(result, 'Fulfilled')
-            expect(eventArgs._agreementId).to.equal(agreementId)
-            expect(eventArgs._conditionId).to.equal(conditionId)
-            expect(eventArgs._documentId).to.equal(documentId)
-            expect(eventArgs._grantee).to.equal(grantee)
         })
     })
 
+    /*
     describe('fail to fulfill existing condition', () => {
         it('wrong did owner should fail to fulfill if conditions exist', async () => {
             const {
