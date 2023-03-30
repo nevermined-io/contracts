@@ -5,7 +5,6 @@ const ZeroAddress = '0x0000000000000000000000000000000000000000'
 
 async function callContract(instance, f) {
     const contractOwner = await instance.owner()
-    // console.log('Contract Owner: ', contractOwner, instance.signer.address)
     let tx
     try {
         if (contractOwner !== instance.signer.address) {
@@ -13,7 +12,6 @@ async function callContract(instance, f) {
             instance.connect(signer)
         }
         tx = await f(instance.populateTransaction)
-        // console.log('Got tx', tx)
         const res = await instance.signer.sendTransaction(tx)
         await res.wait()
     } catch (err) {
@@ -30,7 +28,7 @@ async function approveTemplate({
     TemplateStoreManagerInstance,
     templateAddress
 } = {}) {
-    await callContract(TemplateStoreManagerInstance, a => a.approveTemplate(templateAddress /*, { gasLimit: 1000000 } */))
+    await callContract(TemplateStoreManagerInstance, a => a.approveTemplate(templateAddress))
 }
 
 async function setupTemplate({ verbose, TemplateStoreManagerInstance, templateName, addressBook, roles } = {}) {
