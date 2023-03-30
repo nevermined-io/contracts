@@ -60,18 +60,14 @@ contract NFT721SubscriptionUpgradeable is NFT721Upgradeable {
      * @dev See {IERC721-balanceOf}.
      */    
     function balanceOf(address owner) public view override returns (uint256) {
-        uint256 tokenBalance = super.balanceOf(owner);
         uint256 _balance;
         for (uint index = 0; index < _tokens[owner].length; index++) {
-            if (_tokens[owner][index].expirationBlock == 0 || _tokens[owner][index].expirationBlock > block.number)
+            if (_tokens[owner][index].mintBlock > 0 && 
+                (_tokens[owner][index].expirationBlock == 0 || _tokens[owner][index].expirationBlock > block.number))
                 _balance += 1;
         }
-
-        // We return the minimum between the balance of the NFT and the balance of the subscription
-        if (tokenBalance < _balance)
-            return tokenBalance;
-        else
-            return _balance;
+        
+        return _balance;
     }
 
     function whenWasMinted(address owner) public view returns (uint256[] memory) {

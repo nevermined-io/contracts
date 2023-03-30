@@ -67,18 +67,14 @@ contract NFT1155SubscriptionUpgradeable is NFT1155Upgradeable {
      */
     function balanceOf(address account, uint256 tokenId) public view virtual override returns (uint256) {
         bytes32 _key = _getTokenKey(account, tokenId);
-        uint256 tokenBalance = super.balanceOf(account, tokenId);
         uint256 _balance;
         for (uint index = 0; index < _tokens[_key].length; index++) {
-            if (_tokens[_key][index].expirationBlock == 0 || _tokens[_key][index].expirationBlock > block.number)
+            if (_tokens[_key][index].mintBlock > 0 && 
+                (_tokens[_key][index].expirationBlock == 0 || _tokens[_key][index].expirationBlock > block.number))
                 _balance += _tokens[_key][index].amountMinted;
         }
         
-        // We return the minimum between the balance of the NFT and the balance of the subscription
-        if (tokenBalance < _balance)
-            return tokenBalance;
-        else
-            return _balance;
+        return _balance;
     }
     
     function whenWasMinted(address owner, uint256 tokenId) public view returns (uint256[] memory) {
