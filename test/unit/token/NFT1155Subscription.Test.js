@@ -41,20 +41,27 @@ contract('NFT1155 Subscription', (accounts) => {
         account2
     ] = accounts
 
-    before(async () => {
+    let nft
+    let didRegistry
+
+
+//    before(async () => {
+//        didRegistry = await DIDRegistry.new()
+//        await didRegistry.initialize(owner, constants.address.zero, constants.address.zero, constants.address.zero, constants.address.zero)
+//
+//        nft = await TestERC1155.new({ from: deployer })
+//        await nft.initialize(owner, didRegistry.address, 'TestERC1155', 'TEST', '', { from: owner })
+//        await nft.grantOperatorRole(minter)
+//    })
+
+
+    async function setupTest() {
         didRegistry = await DIDRegistry.new()
         await didRegistry.initialize(owner, constants.address.zero, constants.address.zero, constants.address.zero, constants.address.zero)
 
         nft = await TestERC1155.new({ from: deployer })
         await nft.initialize(owner, didRegistry.address, 'TestERC1155', 'TEST', '', { from: owner })
         await nft.grantOperatorRole(minter)
-    })
-
-    let nft
-    let didRegistry
-
-    async function setupTest() {
-
     }
 
     describe('As a minter I want to use NFTs as subscriptions', () => {
@@ -130,8 +137,12 @@ contract('NFT1155 Subscription', (accounts) => {
                 _mintedBefore = _minted
             }
         })
+    })
 
+    describe('Mint and burn', () => {
         it('New tokens can be minted and burned', async () => {
+            await setupTest()
+
             let balance
             const didSeed3 = testUtils.generateId()
             const tokenId3 = await didRegistry.hashDID(didSeed3, minter)
