@@ -44,17 +44,6 @@ contract('NFT1155 Subscription', (accounts) => {
     let nft
     let didRegistry
 
-
-//    before(async () => {
-//        didRegistry = await DIDRegistry.new()
-//        await didRegistry.initialize(owner, constants.address.zero, constants.address.zero, constants.address.zero, constants.address.zero)
-//
-//        nft = await TestERC1155.new({ from: deployer })
-//        await nft.initialize(owner, didRegistry.address, 'TestERC1155', 'TEST', '', { from: owner })
-//        await nft.grantOperatorRole(minter)
-//    })
-
-
     async function setupTest() {
         didRegistry = await DIDRegistry.new()
         await didRegistry.initialize(owner, constants.address.zero, constants.address.zero, constants.address.zero, constants.address.zero)
