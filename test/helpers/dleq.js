@@ -27,7 +27,7 @@ async function setupEG() {
     // generate secret for consumer
     const z = Fr.random()
     const zG = G1.timesFr(G, z)
-    console.log(xG, yG, zG)
+    // console.log(xG, yG, zG)
 
     // re-encrypt the secret
     const R = G1.add(xG, zG)
@@ -68,7 +68,7 @@ async function makeProof({ Fr, G1, yG, xG, zG, R, yR, y, z, toEvm }, label) {
 
     // console.log(ethers.utils.solidityKeccak256(['uint256'], ['123']))
     // console.log(ethers.utils.solidityKeccak256([{x: 'uint256', y:'uint256'}], [{x: '123', y: '123'}]))
-    const arr = [label].toEvm(w1).concat(toEvm(w2)).concat(toEvm(G)).concat(toEvm(R))
+    const arr = [label].concat(toEvm(w1)).concat(toEvm(w2)).concat(toEvm(G)).concat(toEvm(R))
     const e = Fr.fromObject(BigInt(ethers.utils.solidityKeccak256(arr.map(a => 'uint256'), arr)))
     // console.log('challenge', e)
     const f = Fr.add(t, Fr.neg(Fr.mul(y, e)))
@@ -85,7 +85,7 @@ async function makeProof({ Fr, G1, yG, xG, zG, R, yR, y, z, toEvm }, label) {
     assert(G1.eq(w1, ww1))
     assert(G1.eq(w2, ww2))
 
-    const arr2 = [label].toEvm(ww1).concat(toEvm(ww2)).concat(toEvm(G)).concat(toEvm(R))
+    const arr2 = [label].concat(toEvm(ww1)).concat(toEvm(ww2)).concat(toEvm(G)).concat(toEvm(R))
     const chal = Fr.fromObject(BigInt(ethers.utils.solidityKeccak256(arr2.map(a => 'uint256'), arr)))
     assert(Fr.eq(chal, e))
 

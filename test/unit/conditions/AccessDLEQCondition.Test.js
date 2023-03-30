@@ -61,7 +61,7 @@ contract('AccessDLEQCondition', (accounts) => {
             const { secretId, provider, buyer, reencrypt } = info
             const label = constants.bytes32.one
             const { proof, cipher } = await makeProof(info, label)
-            console.log(proof)
+            // console.log(proof)
 
             await assert.isRejected(
                 accessCondition.fulfill(agreementId, cipher, secretId, provider, buyer, reencrypt, proof),
