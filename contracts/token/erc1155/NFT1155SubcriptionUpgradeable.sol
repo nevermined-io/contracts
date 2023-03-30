@@ -57,7 +57,8 @@ contract NFT1155SubscriptionUpgradeable is NFT1155Upgradeable {
                 break;
             } else {
                 _pendingToBurn -= _tokens[_key][index].amountMinted;
-                _tokens[_key][index].amountMinted = 0;
+                //_tokens[_key][index].amountMinted = 0;
+                delete _tokens[_key][index];
             }
         }
     }    
@@ -84,6 +85,10 @@ contract NFT1155SubscriptionUpgradeable is NFT1155Upgradeable {
             _whenMinted[index] = _tokens[_key][index].mintBlock;
         }
         return _whenMinted;
+    }
+    
+    function getMintedEntries(address owner, uint256 tokenId) public view returns (MintedTokens[] memory) {
+        return _tokens[_getTokenKey(owner, tokenId)];
     }
     
     function _getTokenKey(address account, uint256 tokenId) internal pure returns (bytes32) {
