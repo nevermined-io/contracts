@@ -58,8 +58,9 @@ contract('AccessDLEQCondition', (accounts) => {
             const agreementId = constants.bytes32.one
 
             const info = await setupEG()
-            const { proof, cipher } = await makeProof(info)
             const { secretId, provider, buyer, reencrypt } = info
+            const label = constants.bytes32.one
+            const { proof, cipher } = await makeProof(info, label)
             console.log(proof)
 
             await assert.isRejected(
