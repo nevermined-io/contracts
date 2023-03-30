@@ -143,17 +143,17 @@ contract('NFT1155 Subscription', (accounts) => {
 
             await nft.methods[
                 'mint(address,uint256,uint256,uint256,bytes)'
-            ](account2, tokenId3, 10, currentBlockNumber + blocksExpiring, data, { from: minter })
+            ](account2, tokenId3, 7, currentBlockNumber + blocksExpiring, data, { from: minter })
 
             balance = new BigNumber(await nft.balanceOf(account2, tokenId3))
-            assert.strictEqual(balance.toNumber(), 10)
+            assert.strictEqual(balance.toNumber(), 7)
 
             await nft.methods[
                 'mint(address,uint256,uint256,uint256,bytes)'
             ](account2, tokenId3, 10, 500, data, { from: minter })
 
             balance = new BigNumber(await nft.balanceOf(account2, tokenId3))
-            assert.strictEqual(balance.toNumber(), 20)
+            assert.strictEqual(balance.toNumber(), 17)
 
             await increaseTime.mineBlocks(web3, blocksExpiring)
 
@@ -165,7 +165,7 @@ contract('NFT1155 Subscription', (accounts) => {
             ](account2, tokenId3, 15, { from: minter })
 
             balance = new BigNumber(await nft.balanceOf(account2, tokenId3))
-            assert.strictEqual(balance.toNumber(), 5)
+            assert.strictEqual(balance.toNumber(), 2)
         })
     })
 })
