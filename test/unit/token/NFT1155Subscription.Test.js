@@ -152,6 +152,8 @@ contract('NFT1155 Subscription', (accounts) => {
                 'mint(address,uint256,uint256,uint256,bytes)'
             ](account2, tokenId3, 10, 500, data, { from: minter })
 
+            await new Promise(resolve => setTimeout(resolve, 2000))
+
             balance = new BigNumber(await nft.balanceOf(account2, tokenId3))
             assert.strictEqual(balance.toNumber(), 20)
 
