@@ -19,7 +19,7 @@ function getSignatureOfMethod(
     return foundMethod.format()
 }
 
-async function doDeploy(contract, signer, args, isCore) {
+async function doDeploy(contractName, signer, args, isCore) {
     const methodSignature = getSignatureOfMethod(signer, 'initialize', args)
 
     if (!isCore || process.env.NO_PROXY === 'true') {
@@ -32,7 +32,7 @@ async function doDeploy(contract, signer, args, isCore) {
     } else {
         const c = await upgrades.deployProxy(signer, args, { unsafeAllowLinkedLibraries: true, initializer: methodSignature })
         await c.deployed()
-        await writeArtifact(c, contract.name)
+        await writeArtifact(contractName, c)
         return c
     }
 }
