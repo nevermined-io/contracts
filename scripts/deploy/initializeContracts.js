@@ -27,7 +27,7 @@ async function doDeploy(contractName, signer, args, isCore) {
         await c.deployed()
         const tx = await c[methodSignature](...args)
         await tx.wait()
-        await exportLibraryArtifact(c, contract.name)
+        await exportLibraryArtifact(contractName, c)
         return c
     } else {
         const c = await upgrades.deployProxy(signer, args, { unsafeAllowLinkedLibraries: true, initializer: methodSignature })
