@@ -52,7 +52,6 @@ contract NFT1155Upgradeable is ERC1155Upgradeable, NFTBase {
         nftRegistry = IExternalRegistry(didRegistryAddress);
         if (owner != _msgSender()) {
             transferOwnership(owner);
-            AccessControlUpgradeable._revokeRole(NVM_OPERATOR_ROLE, _msgSender());
         }
     }
 
@@ -76,6 +75,7 @@ contract NFT1155Upgradeable is ERC1155Upgradeable, NFTBase {
         for (uint256 i = 0; i < _operators.length; i++) {
             nftContract.grantOperatorRole(_operators[i]);
         }
+        nftContract.renounceOperatorRole();
         emit NFTCloned(cloneAddress, implementation, 1155);
         return cloneAddress;
     }    
