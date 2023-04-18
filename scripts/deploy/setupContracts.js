@@ -130,7 +130,7 @@ async function setupContracts({
 
         const templates = Object.keys(addressBook).filter(a => a.match(/Template$/))
 
-        for (let templateName of templates) {
+        for (const templateName of templates) {
             await setupTemplate({
                 verbose,
                 TemplateStoreManagerInstance,
@@ -447,7 +447,6 @@ async function setupContracts({
         await callContract(artifacts.DIDRegistry, a => a.setNFT1155(addressBook.NFT1155Upgradeable))
         addresses.stage = 24
     }
-
 }
 
 module.exports = setupContracts
