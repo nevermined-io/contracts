@@ -43,5 +43,11 @@
   "AaveCollateralWithdrawCondition",
   "AaveCreditVault",
   "AaveRepayCondition",
-  "AaveCreditTemplate"
+  "AaveCreditTemplate",
+  "NFT721AccessDLEQTemplate",
+  "NFT721SalesWithDLEQTemplate",
+  "NFTAccessDLEQTemplate",
+  "NFTSalesWithDLEQTemplate",
+  "AccessDLEQCondition",
+  "AccessDLEQTemplate"
 ]

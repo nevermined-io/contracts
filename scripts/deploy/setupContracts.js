@@ -128,125 +128,17 @@ async function setupContracts({
     if (addressBook.TemplateStoreManager && addresses.stage < 1) {
         const TemplateStoreManagerInstance = artifacts.TemplateStoreManager
 
-        await setupTemplate({
-            verbose,
-            TemplateStoreManagerInstance,
-            templateName: 'AccessTemplate',
-            addressBook,
-            roles
-        })
+        const templates = Object.keys(addressBook).filter(a => a.match(/Template$/))
 
-        await setupTemplate({
-            verbose,
-            TemplateStoreManagerInstance,
-            templateName: 'AccessProofTemplate',
-            addressBook,
-            roles
-        })
-
-        await setupTemplate({
-            verbose,
-            TemplateStoreManagerInstance,
-            templateName: 'EscrowComputeExecutionTemplate',
-            addressBook,
-            roles
-        })
-
-        await setupTemplate({
-            verbose,
-            TemplateStoreManagerInstance,
-            templateName: 'NFTAccessTemplate',
-            addressBook,
-            roles
-        })
-
-        await setupTemplate({
-            verbose,
-            TemplateStoreManagerInstance,
-            templateName: 'NFT721AccessTemplate',
-            addressBook,
-            roles
-        })
-
-        await setupTemplate({
-            verbose,
-            TemplateStoreManagerInstance,
-            templateName: 'NFTSalesTemplate',
-            addressBook,
-            roles
-        })
-
-        await setupTemplate({
-            verbose,
-            TemplateStoreManagerInstance,
-            templateName: 'NFTSalesWithAccessTemplate',
-            addressBook,
-            roles
-        })
-
-        await setupTemplate({
-            verbose,
-            TemplateStoreManagerInstance,
-            templateName: 'NFTAccessProofTemplate',
-            addressBook,
-            roles
-        })
-
-        await setupTemplate({
-            verbose,
-            TemplateStoreManagerInstance,
-            templateName: 'NFTAccessSwapTemplate',
-            addressBook,
-            roles
-        })
-
-        await setupTemplate({
-            verbose,
-            TemplateStoreManagerInstance,
-            templateName: 'NFT721SalesWithAccessTemplate',
-            addressBook,
-            roles
-        })
-
-        await setupTemplate({
-            verbose,
-            TemplateStoreManagerInstance,
-            templateName: 'NFT721AccessProofTemplate',
-            addressBook,
-            roles
-        })
-
-        await setupTemplate({
-            verbose,
-            TemplateStoreManagerInstance,
-            templateName: 'NFT721AccessSwapTemplate',
-            addressBook,
-            roles
-        })
-
-        await setupTemplate({
-            verbose,
-            TemplateStoreManagerInstance,
-            templateName: 'NFT721SalesTemplate',
-            addressBook,
-            roles
-        })
-
-        await setupTemplate({
-            verbose,
-            TemplateStoreManagerInstance,
-            templateName: 'DIDSalesTemplate',
-            addressBook,
-            roles
-        })
-
-        await setupTemplate({
-            verbose,
-            TemplateStoreManagerInstance,
-            templateName: 'AaveCreditTemplate',
-            addressBook,
-            roles
-        })
+        for (let templateName of templates) {
+            await setupTemplate({
+                verbose,
+                TemplateStoreManagerInstance,
+                templateName,
+                addressBook,
+                roles
+            })
+        }
 
         await transferOwnership({
             ContractInstance: TemplateStoreManagerInstance,
@@ -320,18 +212,7 @@ async function setupContracts({
     }
 
     if (addressBook.AgreementStoreManager && addresses.stage < 5) {
-        const agreements = [
-            'NFTAccessTemplate',
-            'NFTSalesTemplate',
-            'NFT721AccessTemplate',
-            'NFT721SalesTemplate',
-            'AaveCreditTemplate',
-            'AccessProofTemplate',
-            'AccessTemplate',
-            'DIDSalesTemplate',
-            'DynamicAccessTemplate',
-            'EscrowComputeExecutionTemplate'
-        ]
+        const agreements = Object.keys(addressBook).filter(a => a.match(/Template$/))
         for (const a of agreements) {
             if (addressBook[a] && addressBook.AgreementStoreManager) {
                 console.log('Set agreement manager proxy : ' + addressBook[a])
@@ -567,21 +448,6 @@ async function setupContracts({
         addresses.stage = 24
     }
 
-    if (addressBook.AgreementStoreManager && addresses.stage < 25) {
-        const agreements = [
-            'NFTAccessProofTemplate',
-            'NFTSalesWithAccessTemplate',
-            'NFT721AccessProofTemplate',
-            'NFT721SalesWithAccessTemplate'
-        ]
-        for (const a of agreements) {
-            if (addressBook[a] && addressBook.AgreementStoreManager) {
-                console.log('Set agreement manager proxy : ' + addressBook[a])
-                await callContract(artifacts.AgreementStoreManager, c => c.grantProxyRole(addressBook[a]))
-            }
-        }
-        addresses.stage = 25
-    }
 }
 
 module.exports = setupContracts
