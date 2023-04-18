@@ -211,6 +211,13 @@ abstract contract NFTBase is IERC2981Upgradeable, CommonOwnable, AccessControlUp
         AccessControlUpgradeable._revokeRole(NVM_OPERATOR_ROLE, account);
     }
 
+    function renounceOperatorRole()
+    public
+    virtual
+    {
+        AccessControlUpgradeable._revokeRole(NVM_OPERATOR_ROLE, _msgSender());
+    }
+    
     function isOperator(
         address operator
     )

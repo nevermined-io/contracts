@@ -1,18 +1,18 @@
+const { ethers } = require('hardhat')
+
 /* eslint-disable no-console */
 const ZeroAddress = '0x0000000000000000000000000000000000000000'
 
-const { ethers } = require('hardhat')
-
 async function callContract(instance, f) {
-    // console.log('Calling contract ...')
     const contractOwner = await instance.owner()
-    // console.log('Contract Owner: ', contractOwner)
     let tx
     try {
-        const signer = await ethers.provider.getSigner(contractOwner)
-        tx = await f(instance.connect(signer).populateTransaction)
-        // console.log('Got tx', tx)
-        const res = await signer.sendTransaction(tx)
+        if (contractOwner !== instance.signer.address) {
+            const signer = await ethers.provider.getSigner(contractOwner)
+            instance.connect(signer)
+        }
+        tx = await f(instance.populateTransaction)
+        const res = await instance.signer.sendTransaction(tx)
         await res.wait()
     } catch (err) {
         console.log('Warning: TX fail')
@@ -28,7 +28,7 @@ async function approveTemplate({
     TemplateStoreManagerInstance,
     templateAddress
 } = {}) {
-    await callContract(TemplateStoreManagerInstance, a => a.approveTemplate(templateAddress, { gasLimit: 100000 }))
+    await callContract(TemplateStoreManagerInstance, a => a.approveTemplate(templateAddress))
 }
 
 async function setupTemplate({ verbose, TemplateStoreManagerInstance, templateName, addressBook, roles } = {}) {
@@ -94,7 +94,7 @@ async function transferOwnership({
     if (contractOwner === roles.owner) {
         console.log(`The owner wallet {roles.owner} is already owner of the contract ${name}`)
     } else if (contractOwner === roles.deployer) {
-        const tx = await ContractInstance.connect(ethers.provider.getSigner(roles.deployer)).transferOwnership(
+        const tx = await ContractInstance.connect(roles.deployerSigner).transferOwnership(
             roles.ownerWallet,
             { from: roles.deployer }
         )
@@ -415,7 +415,7 @@ async function setupContracts({
                 )
             }
 
-            const tx = await token.connect(ethers.provider.getSigner(roles.deployer)).grantRole(
+            const tx = await token.connect(roles.deployerSigner).grantRole(
                 web3.utils.toHex('minter').padEnd(66, '0'),
                 addressBook.Dispenser,
                 { from: roles.deployer }
@@ -429,14 +429,14 @@ async function setupContracts({
             )
         }
 
-        const tx = await token.connect(ethers.provider.getSigner(roles.deployer)).revokeRole(
+        const tx = await token.connect(roles.deployerSigner).revokeRole(
             web3.utils.toHex('minter').padEnd(66, '0'),
             roles.deployer,
             { from: roles.deployer }
         )
         await tx.wait()
 
-        const tx2 = await token.connect(ethers.provider.getSigner(roles.deployer)).grantRole(
+        const tx2 = await token.connect(roles.deployerSigner).grantRole(
             web3.utils.toHex('minter').padEnd(66, '0'),
             roles.ownerWallet,
             { from: roles.deployer }

@@ -35,7 +35,20 @@ BUCKET="artifacts.nevermined.network"
 OUTPUT_FOLDER="/tmp"
 DEPENDENCIES=(gsutil zip tar jq)
 declare -A NETWORKS_MAP
-NETWORKS_MAP=( ["mainnet"]="1" ["rinkeby"]="4" ["goerli"]="5" ["matic"]="137" ["arbitrum-one"]="42161" ["celo-alfajores"]="44787" ["celo"]="42220" ["mumbai"]="80001" ["arbitrum-goerli"]="421613" ["aurora"]="1313161554" ["aurora-testnet"]="1313161555" )
+NETWORKS_MAP=(
+  ["mainnet"]="1"
+  ["rinkeby"]="4" 
+  ["goerli"]="5" 
+  ["matic"]="137" 
+  ["arbitrum-one"]="42161" 
+  ["celo-alfajores"]="44787" 
+  ["hyperspace"]="3141"
+  ["celo"]="42220" 
+  ["mumbai"]="80001" 
+  ["arbitrum-goerli"]="421613" 
+  ["aurora"]="1313161554" 
+  ["aurora-testnet"]="1313161555"
+ )
 
 function check_dependencies {
   for dep in "${DEPENDENCIES[@]}"; do

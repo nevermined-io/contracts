@@ -20,6 +20,7 @@ contract('NFT Clones', (accounts) => {
     const owner = accounts[0]
     const deployer = accounts[1]
     const account1 = accounts[2]
+    const account2 = accounts[3]
 
     let nft721
     let nft1155
@@ -41,7 +42,7 @@ contract('NFT Clones', (accounts) => {
             nft721 = await NFT721.new({ from: deployer })
             await nft721.initialize(owner, didRegistry.address, 'TestERC721', 'TEST', 'http', 10, { from: owner })
 
-            const result = await nft721.createClone('My Name', 'xXx', 'cid', 100, [], { from: account1 })
+            const result = await nft721.createClone('My Name', 'xXx', 'cid', 100, [account2], { from: account1 })
 
             const eventArgs = testUtils.getEventArgsFromTx(result, 'NFTCloned')
 
@@ -69,7 +70,7 @@ contract('NFT Clones', (accounts) => {
             nft1155 = await NFT1155.new({ from: deployer })
             await nft1155.initialize(owner, didRegistry.address, 'TestERC1155', '1155', 'http', { from: owner })
 
-            const result = await nft1155.createClone('My 1155', 'yYy', 'cid', [], { from: account1 })
+            const result = await nft1155.createClone('My 1155', 'yYy', 'cid', [account2], { from: account1 })
 
             const eventArgs = testUtils.getEventArgsFromTx(result, 'NFTCloned')
 

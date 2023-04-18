@@ -52,7 +52,6 @@ contract NFT1155Upgradeable is ERC1155Upgradeable, NFTBase {
         nftRegistry = IExternalRegistry(didRegistryAddress);
         if (owner != _msgSender()) {
             transferOwnership(owner);
-            AccessControlUpgradeable._revokeRole(NVM_OPERATOR_ROLE, _msgSender());
         }
     }
 
@@ -76,6 +75,7 @@ contract NFT1155Upgradeable is ERC1155Upgradeable, NFTBase {
         for (uint256 i = 0; i < _operators.length; i++) {
             nftContract.grantOperatorRole(_operators[i]);
         }
+        nftContract.renounceOperatorRole();
         emit NFTCloned(cloneAddress, implementation, 1155);
         return cloneAddress;
     }    
@@ -114,11 +114,11 @@ contract NFT1155Upgradeable is ERC1155Upgradeable, NFTBase {
         _mint(to, id, amount, data);
     }
 
-    function burn(uint256 id, uint256 amount) public {
+    function burn(uint256 id, uint256 amount) virtual public {
         burn(_msgSender(), id, amount); 
     }
     
-    function burn(address to, uint256 id, uint256 amount) public {
+    function burn(address to, uint256 id, uint256 amount) virtual public {
         require(balanceOf(to, id) >= amount, 'ERC1155: burn amount exceeds balance');
         require(
             isOperator(_msgSender()) || // Or the DIDRegistry is burning the NFT 

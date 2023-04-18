@@ -104,4 +104,41 @@ contract('NFT721 Subscription', (accounts) => {
             }
         })
     })
+
+    describe('Mint and burn', () => {
+        it('New tokens can be minted and burned', async () => {
+            await setupTest()
+
+            let balance
+            const newTokenIdExpiring = testUtils.generateId()
+            const newTokenIdNotExpiring = testUtils.generateId()
+            const currentBlockNumber = await ethers.provider.getBlockNumber()
+
+            balance = new BigNumber(await nft.balanceOf(account1))
+            assert.strictEqual(balance.toNumber(), 0)
+
+            await nft.mint(account1, newTokenIdExpiring, currentBlockNumber + blocksExpiring, { from: minter })
+            balance = new BigNumber(await nft.balanceOf(account1))
+            assert.strictEqual(balance.toNumber(), 1)
+
+            await nft.mint(account1, newTokenIdNotExpiring, 90000, { from: minter })
+            balance = new BigNumber(await nft.balanceOf(account1))
+            assert.strictEqual(balance.toNumber(), 2)
+
+            await increaseTime.mineBlocks(web3, blocksExpiring + 1)
+
+            balance = new BigNumber(await nft.balanceOf(account1))
+            assert.strictEqual(balance.toNumber(), 1)
+
+            await nft.burn(newTokenIdExpiring, { from: account1 })
+            balance = new BigNumber(await nft.balanceOf(account1))
+            // Balance is still 1 because the other token is not expiring yet
+            assert.strictEqual(balance.toNumber(), 1)
+
+            await nft.burn(newTokenIdNotExpiring, { from: account1 })
+            balance = new BigNumber(await nft.balanceOf(account1))
+            // Balance is now 0
+            assert.strictEqual(balance.toNumber(), 0)
+        })
+    })
 })

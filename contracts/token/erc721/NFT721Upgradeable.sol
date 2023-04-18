@@ -53,7 +53,6 @@ contract NFT721Upgradeable is ERC721Upgradeable, NFTBase {
         nftRegistry = IExternalRegistry(didRegistryAddress);
         if (owner != _msgSender()) {
             transferOwnership(owner);
-            AccessControlUpgradeable._revokeRole(NVM_OPERATOR_ROLE, _msgSender());
         }
     }
 
@@ -78,6 +77,7 @@ contract NFT721Upgradeable is ERC721Upgradeable, NFTBase {
         for (uint256 i = 0; i < _operators.length; i++) {
             nftContract.grantOperatorRole(_operators[i]);
         }
+        nftContract.renounceOperatorRole();
         emit NFTCloned(cloneAddress, implementation, 721);
         return cloneAddress;
     }
@@ -144,6 +144,7 @@ contract NFT721Upgradeable is ERC721Upgradeable, NFTBase {
     function burn(
         uint256 tokenId
     ) 
+    virtual
     public 
     {
         require(
