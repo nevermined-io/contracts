@@ -27,7 +27,6 @@ async function setupEG() {
     // generate secret for consumer
     const z = Fr.random()
     const zG = G1.timesFr(G, z)
-    // console.log(xG, yG, zG)
 
     // re-encrypt the secret
     const R = G1.add(xG, zG)
@@ -70,26 +69,13 @@ async function makeProof({ Fr, G1, yG, xG, zG, R, yR, y, z, toEvm }, label) {
     const w1 = G1.timesFr(G, t)
     const w2 = G1.timesFr(R, t)
 
-    console.log('w1', toEvm(w1))
-    console.log('w2', toEvm(w2))
-
-    console.log('g1', toEvm(G))
-    console.log('g2', toEvm(R))
-
-    console.log('rg1', toEvm(yG))
-    console.log('rg2', toEvm(yR))
-
-    // console.log(ethers.utils.solidityKeccak256(['uint256'], ['123']))
-    // console.log(ethers.utils.solidityKeccak256([{x: 'uint256', y:'uint256'}], [{x: '123', y: '123'}]))
     const arr = [label].concat(toEvm(yG)).concat(toEvm(yR)).concat(toEvm(w1)).concat(toEvm(w2))
     const e = Fr.fromObject(BigInt(ethers.utils.solidityKeccak256(arr.map(a => 'uint256'), arr)))
-    // console.log('challenge', e)
     const f = Fr.add(t, Fr.neg(Fr.mul(y, e)))
 
     // consumer will get e and f
 
     // w1 = f*G + yG * e
-    // console.log('w1 parts', toEvm(G1.timesFr(G, f)), toEvm(G1.timesFr(yG, e)))
     const ww1 = G1.add(G1.timesFr(G, f), G1.timesFr(yG, e))
     // w2 = f*R + yR * e
     const ww2 = G1.add(G1.timesFr(R, f), G1.timesFr(yR, e))

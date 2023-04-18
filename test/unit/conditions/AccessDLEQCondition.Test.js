@@ -111,8 +111,6 @@ contract('AccessDLEQCondition', (accounts) => {
             )
 
             const { proof } = await makeProof(info, conditionId)
-            console.log('cond id', conditionId)
-            console.log('proof', proof)
 
             const result = await accessCondition.fulfill(agreementId, cipher, secretId, provider, buyer, reencrypt, proof)
 
@@ -123,90 +121,4 @@ contract('AccessDLEQCondition', (accounts) => {
             testUtils.assertEmitted(result, 1, 'Fulfilled')
         })
     })
-
-    /*
-    describe('fail to fulfill existing condition', () => {
-        it('wrong did owner should fail to fulfill if conditions exist', async () => {
-            const {
-                did,
-                agreementStoreManager,
-                templateStoreManager,
-                accessCondition
-
-            } = await common.setupTest({ accounts: accounts, registerDID: true })
-
-            const agreementId = constants.bytes32.one
-            const documentId = did
-            const grantee = accounts[1]
-
-            const templateId = accounts[2]
-            await templateStoreManager.proposeTemplate(templateId)
-            await templateStoreManager.approveTemplate(templateId)
-
-            const hashValues = await accessCondition.hashValues(documentId, grantee)
-
-            const agreement = {
-                did: did,
-                conditionTypes: [accessCondition.address],
-                conditionIds: [hashValues],
-                timeLocks: [0],
-                timeOuts: [2]
-
-            }
-
-            await agreementStoreManager.createAgreement(
-                agreementId,
-                ...Object.values(agreement),
-                { from: templateId }
-            )
-
-            await assert.isRejected(
-                accessCondition.fulfill(agreementId, documentId, grantee, { from: accounts[1] }),
-                'Invalid DID owner/provider'
-            )
-        })
-
-        it('right did owner should fail to fulfill if conditions already fulfilled', async () => {
-            const {
-                did,
-                agreementStoreManager,
-                templateStoreManager,
-                accessCondition
-
-            } = await common.setupTest({ accounts: accounts, registerDID: true })
-
-            const agreementId = constants.bytes32.one
-            const documentId = did
-            const grantee = accounts[1]
-
-            const templateId = accounts[2]
-            await templateStoreManager.proposeTemplate(templateId)
-            await templateStoreManager.approveTemplate(templateId)
-
-            const hashValues = await accessCondition.hashValues(documentId, grantee)
-
-            const agreement = {
-                did: did,
-                conditionTypes: [accessCondition.address],
-                conditionIds: [hashValues],
-                timeLocks: [0],
-                timeOuts: [2]
-
-            }
-
-            await agreementStoreManager.createAgreement(
-                agreementId,
-                ...Object.values(agreement),
-                { from: templateId }
-            )
-
-            await accessCondition.fulfill(agreementId, documentId, grantee)
-
-            await assert.isRejected(
-                accessCondition.fulfill(agreementId, documentId, grantee),
-                constants.condition.state.error.invalidStateTransition
-            )
-        })
-    })
-    */
 })

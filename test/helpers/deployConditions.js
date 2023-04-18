@@ -42,7 +42,7 @@ const deployConditions = async function(
     const computeExecutionCondition = await testUtils.deploy('ComputeExecutionCondition', [owner,
         conditionStoreManager.address,
         agreementStoreManager.address],
-        deployer
+    deployer
     )
 
     if (testUtils.deploying) {

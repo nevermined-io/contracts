@@ -40,7 +40,7 @@ contract('Access Proof (with DLEQ) Template integration test', (accounts) => {
         } = await deployManagers(
             deployer,
             owner
-        ));
+        ))
 
         let accessDLEQCondition
         ({
@@ -96,8 +96,6 @@ contract('Access Proof (with DLEQ) Template integration test', (accounts) => {
         const { secretId, provider, buyer, reencrypt } = info1
         const cipher = 1234n
 
-        console.log(info1)
-
         const did = await didRegistry.hashDID(didSeed, receivers[0])
 
         const agreementId = await agreementStoreManager.agreementId(initAgreementId, accounts[0])
@@ -151,7 +149,12 @@ contract('Access Proof (with DLEQ) Template integration test', (accounts) => {
             timeOutAccess,
             checksum,
             url,
-            secretId, provider, buyer, reencrypt, proof, cipher
+            secretId,
+            provider,
+            buyer,
+            reencrypt,
+            proof,
+            cipher
         }
     }
 
@@ -161,7 +164,7 @@ contract('Access Proof (with DLEQ) Template integration test', (accounts) => {
             const { owner } = await setupTest()
 
             // prepare: escrow agreement
-            const { agreementId, data, did, didSeed, agreement, sender, receivers, escrowAmounts, checksum, url, buyerK, providerPub, origHash, conditionIds } = await prepareEscrowAgreementMultipleEscrow()
+            const { agreementId, data, did, didSeed, agreement, sender, receivers, escrowAmounts, checksum, url, conditionIds } = await prepareEscrowAgreementMultipleEscrow()
             const totalAmount = escrowAmounts[0] + escrowAmounts[1]
             const receiver = receivers[0]
             // register DID
@@ -229,16 +232,7 @@ contract('Access Proof (with DLEQ) Template integration test', (accounts) => {
             // make sure decryption works
             const ev = await accessProofCondition.getPastEvents('Fulfilled', { fromBlock: 0, toBlock: 'latest', filter: { _agreementId: agreementId } })
 
-            /*
-            const poseidon = await circomlib.buildPoseidonReference()
-            const babyJub = await circomlib.buildBabyjub()
-            const F = poseidon.F
-            const [cipherL, cipherR] = ev[0].returnValues._cipher
-            const k2 = babyJub.mulPointEscalar([F.e(providerPub[0]), F.e(providerPub[1])], buyerK)
-
-            const plain = mimcdecrypt(cipherL, cipherR, F.toObject(k2[0]))
-            assert.strictEqual(origHash, F.toObject(poseidon([plain.xL, plain.xR])))
-            */
+            assert.strictEqual(ev.length, 1)
         })
 
         it('the provider should be able to fulfill too', async () => {
@@ -246,7 +240,7 @@ contract('Access Proof (with DLEQ) Template integration test', (accounts) => {
             const provider = accounts[5]
 
             // prepare: escrow agreement
-            const { agreementId, data, did, didSeed, agreement, sender, receivers, escrowAmounts, checksum, url, buyerK, providerPub, origHash, conditionIds } = await prepareEscrowAgreementMultipleEscrow()
+            const { agreementId, data, did, didSeed, agreement, sender, receivers, escrowAmounts, checksum, url, conditionIds } = await prepareEscrowAgreementMultipleEscrow()
             const totalAmount = escrowAmounts[0] + escrowAmounts[1]
             const receiver = receivers[0]
             // register DID
@@ -314,16 +308,7 @@ contract('Access Proof (with DLEQ) Template integration test', (accounts) => {
             // make sure decryption works
             const ev = await accessProofCondition.getPastEvents('Fulfilled', { fromBlock: 0, toBlock: 'latest', filter: { _agreementId: agreementId } })
 
-            /*
-            const poseidon = await circomlib.buildPoseidonReference()
-            const babyJub = await circomlib.buildBabyjub()
-            const F = poseidon.F
-            const [cipherL, cipherR] = ev[0].returnValues._cipher
-            const k2 = babyJub.mulPointEscalar([F.e(providerPub[0]), F.e(providerPub[1])], buyerK)
-
-            const plain = mimcdecrypt(cipherL, cipherR, F.toObject(k2[0]))
-            assert.strictEqual(origHash, F.toObject(poseidon([plain.xL, plain.xR])))
-            */
+            assert.strictEqual(ev.length, 1)
         })
 
         it('should create escrow agreement and abort after timeout', async () => {
