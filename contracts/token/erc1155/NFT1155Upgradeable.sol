@@ -83,7 +83,7 @@ contract NFT1155Upgradeable is ERC1155Upgradeable, NFTBase {
         if (owner != _msgSender()) {
             transferOwnership(owner);
         }
-        NFT_TYPE = keccak256(keccak256('nft1155'));
+        NFT_TYPE = keccak256('nft1155');
     }
 
     function createClone(
