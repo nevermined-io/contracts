@@ -39,9 +39,9 @@ function deleteEphemeralFolder(tempDir) {
 function downloadArtifacts(scriptsDir, version, network, tag, options) {
     var artifactsDir = mkdtempSync('/tmp/nvm_contracts_artifacts_')
     execSync(`mkdir -p ${artifactsDir}/scripts/`)
-    const cpScriptCmd = `cp -f ${scriptsDir}/download_artifacts_s3.sh ${artifactsDir}/scripts/`
+    const cpScriptCmd = `cp -f ${scriptsDir}/download_artifacts_gs.sh ${artifactsDir}/scripts/`
     execSync(cpScriptCmd)
-    execSync(`./scripts/download_artifacts_s3.sh ${version} ${network} ${tag}`, { cwd: `${artifactsDir}` })
+    execSync(`./scripts/download_artifacts_gs.sh ${version} ${network} ${tag}`, { cwd: `${artifactsDir}` })
     artifactsDir = artifactsDir + '/artifacts'
     console.log(`Artifacts downloaded to ${artifactsDir}`)
     return artifactsDir

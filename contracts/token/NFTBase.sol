@@ -34,8 +34,13 @@ import '@openzeppelin/contracts-upgradeable/utils/StorageSlotUpgradeable.sol';
 abstract contract NFTBase is IERC2981Upgradeable, CommonOwnable, AccessControlUpgradeable {
 
     // Role to operate the NFT contract
-    bytes32 public constant NVM_OPERATOR_ROLE = keccak256('NVM_OPERATOR_ROLE');    
-    
+    bytes32 public constant NVM_OPERATOR_ROLE = keccak256('NVM_OPERATOR_ROLE');
+
+    // It represents the NFT type. It is used to identify the NFT type in the Nevermined ecosystem
+    // solhint-disable-next-line
+    bytes32 public NFT_TYPE;
+
+
     struct RoyaltyInfo {
         address receiver;
         uint256 royaltyAmount;

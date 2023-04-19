@@ -69,6 +69,10 @@ contract('NFT1155 Subscription', (accounts) => {
             ](account1, tokenIdExpiring, amount, currentBlockNumber + blocksExpiring, data, { from: minter })
         })
 
+        it('I want to check Im using a subscription contract', async () => {
+            assert.strictEqual(await nft.NFT_TYPE(), web3.utils.soliditySha3('nft1155-subscription'))
+        })
+
         it('The subscriber has the right balance for a non expired NFT', async () => {
             const balance = new BigNumber(await nft.balanceOf(account1, tokenIdExpiring))
             assert.strictEqual(balance.toNumber(), amount)

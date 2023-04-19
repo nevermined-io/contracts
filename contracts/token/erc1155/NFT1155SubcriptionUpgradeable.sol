@@ -7,7 +7,7 @@ import './NFT1155Upgradeable.sol';
 // Code is Apache-2.0 and docs are CC-BY-4.0
 
 contract NFT1155SubscriptionUpgradeable is NFT1155Upgradeable {
-
+    
     struct MintedTokens {
         uint256 amountMinted;
         uint256 expirationBlock;
@@ -15,6 +15,22 @@ contract NFT1155SubscriptionUpgradeable is NFT1155Upgradeable {
     }
 
     mapping(bytes32 => MintedTokens[]) internal _tokens;
+
+    function initialize(
+        address owner,
+        address didRegistryAddress,
+        string memory name_,
+        string memory symbol_,
+        string memory uri_
+    )
+    public
+    override
+    virtual
+    initializer
+    {
+        __NFT1155Upgradeable_init(owner, didRegistryAddress, name_, symbol_, uri_);
+        NFT_TYPE = keccak256('nft1155-subscription');
+    }
     
     /**
      * @dev This mint function allows to define when the tokenId of the NFT expires. 

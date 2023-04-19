@@ -13,6 +13,7 @@ const constants = require('../../helpers/constants.js')
 const testUtils = require('../../helpers/utils.js')
 const deployManagers = require('../../helpers/deployManagers.js')
 const deployConditions = require('../../helpers/deployConditions.js')
+const web3 = require('web3')
 
 contract('End to End NFT Scenarios', (accounts) => {
     const royalties = 100000 // 10% of royalties in the secondary market
@@ -254,6 +255,10 @@ contract('End to End NFT Scenarios', (accounts) => {
             const balance = await nft.balanceOf(artist, did)
             assert.strictEqual(5, balance.toNumber())
             assert.equal(royaltyManager.address, await didRegistry.getDIDRoyaltyScheme(did))
+        })
+
+        it('I am using the right NFT contract', async () => {
+            assert.strictEqual(await nft.NFT_TYPE(), web3.utils.soliditySha3('nft1155'))
         })
     })
 

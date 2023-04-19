@@ -38,12 +38,39 @@ contract NFT721Upgradeable is ERC721Upgradeable, NFTBase {
     virtual
     initializer
     {
+        __NFT721Upgradeable_init(owner, didRegistryAddress, name, symbol, uri, cap);
+    }
+
+    // solhint-disable-next-line
+    function __NFT721Upgradeable_init(
+        address owner,
+        address didRegistryAddress,
+        string memory name,
+        string memory symbol,
+        string memory uri,
+        uint256 cap
+    )
+    internal
+    onlyInitializing
+    {
         __Context_init_unchained();
         __ERC165_init_unchained();
         __ERC721_init_unchained(name, symbol);
         __Ownable_init_unchained();
-        
         AccessControlUpgradeable.__AccessControl_init();
+        __NFT721Upgradeable_unchained(owner, didRegistryAddress, uri, cap);
+    }
+
+    // solhint-disable-next-line
+    function __NFT721Upgradeable_unchained(
+        address owner,
+        address didRegistryAddress,
+        string memory uri,
+        uint256 cap
+    )
+    internal
+    onlyInitializing
+    {
         AccessControlUpgradeable._setupRole(NVM_OPERATOR_ROLE, _msgSender());
         AccessControlUpgradeable._setupRole(NVM_OPERATOR_ROLE, didRegistryAddress);
         AccessControlUpgradeable._setupRole(NVM_OPERATOR_ROLE, owner);
@@ -54,6 +81,7 @@ contract NFT721Upgradeable is ERC721Upgradeable, NFTBase {
         if (owner != _msgSender()) {
             transferOwnership(owner);
         }
+        NFT_TYPE = keccak256('nft721');
     }
 
     function createClone(

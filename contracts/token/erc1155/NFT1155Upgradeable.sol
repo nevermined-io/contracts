@@ -12,7 +12,7 @@ import '../../interfaces/IExternalRegistry.sol';
  * See https://eips.ethereum.org/EIPS/eip-1155
  */
 contract NFT1155Upgradeable is ERC1155Upgradeable, NFTBase {
-
+    
     // Token name
     string public name;
 
@@ -36,12 +36,42 @@ contract NFT1155Upgradeable is ERC1155Upgradeable, NFTBase {
             owner != address(0) && didRegistryAddress != address(0),
             'Invalid address'
         );
+        __NFT1155Upgradeable_init(owner, didRegistryAddress, name_, symbol_, uri_);
+    }
+
+    // solhint-disable-next-line
+    function __NFT1155Upgradeable_init(
+        address owner,
+        address didRegistryAddress,
+        string memory name_,
+        string memory symbol_,
+        string memory uri_
+    )
+    public
+    virtual
+    onlyInitializing
+    {
         __Context_init_unchained();
         __ERC165_init_unchained();
         __ERC1155_init_unchained(uri_);
         __Ownable_init_unchained();
         
         AccessControlUpgradeable.__AccessControl_init();
+    __NFT1155Upgradeable_unchained(owner, didRegistryAddress, name_, symbol_, uri_);
+    }
+
+    // solhint-disable-next-line
+    function __NFT1155Upgradeable_unchained(
+        address owner,
+        address didRegistryAddress,
+        string memory name_,
+        string memory symbol_,
+        string memory uri_
+    )
+    public
+    virtual
+    onlyInitializing
+    {
         AccessControlUpgradeable._setupRole(NVM_OPERATOR_ROLE, _msgSender());
         AccessControlUpgradeable._setupRole(NVM_OPERATOR_ROLE, didRegistryAddress);
         AccessControlUpgradeable._setupRole(NVM_OPERATOR_ROLE, owner);
@@ -53,6 +83,7 @@ contract NFT1155Upgradeable is ERC1155Upgradeable, NFTBase {
         if (owner != _msgSender()) {
             transferOwnership(owner);
         }
+        NFT_TYPE = keccak256(keccak256('nft1155'));
     }
 
     function createClone(
