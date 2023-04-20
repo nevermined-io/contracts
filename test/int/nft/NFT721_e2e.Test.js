@@ -251,7 +251,7 @@ contract('End to End NFT721 Scenarios', (accounts) => {
         describe('As collector I want to buy some art', () => {
             let conditionIds
             it('I am using the right NFT contract', async () => {
-                assert.strictEqual(await nft.NFT_TYPE(), web3.utils.soliditySha3('nft721'))
+                assert.strictEqual(await nft.nftType(), web3.utils.soliditySha3('nft721'))
             })
 
             it('I am setting an agreement for buying a NFT', async () => {

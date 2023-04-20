@@ -19,7 +19,7 @@ contract NFT721Upgradeable is ERC721Upgradeable, NFTBase {
     uint256 private _nftContractCap;
 
     IExternalRegistry internal nftRegistry;
-
+    
     using CountersUpgradeable for CountersUpgradeable.Counter;
     using StringsUpgradeable for uint256;
 
@@ -81,7 +81,6 @@ contract NFT721Upgradeable is ERC721Upgradeable, NFTBase {
         if (owner != _msgSender()) {
             transferOwnership(owner);
         }
-        NFT_TYPE = keccak256('nft721');
     }
 
     function createClone(
@@ -290,5 +289,8 @@ contract NFT721Upgradeable is ERC721Upgradeable, NFTBase {
         );
         super._beforeTokenTransfer(from, to, 0, batchSize);
     }
-    
+
+    function nftType() external pure override virtual returns (bytes32) {
+        return keccak256('nft721');
+    }
 }

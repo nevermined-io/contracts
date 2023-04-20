@@ -20,7 +20,7 @@ contract NFT1155Upgradeable is ERC1155Upgradeable, NFTBase {
     string public symbol;
 
     IExternalRegistry internal nftRegistry;
-    
+
     function initialize(
         address owner,
         address didRegistryAddress,
@@ -83,7 +83,6 @@ contract NFT1155Upgradeable is ERC1155Upgradeable, NFTBase {
         if (owner != _msgSender()) {
             transferOwnership(owner);
         }
-        NFT_TYPE = keccak256('nft1155');
     }
 
     function createClone(
@@ -266,6 +265,10 @@ contract NFT1155Upgradeable is ERC1155Upgradeable, NFTBase {
             isOperator(_msgSender()) // Only NFT Contract Operators (Nevermined condition contracts)
             , 'only proxy'
         );
-    }    
+    }
+
+    function nftType() external pure override virtual returns (bytes32) {
+        return keccak256('nft1155');
+    }
     
 }

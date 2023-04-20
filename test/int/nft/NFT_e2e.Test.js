@@ -258,7 +258,7 @@ contract('End to End NFT Scenarios', (accounts) => {
         })
 
         it('I am using the right NFT contract', async () => {
-            assert.strictEqual(await nft.NFT_TYPE(), web3.utils.soliditySha3('nft1155'))
+            assert.strictEqual(await nft.nftType(), web3.utils.soliditySha3('nft1155'))
         })
     })
 

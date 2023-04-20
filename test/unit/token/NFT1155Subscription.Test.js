@@ -70,7 +70,7 @@ contract('NFT1155 Subscription', (accounts) => {
         })
 
         it('I want to check Im using a subscription contract', async () => {
-            assert.strictEqual(await nft.NFT_TYPE(), web3.utils.soliditySha3('nft1155-subscription'))
+            assert.strictEqual(await nft.nftType(), web3.utils.soliditySha3('nft1155-subscription'))
         })
 
         it('The subscriber has the right balance for a non expired NFT', async () => {

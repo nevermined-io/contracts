@@ -16,6 +16,10 @@ contract NFT721SubscriptionUpgradeable is NFT721Upgradeable {
 
     mapping(address => MintedTokens[]) internal _tokens;
 
+    // It represents the NFT type. It is used to identify the NFT type in the Nevermined ecosystem
+    // solhint-disable-next-line
+    bytes32 public constant override nftType = keccak256('nft721-subscription');
+
     // solhint-disable-next-line
     function initialize(
         address owner,
@@ -30,7 +34,6 @@ contract NFT721SubscriptionUpgradeable is NFT721Upgradeable {
     initializer
     {
         __NFT721Upgradeable_init(owner, didRegistryAddress, name, symbol, uri, cap);
-        NFT_TYPE = keccak256('nft721-subscription');
     }
     
     /**

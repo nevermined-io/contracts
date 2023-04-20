@@ -36,10 +36,6 @@ abstract contract NFTBase is IERC2981Upgradeable, CommonOwnable, AccessControlUp
     // Role to operate the NFT contract
     bytes32 public constant NVM_OPERATOR_ROLE = keccak256('NVM_OPERATOR_ROLE');
     
-    // It represents the NFT type. It is used to identify the NFT type in the Nevermined ecosystem
-    // solhint-disable-next-line
-    bytes32 public NFT_TYPE;
-    
     struct RoyaltyInfo {
         address receiver;
         uint256 royaltyAmount;
@@ -240,6 +236,9 @@ abstract contract NFTBase is IERC2981Upgradeable, CommonOwnable, AccessControlUp
         return Common._msgData();
     }
 
+    function nftType() external pure virtual returns (bytes32) {
+        return keccak256('');
+    }
     /**
      * @dev This empty reserved space is put in place to allow future versions to add new
      * variables without shifting down storage in the inheritance chain.
