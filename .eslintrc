@@ -11,5 +11,8 @@
             "object": false
           }
         ]
+    },
+    "env": {
+        "es2020": true
     }
 }
