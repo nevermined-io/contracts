@@ -239,11 +239,4 @@ abstract contract NFTBase is IERC2981Upgradeable, CommonOwnable, AccessControlUp
     function nftType() external pure virtual returns (bytes32) {
         return keccak256('');
     }
-    /**
-     * @dev This empty reserved space is put in place to allow future versions to add new
-     * variables without shifting down storage in the inheritance chain.
-     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
-     */
-    uint256[50] private __gap;    
-    
 }
