@@ -12,7 +12,7 @@ jobs:
           toolchain: stable
       - uses: actions/setup-node@v1
         with:
-          node-version: '14.x'
+          node-version: '16.x'
       - name: Pre-install
         run: |
           rm -rf node_modules
@@ -41,7 +41,7 @@ jobs:
         run: |
           yarn test:integration
 
-  upgradeability:
+  upgradability:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -49,7 +49,7 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-node@v1
         with:
-          node-version: '14.x'
+          node-version: '16.x'
       - name: Pre-install
         run: |
           export
