@@ -7,6 +7,26 @@ import './NFT721Upgradeable.sol';
 
 contract SoulBoundUpgradeable is NFT721Upgradeable {
 
+    // It represents the NFT type. It is used to identify the NFT type in the Nevermined ecosystem
+    // solhint-disable-next-line
+    bytes32 public constant override nftType = keccak256('nft721-soulbound');
+    
+    // solhint-disable-next-line
+    function initialize(
+        address owner,
+        address didRegistryAddress,
+        string memory name,
+        string memory symbol,
+        string memory uri,
+        uint256 cap
+    )
+    public
+    override
+    initializer
+    {
+        __NFT721Upgradeable_init(owner, didRegistryAddress, name, symbol, uri, cap);
+    }    
+    
     function _beforeTokenTransfer(
         address, // from
         address, // to

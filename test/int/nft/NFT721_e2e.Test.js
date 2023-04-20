@@ -13,6 +13,7 @@ const testUtils = require('../../helpers/utils.js')
 const { getTokenBalance, getCheckpoint } = require('../../helpers/getBalance.js')
 const deployManagers = require('../../helpers/deployManagers.js')
 const deployConditions = require('../../helpers/deployConditions.js')
+const web3 = require('web3')
 
 contract('End to End NFT721 Scenarios', (accounts) => {
     const royalties = 100000 // 10% of royalties in the secondary market
@@ -249,6 +250,10 @@ contract('End to End NFT721 Scenarios', (accounts) => {
     function runTests() {
         describe('As collector I want to buy some art', () => {
             let conditionIds
+            it('I am using the right NFT contract', async () => {
+                assert.strictEqual(await nft.nftType(), web3.utils.soliditySha3('nft721'))
+            })
+
             it('I am setting an agreement for buying a NFT', async () => {
                 const data = await prepareNFTSaleAgreement({
                     did: did,

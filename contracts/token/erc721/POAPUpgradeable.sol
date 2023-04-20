@@ -10,7 +10,27 @@ import '@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol';
 contract POAPUpgradeable is NFT721Upgradeable, ERC721EnumerableUpgradeable {
     
     // Mapping of NFT Metadata object per tokenId (DID)
-    mapping(uint256 => uint256) private _tokenEvent;    
+    mapping(uint256 => uint256) private _tokenEvent;
+
+    // It represents the NFT type. It is used to identify the NFT type in the Nevermined ecosystem
+    // solhint-disable-next-line
+    bytes32 public constant override nftType = keccak256('nft721-poap');
+    
+    // solhint-disable-next-line
+    function initialize(
+        address owner,
+        address didRegistryAddress,
+        string memory name,
+        string memory symbol,
+        string memory uri,
+        uint256 cap
+    )
+    public
+    override
+    initializer
+    {
+        __NFT721Upgradeable_init(owner, didRegistryAddress, name, symbol, uri, cap);
+    }    
     
     function mint(
         address to,

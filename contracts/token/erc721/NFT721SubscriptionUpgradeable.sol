@@ -7,14 +7,34 @@ import '@openzeppelin/contracts-upgradeable/utils/introspection/ERC165StorageUpg
 // Code is Apache-2.0 and docs are CC-BY-4.0
 
 contract NFT721SubscriptionUpgradeable is NFT721Upgradeable {
-
+    
     struct MintedTokens {
         uint256 tokenId;
         uint256 expirationBlock;
         uint256 mintBlock;
     }
 
-    mapping(address => MintedTokens[]) internal _tokens;    
+    mapping(address => MintedTokens[]) internal _tokens;
+
+    // It represents the NFT type. It is used to identify the NFT type in the Nevermined ecosystem
+    // solhint-disable-next-line
+    bytes32 public constant override nftType = keccak256('nft721-subscription');
+
+    // solhint-disable-next-line
+    function initialize(
+        address owner,
+        address didRegistryAddress,
+        string memory name,
+        string memory symbol,
+        string memory uri,
+        uint256 cap
+    )
+    public
+    override
+    initializer
+    {
+        __NFT721Upgradeable_init(owner, didRegistryAddress, name, symbol, uri, cap);
+    }
     
     /**
      * @dev This mint function allows to define when the NFT expires. 
@@ -24,7 +44,7 @@ contract NFT721SubscriptionUpgradeable is NFT721Upgradeable {
      */
     function mint(address to, uint256 tokenId, uint256 expirationBlock) public {
         super.mint(to, tokenId);
-  
+        _nftAttributes[tokenId].nftSupply += 1;
         _tokens[to].push( MintedTokens(tokenId, expirationBlock, block.number));
     }
 
