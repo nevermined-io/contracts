@@ -131,7 +131,7 @@ export VERSION='2.0.0'
 - Unpack the latest version of the artifacts for the `<NETWORK_ID>` and `<TAG>` in `artifacts`:
 
 ```bash
-wget -O artifacts.tar.gz "http://artifacts-nevermined-rocks.s3.amazonaws.com/$NETWORK_ID/$TAG/contracts_v$VERSION.tar.gz"
+wget -O artifacts.tar.gz "https://artifacts.nevermined.network/$NETWORK_ID/$TAG/contracts_v$VERSION.tar.gz"
 tar xvzf artifacts.tar.gz -C artifacts/
 ```
 
@@ -153,7 +153,7 @@ This process will show multiple errors for the contracts that are being upgraded
 
 ##### Upload the artifacts to the repository and persist any change in `openzeppelin/` file
 
-- To upload the artifacts to the repository run `./scripts/upload_artifacts_s3.sh contracts $NETWORK $TAG`. You need to have access to S3.
+- To upload the artifacts to the repository run `./scripts/upload_artifacts_gs.sh contracts $NETWORK $TAG`. You need to have access to S3.
 
 - Copy the openzeppeling file base on tag: `cp -rp .openzeppelin/unknown-$NETWORK_ID.json .openzeppelin/unknown-$NETWORK_ID.json.$TAG`
 

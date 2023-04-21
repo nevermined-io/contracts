@@ -4,5 +4,6 @@
   "NFT1155Upgradeable",
   "NFT721Upgradeable",
   "NFT721SubscriptionUpgradeable",
+  "TransferNFT721Condition",
   "StandardRoyalties"
 ]

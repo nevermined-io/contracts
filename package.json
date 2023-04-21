@@ -54,7 +54,7 @@
     "upgrade:alfajores": "export NETWORK=celo-alfajores&&yarn run upgrade --network celo-alfajores --testnet true",
     "upgrade:baklava": "export NETWORK=celo-baklava&&yarn run upgrade --network celo-baklava --testnet true",
     "upgrade:goerli": "export NETWORK=goerli&&yarn run upgrade --network goerli --testnet true",
-    "upgrade:mumbai": "export NETWORK=mumbai&&yarn run upgrade --network mumbai --testnet true",
+    "upgrade:mumbai": "export NETWORK=mumbai && export TESTNET=true &&yarn run upgrade --network mumbai ",
     "upgrade:arbitrum-goerli": "export NETWORK=arbitrum-goerli&&yarn run upgrade --network arbitrum-goerli --testnet true",
     "upgrade:mainnet": "export NETWORK=mainnet&&yarn run upgrade --network mainnet",
     "upgrade:matic": "export NETWORK=matic&&yarn run upgrade --network matic",
