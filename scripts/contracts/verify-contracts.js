@@ -2,6 +2,7 @@ const { mkdtempSync } = require('fs')
 const { execSync } = require('child_process') // eslint-disable-line
 const path = require('path')
 const fs = require('fs')
+const defaultToVerify = require('../deploy/contracts-verify.json')
 
 /**
 * This script verify all the contracts source code for a given version, network & tag name
@@ -51,9 +52,23 @@ function processContracts(tempDir, artifactsDir, network, contractsToVerify) {
     var verified = []
     var notVerified = []
 
+    // all - just the default ones
+    // nothing - the default ones
+    // contractName - just that one
+
+    // if (file is
+
     const artifactFiles = fs.readdirSync(artifactsDir)
     artifactFiles.filter(file => file.indexOf('.json') > -1)
-        .filter(file => contractsToVerify.length === 'all' || file.includes(`${contractsToVerify}.${network}.json`))
+        .filter(file =>
+        (contractsToVerify !== 'all' && file.includes(`${contractsToVerify}.${network}.json`) )
+        ||
+        (contractsToVerify === 'all' && defaultToVerify.indexOf(file.split('.')[0]) >= 0)
+        )
+//        .filter(file =>
+//            defaultToVerify.indexOf(file) >= 0  || file.includes(`${contractsToVerify}.${network}.json`))
+//        .filter(file =>
+//            contractsToVerify === 'all' || file.includes(`${contractsToVerify}.${network}.json`))
         .forEach(abiFile => {
             const abiData = fs.readFileSync(`${artifactsDir}/${abiFile}`, 'UTF-8')
             const abi = JSON.parse(abiData)
