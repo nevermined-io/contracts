@@ -255,6 +255,10 @@ contract('End to End NFT721 Scenarios', (accounts) => {
             assert.strictEqual(collector1Balance, 0)
         })
 
+        it('I want to check Im using a subscription contract', async () => {
+            assert.strictEqual(await nft721.nftType(), global.web3.utils.soliditySha3('nft721-subscription'))
+        })
+
         it('The market can check the payment and can transfer the NFT to the collector', async () => {
             await nft721.setApprovalForAll(market, true, { from: artist })
             currentBlockNumber = await ethers.provider.getBlockNumber()
