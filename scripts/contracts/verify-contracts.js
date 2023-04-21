@@ -39,20 +39,21 @@ function deleteEphemeralFolder(tempDir) {
 function downloadArtifacts(scriptsDir, version, network, tag, options) {
     var artifactsDir = mkdtempSync('/tmp/nvm_contracts_artifacts_')
     execSync(`mkdir -p ${artifactsDir}/scripts/`)
-    const cpScriptCmd = `cp -f ${scriptsDir}/download_artifacts_gs.sh ${artifactsDir}/scripts/`
+    const cpScriptCmd = `cp -f ${scriptsDir}/download_artifacts.sh ${artifactsDir}/scripts/`
     execSync(cpScriptCmd)
-    execSync(`./scripts/download_artifacts_gs.sh ${version} ${network} ${tag}`, { cwd: `${artifactsDir}` })
+    execSync(`./scripts/download_artifacts.sh ${version} ${network} ${tag}`, { cwd: `${artifactsDir}` })
     artifactsDir = artifactsDir + '/artifacts'
     console.log(`Artifacts downloaded to ${artifactsDir}`)
     return artifactsDir
 }
 
-function processContracts(tempDir, artifactsDir, network) {
+function processContracts(tempDir, artifactsDir, network, contractsToVerify) {
     var verified = []
     var notVerified = []
 
     const artifactFiles = fs.readdirSync(artifactsDir)
     artifactFiles.filter(file => file.indexOf('.json') > -1)
+        .filter(file => contractsToVerify.length === 'all' || file.includes(`${contractsToVerify}.${network}.json`))
         .forEach(abiFile => {
             const abiData = fs.readFileSync(`${artifactsDir}/${abiFile}`, 'UTF-8')
             const abi = JSON.parse(abiData)
@@ -111,14 +112,19 @@ const version = args[0]
 const network = args[1]
 const tag = args[2]
 
-console.log(`\nVerifying contracts of version ${version} deployed on network ${network} using the tag ${tag}\n`)
+let contractsToVerify = 'all'
+if (args.length > 3) {
+    contractsToVerify = args[3]
+}
+
+if (args.length > 4) { tempDir = args[4] } else { tempDir = createEphemeralFolder(version) }
+
+console.log(`\nVerifying contracts (${contractsToVerify}) of version ${version} deployed on network ${network} using the tag ${tag}\n`)
+console.log(`Using contracts folder ${tempDir}`)
+
 
 const artifactsDir = downloadArtifacts(scriptsDir, version, network, tag)
 
-if (args.length > 3) { tempDir = args[3] } else { tempDir = createEphemeralFolder(version) }
+processContracts(tempDir, artifactsDir, network, contractsToVerify)
 
-console.log(`Using contracts folder ${tempDir}`)
-
-processContracts(tempDir, artifactsDir, network)
-
-if (args.length > 4 && args[4] === 'delete') { deleteEphemeralFolder(tempDir) }
+if (args.length > 5 && args[5] === 'delete') { deleteEphemeralFolder(tempDir) }

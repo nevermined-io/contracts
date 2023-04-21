@@ -156,7 +156,7 @@ The script to do that is `scripts/contracts/verify-contracts.js` and requires th
 An example of an execution is:
 
 ```bash
-nodejs ./scripts/contracts/verify-contracts.js v2.1.0 goerli public
+nodejs ./scripts/contracts/verify-contracts.js v3.1.0 mumbai public
 ```
 
 

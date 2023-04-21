@@ -122,8 +122,8 @@ The following steps shows how to perform contracts deployment and upgrade on `Mu
 ```bash
 export NETWORK_ID=80001 # Network_ID for mumbai
 export NETWORK=mumbai
-export TAG=common
-export VERSION='2.0.0'
+export TAG=public
+export VERSION='3.1.0'
 ```
 
 - Copy the .openzeppelin file for the `<NETWORK_ID>` and `<TAG>`(like `common` or `public`) deployment you want to upgrade:
