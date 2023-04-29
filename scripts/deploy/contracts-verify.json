@@ -5,6 +5,7 @@
   "NFT721Upgradeable",
   "NFT721SubscriptionUpgradeable",
   "StandardRoyalties",
+  "NFT721SalesTemplate",
   "ConditionStoreManager",
   "TemplateStoreManager",
   "AgreementStoreManager",
