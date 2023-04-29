@@ -55,8 +55,7 @@ function processContracts(tempDir, artifactsDir, network, contractsToVerify) {
     const artifactFiles = fs.readdirSync(artifactsDir)
     artifactFiles.filter(file => file.indexOf('.json') > -1)
         .filter(file =>
-        (contractsToVerify !== 'all' && file.includes(`${contractsToVerify}.${network}.json`) )
-        ||
+            (contractsToVerify !== 'all' && file.includes(`${contractsToVerify}.${network}.json`)) ||
         (contractsToVerify === 'all' && defaultToVerify.indexOf(file.split('.')[0]) >= 0)
         )
         .forEach(abiFile => {
@@ -126,7 +125,6 @@ if (args.length > 4) { tempDir = args[4] } else { tempDir = createEphemeralFolde
 
 console.log(`\nVerifying contracts (${contractsToVerify}) of version ${version} deployed on network ${network} using the tag ${tag}\n`)
 console.log(`Using contracts folder ${tempDir}`)
-
 
 const artifactsDir = downloadArtifacts(scriptsDir, version, network, tag)
 
