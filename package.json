@@ -1,6 +1,6 @@
 {
   "name": "@nevermined-io/contracts",
-  "version": "3.1.0",
+  "version": "3.2.1",
   "description": "Nevermined implementation of Nevermined in Solidity",
   "bugs": {
     "url": "https://github.com/nevermined-io/contracts/issues"
