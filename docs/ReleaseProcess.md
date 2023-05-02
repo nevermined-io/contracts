@@ -132,7 +132,7 @@ The script has the next variables:
 - `network` refers to network name, based on filename/hardhat config. Not used if `abis` is selected.
 - `tag` refers to deployment tag. Defaults to common. Not used if `abis` is selected.
 
-This workflow uses the script `scripts/upload_artifacts_g3.sh` that can be used with the next syntax:
+This workflow uses the script `scripts/upload_artifacts_gs.sh` that can be used with the next syntax:
 
 ```bash
 ./scripts/upload_artifacts_gs.sh contracts $NETWORK $TAG
