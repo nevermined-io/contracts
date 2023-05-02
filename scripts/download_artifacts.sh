@@ -18,7 +18,7 @@ if [ -z "$TAG" ]; then
   TAG="common"
 fi
 
-REPO_URL=http://artifacts-nevermined-rocks.s3.amazonaws.com
+REPO_URL=https://artifacts.nevermined.network
 declare -A NETWORKS_MAP
 NETWORKS_MAP=( ["mainnet"]="1" ["rinkeby"]="4" ["goerli"]="5" ["kovan"]="42" ["matic"]="137" ["arbitrum-one"]="42161" ["arbitrum-goerli"]="421613" ["mumbai"]="80001" ["celo-alfajores"]="44787" ["celo"]="42220" ["aurora"]="1313161554" ["aurora-testnet"]="1313161555" )
 
@@ -41,6 +41,7 @@ function get_network_id_from_name {
 NETWORK_ID=$(get_network_id_from_name)
 DOWNLOAD_URL_ARTIFACTS="$REPO_URL/$NETWORK_ID/$TAG/contracts_$VERSION.tar.gz"
 DOWNLOAD_URL_OPENZEPPELIN="$REPO_URL/$NETWORK_ID/$TAG/unknown-$NETWORK_ID.json"
+echo "Downloading artifacts from $DOWNLOAD_URL_ARTIFACTS"
 curl -s -L -o /tmp/nvm_temp_artifacts.tar.gz "$DOWNLOAD_URL_ARTIFACTS"
 tar xzf /tmp/nvm_temp_artifacts.tar.gz --directory "$UNPACK_DIR_ARTIFACTS"
 rm -f /tmp/nvm_temp_artifacts.tar.gz

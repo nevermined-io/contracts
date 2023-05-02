@@ -21,11 +21,6 @@
       "kind": "transparent"
     },
     {
-      "address": "0x65a79deE6B06cB3f3F50b635414bD20E8472b0A5",
-      "txHash": "0x3e1b7551156441cb59952fed483457f0058d81390bd492ce28dd8967528fd446",
-      "kind": "transparent"
-    },
-    {
       "address": "0x28fba8A6b0499Ed6c71FCaAA7fdc2F0a246E50fb",
       "txHash": "0xe1e2854a331a7cff7d8918cb860e48cdfd489203dd8324837063be7de893396f",
       "kind": "transparent"
@@ -253,6 +248,10 @@
     {
       "address": "0xcA392496fD4B2bE33e278198b53555a63B38dfeB",
       "txHash": "0xa8e4696a2c27a4314a0e2bad200bd1ac52f8befe1227fa72f7a59208717a9890",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x65a79deE6B06cB3f3F50b635414bD20E8472b0A5",
       "kind": "transparent"
     }
   ],
@@ -634,7 +633,7 @@
             "label": "provenanceRegistry",
             "offset": 0,
             "slot": "201",
-            "type": "t_struct(ProvenanceRegistryList)29345_storage",
+            "type": "t_struct(ProvenanceRegistryList)30009_storage",
             "contract": "ProvenanceRegistry",
             "src": "contracts/registry/ProvenanceRegistry.sol:56"
           },
@@ -642,7 +641,7 @@
             "label": "didRegisterList",
             "offset": 0,
             "slot": "202",
-            "type": "t_struct(DIDRegisterList)28480_storage",
+            "type": "t_struct(DIDRegisterList)29144_storage",
             "contract": "DIDFactory",
             "src": "contracts/registry/DIDFactory.sol:27"
           },
@@ -666,7 +665,7 @@
             "label": "erc1155",
             "offset": 0,
             "slot": "205",
-            "type": "t_contract(NFT1155Upgradeable)35709",
+            "type": "t_contract(NFT1155Upgradeable)37332",
             "contract": "DIDRegistry",
             "src": "contracts/registry/DIDRegistry.sol:35"
           },
@@ -674,7 +673,7 @@
             "label": "erc721",
             "offset": 0,
             "slot": "206",
-            "type": "t_contract(NFT721Upgradeable)36392",
+            "type": "t_contract(NFT721Upgradeable)38327",
             "contract": "DIDRegistry",
             "src": "contracts/registry/DIDRegistry.sol:36"
           },
@@ -690,7 +689,7 @@
             "label": "defaultRoyalties",
             "offset": 0,
             "slot": "208",
-            "type": "t_contract(StandardRoyalties)30672",
+            "type": "t_contract(StandardRoyalties)31336",
             "contract": "DIDRegistry",
             "src": "contracts/registry/DIDRegistry.sol:39"
           },
@@ -698,7 +697,7 @@
             "label": "nvmConfig",
             "offset": 0,
             "slot": "209",
-            "type": "t_contract(INVMConfig)22135",
+            "type": "t_contract(INVMConfig)22577",
             "contract": "DIDRegistry",
             "src": "contracts/registry/DIDRegistry.sol:41"
           }
@@ -732,23 +731,23 @@
             "label": "bytes",
             "numberOfBytes": "32"
           },
-          "t_contract(INVMConfig)22135": {
+          "t_contract(INVMConfig)22577": {
             "label": "contract INVMConfig",
             "numberOfBytes": "20"
           },
-          "t_contract(IRoyaltyScheme)23369": {
+          "t_contract(IRoyaltyScheme)23811": {
             "label": "contract IRoyaltyScheme",
             "numberOfBytes": "20"
           },
-          "t_contract(NFT1155Upgradeable)35709": {
+          "t_contract(NFT1155Upgradeable)37332": {
             "label": "contract NFT1155Upgradeable",
             "numberOfBytes": "20"
           },
-          "t_contract(NFT721Upgradeable)36392": {
+          "t_contract(NFT721Upgradeable)38327": {
             "label": "contract NFT721Upgradeable",
             "numberOfBytes": "20"
           },
-          "t_contract(StandardRoyalties)30672": {
+          "t_contract(StandardRoyalties)31336": {
             "label": "contract StandardRoyalties",
             "numberOfBytes": "20"
           },
@@ -760,11 +759,11 @@
             "label": "mapping(bytes32 => mapping(address => bool))",
             "numberOfBytes": "32"
           },
-          "t_mapping(t_bytes32,t_struct(DIDRegister)28474_storage)": {
+          "t_mapping(t_bytes32,t_struct(DIDRegister)29138_storage)": {
             "label": "mapping(bytes32 => struct DIDRegistryLibrary.DIDRegister)",
             "numberOfBytes": "32"
           },
-          "t_mapping(t_bytes32,t_struct(Provenance)29339_storage)": {
+          "t_mapping(t_bytes32,t_struct(Provenance)30003_storage)": {
             "label": "mapping(bytes32 => struct ProvenanceRegistry.Provenance)",
             "numberOfBytes": "32"
           },
@@ -776,7 +775,7 @@
             "label": "string",
             "numberOfBytes": "32"
           },
-          "t_struct(DIDRegister)28474_storage": {
+          "t_struct(DIDRegister)29138_storage": {
             "label": "struct DIDRegistryLibrary.DIDRegister",
             "members": [
               {
@@ -853,7 +852,7 @@
               },
               {
                 "label": "royaltyScheme",
-                "type": "t_contract(IRoyaltyScheme)23369",
+                "type": "t_contract(IRoyaltyScheme)23811",
                 "offset": 0,
                 "slot": "10"
               },
@@ -866,19 +865,19 @@
             ],
             "numberOfBytes": "384"
           },
-          "t_struct(DIDRegisterList)28480_storage": {
+          "t_struct(DIDRegisterList)29144_storage": {
             "label": "struct DIDRegistryLibrary.DIDRegisterList",
             "members": [
               {
                 "label": "didRegisters",
-                "type": "t_mapping(t_bytes32,t_struct(DIDRegister)28474_storage)",
+                "type": "t_mapping(t_bytes32,t_struct(DIDRegister)29138_storage)",
                 "offset": 0,
                 "slot": "0"
               }
             ],
             "numberOfBytes": "32"
           },
-          "t_struct(Provenance)29339_storage": {
+          "t_struct(Provenance)30003_storage": {
             "label": "struct ProvenanceRegistry.Provenance",
             "members": [
               {
@@ -938,12 +937,12 @@
             ],
             "numberOfBytes": "256"
           },
-          "t_struct(ProvenanceRegistryList)29345_storage": {
+          "t_struct(ProvenanceRegistryList)30009_storage": {
             "label": "struct ProvenanceRegistry.ProvenanceRegistryList",
             "members": [
               {
                 "label": "list",
-                "type": "t_mapping(t_bytes32,t_struct(Provenance)29339_storage)",
+                "type": "t_mapping(t_bytes32,t_struct(Provenance)30003_storage)",
                 "offset": 0,
                 "slot": "0"
               }
@@ -3042,7 +3041,7 @@
             "label": "conditionStoreManager",
             "offset": 0,
             "slot": "101",
-            "type": "t_contract(ConditionStoreManager)13643",
+            "type": "t_contract(ConditionStoreManager)14081",
             "contract": "Condition",
             "src": "contracts/conditions/Condition.sol:25"
           },
@@ -3080,7 +3079,7 @@
             "label": "bool",
             "numberOfBytes": "1"
           },
-          "t_contract(ConditionStoreManager)13643": {
+          "t_contract(ConditionStoreManager)14081": {
             "label": "contract ConditionStoreManager",
             "numberOfBytes": "20"
           },
@@ -3093,7 +3092,11 @@
             "numberOfBytes": "1"
           }
         }
-      }
+      },
+      "allAddresses": [
+        "0xd165F4d9EBF284b0Cb73443B9725e4472a38867C",
+        "0xd43ED4494E2fe26D668DF291f695D0622425D02E"
+      ]
     },
     "82f3e1b042b43c6a4e2442f9406e0016233bdda86ba4be141fb90f4280c49c96": {
       "address": "0x25DF636d634549e0AcC6f086e2de7593dC57B08d",

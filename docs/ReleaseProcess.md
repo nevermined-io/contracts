@@ -142,6 +142,18 @@ This workflow uses the script `scripts/upload_artifacts_g3.sh` that can be used 
 
 - Commit the changes in `.openzeppelin/unknown-$NETWORK_ID.json.$TAG` file
 
+## Deployment NFT Contracts
+
+When a new version of the contracts, automatically the NFT common contracts are deployed too.
+It's possible to deploy new instances having the ABIs and using the Nevermined CLI:
+
+```bash
+
+ncli nfts721 deploy build/contracts/token/erc721/NFT721SubscriptionUpgradeable.sol/NFT721SubscriptionUpgradeable.json --params "Nevermined NFT" --params "NVM"
+
+
+```
+
 ## Verifying contracts code in different networks
 
 Once the contracts are deployed and the ABIs are uploaded into the artifacts repository, it's time to verify the contracts code
@@ -156,10 +168,8 @@ The script to do that is `scripts/contracts/verify-contracts.js` and requires th
 An example of an execution is:
 
 ```bash
-nodejs ./scripts/contracts/verify-contracts.js v2.1.0 goerli public
+nodejs ./scripts/contracts/verify-contracts.js v3.1.0 mumbai public
 ```
-
-
 
 ## Document
 
