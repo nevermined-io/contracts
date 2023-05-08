@@ -213,10 +213,11 @@ module.exports = {
         chiado: {
             url: url || 'https://rpc.chiadochain.net',
             accounts,
-            gasPrice: 1000000000,            
-        },        
+            gasPrice: 1000000000
+        },
         gnosis: {
             url: url || 'https://rpc.gnosischain.com',
+            accounts
         },
         // mainnet the ethereum mainnet
         mainnet: {
@@ -247,26 +248,26 @@ module.exports = {
                     apiURL: 'https://api-testnet.arbiscan.io/api',
                     browserURL: 'https://testnet.arbiscan.io'
                 }
-            },{
-                network: "chiado",
+            }, {
+                network: 'chiado',
                 chainId: 10200,
                 urls: {
-                //Blockscout
-                    apiURL: "https://blockscout.com/gnosis/chiado/api",
-                    browserURL: "https://blockscout.com/gnosis/chiado",
-                },
+                // Blockscout
+                    apiURL: 'https://blockscout.com/gnosis/chiado/api',
+                    browserURL: 'https://blockscout.com/gnosis/chiado'
+                }
             }, {
-                network: "gnosis",
+                network: 'gnosis',
                 chainId: 100,
                 urls: {
                 // 3) Select to what explorer verify the contracts
                 // Gnosisscan
-                apiURL: "https://api.gnosisscan.io/api",
-                browserURL: "https://gnosisscan.io/",
+                    apiURL: 'https://api.gnosisscan.io/api',
+                    browserURL: 'https://gnosisscan.io/'
                 // Blockscout
-                //apiURL: "https://blockscout.com/xdai/mainnet/api",
-                //browserURL: "https://blockscout.com/xdai/mainnet",
-                },
+                // apiURL: "https://blockscout.com/xdai/mainnet/api",
+                // browserURL: "https://blockscout.com/xdai/mainnet",
+                }
             }
         ]
     }
