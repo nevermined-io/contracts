@@ -208,7 +208,16 @@ module.exports = {
             skipDryRun: true,
             gas: 'auto',
             gasPrice: 'auto',
-            gasMultiplier: 3,
+            gasMultiplier: 3
+        },
+        chiado: {
+            url: url || 'https://rpc.chiadochain.net',
+            accounts,
+            gasPrice: 1000000000
+        },
+        gnosis: {
+            url: url || 'https://rpc.gnosischain.com',
+            accounts
         },
         // mainnet the ethereum mainnet
         mainnet: {
@@ -227,15 +236,39 @@ module.exports = {
             polygonMumbai: process.env.POLYGONSCAN_TOKEN,
             polygon: process.env.POLYGONSCAN_TOKEN,
             arbitrumTestnet: process.env.ARBISCAN_TOKEN,
-            arbitrumOne: process.env.ARBISCAN_TOKEN
+            arbitrumOne: process.env.ARBISCAN_TOKEN,
+            chiado: process.env.GNOSIS_TOKEN,
+            gnosis: process.env.GNOSIS_TOKEN
         },
-        customChains: [{
-            network: 'arbitrum-goerli',
-            chainId: 421613,
-            urls: {
-                apiURL: 'https://api-testnet.arbiscan.io/api',
-                browserURL: 'https://testnet.arbiscan.io'
+        customChains: [
+            {
+                network: 'arbitrum-goerli',
+                chainId: 421613,
+                urls: {
+                    apiURL: 'https://api-testnet.arbiscan.io/api',
+                    browserURL: 'https://testnet.arbiscan.io'
+                }
+            }, {
+                network: 'chiado',
+                chainId: 10200,
+                urls: {
+                // Blockscout
+                    apiURL: 'https://blockscout.com/gnosis/chiado/api',
+                    browserURL: 'https://blockscout.com/gnosis/chiado'
+                }
+            }, {
+                network: 'gnosis',
+                chainId: 100,
+                urls: {
+                // 3) Select to what explorer verify the contracts
+                // Gnosisscan
+                    apiURL: 'https://api.gnosisscan.io/api',
+                    browserURL: 'https://gnosisscan.io/'
+                // Blockscout
+                // apiURL: "https://blockscout.com/xdai/mainnet/api",
+                // browserURL: "https://blockscout.com/xdai/mainnet",
+                }
             }
-        }]
+        ]
     }
 }
