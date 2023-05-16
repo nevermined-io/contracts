@@ -203,6 +203,8 @@ contract AccessDLEQCondition is Condition {
 
     mapping (bytes32 => SecretPrice[]) public prices;
 
+    uint[2] public network;
+
     // secret has owner
     mapping (bytes32 => address) public secretOwner;
 
@@ -230,6 +232,8 @@ contract AccessDLEQCondition is Condition {
     AccessDLEQCondition internal accessCondition;
     EscrowPaymentCondition internal rewardCondition;
 
+    event Authorized(uint[2] secret, uint[2] buyer);
+
     function auth(
         uint secretId1,
         uint secretId2,
@@ -239,8 +243,15 @@ contract AccessDLEQCondition is Condition {
         uint[2] memory arr1 = [secretId1,secretId2];
         uint[2] memory arr2 = [buyer1,buyer2];
         authorized[keccak256(abi.encode(arr1))][keccak256(abi.encode(arr2))] = true;
+        emit Authorized(arr1, arr2);
     }
 
+    // in theory could be slashed with SNARK??
+    // would have to show that there is x and z, such that xyG = yR - z yG, R = xG + zG
+    // can be computed from shared secret, so there is no way to know... can also just leak the knowledge out
+    // probably the aggregator will get bad messages though (but not for re-encryption)
+    // 
+    // function slashSecret(uint[2] memory secretId, uint[2] memory buyer) public {}
 
     // to be able to authorize, complicated checking of templates is needed...
     function authorizeAccessTemplate(bytes32 id, bytes[] memory _params, uint priceIdx) public {
