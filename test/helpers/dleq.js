@@ -4,20 +4,21 @@ const { buildBn128 } = require('ffjavascript')
 const { ethers } = require('ethers')
 
 function flatten(lst) {
-    return lst.reduce((a,b) => a.concat(b), [])
+    return lst.reduce((a, b) => a.concat(b), [])
 }
 
+/*
 async function frost(n, t) {
     const ffCurve = await buildBn128()
     const Fr = ffCurve.Fr
 
     // generate secrets
-    let poly = Array(t).fill().map(_a => Fr.random())
+    const poly = Array(t).fill().map(_a => Fr.random())
 
-    function eval(x) {
+    function eval_poly(x) {
         let xn = Fr.fromObject(1n)
         let res = Fr.fromObject(0n)
-        for (let c of poly) {
+        for (const c of poly) {
             res = Fr.add(res, Fr.mul(c, xn))
             xn = Fr.mul(xn, Fr.fromObject(x))
         }
@@ -25,40 +26,39 @@ async function frost(n, t) {
     }
 
     // compute shares
-    let shares = Array(n).fill().map((_a,i) => eval(BigInt(i+1)))
+    const shares = Array(n).fill().map((_a, i) => eval_poly(BigInt(i + 1)))
 
-    console.log("secrets", poly.map(a => Fr.toObject(a)), "shares", shares.map(a => Fr.toObject(a)))
+    console.log('secrets', poly.map(a => Fr.toObject(a)), 'shares', shares.map(a => Fr.toObject(a)))
 
-
-    let ids = [2,3,4]
+    const ids = [2, 3, 4]
 
     function coeff(i) {
         let res = Fr.fromObject(1n)
-        for (let id of ids) {
-            if (id == i) continue;
-            let idneg = Fr.neg(Fr.fromObject(id+1))
-            res = Fr.mul(res, Fr.div(idneg, Fr.add(Fr.fromObject(i+1), idneg)))
+        for (const id of ids) {
+            if (id == i) continue
+            const idneg = Fr.neg(Fr.fromObject(id + 1))
+            res = Fr.mul(res, Fr.div(idneg, Fr.add(Fr.fromObject(i + 1), idneg)))
         }
         return res
     }
 
     // compute coefficients
-    let coeffs = ids.map(coeff)
+    const coeffs = ids.map(coeff)
 
-    console.log("coeffs", coeffs.map(a => Fr.toObject(a)))
+    console.log('coeffs', coeffs.map(a => Fr.toObject(a)))
 
     // reconstruct secret
     function sum(lst) {
-        return lst.reduce((a,b) => Fr.add(a,b), Fr.fromObject(0n))
+        return lst.reduce((a, b) => Fr.add(a, b), Fr.fromObject(0n))
     }
 
     function sumG1(lst) {
-        return lst.reduce((a,b) => G1.add(a,b), G1.fromObject([0n,0n]))
+        return lst.reduce((a, b) => G1.add(a, b), G1.fromObject([0n, 0n]))
     }
 
-    let secret = sum(coeffs.map((c, i) => Fr.mul(c, shares[ids[i]])))
+    const secret = sum(coeffs.map((c, i) => Fr.mul(c, shares[ids[i]])))
 
-    console.log("secret?", Fr.toObject(secret))
+    console.log('secret?', Fr.toObject(secret))
 
     function toEvm(p) {
         const obj = G1.toObject(G1.toAffine(p))
@@ -70,14 +70,14 @@ async function frost(n, t) {
     const G1 = ffCurve.G1
     const G = G1.g
 
-    let y = secret
+    const y = secret
     const yG = G1.timesFr(G, y)
 
-    console.log("public key", toEvm(yG))
+    console.log('public key', toEvm(yG))
 
-    let pubkey = sumG1(coeffs.map((c, i) => G1.timesFr(G1.timesFr(G, shares[ids[i]]), c)))
+    const pubkey = sumG1(coeffs.map((c, i) => G1.timesFr(G1.timesFr(G, shares[ids[i]]), c)))
 
-    console.log("public key?", toEvm(pubkey))
+    console.log('public key?', toEvm(pubkey))
 
     // generate secret for encypting the password
     const x = Fr.random()
@@ -98,25 +98,25 @@ async function frost(n, t) {
     const yR = G1.timesFr(R, y)
 
     // re-encrypt with threshold
-    let yR_ = sumG1(coeffs.map((c, i) => G1.timesFr(G1.timesFr(R, shares[ids[i]]), c)))
-    console.log("re-encrypted", toEvm(yR))
-    console.log("re-encrypted?", toEvm(yR_))
+    const yR_ = sumG1(coeffs.map((c, i) => G1.timesFr(G1.timesFr(R, shares[ids[i]]), c)))
+    console.log('re-encrypted', toEvm(yR))
+    console.log('re-encrypted?', toEvm(yR_))
 
     // consumer figures out the shared secret
     const R1 = G1.add(yR, G1.neg(G1.timesFr(yG, z)))
     assert(G1.eq(R1, xyG))
 
-    ////////////////////////////////////////////////////////
+    /// /////////////////////////////////////////////////////
     // schnorr signature (more simple sigma protocol)
 
     // commitment round, participants give their commitments (and store secrets)
-    let nonces = ids.map((id, i) => {
-        let s1 = Fr.random()
-        let s2 = Fr.random()
-        let c1 = G1.timesFr(G, s1)
-        let c2 = G1.timesFr(G, s2)
-        let pub = G1.timesFr(G, shares[id])
-        return {id, coeff: coeffs[i], share: shares[id], s1, s2, c1, c2, pub}
+    const nonces = ids.map((id, i) => {
+        const s1 = Fr.random()
+        const s2 = Fr.random()
+        const c1 = G1.timesFr(G, s1)
+        const c2 = G1.timesFr(G, s2)
+        const pub = G1.timesFr(G, shares[id])
+        return { id, coeff: coeffs[i], share: shares[id], s1, s2, c1, c2, pub }
     })
 
     // starting signing for each participant in the network
@@ -126,62 +126,61 @@ async function frost(n, t) {
         return Fr.fromObject(BigInt(ethers.utils.solidityKeccak256(lst.map(a => 'uint256'), lst)))
     }
 
-    let label = 1234n
+    const label = 1234n
 
     // compute binding values
     nonces.forEach(a => {
-        a.bind = hash([a.id, label].concat(flatten(nonces.map(({c1,c2}) => [].concat(toEvm(c1)).concat(toEvm(c2)) ))))
+        a.bind = hash([a.id, label].concat(flatten(nonces.map(({ c1, c2 }) => [].concat(toEvm(c1)).concat(toEvm(c2))))))
         a.commit = G1.add(a.c1, G1.timesFr(a.c2, a.bind))
     })
 
-    console.log("b hash", nonces.map(a => Fr.toObject(a.bind)))
+    console.log('b hash', nonces.map(a => Fr.toObject(a.bind)))
 
     // compute group commitment
-    let r_commit = sumG1(nonces.map((a => a.commit)))
-    console.log("group commitment", toEvm(r_commit))
+    const r_commit = sumG1(nonces.map(a => a.commit))
+    console.log('group commitment', toEvm(r_commit))
 
     // compute challenge
-    let chal = hash([].concat(toEvm(r_commit)).concat(toEvm(yG)).concat([label]) )
-    console.log("challenge", Fr.toObject(chal))
+    const chal = hash([].concat(toEvm(r_commit)).concat(toEvm(yG)).concat([label]))
+    console.log('challenge', Fr.toObject(chal))
 
     // compute response for each participant
     nonces.forEach(a => {
         a.resp = Fr.add(a.s1, Fr.add(Fr.mul(a.s2, a.bind), Fr.mul(a.coeff, Fr.mul(a.share, chal))))
     })
-    console.log("responses", nonces.map(a => Fr.toObject(a.resp)))
+    console.log('responses', nonces.map(a => Fr.toObject(a.resp)))
 
     // aggregating signatures
 
     // verify partial signatures
     nonces.forEach(a => {
-        let resp = G1.timesFr(G, a.resp)
-        let committed_resp = G1.add(a.commit, G1.timesFr(a.pub, Fr.mul(chal, a.coeff)))
-        console.log("resp", toEvm(resp), "should be", toEvm(committed_resp))
+        const resp = G1.timesFr(G, a.resp)
+        const committed_resp = G1.add(a.commit, G1.timesFr(a.pub, Fr.mul(chal, a.coeff)))
+        console.log('resp', toEvm(resp), 'should be', toEvm(committed_resp))
     })
 
-    let r_resp = sum(nonces.map(a => a.resp))
-    console.log("group response", Fr.toObject(r_resp))
+    const r_resp = sum(nonces.map(a => a.resp))
+    console.log('group response', Fr.toObject(r_resp))
 
     // verify schnorr signature
 
-    let check = G1.add(G1.timesFr(G, r_resp), G1.timesFr(yG, Fr.neg(chal)))
-    console.log("checking schnorr", toEvm(check))
+    const check = G1.add(G1.timesFr(G, r_resp), G1.timesFr(yG, Fr.neg(chal)))
+    console.log('checking schnorr', toEvm(check))
 
     process.exit(0)
+} */
 
-}
-
-async function frost_dleq(n, t) {
+async function frostDLEQ(n, t) {
     const ffCurve = await buildBn128()
     const Fr = ffCurve.Fr
 
     // generate secrets
-    let poly = Array(t).fill().map(_a => Fr.random())
+    const poly = Array(t).fill().map(_a => Fr.random())
 
-    function eval(x) {
+    function evalPoly(x) {
         let xn = Fr.fromObject(1n)
         let res = Fr.fromObject(0n)
-        for (let c of poly) {
+        for (const c of poly) {
             res = Fr.add(res, Fr.mul(c, xn))
             xn = Fr.mul(xn, Fr.fromObject(x))
         }
@@ -189,40 +188,39 @@ async function frost_dleq(n, t) {
     }
 
     // compute shares
-    let shares = Array(n).fill().map((_a,i) => eval(BigInt(i+1)))
+    const shares = Array(n).fill().map((_a, i) => evalPoly(BigInt(i + 1)))
 
-    console.log("secrets", poly.map(a => Fr.toObject(a)), "shares", shares.map(a => Fr.toObject(a)))
+    console.log('secrets', poly.map(a => Fr.toObject(a)), 'shares', shares.map(a => Fr.toObject(a)))
 
-
-    let ids = [2,3,4]
+    const ids = [2, 3, 4]
 
     function coeff(i) {
         let res = Fr.fromObject(1n)
-        for (let id of ids) {
-            if (id == i) continue;
-            let idneg = Fr.neg(Fr.fromObject(id+1))
-            res = Fr.mul(res, Fr.div(idneg, Fr.add(Fr.fromObject(i+1), idneg)))
+        for (const id of ids) {
+            if (id === i) continue
+            const idneg = Fr.neg(Fr.fromObject(id + 1))
+            res = Fr.mul(res, Fr.div(idneg, Fr.add(Fr.fromObject(i + 1), idneg)))
         }
         return res
     }
 
     // compute coefficients
-    let coeffs = ids.map(coeff)
+    const coeffs = ids.map(coeff)
 
-    console.log("coeffs", coeffs.map(a => Fr.toObject(a)))
+    console.log('coeffs', coeffs.map(a => Fr.toObject(a)))
 
     // reconstruct secret
     function sum(lst) {
-        return lst.reduce((a,b) => Fr.add(a,b), Fr.fromObject(0n))
+        return lst.reduce((a, b) => Fr.add(a, b), Fr.fromObject(0n))
     }
 
     function sumG1(lst) {
-        return lst.reduce((a,b) => G1.add(a,b), G1.fromObject([0n,0n]))
+        return lst.reduce((a, b) => G1.add(a, b), G1.fromObject([0n, 0n]))
     }
 
-    let secret = sum(coeffs.map((c, i) => Fr.mul(c, shares[ids[i]])))
+    const secret = sum(coeffs.map((c, i) => Fr.mul(c, shares[ids[i]])))
 
-    console.log("secret?", Fr.toObject(secret))
+    console.log('secret?', Fr.toObject(secret))
 
     function toEvm(p) {
         const obj = G1.toObject(G1.toAffine(p))
@@ -234,14 +232,14 @@ async function frost_dleq(n, t) {
     const G1 = ffCurve.G1
     const G = G1.g
 
-    let y = secret
+    const y = secret
     const yG = G1.timesFr(G, y)
 
-    console.log("public key", toEvm(yG))
+    console.log('public key', toEvm(yG))
 
-    let pubkey = sumG1(coeffs.map((c, i) => G1.timesFr(G1.timesFr(G, shares[ids[i]]), c)))
+    const pubkey = sumG1(coeffs.map((c, i) => G1.timesFr(G1.timesFr(G, shares[ids[i]]), c)))
 
-    console.log("public key?", toEvm(pubkey))
+    console.log('public key?', toEvm(pubkey))
 
     // generate secret for encypting the password
     const x = Fr.random()
@@ -262,28 +260,28 @@ async function frost_dleq(n, t) {
     const yR = G1.timesFr(R, y)
 
     // re-encrypt with threshold
-    let yR_ = sumG1(coeffs.map((c, i) => G1.timesFr(G1.timesFr(R, shares[ids[i]]), c)))
-    console.log("re-encrypted", toEvm(yR))
-    console.log("re-encrypted?", toEvm(yR_))
+    const yR_ = sumG1(coeffs.map((c, i) => G1.timesFr(G1.timesFr(R, shares[ids[i]]), c)))
+    console.log('re-encrypted', toEvm(yR))
+    console.log('re-encrypted?', toEvm(yR_))
 
     // consumer figures out the shared secret
     const R1 = G1.add(yR, G1.neg(G1.timesFr(yG, z)))
     assert(G1.eq(R1, xyG))
 
-    ////////////////////////////////////////////////////////
+    /// /////////////////////////////////////////////////////
     // DLEQ aggregation
 
     // commitment round, participants give their commitments (and store secrets)
-    let nonces = ids.map((id, i) => {
-        let s1 = Fr.random()
-        let s2 = Fr.random()
-        let c1 = G1.timesFr(G, s1)
-        let c2 = G1.timesFr(G, s2)
-        let c3 = G1.timesFr(R, s1)
-        let c4 = G1.timesFr(R, s2)
-        let pub1 = G1.timesFr(G, shares[id])
-        let pub2 = G1.timesFr(R, shares[id])
-        return {id, coeff: coeffs[i], share: shares[id], s1, s2, c1, c2, c3, c4, pub1, pub2}
+    const nonces = ids.map((id, i) => {
+        const s1 = Fr.random()
+        const s2 = Fr.random()
+        const c1 = G1.timesFr(G, s1)
+        const c2 = G1.timesFr(G, s2)
+        const c3 = G1.timesFr(R, s1)
+        const c4 = G1.timesFr(R, s2)
+        const pub1 = G1.timesFr(G, shares[id])
+        const pub2 = G1.timesFr(R, shares[id])
+        return { id, coeff: coeffs[i], share: shares[id], s1, s2, c1, c2, c3, c4, pub1, pub2 }
     })
 
     // starting signing for each participant in the network
@@ -293,63 +291,65 @@ async function frost_dleq(n, t) {
         return Fr.fromObject(BigInt(ethers.utils.solidityKeccak256(lst.map(a => 'uint256'), lst)))
     }
 
-    let label = 1234n
+    const label = 1234n
 
     // compute binding values
     nonces.forEach(a => {
-        a.bind = hash([a.id, label].concat(flatten(nonces.map(({c1,c2,c3,c4}) => [].concat(toEvm(c1)).concat(toEvm(c2)).concat(toEvm(c3)).concat(toEvm(c4)) ))))
+        a.bind = hash([a.id, label].concat(flatten(nonces.map(({ c1, c2, c3, c4 }) => [].concat(toEvm(c1)).concat(toEvm(c2)).concat(toEvm(c3)).concat(toEvm(c4))))))
         a.commit1 = G1.add(a.c1, G1.timesFr(a.c2, a.bind))
         a.commit2 = G1.add(a.c3, G1.timesFr(a.c4, a.bind))
     })
 
-    console.log("b hash", nonces.map(a => Fr.toObject(a.bind)))
+    console.log('b hash', nonces.map(a => Fr.toObject(a.bind)))
 
     // compute group commitment
-    let r_commit1 = sumG1(nonces.map((a => a.commit1)))
-    console.log("group commitment1", toEvm(r_commit1))
-    let r_commit2 = sumG1(nonces.map((a => a.commit2)))
-    console.log("group commitment2", toEvm(r_commit2))
+    const rCommit1 = sumG1(nonces.map(a => a.commit1))
+    console.log('group commitment1', toEvm(rCommit1))
+    const rCommit2 = sumG1(nonces.map(a => a.commit2))
+    console.log('group commitment2', toEvm(rCommit2))
 
     // compute challenge
-    let chal = hash([].concat(toEvm(r_commit1)).concat(toEvm(r_commit2)).concat(toEvm(yG)).concat(toEvm(yR)).concat([label]) )
-    console.log("challenge", Fr.toObject(chal))
+    const chal = hash([label].concat(toEvm(yG)).concat(toEvm(yR)).concat(toEvm(rCommit1)).concat(toEvm(rCommit2)))
+    console.log('challenge', Fr.toObject(chal))
 
     // compute response for each participant
     nonces.forEach(a => {
-        a.resp = Fr.add(a.s1, Fr.add(Fr.mul(a.s2, a.bind), Fr.mul(a.coeff, Fr.mul(a.share, chal))))
+        a.resp = Fr.add(a.s1, Fr.add(Fr.mul(a.s2, a.bind), Fr.neg(Fr.mul(a.coeff, Fr.mul(a.share, chal)))))
     })
-    console.log("responses", nonces.map(a => Fr.toObject(a.resp)))
+    console.log('responses', nonces.map(a => Fr.toObject(a.resp)))
 
     // aggregating signatures
 
     // verify partial signatures
     nonces.forEach(a => {
-        let resp1 = G1.timesFr(G, a.resp)
-        let committed_resp1 = G1.add(a.commit1, G1.timesFr(a.pub1, Fr.mul(chal, a.coeff)))
-        let resp2 = G1.timesFr(R, a.resp)
-        let committed_resp2 = G1.add(a.commit2, G1.timesFr(a.pub2, Fr.mul(chal, a.coeff)))
-        console.log("resp1", toEvm(resp1), "should be", toEvm(committed_resp1))
-        console.log("resp2", toEvm(resp2), "should be", toEvm(committed_resp2))
+        const resp1 = G1.timesFr(G, a.resp)
+        const committedResp1 = G1.add(a.commit1, G1.neg(G1.timesFr(a.pub1, Fr.mul(chal, a.coeff))))
+        const resp2 = G1.timesFr(R, a.resp)
+        const committedResp2 = G1.add(a.commit2, G1.neg(G1.timesFr(a.pub2, Fr.mul(chal, a.coeff))))
+        console.log('resp1', toEvm(resp1), 'should be', toEvm(committedResp1))
+        console.log('resp2', toEvm(resp2), 'should be', toEvm(committedResp2))
     })
 
-    let r_resp = sum(nonces.map(a => a.resp))
-    console.log("group response", Fr.toObject(r_resp))
+    const rResp = sum(nonces.map(a => a.resp))
+    console.log('group response', Fr.toObject(rResp))
 
     // verify schnorr signature
 
-    let check1 = G1.add(G1.timesFr(G, r_resp), G1.timesFr(yG, Fr.neg(chal)))
-    console.log("checking DLEQ", toEvm(check1))
-    let check2 = G1.add(G1.timesFr(R, r_resp), G1.timesFr(yR, Fr.neg(chal)))
-    console.log("checking DLEQ", toEvm(check2))
+    const check1 = G1.add(G1.timesFr(G, rResp), G1.timesFr(yG, chal))
+    console.log('checking DLEQ', toEvm(check1))
+    const check2 = G1.add(G1.timesFr(R, rResp), G1.timesFr(yR, chal))
+    console.log('checking DLEQ', toEvm(check2))
 
-    console.log("group commitment1", toEvm(r_commit1))
-    console.log("group commitment2", toEvm(r_commit2))
+    console.log('group commitment1', toEvm(rCommit1))
+    console.log('group commitment2', toEvm(rCommit2))
+
+    // these were reconstructed from resp and chal
+    // so it is enough to construct challenge from these and check it's correct
 
     process.exit(0)
-
 }
 
-frost_dleq(10, 3)
+frostDLEQ(10, 3)
 
 async function setupEG() {
     const ffCurve = await buildBn128()
