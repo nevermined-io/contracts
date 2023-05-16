@@ -75,6 +75,33 @@ async function sss(n, t) {
 
     console.log("public key?", toEvm(pubkey))
 
+    // generate secret for encypting the password
+    const x = Fr.random()
+    const xG = G1.timesFr(G, x)
+
+    assert(G1.eq(xG, G1.timesFr(G, x)))
+
+    // shared secret
+    const xyG = G1.timesFr(xG, y)
+    assert(G1.eq(xyG, G1.timesFr(yG, x)))
+
+    // generate secret for consumer
+    const z = Fr.random()
+    const zG = G1.timesFr(G, z)
+
+    // re-encrypt the secret
+    const R = G1.add(xG, zG)
+    const yR = G1.timesFr(R, y)
+
+    // re-encrypt with threshold
+    let yR_ = sumG1(coeffs.map((c, i) => G1.timesFr(G1.timesFr(R, shares[ids[i]]), c)))
+    console.log("re-encrypted", toEvm(yR))
+    console.log("re-encrypted?", toEvm(yR_))
+
+    // consumer figures out the shared secret
+    const R1 = G1.add(yR, G1.neg(G1.timesFr(yG, z)))
+    assert(G1.eq(R1, xyG))
+
     process.exit(0)
 
 }
