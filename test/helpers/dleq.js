@@ -3,6 +3,84 @@ const assert = require('assert')
 const { buildBn128 } = require('ffjavascript')
 const { ethers } = require('ethers')
 
+async function sss(n, t) {
+    const ffCurve = await buildBn128()
+    const Fr = ffCurve.Fr
+
+    // generate secrets
+    let poly = Array(t).fill().map(_a => Fr.random())
+
+    function eval(x) {
+        let xn = Fr.fromObject(1n)
+        let res = Fr.fromObject(0n)
+        for (let c of poly) {
+            res = Fr.add(res, Fr.mul(c, xn))
+            xn = Fr.mul(xn, Fr.fromObject(x))
+        }
+        return res
+    }
+
+    // compute shares
+    let shares = Array(n).fill().map((_a,i) => eval(BigInt(i+1)))
+
+    console.log("secrets", poly.map(a => Fr.toObject(a)), "shares", shares.map(a => Fr.toObject(a)))
+
+
+    let ids = [2,3,4]
+
+    function coeff(i) {
+        let res = Fr.fromObject(1n)
+        for (let id of ids) {
+            if (id == i) continue;
+            let idneg = Fr.neg(Fr.fromObject(id+1))
+            res = Fr.mul(res, Fr.div(idneg, Fr.add(Fr.fromObject(i+1), idneg)))
+        }
+        return res
+    }
+
+    // compute coefficients
+    let coeffs = ids.map(coeff)
+
+    console.log("coeffs", coeffs.map(a => Fr.toObject(a)))
+
+    // reconstruct secret
+    function sum(lst) {
+        return lst.reduce((a,b) => Fr.add(a,b), Fr.fromObject(0n))
+    }
+
+    function sumG1(lst) {
+        return lst.reduce((a,b) => G1.add(a,b), G1.fromObject([0n,0n]))
+    }
+
+    let secret = sum(coeffs.map((c, i) => Fr.mul(c, shares[ids[i]])))
+
+    console.log("secret?", Fr.toObject(secret))
+
+    function toEvm(p) {
+        const obj = G1.toObject(G1.toAffine(p))
+        return [obj[0].toString(10), obj[1].toString(10)]
+    }
+
+    // recomputing public key
+
+    const G1 = ffCurve.G1
+    const G = G1.g
+
+    let y = secret
+    const yG = G1.timesFr(G, y)
+
+    console.log("public key", toEvm(yG))
+
+    let pubkey = sumG1(coeffs.map((c, i) => G1.timesFr(G1.timesFr(G, shares[ids[i]]), c)))
+
+    console.log("public key?", toEvm(pubkey))
+
+    process.exit(0)
+
+}
+
+sss(10, 3)
+
 async function setupEG() {
     const ffCurve = await buildBn128()
     const G1 = ffCurve.G1
@@ -86,7 +164,7 @@ async function makeProof({ Fr, G1, yG, xG, zG, R, yR, y, z, toEvm }, label) {
     assert(G1.eq(w2, ww2))
 
     const arr2 = [label].concat(toEvm(yG)).concat(toEvm(yR)).concat(toEvm(ww1)).concat(toEvm(ww2))
-    const chal = Fr.fromObject(BigInt(ethers.utils.solidityKeccak256(arr2.map(a => 'uint256'), arr)))
+    const chal = Fr.fromObject(BigInt(ethers.utils.solidityKeccak256(arr2.map(a => 'uint256'), arr2)))
     assert(Fr.eq(chal, e))
 
     return {
