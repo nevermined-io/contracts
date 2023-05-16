@@ -239,12 +239,11 @@ contract AccessDLEQCondition is Condition {
         uint[2] memory arr1 = [secretId1,secretId2];
         uint[2] memory arr2 = [buyer1,buyer2];
         authorized[keccak256(abi.encode(arr1))][keccak256(abi.encode(arr2))] = true;
-
     }
 
 
     // to be able to authorize, complicated checking of templates is needed...
-    function authorizeAccessTemplate(bytes32 id, bytes[] memory _params) public {
+    function authorizeAccessTemplate(bytes32 id, bytes[] memory _params, uint priceIdx) public {
         // need to check that all params are valid
         // figure out buyer and secretId
         // return keccak256(abi.encode(_cipher, _secretId[0], _secretId[1], _provider[0], _provider[1], _buyer[0], _buyer[1]));
@@ -260,6 +259,12 @@ contract AccessDLEQCondition is Condition {
         bytes32 lockConditionId = keccak256(abi.encode(id, address(lockPaymentCondition), conditionIds[1]));
         bytes32 accessId = keccak256(abi.encode(id, address(accessCondition), conditionIds[0]));
 
+        bytes32 sid = keccak256(abi.encode([secretId1, secretId2]));
+        // bytes32 bid = keccak256(abi.encode([buyer1, buyer2]));
+
+        checkParamsLock(_params, sid, priceIdx);
+
+
         // need to check that has correct payment
 
         checkParamsEscrow(_params, lockConditionId, accessId);
@@ -268,6 +273,20 @@ contract AccessDLEQCondition is Condition {
         require(conditionStoreManager.getConditionState(lockConditionId) == ConditionStoreLibrary.ConditionState.Fulfilled, 'lock condition not fulfilled');
 
         auth(secretId1, secretId2, buyer1, buyer2);
+    }
+
+    function checkParamsLock(bytes[] memory _params, bytes32 sid, uint priceIdx) internal view {
+        bytes32 _did;
+        address _rewardAddress;
+        address _tokenAddress;
+        uint256[] memory _amounts;
+        address[] memory _receivers;
+        (_did, _rewardAddress, _tokenAddress, _amounts, _receivers) = abi.decode(_params[1], (bytes32, address, address, uint256[], address[]));
+        SecretPrice memory price = prices[sid][priceIdx];
+        require(price.tokenType == 20, 'erc-20 token required');
+        require(_amounts[0] >= price.num, 'amount too small');
+        require(_tokenAddress == price.token, 'wrong token');
+        require(_receivers[0] == secretOwner[sid], 'owner not first receiver');
     }
 
     function checkParamsEscrow(bytes[] memory _params, bytes32 lockPaymentId, bytes32 transferId) internal pure {
