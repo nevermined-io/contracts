@@ -115,7 +115,8 @@ async function sss(n, t) {
         let s2 = Fr.random()
         let c1 = G1.timesFr(G, s1)
         let c2 = G1.timesFr(G, s2)
-        return {id, coeff: coeffs[i], share: shares[id], s1, s2, c1, c2}
+        let pub = G1.timesFr(G, shares[id])
+        return {id, coeff: coeffs[i], share: shares[id], s1, s2, c1, c2, pub}
     })
 
     // starting signing for each participant in the network
@@ -130,12 +131,13 @@ async function sss(n, t) {
     // compute binding values
     nonces.forEach(a => {
         a.bind = hash([a.id, label].concat(flatten(nonces.map(({c1,c2}) => [].concat(toEvm(c1)).concat(toEvm(c2)) ))))
+        a.commit = G1.add(a.c1, G1.timesFr(a.c2, a.bind))
     })
 
     console.log("b hash", nonces.map(a => Fr.toObject(a.bind)))
 
     // compute group commitment
-    let r_commit = sumG1(nonces.map(({bind, c1, c2}) => G1.add(c1, G1.timesFr(c2, bind))))
+    let r_commit = sumG1(nonces.map((a => a.commit)))
     console.log("group commitment", toEvm(r_commit))
 
     // compute challenge
@@ -149,6 +151,18 @@ async function sss(n, t) {
     console.log("responses", nonces.map(a => Fr.toObject(a.resp)))
 
     // aggregating signatures
+
+    // verify partial signatures
+    nonces.forEach(a => {
+        let resp = G1.timesFr(G, a.resp)
+        let committed_resp = G1.add(a.commit, G1.timesFr(a.pub, Fr.mul(chal, a.coeff)))
+        console.log("resp", toEvm(resp), "should be", toEvm(committed_resp))
+    })
+
+    let r_resp = sum(nonces.map(a => a.resp))
+    console.log("group response", Fr.toObject(r_resp))
+
+    // verify schnorr signature
 
     process.exit(0)
 
