@@ -3,6 +3,10 @@ const assert = require('assert')
 const { buildBn128 } = require('ffjavascript')
 const { ethers } = require('ethers')
 
+function flatten(lst) {
+    return lst.reduce((a,b) => a.concat(b), [])
+}
+
 async function sss(n, t) {
     const ffCurve = await buildBn128()
     const Fr = ffCurve.Fr
@@ -102,6 +106,50 @@ async function sss(n, t) {
     const R1 = G1.add(yR, G1.neg(G1.timesFr(yG, z)))
     assert(G1.eq(R1, xyG))
 
+    ////////////////////////////////////////////////////////
+    // schnorr signature (more simple sigma protocol)
+
+    // commitment round, participants give their commitments (and store secrets)
+    let nonces = ids.map((id, i) => {
+        let s1 = Fr.random()
+        let s2 = Fr.random()
+        let c1 = G1.timesFr(G, s1)
+        let c2 = G1.timesFr(G, s2)
+        return {id, coeff: coeffs[i], share: shares[id], s1, s2, c1, c2}
+    })
+
+    // starting signing for each participant in the network
+
+    // for public commitments, compute hash
+    function hash(lst) {
+        return Fr.fromObject(BigInt(ethers.utils.solidityKeccak256(lst.map(a => 'uint256'), lst)))
+    }
+
+    let label = 1234n
+
+    // compute binding values
+    nonces.forEach(a => {
+        a.bind = hash([a.id, label].concat(flatten(nonces.map(({c1,c2}) => [].concat(toEvm(c1)).concat(toEvm(c2)) ))))
+    })
+
+    console.log("b hash", nonces.map(a => Fr.toObject(a.bind)))
+
+    // compute group commitment
+    let r_commit = sumG1(nonces.map(({bind, c1, c2}) => G1.add(c1, G1.timesFr(c2, bind))))
+    console.log("group commitment", toEvm(r_commit))
+
+    // compute challenge
+    let chal = hash([].concat(toEvm(r_commit)).concat(toEvm(yG)).concat([label]) )
+    console.log("challenge", Fr.toObject(chal))
+
+    // compute response for each participant
+    nonces.forEach(a => {
+        a.resp = Fr.add(a.s1, Fr.add(Fr.mul(a.s2, a.bind), Fr.mul(a.coeff, Fr.mul(a.share, chal))))
+    })
+    console.log("responses", nonces.map(a => Fr.toObject(a.resp)))
+
+    // aggregating signatures
+
     process.exit(0)
 
 }
@@ -169,7 +217,7 @@ async function setupEG() {
 async function makeProof({ Fr, G1, yG, xG, zG, R, yR, y, z, toEvm }, label) {
     const G = G1.g
 
-    // DLEQ prove, yG == yR
+    // DLEQ prove, yG/G == yR/R
     const t = Fr.random()
     const w1 = G1.timesFr(G, t)
     const w2 = G1.timesFr(R, t)
