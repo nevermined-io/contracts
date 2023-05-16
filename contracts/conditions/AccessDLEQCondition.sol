@@ -8,6 +8,8 @@ import './Condition.sol';
 import '../registry/DIDRegistry.sol';
 import '../interfaces/IAccessControl.sol';
 import '../agreements/AgreementStoreManager.sol';
+import '../conditions/LockPaymentCondition.sol';
+import '../conditions/rewards/EscrowPaymentCondition.sol';
 
 struct G1Point {
     uint256 x;
@@ -191,6 +193,115 @@ contract AccessDLEQCondition is Condition {
 
         return state;
     }
+
+    ///////////////////////////////////////////////////////////////////////////////////////
+
+    // Manager for re-encryptions
+
+    // secret x buyer public key
+    mapping (bytes32 => mapping(bytes32 => bool)) public authorized;
+
+    mapping (bytes32 => SecretPrice[]) public prices;
+
+    // secret has owner
+    mapping (bytes32 => address) public secretOwner;
+
+    event AddSecret(bytes32 indexed h, uint[2] secretId);
+
+    struct SecretPrice {
+        uint num;
+        address token;
+        uint tokenType;
+    }
+
+    function addSecret(uint[2] memory point) public {
+        bytes32 h = keccak256(abi.encode(point));
+        require(secretOwner[h] == address(0), 'Secret exists');
+        secretOwner[h] = _msgSender();
+        emit AddSecret(h, point);
+    }
+
+    function addPrice(bytes32 id, uint num, address token, uint tokenType) public {
+        require(secretOwner[id] == _msgSender(), 'Not secret owner');
+        prices[id].push(SecretPrice(num, token, tokenType));
+    }
+
+    LockPaymentCondition internal lockPaymentCondition;
+    AccessDLEQCondition internal accessCondition;
+    EscrowPaymentCondition internal rewardCondition;
+
+    function auth(
+        uint secretId1,
+        uint secretId2,
+        uint buyer1,
+        uint buyer2
+    ) internal {
+        uint[2] memory arr1 = [secretId1,secretId2];
+        uint[2] memory arr2 = [buyer1,buyer2];
+        authorized[keccak256(abi.encode(arr1))][keccak256(abi.encode(arr2))] = true;
+
+    }
+
+
+    // to be able to authorize, complicated checking of templates is needed...
+    function authorizeAccessTemplate(bytes32 id, bytes[] memory _params) public {
+        // need to check that all params are valid
+        // figure out buyer and secretId
+        // return keccak256(abi.encode(_cipher, _secretId[0], _secretId[1], _provider[0], _provider[1], _buyer[0], _buyer[1]));
+        uint secretId1;
+        uint secretId2;
+        uint buyer1;
+        uint buyer2;
+        ( , secretId1, secretId2, , , buyer1, buyer2) = abi.decode(_params[0], (uint,uint,uint,uint,uint,uint,uint));
+        bytes32[] memory conditionIds = new bytes32[](3);
+        for (uint i = 0; i < 3; i++) {
+            conditionIds[i] = keccak256(_params[i]);
+        }
+        bytes32 lockConditionId = keccak256(abi.encode(id, address(lockPaymentCondition), conditionIds[1]));
+        bytes32 accessId = keccak256(abi.encode(id, address(accessCondition), conditionIds[0]));
+
+        // need to check that has correct payment
+
+        checkParamsEscrow(_params, lockConditionId, accessId);
+
+        // check that lock condition is fulfilled
+        require(conditionStoreManager.getConditionState(lockConditionId) == ConditionStoreLibrary.ConditionState.Fulfilled, 'lock condition not fulfilled');
+
+        auth(secretId1, secretId2, buyer1, buyer2);
+    }
+
+    function checkParamsEscrow(bytes[] memory _params, bytes32 lockPaymentId, bytes32 transferId) internal pure {
+        bytes32 _did0;
+        address payable _rewardAddress;
+        address _tokenAddress;
+        uint256[] memory _amounts;
+        address[] memory _receivers;
+        (_did0, _rewardAddress, _tokenAddress, _amounts, _receivers) = abi.decode(_params[1], (bytes32, address, address, uint256[], address[]));
+
+        bytes32 _did2;
+        uint256[] memory _amounts2;
+        address[] memory _receivers2;
+        // address _returnAddress;
+        address _lockPaymentAddress;
+        address _tokenAddress2;
+        bytes32 _lockCondition;
+        bytes32[] memory _releaseConditions;
+        (
+            _did2,
+            _amounts2,
+            _receivers2,
+            ,// _returnAddress,
+            _lockPaymentAddress, 
+            _tokenAddress2,
+            _lockCondition,
+            _releaseConditions
+        ) = abi.decode(_params[2], (bytes32, uint256[], address[], address, address, address, bytes32, bytes32[]));
+
+        require(_lockCondition == lockPaymentId, 'lock mismatch 2');
+        require(_releaseConditions.length == 1, 'bad release condition');
+        require(keccak256(abi.encode(_did0, _tokenAddress, _amounts, _receivers)) == keccak256(abi.encode(_did2, _tokenAddress2, _amounts2, _receivers2)), 'escrow mismatch');
+        require(_releaseConditions[0] == transferId, 'tranfer mismatch');
+    } 
 
     ///////////////////////////////////////////////////////////////////////////////////////
 
