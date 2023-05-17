@@ -175,7 +175,8 @@ contract BaseEscrowTemplate is AgreementTemplate {
         view
         returns (
             address accessConsumer,
-            address accessProvider
+            address accessProvider,
+            bytes32 did
         )
     {
         address owner = address(0);
@@ -194,5 +195,6 @@ contract BaseEscrowTemplate is AgreementTemplate {
             accessProvider = owner;
         }
         accessConsumer = agreementData.agreementDataItems[_id].accessConsumer;
+        did = agreementData.agreementDataItems[_id].did;
     }
 }
