@@ -382,9 +382,13 @@ contract LockPaymentCondition is ILockPayment, ReentrancyGuardUpgradeable, Condi
     view
     returns (bool)
     {
-        if (nvmConfig.getMarketplaceFee() == 0)
-            return true;
-
+        if (nvmConfig.getMarketplaceFee() == 0 || nvmConfig.getFeeReceiver() == address(0))
+            return true; // No fees configured so they are not required
+        
+        uint256 totalAmount = calculateTotalAmount(_amounts);
+        if (totalAmount == 0)
+            return true; // It's a free asset so no fees are required
+        
         bool marketplaceReceiverIsIncluded = false;
         uint receiverIndex = 0;
         
@@ -398,7 +402,7 @@ contract LockPaymentCondition is ILockPayment, ReentrancyGuardUpgradeable, Condi
             return false;
         
         // Return if fee calculation is correct
-        return nvmConfig.getMarketplaceFee().mul(calculateTotalAmount(_amounts)).div(DENOMINATOR) == _amounts[receiverIndex];
+        return nvmConfig.getMarketplaceFee().mul(totalAmount).div(DENOMINATOR) == _amounts[receiverIndex];
     }
 
 
