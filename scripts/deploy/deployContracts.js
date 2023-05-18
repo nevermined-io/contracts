@@ -36,7 +36,7 @@ const PROXY_ADMIN_ABI = `[{
     "type": "function"
 }]`
 
-async function deployContracts({ contracts: origContracts, verbose, testnet, makeWallet, addresses, deeperClean }) {
+async function deployContracts({ contracts: origContracts, verbose, testnet, makeWallet, addresses, deeperClean, restore }) {
     const { core, contracts } = evaluateContracts({
         contracts: origContracts,
         verbose,
@@ -45,6 +45,15 @@ async function deployContracts({ contracts: origContracts, verbose, testnet, mak
 
     if (!deeperClean) {
         for (const el of core) {
+            const afact = readArtifact(el)
+            if (afact.address) {
+                console.log(`Using existing artifact for ${el}`)
+                addresses[el] = afact.address
+            }
+        }
+    }
+    if (restore) {
+        for (const el of contracts) {
             const afact = readArtifact(el)
             if (afact.address) {
                 console.log(`Using existing artifact for ${el}`)
@@ -70,13 +79,16 @@ async function deployContracts({ contracts: origContracts, verbose, testnet, mak
         }
     }
 
+    let deployCore = true
+
     const { cache, addressBook, proxies } = await initializeContracts({
         contracts,
         core,
         roles,
         network: '',
         verbose,
-        addresses
+        addresses,
+        deployCore,
     })
 
     await setupContracts({
