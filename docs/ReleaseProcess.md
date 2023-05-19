@@ -168,7 +168,7 @@ The script to do that is `scripts/contracts/verify-contracts.js` and requires th
 An example of an execution is:
 
 ```bash
-nodejs ./scripts/contracts/verify-contracts.js v3.1.0 $NETWORK $TAG
+nodejs ./scripts/contracts/verify-contracts.js v3.2.1 mumbai public
 ```
 
 ## Document
