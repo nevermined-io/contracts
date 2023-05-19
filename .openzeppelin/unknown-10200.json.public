@@ -279,7 +279,7 @@
             "label": "provenanceRegistry",
             "offset": 0,
             "slot": "201",
-            "type": "t_struct(ProvenanceRegistryList)30009_storage",
+            "type": "t_struct(ProvenanceRegistryList)30028_storage",
             "contract": "ProvenanceRegistry",
             "src": "contracts/registry/ProvenanceRegistry.sol:56"
           },
@@ -287,7 +287,7 @@
             "label": "didRegisterList",
             "offset": 0,
             "slot": "202",
-            "type": "t_struct(DIDRegisterList)29144_storage",
+            "type": "t_struct(DIDRegisterList)29163_storage",
             "contract": "DIDFactory",
             "src": "contracts/registry/DIDFactory.sol:27"
           },
@@ -311,7 +311,7 @@
             "label": "erc1155",
             "offset": 0,
             "slot": "205",
-            "type": "t_contract(NFT1155Upgradeable)37332",
+            "type": "t_contract(NFT1155Upgradeable)37361",
             "contract": "DIDRegistry",
             "src": "contracts/registry/DIDRegistry.sol:35"
           },
@@ -319,7 +319,7 @@
             "label": "erc721",
             "offset": 0,
             "slot": "206",
-            "type": "t_contract(NFT721Upgradeable)38327",
+            "type": "t_contract(NFT721Upgradeable)38356",
             "contract": "DIDRegistry",
             "src": "contracts/registry/DIDRegistry.sol:36"
           },
@@ -335,7 +335,7 @@
             "label": "defaultRoyalties",
             "offset": 0,
             "slot": "208",
-            "type": "t_contract(StandardRoyalties)31336",
+            "type": "t_contract(StandardRoyalties)31355",
             "contract": "DIDRegistry",
             "src": "contracts/registry/DIDRegistry.sol:39"
           },
@@ -343,7 +343,7 @@
             "label": "nvmConfig",
             "offset": 0,
             "slot": "209",
-            "type": "t_contract(INVMConfig)22577",
+            "type": "t_contract(INVMConfig)22596",
             "contract": "DIDRegistry",
             "src": "contracts/registry/DIDRegistry.sol:41"
           }
@@ -377,23 +377,23 @@
             "label": "bytes",
             "numberOfBytes": "32"
           },
-          "t_contract(INVMConfig)22577": {
+          "t_contract(INVMConfig)22596": {
             "label": "contract INVMConfig",
             "numberOfBytes": "20"
           },
-          "t_contract(IRoyaltyScheme)23811": {
+          "t_contract(IRoyaltyScheme)23830": {
             "label": "contract IRoyaltyScheme",
             "numberOfBytes": "20"
           },
-          "t_contract(NFT1155Upgradeable)37332": {
+          "t_contract(NFT1155Upgradeable)37361": {
             "label": "contract NFT1155Upgradeable",
             "numberOfBytes": "20"
           },
-          "t_contract(NFT721Upgradeable)38327": {
+          "t_contract(NFT721Upgradeable)38356": {
             "label": "contract NFT721Upgradeable",
             "numberOfBytes": "20"
           },
-          "t_contract(StandardRoyalties)31336": {
+          "t_contract(StandardRoyalties)31355": {
             "label": "contract StandardRoyalties",
             "numberOfBytes": "20"
           },
@@ -405,11 +405,11 @@
             "label": "mapping(bytes32 => mapping(address => bool))",
             "numberOfBytes": "32"
           },
-          "t_mapping(t_bytes32,t_struct(DIDRegister)29138_storage)": {
+          "t_mapping(t_bytes32,t_struct(DIDRegister)29157_storage)": {
             "label": "mapping(bytes32 => struct DIDRegistryLibrary.DIDRegister)",
             "numberOfBytes": "32"
           },
-          "t_mapping(t_bytes32,t_struct(Provenance)30003_storage)": {
+          "t_mapping(t_bytes32,t_struct(Provenance)30022_storage)": {
             "label": "mapping(bytes32 => struct ProvenanceRegistry.Provenance)",
             "numberOfBytes": "32"
           },
@@ -421,7 +421,7 @@
             "label": "string",
             "numberOfBytes": "32"
           },
-          "t_struct(DIDRegister)29138_storage": {
+          "t_struct(DIDRegister)29157_storage": {
             "label": "struct DIDRegistryLibrary.DIDRegister",
             "members": [
               {
@@ -498,7 +498,7 @@
               },
               {
                 "label": "royaltyScheme",
-                "type": "t_contract(IRoyaltyScheme)23811",
+                "type": "t_contract(IRoyaltyScheme)23830",
                 "offset": 0,
                 "slot": "10"
               },
@@ -511,19 +511,19 @@
             ],
             "numberOfBytes": "384"
           },
-          "t_struct(DIDRegisterList)29144_storage": {
+          "t_struct(DIDRegisterList)29163_storage": {
             "label": "struct DIDRegistryLibrary.DIDRegisterList",
             "members": [
               {
                 "label": "didRegisters",
-                "type": "t_mapping(t_bytes32,t_struct(DIDRegister)29138_storage)",
+                "type": "t_mapping(t_bytes32,t_struct(DIDRegister)29157_storage)",
                 "offset": 0,
                 "slot": "0"
               }
             ],
             "numberOfBytes": "32"
           },
-          "t_struct(Provenance)30003_storage": {
+          "t_struct(Provenance)30022_storage": {
             "label": "struct ProvenanceRegistry.Provenance",
             "members": [
               {
@@ -583,12 +583,12 @@
             ],
             "numberOfBytes": "256"
           },
-          "t_struct(ProvenanceRegistryList)30009_storage": {
+          "t_struct(ProvenanceRegistryList)30028_storage": {
             "label": "struct ProvenanceRegistry.ProvenanceRegistryList",
             "members": [
               {
                 "label": "list",
-                "type": "t_mapping(t_bytes32,t_struct(Provenance)30003_storage)",
+                "type": "t_mapping(t_bytes32,t_struct(Provenance)30022_storage)",
                 "offset": 0,
                 "slot": "0"
               }
@@ -651,7 +651,7 @@
             "label": "registry",
             "offset": 2,
             "slot": "0",
-            "type": "t_contract(DIDRegistry)29102",
+            "type": "t_contract(DIDRegistry)29121",
             "contract": "StandardRoyalties",
             "src": "contracts/royalties/StandardRoyalties.sol:18"
           },
@@ -673,7 +673,7 @@
             "label": "bytes32",
             "numberOfBytes": "32"
           },
-          "t_contract(DIDRegistry)29102": {
+          "t_contract(DIDRegistry)29121": {
             "label": "contract DIDRegistry",
             "numberOfBytes": "20"
           },
@@ -799,7 +799,7 @@
             "label": "_royalties",
             "offset": 0,
             "slot": "251",
-            "type": "t_mapping(t_uint256,t_struct(RoyaltyInfo)35838_storage)",
+            "type": "t_mapping(t_uint256,t_struct(RoyaltyInfo)35867_storage)",
             "contract": "NFTBase",
             "src": "contracts/token/NFTBase.sol:56"
           },
@@ -807,7 +807,7 @@
             "label": "_nftAttributes",
             "offset": 0,
             "slot": "252",
-            "type": "t_mapping(t_uint256,t_struct(NFTAttributes)35847_storage)",
+            "type": "t_mapping(t_uint256,t_struct(NFTAttributes)35876_storage)",
             "contract": "NFTBase",
             "src": "contracts/token/NFTBase.sol:58"
           },
@@ -855,7 +855,7 @@
             "label": "nftRegistry",
             "offset": 0,
             "slot": "258",
-            "type": "t_contract(IExternalRegistry)23771",
+            "type": "t_contract(IExternalRegistry)23790",
             "contract": "NFT1155Upgradeable",
             "src": "contracts/token/erc1155/NFT1155Upgradeable.sol:22"
           }
@@ -885,7 +885,7 @@
             "label": "bytes32",
             "numberOfBytes": "32"
           },
-          "t_contract(IExternalRegistry)23771": {
+          "t_contract(IExternalRegistry)23790": {
             "label": "contract IExternalRegistry",
             "numberOfBytes": "20"
           },
@@ -909,11 +909,11 @@
             "label": "mapping(uint256 => mapping(address => uint256))",
             "numberOfBytes": "32"
           },
-          "t_mapping(t_uint256,t_struct(NFTAttributes)35847_storage)": {
+          "t_mapping(t_uint256,t_struct(NFTAttributes)35876_storage)": {
             "label": "mapping(uint256 => struct NFTBase.NFTAttributes)",
             "numberOfBytes": "32"
           },
-          "t_mapping(t_uint256,t_struct(RoyaltyInfo)35838_storage)": {
+          "t_mapping(t_uint256,t_struct(RoyaltyInfo)35867_storage)": {
             "label": "mapping(uint256 => struct NFTBase.RoyaltyInfo)",
             "numberOfBytes": "32"
           },
@@ -921,7 +921,7 @@
             "label": "string",
             "numberOfBytes": "32"
           },
-          "t_struct(NFTAttributes)35847_storage": {
+          "t_struct(NFTAttributes)35876_storage": {
             "label": "struct NFTBase.NFTAttributes",
             "members": [
               {
@@ -969,7 +969,7 @@
             ],
             "numberOfBytes": "64"
           },
-          "t_struct(RoyaltyInfo)35838_storage": {
+          "t_struct(RoyaltyInfo)35867_storage": {
             "label": "struct NFTBase.RoyaltyInfo",
             "members": [
               {
@@ -1129,7 +1129,7 @@
             "label": "_royalties",
             "offset": 0,
             "slot": "251",
-            "type": "t_mapping(t_uint256,t_struct(RoyaltyInfo)35838_storage)",
+            "type": "t_mapping(t_uint256,t_struct(RoyaltyInfo)35867_storage)",
             "contract": "NFTBase",
             "src": "contracts/token/NFTBase.sol:56"
           },
@@ -1137,7 +1137,7 @@
             "label": "_nftAttributes",
             "offset": 0,
             "slot": "252",
-            "type": "t_mapping(t_uint256,t_struct(NFTAttributes)35847_storage)",
+            "type": "t_mapping(t_uint256,t_struct(NFTAttributes)35876_storage)",
             "contract": "NFTBase",
             "src": "contracts/token/NFTBase.sol:58"
           },
@@ -1177,7 +1177,7 @@
             "label": "nftRegistry",
             "offset": 0,
             "slot": "257",
-            "type": "t_contract(IExternalRegistry)23771",
+            "type": "t_contract(IExternalRegistry)23790",
             "contract": "NFT721Upgradeable",
             "src": "contracts/token/erc721/NFT721Upgradeable.sol:21"
           },
@@ -1215,7 +1215,7 @@
             "label": "bytes32",
             "numberOfBytes": "32"
           },
-          "t_contract(IExternalRegistry)23771": {
+          "t_contract(IExternalRegistry)23790": {
             "label": "contract IExternalRegistry",
             "numberOfBytes": "20"
           },
@@ -1239,11 +1239,11 @@
             "label": "mapping(uint256 => address)",
             "numberOfBytes": "32"
           },
-          "t_mapping(t_uint256,t_struct(NFTAttributes)35847_storage)": {
+          "t_mapping(t_uint256,t_struct(NFTAttributes)35876_storage)": {
             "label": "mapping(uint256 => struct NFTBase.NFTAttributes)",
             "numberOfBytes": "32"
           },
-          "t_mapping(t_uint256,t_struct(RoyaltyInfo)35838_storage)": {
+          "t_mapping(t_uint256,t_struct(RoyaltyInfo)35867_storage)": {
             "label": "mapping(uint256 => struct NFTBase.RoyaltyInfo)",
             "numberOfBytes": "32"
           },
@@ -1263,7 +1263,7 @@
             ],
             "numberOfBytes": "32"
           },
-          "t_struct(NFTAttributes)35847_storage": {
+          "t_struct(NFTAttributes)35876_storage": {
             "label": "struct NFTBase.NFTAttributes",
             "members": [
               {
@@ -1311,7 +1311,7 @@
             ],
             "numberOfBytes": "64"
           },
-          "t_struct(RoyaltyInfo)35838_storage": {
+          "t_struct(RoyaltyInfo)35867_storage": {
             "label": "struct NFTBase.RoyaltyInfo",
             "members": [
               {
@@ -1471,7 +1471,7 @@
             "label": "_royalties",
             "offset": 0,
             "slot": "251",
-            "type": "t_mapping(t_uint256,t_struct(RoyaltyInfo)35838_storage)",
+            "type": "t_mapping(t_uint256,t_struct(RoyaltyInfo)35867_storage)",
             "contract": "NFTBase",
             "src": "contracts/token/NFTBase.sol:56"
           },
@@ -1479,7 +1479,7 @@
             "label": "_nftAttributes",
             "offset": 0,
             "slot": "252",
-            "type": "t_mapping(t_uint256,t_struct(NFTAttributes)35847_storage)",
+            "type": "t_mapping(t_uint256,t_struct(NFTAttributes)35876_storage)",
             "contract": "NFTBase",
             "src": "contracts/token/NFTBase.sol:58"
           },
@@ -1519,7 +1519,7 @@
             "label": "nftRegistry",
             "offset": 0,
             "slot": "257",
-            "type": "t_contract(IExternalRegistry)23771",
+            "type": "t_contract(IExternalRegistry)23790",
             "contract": "NFT721Upgradeable",
             "src": "contracts/token/erc721/NFT721Upgradeable.sol:21"
           },
@@ -1535,7 +1535,7 @@
             "label": "_tokens",
             "offset": 0,
             "slot": "259",
-            "type": "t_mapping(t_address,t_array(t_struct(MintedTokens)37345_storage)dyn_storage)",
+            "type": "t_mapping(t_address,t_array(t_struct(MintedTokens)37374_storage)dyn_storage)",
             "contract": "NFT721SubscriptionUpgradeable",
             "src": "contracts/token/erc721/NFT721SubscriptionUpgradeable.sol:17"
           }
@@ -1545,7 +1545,7 @@
             "label": "address",
             "numberOfBytes": "20"
           },
-          "t_array(t_struct(MintedTokens)37345_storage)dyn_storage": {
+          "t_array(t_struct(MintedTokens)37374_storage)dyn_storage": {
             "label": "struct NFT721SubscriptionUpgradeable.MintedTokens[]",
             "numberOfBytes": "32"
           },
@@ -1569,11 +1569,11 @@
             "label": "bytes32",
             "numberOfBytes": "32"
           },
-          "t_contract(IExternalRegistry)23771": {
+          "t_contract(IExternalRegistry)23790": {
             "label": "contract IExternalRegistry",
             "numberOfBytes": "20"
           },
-          "t_mapping(t_address,t_array(t_struct(MintedTokens)37345_storage)dyn_storage)": {
+          "t_mapping(t_address,t_array(t_struct(MintedTokens)37374_storage)dyn_storage)": {
             "label": "mapping(address => struct NFT721SubscriptionUpgradeable.MintedTokens[])",
             "numberOfBytes": "32"
           },
@@ -1597,11 +1597,11 @@
             "label": "mapping(uint256 => address)",
             "numberOfBytes": "32"
           },
-          "t_mapping(t_uint256,t_struct(NFTAttributes)35847_storage)": {
+          "t_mapping(t_uint256,t_struct(NFTAttributes)35876_storage)": {
             "label": "mapping(uint256 => struct NFTBase.NFTAttributes)",
             "numberOfBytes": "32"
           },
-          "t_mapping(t_uint256,t_struct(RoyaltyInfo)35838_storage)": {
+          "t_mapping(t_uint256,t_struct(RoyaltyInfo)35867_storage)": {
             "label": "mapping(uint256 => struct NFTBase.RoyaltyInfo)",
             "numberOfBytes": "32"
           },
@@ -1621,7 +1621,7 @@
             ],
             "numberOfBytes": "32"
           },
-          "t_struct(MintedTokens)37345_storage": {
+          "t_struct(MintedTokens)37374_storage": {
             "label": "struct NFT721SubscriptionUpgradeable.MintedTokens",
             "members": [
               {
@@ -1645,7 +1645,7 @@
             ],
             "numberOfBytes": "96"
           },
-          "t_struct(NFTAttributes)35847_storage": {
+          "t_struct(NFTAttributes)35876_storage": {
             "label": "struct NFTBase.NFTAttributes",
             "members": [
               {
@@ -1693,7 +1693,7 @@
             ],
             "numberOfBytes": "64"
           },
-          "t_struct(RoyaltyInfo)35838_storage": {
+          "t_struct(RoyaltyInfo)35867_storage": {
             "label": "struct NFTBase.RoyaltyInfo",
             "members": [
               {
