@@ -28,16 +28,18 @@ const deployConditions = async function(
         disputeManager.address
     ], deployer)
 
-    const accessDLEQCondition = await testUtils.deploy('AccessDLEQCondition', [owner,
-        conditionStoreManager.address,
-        agreementStoreManager.address
-    ], deployer)
-
     const escrowPaymentCondition = await testUtils.deploy(
         'EscrowPaymentCondition',
         [owner, conditionStoreManager.address],
         deployer
     )
+
+    const accessDLEQCondition = await testUtils.deploy('AccessDLEQCondition', [owner,
+        conditionStoreManager.address,
+        agreementStoreManager.address,
+        lockPaymentCondition.address,
+        escrowPaymentCondition.address
+    ], deployer)
 
     const computeExecutionCondition = await testUtils.deploy('ComputeExecutionCondition', [owner,
         conditionStoreManager.address,

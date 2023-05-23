@@ -79,7 +79,7 @@ async function deployContracts({ contracts: origContracts, verbose, testnet, mak
         }
     }
 
-    let deployCore = true
+    const deployCore = true
 
     const { cache, addressBook, proxies } = await initializeContracts({
         contracts,
@@ -88,7 +88,7 @@ async function deployContracts({ contracts: origContracts, verbose, testnet, mak
         network: '',
         verbose,
         addresses,
-        deployCore,
+        deployCore
     })
 
     await setupContracts({

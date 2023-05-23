@@ -120,12 +120,12 @@ contract('Access Proof (with DLEQ) Template integration test', (accounts) => {
         ]
 
         const coder = new ethers.utils.AbiCoder()
-        const uint = "uint"
+        const uint = 'uint'
 
         const params = [
             coder.encode(
-                [uint,uint,uint,uint,uint,uint,uint],
-                [cipher, secretId[0],secretId[1], provider[0],provider[1], buyer[0], buyer[1]]
+                [uint, uint, uint, uint, uint, uint, uint],
+                [cipher, secretId[0], secretId[1], provider[0], provider[1], buyer[0], buyer[1]]
             ),
             coder.encode(
                 ['bytes32', 'address', 'address', 'uint256[]', 'address[]'],
@@ -260,7 +260,7 @@ contract('Access Proof (with DLEQ) Template integration test', (accounts) => {
             const provider = accounts[5]
 
             // prepare: escrow agreement
-            const { agreementId, data, did, didSeed, agreement, sender, receivers, escrowAmounts, checksum, url, conditionIds, secretId } = await prepareEscrowAgreementMultipleEscrow()
+            const { agreementId, data, did, didSeed, agreement, sender, receivers, escrowAmounts, checksum, url, conditionIds, secretId, params } = await prepareEscrowAgreementMultipleEscrow()
             const totalAmount = escrowAmounts[0] + escrowAmounts[1]
             const receiver = receivers[0]
             // register DID
@@ -303,25 +303,13 @@ contract('Access Proof (with DLEQ) Template integration test', (accounts) => {
                 (await conditionStoreManager.getConditionState(conditionIds[1])).toNumber(),
                 constants.condition.state.fulfilled)
 
-            /////////////////////////////////////////////////////////////////////////
-            /////////////////////////////////////////////////////////////////////////
-            /////////////////////////////////////////////////////////////////////////
-            /////////////////////////////////////////////////////////////////////////
-            /////////////////////////////////////////////////////////////////////////
-            /////////////////////////////////////////////////////////////////////////
             // check that agreement validation works
-            await accessProofCondition.addSecret(secretId, {from: sender})
+            await accessProofCondition.addSecret(secretId, { from: receiver })
             const pid = await accessProofCondition.pointId(secretId)
-            console.log("pid", pid)
-            await accessProofCondition.addPrice(pid, 1, token.address, 20, {from: sender})
-
-            /////////////////////////////////////////////////////////////////////////
-            /////////////////////////////////////////////////////////////////////////
-            /////////////////////////////////////////////////////////////////////////
-            /////////////////////////////////////////////////////////////////////////
-            /////////////////////////////////////////////////////////////////////////
-            /////////////////////////////////////////////////////////////////////////
-
+            console.log('pid', pid)
+            console.log('cond ids', conditionIds)
+            await accessProofCondition.addPrice(pid, 1, token.address, 20, { from: receiver })
+            await accessProofCondition.authorizeAccessTemplate(agreementId, params, 0)
 
             // fulfill access
             await accessProofCondition.fulfill(agreementId, ...Object.values(data), { from: provider })

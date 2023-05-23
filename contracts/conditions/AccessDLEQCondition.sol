@@ -10,6 +10,7 @@ import '../interfaces/IAccessControl.sol';
 import '../agreements/AgreementStoreManager.sol';
 import '../conditions/LockPaymentCondition.sol';
 import '../conditions/rewards/EscrowPaymentCondition.sol';
+import 'hardhat/console.sol';
 
 struct G1Point {
     uint256 x;
@@ -103,7 +104,9 @@ contract AccessDLEQCondition is Condition {
     function initialize(
         address _owner,
         address _conditionStoreManagerAddress,
-        address _agreementStoreManagerAddress
+        address _agreementStoreManagerAddress,
+        address payable _lock,
+        address payable _escrow
     )
         external
         initializer()
@@ -118,6 +121,9 @@ contract AccessDLEQCondition is Condition {
         agreementStoreManager = AgreementStoreManager(
             _agreementStoreManagerAddress
         );
+        lockPaymentCondition = LockPaymentCondition(_lock);
+        accessCondition = AccessDLEQCondition(address(this)) ;
+        rewardCondition = EscrowPaymentCondition(_escrow);
     }
 
    /**
@@ -273,7 +279,6 @@ contract AccessDLEQCondition is Condition {
         }
         bytes32 lockConditionId = keccak256(abi.encode(id, address(lockPaymentCondition), conditionIds[1]));
         bytes32 accessId = keccak256(abi.encode(id, address(accessCondition), conditionIds[0]));
-
         bytes32 sid = keccak256(abi.encode([secretId1, secretId2]));
         // bytes32 bid = keccak256(abi.encode([buyer1, buyer2]));
 
