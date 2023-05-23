@@ -216,6 +216,10 @@ contract AccessDLEQCondition is Condition {
         uint tokenType;
     }
 
+    function pointId(uint[2] memory point) public pure returns (bytes32) {
+        return keccak256(abi.encode(point));
+    }
+
     function addSecret(uint[2] memory point) public {
         bytes32 h = keccak256(abi.encode(point));
         require(secretOwner[h] == address(0), 'Secret exists');
