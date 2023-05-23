@@ -260,7 +260,7 @@ contract('Access Proof (with DLEQ) Template integration test', (accounts) => {
             const provider = accounts[5]
 
             // prepare: escrow agreement
-            const { agreementId, data, did, didSeed, agreement, sender, receivers, escrowAmounts, checksum, url, conditionIds } = await prepareEscrowAgreementMultipleEscrow()
+            const { agreementId, data, did, didSeed, agreement, sender, receivers, escrowAmounts, checksum, url, conditionIds, secretId } = await prepareEscrowAgreementMultipleEscrow()
             const totalAmount = escrowAmounts[0] + escrowAmounts[1]
             const receiver = receivers[0]
             // register DID
@@ -304,7 +304,7 @@ contract('Access Proof (with DLEQ) Template integration test', (accounts) => {
                 constants.condition.state.fulfilled)
 
             // check that agreement validation works
-
+            await accessProofCondition.addSecret(secretId, {from: sender})
 
 
             // fulfill access
