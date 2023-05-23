@@ -346,10 +346,10 @@ async function frostDLEQ(n, t) {
     // these were reconstructed from resp and chal
     // so it is enough to construct challenge from these and check it's correct
 
-    process.exit(0)
+    // process.exit(0)
 }
 
-frostDLEQ(10, 3)
+// frostDLEQ(10, 3)
 
 async function setupEG() {
     const ffCurve = await buildBn128()
@@ -445,5 +445,6 @@ async function makeProof({ Fr, G1, yG, xG, zG, R, yR, y, z, toEvm }, label) {
 
 module.exports = {
     setupEG,
-    makeProof
+    makeProof,
+    frostDLEQ
 }

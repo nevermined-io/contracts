@@ -14,6 +14,7 @@ const { getTokenBalance, getCheckpoint } = require('../../helpers/getBalance.js'
 const increaseTime = require('../../helpers/increaseTime.js')
 const testUtils = require('../../helpers/utils')
 const { makeProof, setupEG } = require('../../helpers/dleq')
+const ethers = require('ethers')
 
 contract('Access Proof (with DLEQ) Template integration test', (accounts) => {
     const web3 = global.web3
@@ -118,6 +119,24 @@ contract('Access Proof (with DLEQ) Template integration test', (accounts) => {
             cipher, secretId, provider, buyer, reencrypt, proof
         ]
 
+        const coder = new ethers.utils.AbiCoder()
+        const uint = "uint"
+
+        const params = [
+            coder.encode(
+                [uint,uint,uint,uint,uint,uint,uint],
+                [cipher, secretId[0],secretId[1], provider[0],provider[1], buyer[0], buyer[1]]
+            ),
+            coder.encode(
+                ['bytes32', 'address', 'address', 'uint256[]', 'address[]'],
+                [did, escrowPaymentCondition.address, token.address, escrowAmounts, receivers]
+            ),
+            coder.encode(
+                ['bytes32', 'uint256[]', 'address[]', 'address', 'address', 'address', 'bytes32', 'bytes32[]'],
+                [did, escrowAmounts, receivers, sender, escrowPaymentCondition.address, token.address, fullConditionIdLock, [fullConditionIdAccess]]
+            )
+        ]
+
         // construct agreement
         const agreement = {
             initAgreementId,
@@ -137,6 +156,7 @@ contract('Access Proof (with DLEQ) Template integration test', (accounts) => {
                 fullConditionIdLock,
                 fullConditionIdEscrow
             ],
+            params,
             agreementId,
             did,
             data,
@@ -283,8 +303,11 @@ contract('Access Proof (with DLEQ) Template integration test', (accounts) => {
                 (await conditionStoreManager.getConditionState(conditionIds[1])).toNumber(),
                 constants.condition.state.fulfilled)
 
+            // check that agreement validation works
+
+
+
             // fulfill access
-            // await disputeManager.setAccepted(...Object.values(data))
             await accessProofCondition.fulfill(agreementId, ...Object.values(data), { from: provider })
 
             assert.strictEqual(
