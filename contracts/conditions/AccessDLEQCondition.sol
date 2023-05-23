@@ -10,7 +10,7 @@ import '../interfaces/IAccessControl.sol';
 import '../agreements/AgreementStoreManager.sol';
 import '../conditions/LockPaymentCondition.sol';
 import '../conditions/rewards/EscrowPaymentCondition.sol';
-import 'hardhat/console.sol';
+// import 'hardhat/console.sol';
 
 struct G1Point {
     uint256 x;
@@ -204,8 +204,17 @@ contract AccessDLEQCondition is Condition {
 
     // Manager for re-encryptions
 
+    struct Params {
+        bytes32 _agreementId;
+        uint _cipher;
+        uint[2] _secretId;
+        uint[2] _provider;
+        uint[2] _buyer;
+    }
+
     // secret x buyer public key
     mapping (bytes32 => mapping(bytes32 => bool)) public authorized;
+    mapping (bytes32 => Params) public authorizedParams;
 
     mapping (bytes32 => SecretPrice[]) public prices;
 
@@ -220,6 +229,10 @@ contract AccessDLEQCondition is Condition {
         uint num;
         address token;
         uint tokenType;
+    }
+
+    function setNetworkPublicKey(uint[2] memory point) public onlyOwner {
+        network = point;
     }
 
     function pointId(uint[2] memory point) public pure returns (bytes32) {
@@ -242,18 +255,33 @@ contract AccessDLEQCondition is Condition {
     AccessDLEQCondition internal accessCondition;
     EscrowPaymentCondition internal rewardCondition;
 
-    event Authorized(uint[2] secret, uint[2] buyer);
+    event Authorized(uint[2] secret, uint[2] buyer, bytes32 agreementId);
+
+    function fulfillFromNetwork(bytes32 agreementId, uint[2] memory reencrypt, uint[2] memory proof) public {
+        Params memory p = authorizedParams[agreementId];
+        this.fulfill(agreementId, p._cipher, p._secretId, network, p._buyer, reencrypt, proof);
+    }
 
     function auth(
         uint secretId1,
         uint secretId2,
-        uint buyer1,
-        uint buyer2
+        bytes[] memory _params,
+        bytes32 id
     ) internal {
+        uint buyer1;
+        uint buyer2;
+        uint p1;
+        uint p2;
+        uint cipher;
+        (cipher, secretId1, secretId2, p1, p2, buyer1, buyer2) = abi.decode(_params[0], (uint,uint,uint,uint,uint,uint,uint));
+        require(p1 == network[0] && p2 == network[1], 'not correct network');
+
+
         uint[2] memory arr1 = [secretId1,secretId2];
         uint[2] memory arr2 = [buyer1,buyer2];
         authorized[keccak256(abi.encode(arr1))][keccak256(abi.encode(arr2))] = true;
-        emit Authorized(arr1, arr2);
+        authorizedParams[id] = Params(id, cipher, [secretId1, secretId2], [p1, p2], [buyer1, buyer2]);
+        emit Authorized(arr1, arr2, id);
     }
 
     // in theory could be slashed with SNARK??
@@ -270,9 +298,7 @@ contract AccessDLEQCondition is Condition {
         // return keccak256(abi.encode(_cipher, _secretId[0], _secretId[1], _provider[0], _provider[1], _buyer[0], _buyer[1]));
         uint secretId1;
         uint secretId2;
-        uint buyer1;
-        uint buyer2;
-        ( , secretId1, secretId2, , , buyer1, buyer2) = abi.decode(_params[0], (uint,uint,uint,uint,uint,uint,uint));
+        (, secretId1, secretId2, , , , ) = abi.decode(_params[0], (uint,uint,uint,uint,uint,uint,uint));
         bytes32[] memory conditionIds = new bytes32[](3);
         for (uint i = 0; i < 3; i++) {
             conditionIds[i] = keccak256(_params[i]);
@@ -292,7 +318,7 @@ contract AccessDLEQCondition is Condition {
         // check that lock condition is fulfilled
         require(conditionStoreManager.getConditionState(lockConditionId) == ConditionStoreLibrary.ConditionState.Fulfilled, 'lock condition not fulfilled');
 
-        auth(secretId1, secretId2, buyer1, buyer2);
+        auth(secretId1, secretId2, _params, id);
     }
 
     function checkParamsLock(bytes[] memory _params, bytes32 sid, uint priceIdx) internal view {
