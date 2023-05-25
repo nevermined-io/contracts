@@ -101,6 +101,51 @@ async function makeShares(obj, n) {
     return shares
 }
 
+async function verifyShares(obj, commits) {
+    const ffCurve = await buildBn128()
+    const Fr = ffCurve.Fr
+    const G1 = ffCurve.G1
+    const G = G1.g
+
+    function sumG1(lst) {
+        return lst.reduce((a, b) => G1.add(a, b), G1.fromObject([0n, 0n]))
+    }
+
+    function toEvm(p) {
+        const obj = G1.toObject(G1.toAffine(p))
+        return [obj[0].toString(10), obj[1].toString(10)]
+    }
+
+    function pow(a, n) {
+        let res = Fr.fromObject(1n)
+        for (let i = 0; i < n; i++) {
+            res = Fr.mul(res, a)
+        }
+        return res
+    } 
+
+    const n = obj.shares.length
+    const t = obj.secrets.length
+
+    const idx = Fr.fromObject(BigInt(obj.idx+1))
+
+    for (let l = 0; l < n; l++) {
+        let share = Fr.fromObject(obj.shares[l])
+        let pub = G1.timesFr(G, share)
+        let asd = []
+        for (let k = 0; k < t; k++) {
+            let c = commits[l][k]
+            let cp = G1.fromObject([BigInt(c[0]),BigInt(c[1])])
+            let exp = pow(idx, k)
+            // console.log("exp",Fr.toObject(exp))
+            asd.push(G1.timesFr(cp, exp))
+        }
+        let check = sumG1(asd)
+        // console.log("check", toEvm(check), "pub", toEvm(pub), obj.idx)
+        assert(G1.eq(check, pub))
+    }
+}
+
 // full protocol
 
 async function proto(n, t, ctx) {
@@ -109,7 +154,7 @@ async function proto(n, t, ctx) {
     for (let i = 0; i < n; i++) {
         let obj = await round1(t, i, ctx)
         r1.push(obj)
-        commits.push(obj.commits)
+        commits.push(obj.commit)
     }
 
     console.log(r1)
@@ -137,6 +182,8 @@ async function proto(n, t, ctx) {
     for (let obj of r1) {
         await verifyShares(obj, commits)
     }
+
+    console.log("verified shares")
 
 
     process.exit(0)
