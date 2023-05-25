@@ -137,15 +137,17 @@ tar xvzf artifacts.tar.gz -C artifacts/
 
 - run `export MNEMONIC=<deployment's mnemonic>`. You will find them in the password manager.
 
-##### Upgrade already deployed contracts
+##### Upgrade already deployed core contracts
 
 - To upgrade the contracts run `yarn upgrade:$NETWORK`
 
-##### Deploy and initialize any new contract not present in the old deployed version
+##### Deploy and initialize new version of agreement contracts
 
 - To deploy and initialize all contracts run `yarn deploy:$NETWORK`
 
 This process will show multiple errors for the contracts that are being upgraded. You can ignore those messages.
+
+New versions are deployed with new addresses to make sure that existing agreements won't be messed up.
 
 ##### Upgrade the plonk verifier contract to the new version
 
