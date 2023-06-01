@@ -282,6 +282,55 @@ async function makeServer(n, t, i, port) {
         return toEvm(res)
     }
 
+    async function frost_round1(dta) {
+        let R = G1.fromObject([BigInt(dta.key[0]),BigInt(dta.key[1])])
+        const s1 = Fr.random()
+        const s2 = Fr.random()
+        const c1 = G1.timesFr(G, s1)
+        const c2 = G1.timesFr(G, s2)
+        const c3 = G1.timesFr(R, s1)
+        const c4 = G1.timesFr(R, s2)
+        const pub1 = G1.timesFr(G, fromString(obj.share))
+        const pub2 = G1.timesFr(R, fromString(obj.share))
+        obj.s1 = toString(s1)
+        obj.s2 = toString(s2)
+        return {
+            c1: toEvm(c1),
+            c2: toEvm(c2),
+            c3: toEvm(c3),
+            c4: toEvm(c4),
+            pub1: toEvm(pub1),
+            pub2: toEvm(pub2),
+        }
+    }
+
+    async function frost_round2(dta) {
+        let R = G1.fromObject([BigInt(dta.key[0]),BigInt(dta.key[1])])
+        let nonces = dta.nonces
+        // compute binding values
+        nonces.forEach(a => {
+            a.bind = hash([a.id, label].concat(flatten(nonces.map(({ c1, c2, c3, c4 }) => [].concat(c1).concat(c2).concat(c3).concat(c4)))))
+            a.commit1 = G1.add(fromEvm(a.c1), G1.timesFr(fromEvm(a.c2), a.bind))
+            a.commit2 = G1.add(fromEvm(a.c3), G1.timesFr(fromEvm(a.c4), a.bind))
+        })
+
+        // compute group commitment
+        const rCommit1 = sumG1(nonces.map(a => a.commit1))
+        console.log('group commitment1', toEvm(rCommit1))
+        const rCommit2 = sumG1(nonces.map(a => a.commit2))
+        console.log('group commitment2', toEvm(rCommit2))
+
+        // compute challenge
+        const chal = hash([label].concat(toEvm(yG)).concat(toEvm(yR)).concat(toEvm(rCommit1)).concat(toEvm(rCommit2)))
+        console.log('challenge', Fr.toObject(chal))
+
+        // compute response
+        let a = nonces.find(a => a.idx == obj.idx)
+        let resp = Fr.add(a.s1, Fr.add(Fr.mul(a.s2, a.bind), Fr.neg(Fr.mul(a.coeff, Fr.mul(a.share, chal)))))
+        console.log('response', toString(resp))
+        return toString(resp)
+    }
+
     async function reencrypt(dta) {
         let ids = dta.ids
         
@@ -306,6 +355,20 @@ async function makeServer(n, t, i, port) {
 
         console.log("yR", toEvm(yR))
 
+        // frost round 1 (pre-process)
+        let nonces = await Promise.all(ids.map(async (id, i) => {
+            let nonce = await clients[id].request("frost_round1", {key: toEvm(R)})
+            nonce.idx = idx
+            return nonce
+        }))
+
+        console.log("frost round 1", nonces)
+
+        // collect round 2 responses
+        for (let a of nonces) {
+            a.resp = await clients[a.idx].request("frost_round2", {key: toEvm(R), nonces, label: dta.label})
+        }
+
         return {
             R: toEvm(R),
             yR: toEvm(yR),
@@ -317,14 +380,18 @@ async function makeServer(n, t, i, port) {
 
     server.addMethod("echo", ({ text }) => text)
     server.addMethod("log", ({ message }) => console.log(message))
+
     server.addMethod("init_round1", init_round1)
     server.addMethod("validate_round1", validate_round1)
     server.addMethod("coordinate_round1", coordinate_round1)
     server.addMethod("make_shares", makeShares)
     server.addMethod("set_share", setShare)
     server.addMethod("coordinate_round2", coordinate_round2)
+
     server.addMethod("reencrypt", reencrypt)
     server.addMethod("crypt", crypt)
+    server.addMethod("frost_round1", frost_round1)
+    server.addMethod("frost_round2", frost_round2)
 
     server.addMethod("test_account", () => {
         const x = Fr.random()
