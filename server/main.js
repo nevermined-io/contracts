@@ -348,93 +348,6 @@ async function makeServer(n, t, i, port) {
         return toString(resp)
     }
 
-    function debugNonces(nonces_orig, {label, R, yG, yR}) {
-
-        let ids = [1,2,3]
-
-        function coeff(i) {
-            let res = Fr.fromObject(1n)
-            for (const id of ids) {
-                if (id === i) continue
-                const idneg = Fr.neg(Fr.fromObject(id + 1))
-                res = Fr.mul(res, Fr.div(idneg, Fr.add(Fr.fromObject(i + 1), idneg)))
-            }
-            return res
-        }
-    
-        // compute coefficients
-        const coeffs = ids.map(coeff)
-
-        const nonces = ids.map((id, i) => {
-            const o = nonces_orig[i]
-            const s1 = nonces_orig[i].s1
-            const s2 = nonces_orig[i].s2
-            const c1 = G1.timesFr(G, s1)
-            const c2 = G1.timesFr(G, s2)
-            const c3 = G1.timesFr(R, s1)
-            const c4 = G1.timesFr(R, s2)
-            let share = nonces_orig[i].share
-            const pub1 = G1.timesFr(G, share)
-            const pub2 = G1.timesFr(R, share)
-            console.log("c", toEvm(c1), toEvm(c2), toEvm(c3), toEvm(c4))
-            console.log("c?", (o.c1), (o.c2), (o.c3), (o.c4))
-            console.log("pub", toEvm(pub1), toEvm(pub2))
-            console.log("pub?", (o.pub1), (o.pub2))
-            return { id, coeff: coeffs[i], share, s1, s2, c1, c2, c3, c4, pub1, pub2 }
-        })
-
-        // compute binding values
-        nonces.forEach(a => {
-            a.bind = hash([a.id, label].concat(flatten(nonces.map(({ c1, c2, c3, c4 }) => [].concat(toEvm(c1)).concat(toEvm(c2)).concat(toEvm(c3)).concat(toEvm(c4))))))
-            a.commit1 = G1.add(a.c1, G1.timesFr(a.c2, a.bind))
-            a.commit2 = G1.add(a.c3, G1.timesFr(a.c4, a.bind))
-        })
-
-        console.log('b hash', nonces.map(a => Fr.toObject(a.bind)))
-
-        // compute group commitment
-        const rCommit1 = sumG1(nonces.map(a => a.commit1))
-        console.log('group commitment1', toEvm(rCommit1))
-        const rCommit2 = sumG1(nonces.map(a => a.commit2))
-        console.log('group commitment2', toEvm(rCommit2))
-
-        // compute challenge
-        const chal = hash([label].concat(toEvm(yG)).concat(toEvm(yR)).concat(toEvm(rCommit1)).concat(toEvm(rCommit2)))
-        console.log('challenge', Fr.toObject(chal))
-
-        // compute response for each participant
-        nonces.forEach(a => {
-            a.resp = Fr.add(a.s1, Fr.add(Fr.mul(a.s2, a.bind), Fr.neg(Fr.mul(a.coeff, Fr.mul(a.share, chal)))))
-        })
-        console.log('responses', nonces.map(a => Fr.toObject(a.resp)))
-
-        // aggregating signatures
-
-        // verify partial signatures
-        nonces.forEach(a => {
-            const resp1 = G1.timesFr(G, a.resp)
-            console.log("!!!!!!!!!!!!!!!", toEvm(a.commit1), toEvm(a.pub1), toString(chal), toString(a.coeff))
-            const committedResp1 = G1.add(a.commit1, G1.neg(G1.timesFr(a.pub1, Fr.mul(chal, a.coeff))))
-            const resp2 = G1.timesFr(R, a.resp)
-            const committedResp2 = G1.add(a.commit2, G1.neg(G1.timesFr(a.pub2, Fr.mul(chal, a.coeff))))
-            console.log('resp1', toEvm(resp1), 'should be', toEvm(committedResp1))
-            console.log('resp2', toEvm(resp2), 'should be', toEvm(committedResp2))
-        })
-
-        const rResp = sum(nonces.map(a => a.resp))
-        console.log('group response', Fr.toObject(rResp))
-
-        // verify DLEQ
-
-        const check1 = G1.add(G1.timesFr(G, rResp), G1.timesFr(yG, chal))
-        console.log('checking DLEQ', toEvm(check1))
-        const check2 = G1.add(G1.timesFr(R, rResp), G1.timesFr(yR, chal))
-        console.log('checking DLEQ', toEvm(check2))
-
-        console.log('group commitment1', toEvm(rCommit1))
-        console.log('group commitment2', toEvm(rCommit2))
-    }
-
     async function reencrypt(dta) {
         let ids = dta.ids
         
@@ -464,21 +377,8 @@ async function makeServer(n, t, i, port) {
             let nonce = await clients[idx].request("frost_round1", {key: toEvm(R)})
             nonce.idx = idx
             nonce.coeff = coeffs[i]
-            // collect all shares for debugging
-            nonce.share = fromString(await clients[idx].request("test_share", {}))
             return nonce
         }))
-
-        debugNonces(nonces.map(nonce => ({...nonce,
-             s1: fromString(nonce.s1),
-             s2: fromString(nonce.s2), 
-            })), {R, yG, yR, label: dta.label})
-
-        const secret = sum(nonces.map(a => Fr.mul(a.coeff, a.share)))
-
-        console.log('secret?', Fr.toObject(secret))
-        console.log('public key?', toEvm(G1.timesFr(G, secret)))
-        console.log('yR?', toEvm(G1.timesFr(R, secret)))
 
         console.log("frost round 1")
         console.log(JSON.stringify(nonces))
@@ -506,12 +406,10 @@ async function makeServer(n, t, i, port) {
             const resp2 = G1.timesFr(R, fromString(a.resp))
             let pub1 = fromEvm(a.pub1)
             let pub2 = fromEvm(a.pub2)
-            console.log("??????????????????", toEvm(a.commit1), toEvm(pub1), toString(chal), toString(a.coeff))
             const committedResp1 = G1.add(a.commit1, G1.neg(G1.timesFr(pub1, Fr.mul(chal, a.coeff))))
             const committedResp2 = G1.add(a.commit2, G1.neg(G1.timesFr(pub2, Fr.mul(chal, a.coeff))))
             console.log('resp1', toEvm(resp1), 'should be', toEvm(committedResp1))
             console.log('resp2', toEvm(resp2), 'should be', toEvm(committedResp2))
-            console.log('coeff', toString(a.coeff), a.idx)
         })
 
         const rResp = sum(nonces.map(a => fromString(a.resp)))
@@ -561,9 +459,11 @@ async function makeServer(n, t, i, port) {
         }
     })
 
+    /*
     server.addMethod("test_share", () => {
         return obj.share
     })
+    */
 
     const app = express()
     app.use(bodyParser.json())
