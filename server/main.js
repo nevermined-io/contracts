@@ -106,6 +106,7 @@ async function makeServer(n, t, i, port) {
     let obj = {
         idx: i,
         used: {},
+        shares: [],
     }
 
     // methods needed for DKG
@@ -142,7 +143,7 @@ async function makeServer(n, t, i, port) {
             proof_mu: obj.proof_mu,
             proof_R: obj.proof_R,
             commit: obj.commit,
-            idx: obj.idx.toString(),
+            idx: obj.idx,
             ctx: obj.ctx.toString(),
         }
 
@@ -158,7 +159,7 @@ async function makeServer(n, t, i, port) {
 
     // validate message received from round 1
     async function validate_round1(obj) {
-        console.log(obj)
+        // console.log(obj)
         const c = hash([BigInt(obj.idx),BigInt(obj.ctx)].concat(obj.commit[0]).concat(obj.proof_R))
     
         const R = G1.fromObject([BigInt(obj.proof_R[0]), BigInt(obj.proof_R[1])])
@@ -168,8 +169,68 @@ async function makeServer(n, t, i, port) {
         const check = G1.add(G1.timesFr(G, mu), G1.timesFr(phi0, Fr.neg(c)))
     
         assert(G1.eq(R, check))
-        console.log("got valid round 1 message", obj)
+        console.log(i, "got valid round 1 message", obj.idx)
         objs[obj.idx] = obj
+        return "ok"
+    }
+
+    async function coordinate_round1({ctx}) {
+        for (let c of clients) {
+            await c.request("init_round1", {ctx})
+        }
+
+        return "ok"
+    }
+
+    async function makeShares({commits}) {
+        obj.commits = commits
+        const poly = obj.secrets.map(a => fromString(a))
+    
+        let shares = []
+        for (let i = 1; i <= n; i++) {
+            let share = evalPoly(poly, i)
+            shares.push(toString(share))
+        }
+
+        console.log("share", shares)
+        obj.backup = shares
+        for (let i = 0; i < clients.length; i++) {
+            let c = clients[i]
+            await c.request("set_share", {idx: obj.idx, share: shares[i+1]})
+        }
+
+        return "ok"
+    }
+
+    async function setShare(dta) {
+        obj.shares[dta.idx] = dta.share
+        console.log("Member", obj.idx, "got share from", dta.idx)
+        return "ok"
+    }
+
+    async function computeKey(commits) {
+        let pubkey = sumG1(commits.map(a => G1.fromObject([BigInt(a[0][0]), BigInt(a[0][1])])))
+    
+        console.log("got public key", toEvm(pubkey))
+    
+        return toEvm(pubkey)
+    }   
+
+    async function coordinate_round2({}) {
+        // send commits
+        let commits = []
+        for (let i = 0; i < n; i++) {
+            if (!objs[i] || !objs[i].commit) {
+                console.log("Round 2 not finished: did not receive all commits", i)
+            }
+            commits.push(objs[i].commit)
+        }
+        computeKey(commits)
+
+        for (let c of clients) {
+            await c.request("make_shares", {commits})
+        }
+
         return "ok"
     }
 
@@ -179,6 +240,10 @@ async function makeServer(n, t, i, port) {
     server.addMethod("log", ({ message }) => console.log(message))
     server.addMethod("init_round1", init_round1)
     server.addMethod("validate_round1", validate_round1)
+    server.addMethod("coordinate_round1", coordinate_round1)
+    server.addMethod("make_shares", makeShares)
+    server.addMethod("set_share", setShare)
+    server.addMethod("coordinate_round2", coordinate_round2)
 
     const app = express()
     app.use(bodyParser.json())
@@ -204,7 +269,7 @@ async function makeServer(n, t, i, port) {
 }
 
 makeServer(5, 3, 0, 23451)
-makeServer(5, 3, 0, 23452)
-makeServer(5, 3, 0, 23453)
-makeServer(5, 3, 0, 23454)
-makeServer(5, 3, 0, 23455)
+makeServer(5, 3, 1, 23452)
+makeServer(5, 3, 2, 23453)
+makeServer(5, 3, 3, 23454)
+makeServer(5, 3, 4, 23455)
