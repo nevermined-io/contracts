@@ -231,11 +231,11 @@ async function makeServer(n, t, i, port) {
                 let c = obj.commits[l][k]
                 let cp = G1.fromObject([BigInt(c[0]),BigInt(c[1])])
                 let exp = pow(idx, k)
-                console.log("exp",Fr.toObject(exp))
+                // console.log("exp",Fr.toObject(exp))
                 asd.push(G1.timesFr(cp, exp))
             }
             let check = sumG1(asd)
-            console.log("check", toEvm(check), "pub", toEvm(pub), obj.idx, n, t)
+            // console.log("check", toEvm(check), "pub", toEvm(pub), obj.idx, n, t)
             assert(G1.eq(check, pub))
             secret = Fr.add(share, secret)
         }
@@ -304,12 +304,10 @@ async function makeServer(n, t, i, port) {
         }
     }
 
-    async function frost_round2(dta) {
-        let R = G1.fromObject([BigInt(dta.key[0]),BigInt(dta.key[1])])
-        let nonces = dta.nonces
+    function computeChallenge(nonces, label, yG, yR) {
         // compute binding values
         nonces.forEach(a => {
-            a.bind = hash([a.idx, dta.label].concat(flatten(nonces.map(({ c1, c2, c3, c4 }) => [].concat(c1).concat(c2).concat(c3).concat(c4)))))
+            a.bind = hash([a.idx, label].concat(flatten(nonces.map(({ c1, c2, c3, c4 }) => [].concat(c1).concat(c2).concat(c3).concat(c4)))))
             a.commit1 = G1.add(fromEvm(a.c1), G1.timesFr(fromEvm(a.c2), a.bind))
             a.commit2 = G1.add(fromEvm(a.c3), G1.timesFr(fromEvm(a.c4), a.bind))
         })
@@ -321,8 +319,18 @@ async function makeServer(n, t, i, port) {
         console.log('group commitment2', toEvm(rCommit2))
 
         // compute challenge
-        const chal = hash([dta.label].concat(dta.yG).concat(dta.yR).concat(toEvm(rCommit1)).concat(toEvm(rCommit2)))
+        const chal = hash([label].concat(yG).concat(yR).concat(toEvm(rCommit1)).concat(toEvm(rCommit2)))
         console.log('challenge', Fr.toObject(chal))
+
+        return chal
+
+    }
+
+    async function frost_round2(dta) {
+        let R = G1.fromObject([BigInt(dta.key[0]),BigInt(dta.key[1])])
+        let nonces = dta.nonces
+
+        const chal = computeChallenge(nonces, dta.label, dta.yG, dta.yR)
 
         // compute response
         let a = nonces.find(a => a.idx == obj.idx)
@@ -357,13 +365,15 @@ async function makeServer(n, t, i, port) {
         let parts = await Promise.all(coeffs.map(async (c,i) => G1.timesFr(fromEvm(await clients[ids[i]].request("crypt", {key: toEvm(R)})), c)))
         let yR = sumG1(parts)
 
-        console.log("yR", toEvm(yR))
+        console.log("yR", toEvm(yR), "yG", toEvm(yG))
 
         // frost round 1 (pre-process)
         let nonces = await Promise.all(ids.map(async (idx, i) => {
             let nonce = await clients[idx].request("frost_round1", {key: toEvm(R)})
             nonce.idx = idx
             nonce.coeff = coeffs[i]
+            // collect all shares for debugging
+            nonce.share = await clients[idx].request("test_share", {})
             return nonce
         }))
 
@@ -383,9 +393,32 @@ async function makeServer(n, t, i, port) {
             a.resp = await clients[a.idx].request("frost_round2", req)
         }
 
+        // aggregating signatures
+        const chal = computeChallenge(nonces, dta.label, toEvm(yG), toEvm(yR))
+
+        console.log("frost round 2")
+        // verify partial signatures
+        nonces.forEach(a => {
+            const resp1 = G1.timesFr(G, fromString(a.resp))
+            let com1 = fromEvm(a.commit1)
+            let com2 = fromEvm(a.commit2)
+            let pub1 = fromEvm(a.pub1)
+            let pub2 = fromEvm(a.pub2)
+            const committedResp1 = G1.add(com1, G1.neg(G1.timesFr(pub1, Fr.mul(chal, a.coeff))))
+            const resp2 = G1.timesFr(R, fromString(a.resp))
+            const committedResp2 = G1.add(com2, G1.neg(G1.timesFr(pub2, Fr.mul(chal, a.coeff))))
+            console.log('resp1', toEvm(resp1), 'should be', toEvm(committedResp1))
+            console.log('resp2', toEvm(resp2), 'should be', toEvm(committedResp2))
+        })
+
+        const rResp = sum(nonces.map(a => fromString(a.resp)))
+        console.log('group response', Fr.toObject(rResp))
+
         return {
             R: toEvm(R),
             yR: toEvm(yR),
+            response: toString(rResp),
+            chal: toString(chal),
         }
 
     }
@@ -414,6 +447,10 @@ async function makeServer(n, t, i, port) {
             secret: toString(x),
             public: toEvm(xG),
         }
+    })
+
+    server.addMethod("test_share", () => {
+        return obj.share
     })
 
     const app = express()
