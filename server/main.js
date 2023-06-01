@@ -182,6 +182,14 @@ async function makeServer(n, t, i, port) {
         return "ok"
     }
 
+    function computeKey(commits) {
+        let pubkey = sumG1(commits.map(a => G1.fromObject([BigInt(a[0][0]), BigInt(a[0][1])])))
+    
+        console.log("got public key", toEvm(pubkey))
+    
+        return toEvm(pubkey)
+    }   
+
     async function makeShares({commits}) {
         obj.commits = commits
         const poly = obj.secrets.map(a => fromString(a))
@@ -196,25 +204,55 @@ async function makeServer(n, t, i, port) {
         obj.backup = shares
         for (let i = 0; i < clients.length; i++) {
             let c = clients[i]
-            await c.request("set_share", {idx: obj.idx, share: shares[i+1]})
+            await c.request("set_share", {idx: obj.idx, share: shares[i]})
         }
 
         return "ok"
     }
 
+    async function verifyShares() {
+    
+        const n = obj.shares.length
+        const t = obj.secrets.length
+    
+        const idx = Fr.fromObject(BigInt(obj.idx+1))
+    
+        let secret = Fr.fromObject(0n)
+    
+        for (let l = 0; l < n; l++) {
+            let share = fromString(obj.shares[l])
+            let pub = G1.timesFr(G, share)
+            let asd = []
+            for (let k = 0; k < t; k++) {
+                let c = obj.commits[l][k]
+                let cp = G1.fromObject([BigInt(c[0]),BigInt(c[1])])
+                let exp = pow(idx, k)
+                console.log("exp",Fr.toObject(exp))
+                asd.push(G1.timesFr(cp, exp))
+            }
+            let check = sumG1(asd)
+            console.log("check", toEvm(check), "pub", toEvm(pub), obj.idx, n, t)
+            assert(G1.eq(check, pub))
+            secret = Fr.add(share, secret)
+        }
+        console.log("found share", Fr.toObject(secret))
+    
+        obj.share = secret
+        obj.pubkey = computeKey(obj.commits)
+    }
+
     async function setShare(dta) {
         obj.shares[dta.idx] = dta.share
         console.log("Member", obj.idx, "got share from", dta.idx)
+        let flag = true
+        for (let i = 0; i < n; i++) {
+            if (!obj.shares[i]) flag = false
+        }
+        if (flag) {
+            verifyShares()
+        }
         return "ok"
     }
-
-    async function computeKey(commits) {
-        let pubkey = sumG1(commits.map(a => G1.fromObject([BigInt(a[0][0]), BigInt(a[0][1])])))
-    
-        console.log("got public key", toEvm(pubkey))
-    
-        return toEvm(pubkey)
-    }   
 
     async function coordinate_round2({}) {
         // send commits
