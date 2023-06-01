@@ -58,6 +58,10 @@ async function makeServer(n, t, i, port) {
         return [obj[0].toString(10), obj[1].toString(10)]
     }
 
+    function fromEvm(arr) {
+        return G1.fromObject([BigInt(arr[0]),BigInt(arr[1])])
+    }
+
     function toString(n) {
         return Fr.toObject(n).toString(10)
     }
@@ -237,7 +241,7 @@ async function makeServer(n, t, i, port) {
         }
         console.log("found share", Fr.toObject(secret))
     
-        obj.share = secret
+        obj.share = toString(secret)
         obj.pubkey = computeKey(obj.commits)
     }
 
@@ -272,6 +276,43 @@ async function makeServer(n, t, i, port) {
         return "ok"
     }
 
+    async function crypt(dta) {
+        let R = G1.fromObject([BigInt(dta.key[0]),BigInt(dta.key[1])])
+        let res = G1.timesFr(R, fromString(obj.share))
+        return toEvm(res)
+    }
+
+    async function reencrypt(dta) {
+        let ids = dta.ids
+        
+        const coeffs = ids.map(i => coeff(ids, i))
+        console.log('coeffs', coeffs.map(a => Fr.toObject(a)))
+
+        // network id
+        let yG = G1.fromObject([BigInt(obj.pubkey[0]),BigInt(obj.pubkey[1])])
+
+        // secret id
+        let xG = G1.fromObject([BigInt(dta.id[0]),BigInt(dta.id[1])])
+
+        // consumer id
+        let zG = G1.fromObject([BigInt(dta.consumer[0]),BigInt(dta.consumer[1])])
+
+        // reencrypt target
+        const R = G1.add(xG, zG)
+        console.log("R", toEvm(R))
+
+        let parts = await Promise.all(coeffs.map(async (c,i) => G1.timesFr(fromEvm(await clients[ids[i]].request("crypt", {key: toEvm(R)})), c)))
+        let yR = sumG1(parts)
+
+        console.log("yR", toEvm(yR))
+
+        return {
+            R: toEvm(R),
+            yR: toEvm(yR),
+        }
+
+    }
+
     const server = new JSONRPCServer()
 
     server.addMethod("echo", ({ text }) => text)
@@ -282,6 +323,17 @@ async function makeServer(n, t, i, port) {
     server.addMethod("make_shares", makeShares)
     server.addMethod("set_share", setShare)
     server.addMethod("coordinate_round2", coordinate_round2)
+    server.addMethod("reencrypt", reencrypt)
+    server.addMethod("crypt", crypt)
+
+    server.addMethod("test_account", () => {
+        const x = Fr.random()
+        const xG = G1.timesFr(G, x)
+        return {
+            secret: toString(x),
+            public: toEvm(xG),
+        }
+    })
 
     const app = express()
     app.use(bodyParser.json())
