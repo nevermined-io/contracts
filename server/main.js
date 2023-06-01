@@ -309,7 +309,7 @@ async function makeServer(n, t, i, port) {
         let nonces = dta.nonces
         // compute binding values
         nonces.forEach(a => {
-            a.bind = hash([a.id, label].concat(flatten(nonces.map(({ c1, c2, c3, c4 }) => [].concat(c1).concat(c2).concat(c3).concat(c4)))))
+            a.bind = hash([a.idx, dta.label].concat(flatten(nonces.map(({ c1, c2, c3, c4 }) => [].concat(c1).concat(c2).concat(c3).concat(c4)))))
             a.commit1 = G1.add(fromEvm(a.c1), G1.timesFr(fromEvm(a.c2), a.bind))
             a.commit2 = G1.add(fromEvm(a.c3), G1.timesFr(fromEvm(a.c4), a.bind))
         })
@@ -321,12 +321,16 @@ async function makeServer(n, t, i, port) {
         console.log('group commitment2', toEvm(rCommit2))
 
         // compute challenge
-        const chal = hash([label].concat(toEvm(yG)).concat(toEvm(yR)).concat(toEvm(rCommit1)).concat(toEvm(rCommit2)))
+        const chal = hash([dta.label].concat(dta.yG).concat(dta.yR).concat(toEvm(rCommit1)).concat(toEvm(rCommit2)))
         console.log('challenge', Fr.toObject(chal))
 
         // compute response
         let a = nonces.find(a => a.idx == obj.idx)
-        let resp = Fr.add(a.s1, Fr.add(Fr.mul(a.s2, a.bind), Fr.neg(Fr.mul(a.coeff, Fr.mul(a.share, chal)))))
+        // let num = nonces.findIndex(a => a.idx == obj.idx)
+        let s1 = fromString(obj.s1)
+        let s2 = fromString(obj.s2)
+        let share = fromString(obj.share)
+        let resp = Fr.add(s1, Fr.add(Fr.mul(s2, a.bind), Fr.neg(Fr.mul(coeff(dta.ids, obj.idx), Fr.mul(share, chal)))))
         console.log('response', toString(resp))
         return toString(resp)
     }
@@ -356,17 +360,27 @@ async function makeServer(n, t, i, port) {
         console.log("yR", toEvm(yR))
 
         // frost round 1 (pre-process)
-        let nonces = await Promise.all(ids.map(async (id, i) => {
-            let nonce = await clients[id].request("frost_round1", {key: toEvm(R)})
+        let nonces = await Promise.all(ids.map(async (idx, i) => {
+            let nonce = await clients[idx].request("frost_round1", {key: toEvm(R)})
             nonce.idx = idx
+            nonce.coeff = coeffs[i]
             return nonce
         }))
 
-        console.log("frost round 1", nonces)
+        console.log("frost round 1")
+        console.log(JSON.stringify(nonces))
 
         // collect round 2 responses
         for (let a of nonces) {
-            a.resp = await clients[a.idx].request("frost_round2", {key: toEvm(R), nonces, label: dta.label})
+            let req = {
+                ids,
+                key: toEvm(R),
+                nonces,
+                label: dta.label,
+                yG: toEvm(yG),
+                yR: toEvm(yR),
+            }
+            a.resp = await clients[a.idx].request("frost_round2", req)
         }
 
         return {
