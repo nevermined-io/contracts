@@ -5,6 +5,7 @@ const { buildBn128 } = require('ffjavascript')
 const { ethers } = require('ethers')
 const fetch = require('cross-fetch')
 const assert = require('assert')
+const fs = require('fs')
 
 function flatten(lst) {
     return lst.reduce((a, b) => a.concat(b), [])
@@ -264,13 +265,15 @@ async function makeServer(n, t, i, port) {
             }
             commits.push(objs[i].commit)
         }
-        computeKey(commits)
+        let netkey = computeKey(commits)
 
         for (const c of clients) {
             await c.request('make_shares', { commits })
         }
 
-        return 'ok'
+        fs.writeFileSync('server.json', JSON.stringify({netkey}))
+
+        return {netkey}
     }
 
     async function crypt(dta) {
