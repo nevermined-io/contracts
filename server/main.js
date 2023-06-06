@@ -430,6 +430,24 @@ async function makeServer(n, t, i, port) {
         }
     }
 
+    async function listenContract() {
+        // should actually read address from RPC
+        let provider = await ethers.getDefaultProvider('http://localhost:8545/')
+
+        let config = JSON.parse(fs.readFileSync('frost-contracts.json'))
+        const c = new ethers.Contract(config.condition, config.abi)
+
+
+        let signer = provider.getSigner(1)
+        let lst = await c.connect(signer).queryFilter('Authorized')
+        console.log(lst)
+
+        for (let ev of lst) {
+            let { secret, buyer, agreementId } = ev.data
+            await accessProofCondition.fulfillFromNetwork(agreementId, ...Object.values(netdata), { from: provider })
+        }
+    }
+
     const server = new JSONRPCServer()
 
     server.addMethod('echo', ({ text }) => text)
@@ -446,6 +464,8 @@ async function makeServer(n, t, i, port) {
     server.addMethod('crypt', crypt)
     server.addMethod('frost_round1', frostRound1)
     server.addMethod('frost_round2', frostRound2)
+
+    server.addMethod('listen', listenContract)
 
     server.addMethod('test_account', () => {
         const x = Fr.random()
