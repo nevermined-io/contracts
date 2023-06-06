@@ -347,6 +347,8 @@ async function makeServer(n, t, i, port) {
     }
 
     async function reencrypt(dta) {
+
+        console.log(dta)
         const ids = dta.ids
 
         const coeffs = ids.map(i => coeff(ids, i))
@@ -423,29 +425,39 @@ async function makeServer(n, t, i, port) {
         console.log('challenge', Fr.toObject(chalV))
 
         return {
-            R: toEvm(R),
-            yR: toEvm(yR),
+            base: toEvm(R),
+            reencrypt: toEvm(yR),
             response: toString(rResp),
-            chal: toString(chal)
+            chal: toString(chal),
+            proof: [toString(chal), toString(rResp)],
         }
     }
 
     async function listenContract() {
         // should actually read address from RPC
         let provider = await ethers.getDefaultProvider('http://localhost:8545/')
+        let signer = await provider.getSigner(1)
 
         let config = JSON.parse(fs.readFileSync('frost-contracts.json'))
-        const c = new ethers.Contract(config.condition, config.abi)
+        const accessProofCondition = new ethers.Contract(config.condition, config.abi)
 
 
-        let signer = provider.getSigner(1)
-        let lst = await c.connect(signer).queryFilter('Authorized')
+        let lst = await accessProofCondition.connect(signer).queryFilter('Authorized')
         console.log(lst)
 
         for (let ev of lst) {
-            let { secret, buyer, agreementId } = ev.data
-            await accessProofCondition.fulfillFromNetwork(agreementId, ...Object.values(netdata), { from: provider })
+            let { secret, buyer, agreementId, label } = ev.args
+            let info = await clients[0].request('reencrypt', {
+                label,
+                ids: [1,2,3],
+                consumer: [buyer[0].toString(10), buyer[1].toString(10)], 
+                id: [secret[0].toString(10), secret[1].toString(10)],
+            })
+            console.log('got response', info)
+            await accessProofCondition.connect(signer).fulfillFromNetwork(agreementId, info.reencrypt, info.proof)
         }
+
+        return {processed: lst.length}
     }
 
     const server = new JSONRPCServer()
@@ -466,6 +478,10 @@ async function makeServer(n, t, i, port) {
     server.addMethod('frost_round2', frostRound2)
 
     server.addMethod('listen', listenContract)
+    server.addMethod('exit', () => {
+        console.log('exiting')
+        process.exit(0)
+    })
 
     server.addMethod('test_account', () => {
         const x = Fr.random()

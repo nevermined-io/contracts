@@ -255,7 +255,7 @@ contract AccessDLEQCondition is Condition {
     AccessDLEQCondition internal accessCondition;
     EscrowPaymentCondition internal rewardCondition;
 
-    event Authorized(uint[2] secret, uint[2] buyer, bytes32 agreementId);
+    event Authorized(uint[2] secret, uint[2] buyer, bytes32 agreementId, bytes32 label);
 
     function fulfillFromNetwork(bytes32 agreementId, uint[2] memory reencrypt, uint[2] memory proof) public {
         Params memory p = authorizedParams[agreementId];
@@ -266,7 +266,7 @@ contract AccessDLEQCondition is Condition {
         uint secretId1,
         uint secretId2,
         bytes[] memory _params,
-        bytes32 id
+        bytes32[2] memory id
     ) internal {
         uint buyer1;
         uint buyer2;
@@ -280,8 +280,8 @@ contract AccessDLEQCondition is Condition {
         uint[2] memory arr1 = [secretId1,secretId2];
         uint[2] memory arr2 = [buyer1,buyer2];
         authorized[keccak256(abi.encode(arr1))][keccak256(abi.encode(arr2))] = true;
-        authorizedParams[id] = Params(id, cipher, [secretId1, secretId2], [p1, p2], [buyer1, buyer2]);
-        emit Authorized(arr1, arr2, id);
+        authorizedParams[id[0]] = Params(id[0], cipher, arr1, [p1, p2], arr2);
+        emit Authorized(arr1, arr2, id[0], id[1]);
     }
 
     // in theory could be slashed with SNARK??
@@ -318,7 +318,7 @@ contract AccessDLEQCondition is Condition {
         // check that lock condition is fulfilled
         require(conditionStoreManager.getConditionState(lockConditionId) == ConditionStoreLibrary.ConditionState.Fulfilled, 'lock condition not fulfilled');
 
-        auth(secretId1, secretId2, _params, id);
+        auth(secretId1, secretId2, _params, [id, accessId]);
     }
 
     function checkParamsLock(bytes[] memory _params, bytes32 sid, uint priceIdx) internal view {
@@ -417,6 +417,17 @@ contract AccessDLEQCondition is Condition {
             bool
         )
     {
+        /*
+        console.log('proof');
+        console.log(_proof.e);
+        console.log(_proof.f);
+        console.log('rg1');
+        console.log(_rg1.x);
+        console.log(_rg1.y);
+        console.log('rg2');
+        console.log(_rg2.x);
+        console.log(_rg2.y);
+        */
         // w1 = f*G1 + rG1 * e
         G1Point memory w1 = g1Add(scalarMultiply(_g1, _proof.f), scalarMultiply(_rg1, _proof.e));
         // w2 = f*G2 + rG2 * e
