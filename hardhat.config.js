@@ -153,11 +153,11 @@ module.exports = {
             from: '0x73943d14131268F23b721E668911bCDDEcA9da62'
         },
         'arbitrum-goerli': {
-            //url: url || `https://arbitrum-goerli.infura.io/v3/${process.env.INFURA_TOKEN}`,
-            url: "https://goerli-rollup.arbitrum.io/rpc",
+            // url: url || `https://arbitrum-goerli.infura.io/v3/${process.env.INFURA_TOKEN}`,
+            url: 'https://goerli-rollup.arbitrum.io/rpc',
             accounts,
             chainId: 421613,
-//            skipDryRun: true,
+            //            skipDryRun: true,
             from: '0x73943d14131268F23b721E668911bCDDEcA9da62',
             gasPrice: 1200000000
 
@@ -166,8 +166,8 @@ module.exports = {
             url: url || `https://arbitrum-mainnet.infura.io/v3/${process.env.INFURA_TOKEN}`,
             accounts,
             chainId: 42161,
-            skipDryRun: true,
-//            from: '0x73943d14131268F23b721E668911bCDDEcA9da62'
+            skipDryRun: true
+            //            from: '0x73943d14131268F23b721E668911bCDDEcA9da62'
         },
         // alfajores the celo testnet
         'celo-alfajores': {
