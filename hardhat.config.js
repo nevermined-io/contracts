@@ -153,18 +153,21 @@ module.exports = {
             from: '0x73943d14131268F23b721E668911bCDDEcA9da62'
         },
         'arbitrum-goerli': {
-            url: url || `https://arbitrum-goerli.infura.io/v3/${process.env.INFURA_TOKEN}`,
+            // url: url || `https://arbitrum-goerli.infura.io/v3/${process.env.INFURA_TOKEN}`,
+            url: 'https://goerli-rollup.arbitrum.io/rpc',
             accounts,
             chainId: 421613,
-            skipDryRun: true,
-            from: '0x73943d14131268F23b721E668911bCDDEcA9da62'
+            //            skipDryRun: true,
+            from: '0x73943d14131268F23b721E668911bCDDEcA9da62',
+            gasPrice: 1200000000
+
         },
         'arbitrum-one': {
             url: url || `https://arbitrum-mainnet.infura.io/v3/${process.env.INFURA_TOKEN}`,
             accounts,
             chainId: 42161,
-            skipDryRun: true,
-            from: '0x73943d14131268F23b721E668911bCDDEcA9da62'
+            skipDryRun: true
+            //            from: '0x73943d14131268F23b721E668911bCDDEcA9da62'
         },
         // alfajores the celo testnet
         'celo-alfajores': {
@@ -201,7 +204,6 @@ module.exports = {
         matic: {
             url: url || 'https://matic-mainnet.chainstacklabs.com',
             chainId: 137,
-
             accounts,
             confirmations: 2,
             timeoutBlocks: 200,
@@ -235,8 +237,8 @@ module.exports = {
             mainnet: process.env.ETHERSCAN_TOKEN,
             polygonMumbai: process.env.POLYGONSCAN_TOKEN,
             polygon: process.env.POLYGONSCAN_TOKEN,
-            arbitrumTestnet: process.env.ARBISCAN_TOKEN,
-            arbitrumOne: process.env.ARBISCAN_TOKEN,
+            'arbitrum-goerli': process.env.ARBISCAN_TOKEN,
+            'arbitrum-one': process.env.ARBISCAN_TOKEN,
             chiado: process.env.GNOSIS_TOKEN,
             gnosis: process.env.GNOSIS_TOKEN
         },
@@ -245,8 +247,8 @@ module.exports = {
                 network: 'arbitrum-goerli',
                 chainId: 421613,
                 urls: {
-                    apiURL: 'https://api-testnet.arbiscan.io/api',
-                    browserURL: 'https://testnet.arbiscan.io'
+                    apiURL: 'https://api-goerli.arbiscan.io/api',
+                    browserURL: 'https://api-goerli.arbiscan.io'
                 }
             }, {
                 network: 'chiado',
