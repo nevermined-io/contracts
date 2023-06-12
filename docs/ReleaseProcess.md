@@ -86,7 +86,7 @@ export NETWORK=mumbai
 export TAG=common
 ```
 
-- it will be useful to set `export DEPLOY_ERROR_EXIT=true`, then the deploy sript will exit if any error occurs in contract calls. Then the deploy can be retried easily.
+- it will be useful to set `export DEPLOY_ERROR_EXIT=true`, then the deployment script will exit if any error occurs in contract calls. Then the deployment can be retried easily.
 - for a clean deployment remove all the artifacts existing with the network you are deploying: `rm -f artifacts/*.$NETWORK.json`
 - run `export MNEMONIC=<deployment's mnemonic>`. You will find them in the password manager.
 
@@ -118,7 +118,7 @@ This step will create `cache/` and `deploy-cache.json` used to resume the deploy
 
 #### Script for uploading the artifacts (abis/contracts) to Contract Repository
 
-Once the contracts are deployed to a public network or a new contract version whose contract abis has to been uploaded, use `scripts/upload_artifacts_gs.sh` to upload
+Once the contracts are deployed to a public network or a new contract version whose contract abis has been uploaded, use `scripts/upload_artifacts_gs.sh` to upload
 the contracts or artifacts to [nevermined repository](https://artifacts.nevermined.network/).
 
 > :warning: Your environment has to be configured and authorized to use aws cli to upload files to `artifacts-nevermined-network` bucket.
