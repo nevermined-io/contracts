@@ -278,6 +278,12 @@ async function makeServer(n, t, i, port) {
         return {netkey}
     }
 
+    ///////////////////////////////////////////////////
+
+    async function getKey() {
+        return JSON.parse(fs.readFileSync('server.json'))
+    }
+
     async function crypt(dta) {
         const R = fromEvm(dta.key)
         const res = G1.timesFr(R, fromString(obj.share))
@@ -443,7 +449,6 @@ async function makeServer(n, t, i, port) {
         let config = JSON.parse(fs.readFileSync('frost-contracts.json'))
         const accessProofCondition = new ethers.Contract(config.address, config.abi)
 
-
         let lst = await accessProofCondition.connect(signer).queryFilter('Authorized')
         console.log(lst)
 
@@ -478,6 +483,8 @@ async function makeServer(n, t, i, port) {
     server.addMethod('crypt', crypt)
     server.addMethod('frost_round1', frostRound1)
     server.addMethod('frost_round2', frostRound2)
+
+    server.addMethod('netkey', getKey)
 
     server.addMethod('listen', listenContract)
     server.addMethod('exit', () => {

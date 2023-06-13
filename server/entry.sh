@@ -25,9 +25,20 @@ node server/main.js &
 
 sleep 5
 
+# Make the shared secret
+
 curl http://localhost:23451/json-rpc -s -X POST -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"coordinate_round1","params":{"ctx":"123"},"id":12}'
 sleep 2
 curl http://localhost:23451/json-rpc -s -X POST -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"coordinate_round2","params":{"ctx":"123"},"id":12}'
 
-sleep 500000000
+sleep 2
+
+echo Ready
+
+# Start listening for contract
+
+until false; do
+    curl http://localhost:23451/json-rpc -s -X POST -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"listen","params":{},"id":12}'
+    sleep 10
+done
 
