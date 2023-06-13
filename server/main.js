@@ -267,18 +267,18 @@ async function makeServer(n, t, i, port) {
             }
             commits.push(objs[i].commit)
         }
-        let netkey = computeKey(commits)
+        const netkey = computeKey(commits)
 
         for (const c of clients) {
             await c.request('make_shares', { commits })
         }
 
-        fs.writeFileSync('server.json', JSON.stringify({netkey}))
+        fs.writeFileSync('server.json', JSON.stringify({ netkey }))
 
-        return {netkey}
+        return { netkey }
     }
 
-    ///////////////////////////////////////////////////
+    /// ////////////////////////////////////////////////
 
     async function getKey() {
         return JSON.parse(fs.readFileSync('server.json'))
@@ -355,7 +355,6 @@ async function makeServer(n, t, i, port) {
     }
 
     async function reencrypt(dta) {
-
         console.log(dta)
         const ids = dta.ids
 
@@ -437,34 +436,34 @@ async function makeServer(n, t, i, port) {
             reencrypt: toEvm(yR),
             response: toString(rResp),
             chal: toString(chal),
-            proof: [toString(chal), toString(rResp)],
+            proof: [toString(chal), toString(rResp)]
         }
     }
 
     async function listenContract() {
         // should actually read address from RPC
-        let provider = await ethers.getDefaultProvider(providerUrl)
-        let signer = await provider.getSigner(1)
+        const provider = await ethers.getDefaultProvider(providerUrl)
+        const signer = await provider.getSigner(1)
 
-        let config = JSON.parse(fs.readFileSync('frost-contracts.json'))
+        const config = JSON.parse(fs.readFileSync('frost-contracts.json'))
         const accessProofCondition = new ethers.Contract(config.address, config.abi)
 
-        let lst = await accessProofCondition.connect(signer).queryFilter('Authorized')
+        const lst = await accessProofCondition.connect(signer).queryFilter('Authorized')
         console.log(lst)
 
-        for (let ev of lst) {
-            let { secret, buyer, agreementId, label } = ev.args
-            let info = await clients[0].request('reencrypt', {
+        for (const ev of lst) {
+            const { secret, buyer, agreementId, label } = ev.args
+            const info = await clients[0].request('reencrypt', {
                 label,
-                ids: [1,2,3],
-                consumer: [buyer[0].toString(10), buyer[1].toString(10)], 
-                id: [secret[0].toString(10), secret[1].toString(10)],
+                ids: [1, 2, 3],
+                consumer: [buyer[0].toString(10), buyer[1].toString(10)],
+                id: [secret[0].toString(10), secret[1].toString(10)]
             })
             console.log('got response', info)
             await accessProofCondition.connect(signer).fulfillFromNetwork(agreementId, info.reencrypt, info.proof)
         }
 
-        return {processed: lst.length}
+        return { processed: lst.length }
     }
 
     const server = new JSONRPCServer()

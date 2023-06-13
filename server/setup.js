@@ -1,5 +1,4 @@
 
-
 // setup contracts
 
 const constants = require('../test/helpers/constants.js')
@@ -12,23 +11,12 @@ const { makeProof, setupEG } = require('../test/helpers/dleq')
 
 async function setup() {
     const web3 = global.web3
-    let accounts = await web3.eth.getAccounts()
-    let token,
-        didRegistry,
-        agreementStoreManager,
-        conditionStoreManager,
-        templateStoreManager,
-        accessTemplate,
-        accessProofCondition,
-        lockPaymentCondition,
-        escrowPaymentCondition
+    const accounts = await web3.eth.getAccounts()
+    const deployer = accounts[8]
+    const owner = accounts[8]
+    console.log(accounts)
 
-
-    let deployer = accounts[8]
-    let owner = accounts[8];
-    console.log(accounts);
-
-    ({
+    const {
         token,
         didRegistry,
         agreementStoreManager,
@@ -37,10 +25,9 @@ async function setup() {
     } = await deployManagers(
         deployer,
         owner
-    ))
+    )
 
-    let accessDLEQCondition
-    ({
+    const {
         accessDLEQCondition,
         lockPaymentCondition,
         escrowPaymentCondition
@@ -51,10 +38,10 @@ async function setup() {
         conditionStoreManager,
         didRegistry,
         token
-    ))
-    accessProofCondition = accessDLEQCondition
+    )
+    const accessProofCondition = accessDLEQCondition
 
-    accessTemplate = await testUtils.deploy('AccessDLEQTemplate',
+    const accessTemplate = await testUtils.deploy('AccessDLEQTemplate',
         [owner,
             agreementStoreManager.address,
             didRegistry.address,
@@ -70,20 +57,20 @@ async function setup() {
     await templateStoreManager.proposeTemplate(templateId)
     await templateStoreManager.approveTemplate(templateId, { from: owner })
 
-    console.log("deploy finished")
+    console.log('deploy finished')
 
     // setup the network public key
-    let config = JSON.parse(fs.readFileSync('server.json'))
-    console.log("setting key", config.netkey)
+    const config = JSON.parse(fs.readFileSync('server.json'))
+    console.log('setting key', config.netkey)
 
     await accessProofCondition.setNetworkPublicKey(config.netkey, { from: owner })
 
     fs.writeFileSync('frost-contracts.json', JSON.stringify({
         address: accessProofCondition.address,
-        abi: accessProofCondition.abi,
+        abi: accessProofCondition.abi
     }))
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////
 
     /// make a test request
     async function prepareEscrowAgreementMultipleEscrow({
@@ -97,13 +84,10 @@ async function setup() {
         url = constants.registry.url,
         checksum = constants.bytes32.one
     } = {}) {
-        console.log("???")
-        let provider = config.netkey
+        const provider = config.netkey
         const info1 = await setupEG()
         const { secretId, buyer, reencrypt } = info1
         const cipher = 1234n
-
-        console.log("???")
 
         const did = await didRegistry.hashDID(didSeed, receivers[0])
 
@@ -190,7 +174,7 @@ async function setup() {
         }
     }
 
-    const { agreementId, data, did, didSeed, secretId, params, agreement, sender, receivers, escrowAmounts, checksum, url, conditionIds } = await prepareEscrowAgreementMultipleEscrow()
+    const { agreementId, did, didSeed, secretId, params, agreement, sender, receivers, escrowAmounts, checksum, url } = await prepareEscrowAgreementMultipleEscrow()
     const receiver = receivers[0]
     const totalAmount = escrowAmounts[0] + escrowAmounts[1]
     // register DID
@@ -207,10 +191,9 @@ async function setup() {
     await accessProofCondition.addPrice(pid, 1, token.address, 20, { from: receiver })
     await accessProofCondition.authorizeAccessTemplate(agreementId, params, 0)
 
-    console.log("request created successfully")
+    console.log('request created successfully')
 
     process.exit(0)
-
 }
 
 setup()
