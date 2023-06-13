@@ -19,6 +19,8 @@ const addresses = [
     'http://localhost:23455'
 ]
 
+const providerUrl = process.env.WEB3_PROVIDER_URL || 'http://localhost:8545/'
+
 async function makeServer(n, t, i, port) {
     // each address will have it's own client
     function makeClient(addr) {
@@ -435,11 +437,11 @@ async function makeServer(n, t, i, port) {
 
     async function listenContract() {
         // should actually read address from RPC
-        let provider = await ethers.getDefaultProvider('http://localhost:8545/')
+        let provider = await ethers.getDefaultProvider(providerUrl)
         let signer = await provider.getSigner(1)
 
         let config = JSON.parse(fs.readFileSync('frost-contracts.json'))
-        const accessProofCondition = new ethers.Contract(config.condition, config.abi)
+        const accessProofCondition = new ethers.Contract(config.address, config.abi)
 
 
         let lst = await accessProofCondition.connect(signer).queryFilter('Authorized')

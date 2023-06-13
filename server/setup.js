@@ -79,7 +79,7 @@ async function setup() {
     await accessProofCondition.setNetworkPublicKey(config.netkey, { from: owner })
 
     fs.writeFileSync('frost-contracts.json', JSON.stringify({
-        condition: accessProofCondition.address,
+        address: accessProofCondition.address,
         abi: accessProofCondition.abi,
     }))
 
