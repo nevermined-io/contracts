@@ -157,18 +157,21 @@ module.exports = {
             from: '0x73943d14131268F23b721E668911bCDDEcA9da62'
         },
         'arbitrum-goerli': {
-            url: url || `https://arbitrum-goerli.infura.io/v3/${process.env.INFURA_TOKEN}`,
+            // url: url || `https://arbitrum-goerli.infura.io/v3/${process.env.INFURA_TOKEN}`,
+            url: 'https://goerli-rollup.arbitrum.io/rpc',
             accounts,
             chainId: 421613,
-            skipDryRun: true,
-            from: '0x73943d14131268F23b721E668911bCDDEcA9da62'
+            //            skipDryRun: true,
+            from: '0x73943d14131268F23b721E668911bCDDEcA9da62',
+            gasPrice: 1200000000
+
         },
         'arbitrum-one': {
             url: url || `https://arbitrum-mainnet.infura.io/v3/${process.env.INFURA_TOKEN}`,
             accounts,
             chainId: 42161,
-            skipDryRun: true,
-            from: '0x73943d14131268F23b721E668911bCDDEcA9da62'
+            skipDryRun: true
+            //            from: '0x73943d14131268F23b721E668911bCDDEcA9da62'
         },
         // alfajores the celo testnet
         'celo-alfajores': {
@@ -204,15 +207,23 @@ module.exports = {
         // Polygon: matic mainnet
         matic: {
             url: url || 'https://matic-mainnet.chainstacklabs.com',
-            accounts,
             chainId: 137,
+            accounts,
             confirmations: 2,
             timeoutBlocks: 200,
             skipDryRun: true,
-            from: '0xCF3D200356Fe8e5E2fa9f6fd59B01D41732BCf4c',
             gas: 'auto',
             gasPrice: 'auto',
             gasMultiplier: 3
+        },
+        chiado: {
+            url: url || 'https://rpc.chiadochain.net',
+            accounts,
+            gasPrice: 1000000000
+        },
+        gnosis: {
+            url: url || 'https://rpc.gnosischain.com',
+            accounts
         },
         // mainnet the ethereum mainnet
         mainnet: {
@@ -230,16 +241,40 @@ module.exports = {
             mainnet: process.env.ETHERSCAN_TOKEN,
             polygonMumbai: process.env.POLYGONSCAN_TOKEN,
             polygon: process.env.POLYGONSCAN_TOKEN,
-            arbitrumTestnet: process.env.ARBISCAN_TOKEN,
-            arbitrumOne: process.env.ARBISCAN_TOKEN
+            'arbitrum-goerli': process.env.ARBISCAN_TOKEN,
+            'arbitrum-one': process.env.ARBISCAN_TOKEN,
+            chiado: process.env.GNOSIS_TOKEN,
+            gnosis: process.env.GNOSIS_TOKEN
         },
-        customChains: [{
-            network: 'arbitrum-goerli',
-            chainId: 421613,
-            urls: {
-                apiURL: 'https://api-testnet.arbiscan.io/api',
-                browserURL: 'https://testnet.arbiscan.io'
+        customChains: [
+            {
+                network: 'arbitrum-goerli',
+                chainId: 421613,
+                urls: {
+                    apiURL: 'https://api-goerli.arbiscan.io/api',
+                    browserURL: 'https://api-goerli.arbiscan.io'
+                }
+            }, {
+                network: 'chiado',
+                chainId: 10200,
+                urls: {
+                // Blockscout
+                    apiURL: 'https://blockscout.com/gnosis/chiado/api',
+                    browserURL: 'https://blockscout.com/gnosis/chiado'
+                }
+            }, {
+                network: 'gnosis',
+                chainId: 100,
+                urls: {
+                // 3) Select to what explorer verify the contracts
+                // Gnosisscan
+                    apiURL: 'https://api.gnosisscan.io/api',
+                    browserURL: 'https://gnosisscan.io/'
+                // Blockscout
+                // apiURL: "https://blockscout.com/xdai/mainnet/api",
+                // browserURL: "https://blockscout.com/xdai/mainnet",
+                }
             }
-        }]
+        ]
     }
 }

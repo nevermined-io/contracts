@@ -52,9 +52,16 @@ contract('NFT721 Subscription', (accounts) => {
         it('As a minter I am minting a subscription that will expire in a few blocks', async () => {
             await setupTest()
 
+            await increaseTime.mineBlocks(web3, 10000)
+
             const currentBlockNumber = await ethers.provider.getBlockNumber()
 
+            console.log('currentBlockNumber', currentBlockNumber)
             await nft.mint(account1, tokenIdExpiring, currentBlockNumber + blocksExpiring, { from: minter })
+        })
+
+        it('I want to check Im using a subscription contract', async () => {
+            assert.strictEqual(await nft.nftType(), web3.utils.soliditySha3('nft721-subscription'))
         })
 
         it('The subscriber has the right balance for a non expired NFT', async () => {

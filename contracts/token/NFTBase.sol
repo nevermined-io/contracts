@@ -34,7 +34,7 @@ import '@openzeppelin/contracts-upgradeable/utils/StorageSlotUpgradeable.sol';
 abstract contract NFTBase is IERC2981Upgradeable, CommonOwnable, AccessControlUpgradeable {
 
     // Role to operate the NFT contract
-    bytes32 public constant NVM_OPERATOR_ROLE = keccak256('NVM_OPERATOR_ROLE');    
+    bytes32 public constant NVM_OPERATOR_ROLE = keccak256('NVM_OPERATOR_ROLE');
     
     struct RoyaltyInfo {
         address receiver;
@@ -235,5 +235,8 @@ abstract contract NFTBase is IERC2981Upgradeable, CommonOwnable, AccessControlUp
     function _msgData() internal override(CommonOwnable,ContextUpgradeable) virtual view returns (bytes calldata ret) {
         return Common._msgData();
     }
-    
+
+    function nftType() external pure virtual returns (bytes32) {
+        return keccak256('');
+    }
 }

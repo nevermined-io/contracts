@@ -86,7 +86,7 @@ export NETWORK=mumbai
 export TAG=common
 ```
 
-- it will be useful to set `export DEPLOY_ERROR_EXIT=true`, then the deploy sript will exit if any error occurs in contract calls. Then the deploy can be retried easily.
+- it will be useful to set `export DEPLOY_ERROR_EXIT=true`, then the deployment script will exit if any error occurs in contract calls. Then the deployment can be retried easily.
 - for a clean deployment remove all the artifacts existing with the network you are deploying: `rm -f artifacts/*.$NETWORK.json`
 - run `export MNEMONIC=<deployment's mnemonic>`. You will find them in the password manager.
 
@@ -118,7 +118,7 @@ This step will create `cache/` and `deploy-cache.json` used to resume the deploy
 
 #### Script for uploading the artifacts (abis/contracts) to Contract Repository
 
-Once the contracts are deployed to a public network or a new contract version whose contract abis has to been uploaded, use `scripts/upload_artifacts_gs.sh` to upload
+Once the contracts are deployed to a public network or a new contract version whose contract abis has been uploaded, use `scripts/upload_artifacts_gs.sh` to upload
 the contracts or artifacts to [nevermined repository](https://artifacts.nevermined.network/).
 
 > :warning: Your environment has to be configured and authorized to use aws cli to upload files to `artifacts-nevermined-network` bucket.
@@ -132,7 +132,7 @@ The script has the next variables:
 - `network` refers to network name, based on filename/hardhat config. Not used if `abis` is selected.
 - `tag` refers to deployment tag. Defaults to common. Not used if `abis` is selected.
 
-This workflow uses the script `scripts/upload_artifacts_g3.sh` that can be used with the next syntax:
+This workflow uses the script `scripts/upload_artifacts_gs.sh` that can be used with the next syntax:
 
 ```bash
 ./scripts/upload_artifacts_gs.sh contracts $NETWORK $TAG
@@ -141,6 +141,18 @@ This workflow uses the script `scripts/upload_artifacts_g3.sh` that can be used 
 ```
 
 - Commit the changes in `.openzeppelin/unknown-$NETWORK_ID.json.$TAG` file
+
+## Deployment NFT Contracts
+
+When a new version of the contracts, automatically the NFT common contracts are deployed too.
+It's possible to deploy new instances having the ABIs and using the Nevermined CLI:
+
+```bash
+
+ncli nfts721 deploy build/contracts/token/erc721/NFT721SubscriptionUpgradeable.sol/NFT721SubscriptionUpgradeable.json --params "Nevermined NFT" --params "NVM"
+
+
+```
 
 ## Verifying contracts code in different networks
 
@@ -156,10 +168,8 @@ The script to do that is `scripts/contracts/verify-contracts.js` and requires th
 An example of an execution is:
 
 ```bash
-nodejs ./scripts/contracts/verify-contracts.js v2.1.0 goerli public
+nodejs ./scripts/contracts/verify-contracts.js v3.2.1 mumbai public
 ```
-
-
 
 ## Document
 

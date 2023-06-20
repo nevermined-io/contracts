@@ -122,8 +122,8 @@ The following steps shows how to perform contracts deployment and upgrade on `Mu
 ```bash
 export NETWORK_ID=80001 # Network_ID for mumbai
 export NETWORK=mumbai
-export TAG=common
-export VERSION='2.0.0'
+export TAG=public
+export VERSION='3.1.0'
 ```
 
 - Copy the .openzeppelin file for the `<NETWORK_ID>` and `<TAG>`(like `common` or `public`) deployment you want to upgrade:
@@ -131,21 +131,23 @@ export VERSION='2.0.0'
 - Unpack the latest version of the artifacts for the `<NETWORK_ID>` and `<TAG>` in `artifacts`:
 
 ```bash
-wget -O artifacts.tar.gz "http://artifacts-nevermined-rocks.s3.amazonaws.com/$NETWORK_ID/$TAG/contracts_v$VERSION.tar.gz"
+wget -O artifacts.tar.gz "https://artifacts.nevermined.network/$NETWORK_ID/$TAG/contracts_v$VERSION.tar.gz"
 tar xvzf artifacts.tar.gz -C artifacts/
 ```
 
 - run `export MNEMONIC=<deployment's mnemonic>`. You will find them in the password manager.
 
-##### Upgrade already deployed contracts
+##### Upgrade already deployed core contracts
 
 - To upgrade the contracts run `yarn upgrade:$NETWORK`
 
-##### Deploy and initialize any new contract not present in the old deployed version
+##### Deploy and initialize new version of agreement contracts
 
 - To deploy and initialize all contracts run `yarn deploy:$NETWORK`
 
 This process will show multiple errors for the contracts that are being upgraded. You can ignore those messages.
+
+New versions are deployed with new addresses to make sure that existing agreements won't be messed up.
 
 ##### Upgrade the plonk verifier contract to the new version
 
@@ -153,7 +155,7 @@ This process will show multiple errors for the contracts that are being upgraded
 
 ##### Upload the artifacts to the repository and persist any change in `openzeppelin/` file
 
-- To upload the artifacts to the repository run `./scripts/upload_artifacts_s3.sh contracts $NETWORK $TAG`. You need to have access to S3.
+- To upload the artifacts to the repository run `./scripts/upload_artifacts_gs.sh contracts $NETWORK $TAG`. You need to have access to S3.
 
 - Copy the openzeppeling file base on tag: `cp -rp .openzeppelin/unknown-$NETWORK_ID.json .openzeppelin/unknown-$NETWORK_ID.json.$TAG`
 
