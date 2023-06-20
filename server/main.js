@@ -525,6 +525,10 @@ async function makeServer(n, t, i, port) {
         })
     })
 
+    app.get('/ready', (_req, res) => {
+        res.json({})
+    })
+
     app.listen(port)
     console.log('running at port', port)
 }
