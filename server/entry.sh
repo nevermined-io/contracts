@@ -33,6 +33,8 @@ curl http://localhost:23451/json-rpc -s -X POST -H "Content-Type: application/js
 
 sleep 2
 
+curl http://localhost:23451/json-rpc -s -X POST -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"setup","params":{},"id":12}'
+
 echo Ready
 
 # Start listening for contract

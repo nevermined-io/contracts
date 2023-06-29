@@ -498,7 +498,7 @@ async function makeServer(n, t, i, port) {
     server.addMethod('netkey', getKey)
 
     server.addMethod('listen', listenContract)
-    server.addMethod('listen', setupContract)
+    server.addMethod('setup', setupContract)
     server.addMethod('exit', () => {
         console.log('exiting')
         process.exit(0)
