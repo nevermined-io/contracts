@@ -23,7 +23,5 @@ curl http://localhost:23451/json-rpc -s -X POST -H "Content-Type: application/js
 
 diff test2.res.json server/test2.json || exit 1
 
-sleep 10
-
-curl http://localhost:23451/json-rpc -s -X POST -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"exit","params":{},"id":12}'
+echo "Success"
 
