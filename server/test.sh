@@ -1,8 +1,6 @@
 #!/bin/sh
 
-#npx hardhat node --port 8545 &
-#sleep 10
-#npx hardhat run ./scripts/deploy/deployContractsWrapper.js --network testing
+npx hardhat run ./scripts/deploy/deployContractsWrapper.js --network testing
 
 node server/main.js &
 
