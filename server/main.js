@@ -2,7 +2,7 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const { JSONRPCServer, JSONRPCClient } = require('json-rpc-2.0')
 const { buildBn128 } = require('ffjavascript')
-const { ethers } = require('ethers')
+const { ethers } = require('hardhat')
 const fetch = require('cross-fetch')
 const assert = require('assert')
 const fs = require('fs')
@@ -182,6 +182,7 @@ async function makeServer(n, t, i, port) {
 
     async function coordinateRound1({ ctx }) {
         for (const c of clients) {
+            console.log('what')
             await c.request('init_round1', { ctx })
         }
 
@@ -442,7 +443,8 @@ async function makeServer(n, t, i, port) {
 
     async function listenContract() {
         // should actually read address from RPC
-        const provider = await ethers.getDefaultProvider(providerUrl)
+        // const provider = await ethers.getDefaultProvider(providerUrl)
+        const provider = ethers.provider
         const signer = await provider.getSigner(1)
 
         const config = JSON.parse(fs.readFileSync('frost-contracts.json'))
@@ -468,7 +470,8 @@ async function makeServer(n, t, i, port) {
 
     async function setupContract() {
         // should actually read address from RPC
-        const provider = await ethers.getDefaultProvider(providerUrl)
+        // const provider = await ethers.getDefaultProvider(providerUrl)
+        const provider = ethers.provider
         const signer = await provider.getSigner(8)
 
         const config = JSON.parse(fs.readFileSync('frost-contracts.json'))
