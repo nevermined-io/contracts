@@ -41,6 +41,35 @@ jobs:
         run: |
           yarn test:integration
 
+  frost:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '16.x'
+      - name: Pre-install
+        run: |
+          rm -rf node_modules
+          yarn install --frozen-lockfile
+          git submodule init
+          git submodule update
+          npx hardhat node --port 8545 &
+      - name: Generate circuits
+        run: |
+          sh ./scripts/build-circuit.sh
+          git diff --exit-code
+      - name: Compile
+        run: |
+          yarn clean
+          yarn compile
+      - name: Run test
+        run: |
+          sh ./server/test.sh
+
   upgradability:
     runs-on: ubuntu-latest
     steps:
