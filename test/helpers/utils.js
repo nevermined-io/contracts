@@ -3,7 +3,7 @@
 
 const { ethers, hardhatArguments } = require('hardhat')
 const network = hardhatArguments.network || 'hardhat'
-const deploying = network === 'hardhat' || network === 'coverage'
+const deploying = network === 'hardhat' || network === 'coverage' || network === 'testing'
 const constants = require('./constants')
 
 const utils = {

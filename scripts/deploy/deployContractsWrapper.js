@@ -13,10 +13,12 @@ process.on('SIGINT', () => {
 async function main() {
     const verbose = true
     const testnet = process.env.TESTNET === 'true'
+    let restore = false
     try {
         try {
             addresses = JSON.parse(fs.readFileSync('deploy-cache.json'))
             console.log('Resuming deployment from deploy-cache.json')
+            restore = true
         } catch (e) {
             addresses = {}
         }
@@ -27,7 +29,8 @@ async function main() {
             verbose,
             makeWallet: false,
             testnet,
-            addresses
+            addresses,
+            restore
         })
     } catch (err) {
         console.log(err)

@@ -1,4 +1,3 @@
-
 const assert = require('assert')
 const { buildBn128 } = require('ffjavascript')
 const { ethers } = require('ethers')
@@ -7,12 +6,74 @@ function flatten(lst) {
     return lst.reduce((a, b) => a.concat(b), [])
 }
 
-async function frostDLEQ(n, t) {
+// poc for distributed key generation
+// use the algorithm from frost
+
+async function round1(t, i, ctx) {
     const ffCurve = await buildBn128()
     const Fr = ffCurve.Fr
+    const G1 = ffCurve.G1
+    const G = G1.g
 
     // generate secrets
     const poly = Array(t).fill().map(_a => Fr.random())
+
+    function hash(lst) {
+        return Fr.fromObject(BigInt(ethers.utils.solidityKeccak256(lst.map(a => 'uint256'), lst)))
+    }
+
+    function toEvm(p) {
+        const obj = G1.toObject(G1.toAffine(p))
+        return [obj[0].toString(10), obj[1].toString(10)]
+    }
+
+    // proof of knowledge for the secret (Schnorr sig)
+    const k = Fr.random()
+
+    const R = G1.timesFr(G, k)
+    const a0G = G1.timesFr(G, poly[0])
+    const c = hash([i, ctx].concat(toEvm(a0G)).concat(toEvm(R)))
+
+    const mu = Fr.add(k, Fr.mul(poly[0], c))
+
+    const phi = poly.map(a => G1.timesFr(G, a))
+
+    return {
+        proof_mu: Fr.toObject(mu),
+        proof_R: toEvm(R),
+        commit: phi.map(a => toEvm(a)),
+        idx: i,
+        secrets: poly.map(a => Fr.toObject(a)),
+        ctx
+    }
+}
+
+// validate signature
+async function validate(obj) {
+    const ffCurve = await buildBn128()
+    const Fr = ffCurve.Fr
+    const G1 = ffCurve.G1
+    const G = G1.g
+
+    function hash(lst) {
+        return Fr.fromObject(BigInt(ethers.utils.solidityKeccak256(lst.map(a => 'uint256'), lst)))
+    }
+    const c = hash([obj.idx, obj.ctx].concat(obj.commit[0]).concat(obj.proof_R))
+
+    const R = G1.fromObject([BigInt(obj.proof_R[0]), BigInt(obj.proof_R[1])])
+    const mu = Fr.fromObject(obj.proof_mu)
+    const phi0 = G1.fromObject([BigInt(obj.commit[0][0]), BigInt(obj.commit[0][1])])
+
+    const check = G1.add(G1.timesFr(G, mu), G1.timesFr(phi0, Fr.neg(c)))
+
+    assert(G1.eq(R, check))
+}
+
+async function makeShares(obj, n) {
+    const ffCurve = await buildBn128()
+    const Fr = ffCurve.Fr
+
+    const poly = obj.secrets.map(a => Fr.fromObject(a))
 
     function evalPoly(x) {
         let xn = Fr.fromObject(1n)
@@ -24,10 +85,136 @@ async function frostDLEQ(n, t) {
         return res
     }
 
-    // compute shares
-    const shares = Array(n).fill().map((_a, i) => evalPoly(BigInt(i + 1)))
+    const shares = []
+    for (let i = 1; i <= n; i++) {
+        const share = evalPoly(i)
+        shares.push(Fr.toObject(share))
+    }
 
-    console.log('secrets', poly.map(a => Fr.toObject(a)), 'shares', shares.map(a => Fr.toObject(a)))
+    console.log('share', shares)
+
+    return shares
+}
+
+async function computeKey(commits) {
+    const ffCurve = await buildBn128()
+    const G1 = ffCurve.G1
+
+    function sumG1(lst) {
+        return lst.reduce((a, b) => G1.add(a, b), G1.fromObject([0n, 0n]))
+    }
+
+    function toEvm(p) {
+        const obj = G1.toObject(G1.toAffine(p))
+        return [obj[0].toString(10), obj[1].toString(10)]
+    }
+
+    const pubkey = sumG1(commits.map(a => G1.fromObject([BigInt(a[0][0]), BigInt(a[0][1])])))
+
+    console.log('got public key', toEvm(pubkey))
+
+    return toEvm(pubkey)
+}
+
+async function verifyShares(obj, commits) {
+    const ffCurve = await buildBn128()
+    const Fr = ffCurve.Fr
+    const G1 = ffCurve.G1
+    const G = G1.g
+
+    function sumG1(lst) {
+        return lst.reduce((a, b) => G1.add(a, b), G1.fromObject([0n, 0n]))
+    }
+
+    function pow(a, n) {
+        let res = Fr.fromObject(1n)
+        for (let i = 0; i < n; i++) {
+            res = Fr.mul(res, a)
+        }
+        return res
+    }
+
+    const n = obj.shares.length
+    const t = obj.secrets.length
+
+    const idx = Fr.fromObject(BigInt(obj.idx + 1))
+
+    let secret = Fr.fromObject(0n)
+
+    for (let l = 0; l < n; l++) {
+        const share = Fr.fromObject(obj.shares[l])
+        const pub = G1.timesFr(G, share)
+        const asd = []
+        for (let k = 0; k < t; k++) {
+            const c = commits[l][k]
+            const cp = G1.fromObject([BigInt(c[0]), BigInt(c[1])])
+            const exp = pow(idx, k)
+            // console.log("exp",Fr.toObject(exp))
+            asd.push(G1.timesFr(cp, exp))
+        }
+        const check = sumG1(asd)
+        // console.log("check", toEvm(check), "pub", toEvm(pub), obj.idx)
+        assert(G1.eq(check, pub))
+        secret = Fr.add(share, secret)
+    }
+    console.log('found share', Fr.toObject(secret))
+
+    obj.share = secret
+}
+
+// full protocol
+
+async function proto(n, t, ctx) {
+    const r1 = []
+    const commits = []
+    for (let i = 0; i < n; i++) {
+        const obj = await round1(t, i, ctx)
+        r1.push(obj)
+        commits.push(obj.commit)
+    }
+
+    console.log(r1)
+
+    for (const obj of r1) {
+        await validate(obj)
+    }
+
+    console.log('validated proofs')
+
+    // generate and send shares p2p
+    const shares = []
+    for (const obj of r1) {
+        shares.push(await makeShares(obj, n))
+        obj.shares = []
+    }
+    for (let i = 0; i < n; i++) {
+        for (let j = 0; j < n; j++) {
+            r1[i].shares.push(shares[j][i])
+        }
+    }
+    console.log('sent shares')
+
+    // each participant verifies shares and computes own key
+    for (const obj of r1) {
+        await verifyShares(obj, commits)
+    }
+
+    console.log('verified shares')
+
+    const pubkey = await computeKey(commits)
+
+    return {
+        shares: r1.map(a => a.share),
+        pubkey
+    }
+}
+
+async function frostDLEQ(n, t) {
+    const ffCurve = await buildBn128()
+    const Fr = ffCurve.Fr
+
+    // generate secrets
+    const { shares } = await proto(n, t, 23782732837n)
 
     const ids = [2, 3, 4]
 
@@ -183,105 +370,7 @@ async function frostDLEQ(n, t) {
     // these were reconstructed from resp and chal
     // so it is enough to construct challenge from these and check it's correct
 
-    // process.exit(0)
+    process.exit(0)
 }
 
-// frostDLEQ(10, 3)
-
-async function setupEG() {
-    const ffCurve = await buildBn128()
-    const G1 = ffCurve.G1
-    const Fr = ffCurve.Fr
-
-    const G = G1.g
-
-    // generate secret for gateway / network
-    const y = Fr.random()
-    const yG = G1.timesFr(G, y)
-
-    // generate secret for encypting the password
-    const x = Fr.random()
-    const xG = G1.timesFr(G, x)
-
-    assert(G1.eq(xG, G1.timesFr(G, x)))
-
-    // shared secret
-    const xyG = G1.timesFr(xG, y)
-    assert(G1.eq(xyG, G1.timesFr(yG, x)))
-
-    // generate secret for consumer
-    const z = Fr.random()
-    const zG = G1.timesFr(G, z)
-
-    // re-encrypt the secret
-    const R = G1.add(xG, zG)
-    const yR = G1.timesFr(R, y)
-
-    // consumer figures out the shared secret
-    const R1 = G1.add(yR, G1.neg(G1.timesFr(yG, z)))
-    assert(G1.eq(R1, xyG))
-
-    function toEvm(p) {
-        const obj = G1.toObject(G1.toAffine(p))
-        return [obj[0].toString(10), obj[1].toString(10)]
-    }
-
-    return {
-        provider: toEvm(yG),
-        buyer: toEvm(zG),
-        secretId: toEvm(xG),
-        reencrypt: toEvm(yR),
-        yG,
-        xG,
-        zG,
-        R,
-        yR,
-        y,
-        z,
-        providerSecret: y,
-        buyerSecret: z,
-        Fr,
-        G1,
-        toEvm
-    }
-}
-
-async function makeProof({ Fr, G1, yG, xG, zG, R, yR, y, z, toEvm }, label) {
-    const G = G1.g
-
-    // DLEQ prove, yG/G == yR/R
-    const t = Fr.random()
-    const w1 = G1.timesFr(G, t)
-    const w2 = G1.timesFr(R, t)
-
-    const arr = [label].concat(toEvm(yG)).concat(toEvm(yR)).concat(toEvm(w1)).concat(toEvm(w2))
-    const e = Fr.fromObject(BigInt(ethers.utils.solidityKeccak256(arr.map(a => 'uint256'), arr)))
-    const f = Fr.add(t, Fr.neg(Fr.mul(y, e)))
-
-    // consumer will get e and f
-
-    // w1 = f*G + yG * e
-    const ww1 = G1.add(G1.timesFr(G, f), G1.timesFr(yG, e))
-    // w2 = f*R + yR * e
-    const ww2 = G1.add(G1.timesFr(R, f), G1.timesFr(yR, e))
-
-    // should get the same w1 and w2
-    // note: actually consumer doesn't know what original w1 and w2 were
-    assert(G1.eq(w1, ww1))
-    assert(G1.eq(w2, ww2))
-
-    const arr2 = [label].concat(toEvm(yG)).concat(toEvm(yR)).concat(toEvm(ww1)).concat(toEvm(ww2))
-    const chal = Fr.fromObject(BigInt(ethers.utils.solidityKeccak256(arr2.map(a => 'uint256'), arr2)))
-    assert(Fr.eq(chal, e))
-
-    return {
-        proof: [Fr.toObject(e), Fr.toObject(f)],
-        cipher: 0
-    }
-}
-
-module.exports = {
-    setupEG,
-    makeProof,
-    frostDLEQ
-}
+frostDLEQ(5, 3)

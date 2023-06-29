@@ -14,6 +14,7 @@ const { getTokenBalance, getCheckpoint } = require('../../helpers/getBalance.js'
 const increaseTime = require('../../helpers/increaseTime.js')
 const testUtils = require('../../helpers/utils')
 const { makeProof, setupEG } = require('../../helpers/dleq')
+const ethers = require('ethers')
 
 contract('Access Proof (with DLEQ) Template integration test', (accounts) => {
     const web3 = global.web3
@@ -117,6 +118,27 @@ contract('Access Proof (with DLEQ) Template integration test', (accounts) => {
         const data = [
             cipher, secretId, provider, buyer, reencrypt, proof
         ]
+        const netdata = [
+            reencrypt, proof
+        ]
+
+        const coder = new ethers.utils.AbiCoder()
+        const uint = 'uint'
+
+        const params = [
+            coder.encode(
+                [uint, uint, uint, uint, uint, uint, uint],
+                [cipher, secretId[0], secretId[1], provider[0], provider[1], buyer[0], buyer[1]]
+            ),
+            coder.encode(
+                ['bytes32', 'address', 'address', 'uint256[]', 'address[]'],
+                [did, escrowPaymentCondition.address, token.address, escrowAmounts, receivers]
+            ),
+            coder.encode(
+                ['bytes32', 'uint256[]', 'address[]', 'address', 'address', 'address', 'bytes32', 'bytes32[]'],
+                [did, escrowAmounts, receivers, sender, escrowPaymentCondition.address, token.address, fullConditionIdLock, [fullConditionIdAccess]]
+            )
+        ]
 
         // construct agreement
         const agreement = {
@@ -137,6 +159,7 @@ contract('Access Proof (with DLEQ) Template integration test', (accounts) => {
                 fullConditionIdLock,
                 fullConditionIdEscrow
             ],
+            params,
             agreementId,
             did,
             data,
@@ -152,6 +175,8 @@ contract('Access Proof (with DLEQ) Template integration test', (accounts) => {
             secretId,
             provider,
             buyer,
+            netkey: provider,
+            netdata,
             reencrypt,
             proof,
             cipher
@@ -240,7 +265,7 @@ contract('Access Proof (with DLEQ) Template integration test', (accounts) => {
             const provider = accounts[5]
 
             // prepare: escrow agreement
-            const { agreementId, data, did, didSeed, agreement, sender, receivers, escrowAmounts, checksum, url, conditionIds } = await prepareEscrowAgreementMultipleEscrow()
+            const { agreementId, did, didSeed, agreement, sender, receivers, escrowAmounts, checksum, url, conditionIds, secretId, params, netkey, netdata } = await prepareEscrowAgreementMultipleEscrow()
             const totalAmount = escrowAmounts[0] + escrowAmounts[1]
             const receiver = receivers[0]
             // register DID
@@ -252,9 +277,7 @@ contract('Access Proof (with DLEQ) Template integration test', (accounts) => {
             // create agreement
             await accessTemplate.createAgreement(...Object.values(agreement))
 
-            // check state of agreement and conditions
-            // expect((await agreementStoreManager.getAgreement(agreementId)).did).to.equal(did)
-
+            // check state of conditions
             const conditionTypes = await accessTemplate.getConditionTypes()
             await Promise.all(conditionIds.map(async (conditionId, i) => {
                 const storedCondition = await conditionStoreManager.getCondition(conditionId)
@@ -283,9 +306,16 @@ contract('Access Proof (with DLEQ) Template integration test', (accounts) => {
                 (await conditionStoreManager.getConditionState(conditionIds[1])).toNumber(),
                 constants.condition.state.fulfilled)
 
+            // check that agreement validation works
+            await accessProofCondition.setNetworkPublicKey(netkey, { from: owner })
+            await accessProofCondition.addSecret(secretId, { from: receiver })
+            const pid = await accessProofCondition.pointId(secretId)
+            await accessProofCondition.addPrice(pid, 1, token.address, 20, { from: receiver })
+            await accessProofCondition.authorizeAccessTemplate(agreementId, params, 0)
+
             // fulfill access
-            // await disputeManager.setAccepted(...Object.values(data))
-            await accessProofCondition.fulfill(agreementId, ...Object.values(data), { from: provider })
+            await accessProofCondition.fulfillFromNetwork(agreementId, ...Object.values(netdata), { from: provider })
+            // await accessProofCondition.fulfill(agreementId, ...Object.values(data), { from: provider })
 
             assert.strictEqual(
                 (await conditionStoreManager.getConditionState(conditionIds[0])).toNumber(),

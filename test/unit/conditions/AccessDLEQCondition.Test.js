@@ -25,10 +25,12 @@ async function setup({ accounts }) {
     )
     const accessCondition = await AccessCondition.new()
 
-    await accessCondition.methods['initialize(address,address,address)'](
+    await accessCondition.initialize(
         accounts[0],
         conditionStoreManager.address,
         agreementStoreManager.address,
+        accounts[0],
+        accounts[0],
         { from: accounts[0] }
     )
     const didSeed = constants.bytes32.one

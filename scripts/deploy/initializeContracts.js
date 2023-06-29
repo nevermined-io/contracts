@@ -38,8 +38,15 @@ async function doDeploy(contractName, signer, args, isCore) {
 }
 
 async function zosCreate({ contract, args, libraries, verbose, ctx, isCore }) {
-    const { cache, addresses, roles } = ctx
-    if (addresses[contract]) {
+    const { cache, addresses, roles, deployCore } = ctx
+    if (isCore && !deployCore) {
+        if (!addresses[contract]) {
+            console.error(`Error: core contract ${contract} is not in cache`)
+            process.exit(1)
+        }
+        console.log(`Contract ${contract} found from cache`)
+        return addresses[contract]
+    } else if (addresses[contract]) {
         console.log(`Contract ${contract} found from cache`)
         const C = await ethers.getContractFactory(contract, { libraries })
         cache[contract] = C.attach(addresses[contract]).connect(roles.deployerSigner)
@@ -78,9 +85,8 @@ async function initializeContracts({
     contracts,
     core,
     roles,
-    didRegistryLibrary,
-    epochLibrary,
     addresses,
+    deployCore,
     verbose = true
 } = {}) {
     contracts = contracts.concat(core)
@@ -94,7 +100,7 @@ async function initializeContracts({
     // instance=MyContract.at(proxyAddress)
     const addressBook = {}
     const cache = {}
-    const ctx = { cache, addresses, roles }
+    const ctx = { cache, addresses, roles, deployCore }
 
     // WARNING!
     // use this only when deploying a selective portion of the contracts
@@ -437,7 +443,9 @@ async function initializeContracts({
         args: [
             roles.ownerWallet,
             getAddress('ConditionStoreManager'),
-            getAddress('DIDRegistry')
+            getAddress('DIDRegistry'),
+            getAddress('LockPaymentCondition'),
+            getAddress('EscrowPaymentCondition')
         ],
         verbose
     })

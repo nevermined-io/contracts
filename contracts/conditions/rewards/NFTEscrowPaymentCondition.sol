@@ -10,7 +10,7 @@ import '../ConditionStoreLibrary.sol';
 import '@openzeppelin/contracts-upgradeable/token/ERC1155/IERC1155Upgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/token/ERC1155/IERC1155ReceiverUpgradeable.sol';
-import 'hardhat/console.sol';
+
 /**
  * @title Escrow Payment Condition
  * @author Nevermined
