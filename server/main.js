@@ -466,6 +466,18 @@ async function makeServer(n, t, i, port) {
         return { processed: lst.length }
     }
 
+    async function setupContract() {
+        // should actually read address from RPC
+        const provider = await ethers.getDefaultProvider(providerUrl)
+        const signer = await provider.getSigner(8)
+
+        const config = JSON.parse(fs.readFileSync('frost-contracts.json'))
+        const accessProofCondition = new ethers.Contract(config.address, config.abi)
+        await accessProofCondition.connect(signer).setNetworkPublicKey(obj.pubkey)
+
+        return 'ok'
+    }
+
     const server = new JSONRPCServer()
 
     server.addMethod('echo', ({ text }) => text)
@@ -486,6 +498,7 @@ async function makeServer(n, t, i, port) {
     server.addMethod('netkey', getKey)
 
     server.addMethod('listen', listenContract)
+    server.addMethod('listen', setupContract)
     server.addMethod('exit', () => {
         console.log('exiting')
         process.exit(0)
