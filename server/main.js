@@ -19,8 +19,6 @@ const addresses = [
     'http://localhost:23455'
 ]
 
-const providerUrl = process.env.WEB3_PROVIDER_URL || 'http://localhost:8545/'
-
 async function makeServer(n, t, i, port) {
     // each address will have it's own client
     function makeClient(addr) {
