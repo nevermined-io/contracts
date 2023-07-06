@@ -443,7 +443,7 @@ async function makeServer(n, t, i, port) {
         // should actually read address from RPC
         // const provider = await ethers.getDefaultProvider(providerUrl)
         const provider = ethers.provider
-        const signer = await provider.getSigner(1)
+        const signer = await provider.getSigner(7)
 
         const config = JSON.parse(fs.readFileSync('frost-contracts.json'))
         const accessProofCondition = new ethers.Contract(config.address, config.abi)
@@ -453,6 +453,9 @@ async function makeServer(n, t, i, port) {
 
         for (const ev of lst) {
             const { secret, buyer, agreementId, label } = ev.args
+            if (await accessProofCondition.connect(signer).fulfilled(agreementId)) {
+                continue
+            }
             const info = await clients[0].request('reencrypt', {
                 label,
                 ids: [1, 2, 3],

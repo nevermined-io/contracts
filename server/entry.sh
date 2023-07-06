@@ -32,6 +32,7 @@ until curl -H "Content-Type: application/json" -X POST localhost:23451/ready
     done
 
 echo "Make secret"
+sleep 5
 
 # Make the shared secret
 
