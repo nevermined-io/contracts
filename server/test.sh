@@ -2,7 +2,7 @@
 
 npx hardhat run ./scripts/deploy/deployContractsWrapper.js --network testing
 
-node server/main.js &
+npx hardhat run server/main.js --network testing &
 
 sleep 5
 
