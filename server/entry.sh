@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 RETRY_COUNT=0
 COMMAND_STATUS=1
@@ -6,6 +6,9 @@ COMMAND_STATUS=1
 printf '\n\e[33m◯ Waiting for contracts to be generated...\e[0m\n'
 
 cd /nevermined-contracts
+
+ls ~
+
 
 until [ $COMMAND_STATUS -eq 0 ] || [ $RETRY_COUNT -eq 120 ]; do
   cat ~/.nevermined/nevermined-contracts/artifacts/ready
@@ -21,9 +24,11 @@ cp ~/.nevermined/nevermined-contracts/artifacts/AccessDLEQCondition.*.json frost
 
 echo Ok
 
-node server/main.js &
+npx hardhat run --no-compile --network tools server/main.js &
 
-sleep 5
+sleep 10
+
+echo "Make secret"
 
 # Make the shared secret
 

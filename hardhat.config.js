@@ -107,6 +107,15 @@ module.exports = {
             //            gasPrice: 0,
             from: '0xe2DD09d719Da89e5a3D0F2549c7E24566e947260'
         },
+        tools: {
+            url: url || 'http://contracts.nevermined.localnet',
+            accounts,
+            chainId: 1337,
+            skipDryRun: true,
+            //            gas: 4000000,
+            //            gasPrice: 0,
+            from: '0xe2DD09d719Da89e5a3D0F2549c7E24566e947260'
+        },
         'geth-setup': {
             url: url || 'http://localhost:8545',
             chainId: 1337
