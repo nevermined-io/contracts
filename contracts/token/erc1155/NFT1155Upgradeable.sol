@@ -121,7 +121,7 @@ contract NFT1155Upgradeable is ERC1155Upgradeable, NFTBase {
         mint(_msgSender(), id, amount, '');
     }
     
-    function mint(address to, uint256 id, uint256 amount, bytes memory data) public {
+    function mint(address to, uint256 id, uint256 amount, bytes memory data) virtual public {
         // Only can mint if:
         require(isOperator(_msgSender()) || // is contract operator  
             to == owner() || // is contract owner
