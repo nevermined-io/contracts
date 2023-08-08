@@ -35,6 +35,11 @@ contract NFT1155SubscriptionUpgradeable is NFT1155Upgradeable {
         __NFT1155Upgradeable_init(owner, didRegistryAddress, name_, symbol_, uri_);
     }
     
+    
+    function mint(address to, uint256 tokenId, uint256 amount, bytes memory data) virtual override public {
+        mint(to, tokenId, amount, 0, data);
+    }    
+    
     /**
      * @dev This mint function allows to define when the tokenId of the NFT expires. 
      * The minter should calculate this block number depending on the network velocity
