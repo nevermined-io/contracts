@@ -341,8 +341,10 @@ contract LockPaymentCondition is ILockPayment, ReentrancyGuardUpgradeable, Condi
     )
     internal
     {
-        IERC20Upgradeable token = ERC20Upgradeable(_tokenAddress);
-        token.safeTransferFrom(_senderAddress, _rewardAddress, _amount);
+        if (_amount > 0)    {
+            IERC20Upgradeable token = ERC20Upgradeable(_tokenAddress);
+            token.safeTransferFrom(_senderAddress, _rewardAddress, _amount);            
+        }
     }
 
    /**
@@ -356,13 +358,15 @@ contract LockPaymentCondition is ILockPayment, ReentrancyGuardUpgradeable, Condi
     )
     internal
     {
-        require(
-            msg.value == _amount, 
-            'Transaction value does not match amount'
-        );
-        // solhint-disable-next-line
-        (bool sent,) = _rewardAddress.call{value: _amount}('');
-        require(sent, 'Failed to send Ether');
+        if (_amount > 0)    {
+            require(
+                msg.value == _amount,
+                'Transaction value does not match amount'
+            );
+            // solhint-disable-next-line
+            (bool sent,) = _rewardAddress.call{value: _amount}('');
+            require(sent, 'Failed to send Ether');            
+        }
     }
 
     modifier allowedExternalContract(address _externalContractAddress) {

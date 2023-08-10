@@ -367,7 +367,8 @@ contract EscrowPaymentCondition is Reward, ReentrancyGuardUpgradeable {
                 _receivers[i] != address(this),
                 'Escrow contract can not be a receiver'
             );
-            token.safeTransfer(_receivers[i], _amounts[i]);
+            if (_amounts[i] > 0)
+                token.safeTransfer(_receivers[i], _amounts[i]);
         }
 
         return super.fulfillWithProvenance(
@@ -401,15 +402,17 @@ contract EscrowPaymentCondition is Reward, ReentrancyGuardUpgradeable {
                 _receivers[i] != address(this),
                 'Escrow contract can not be a receiver'
             );
-            
-            require(
-                address(this).balance >= _amounts[i],
-                'Contract balance too low'
-            );
-            
-            // solhint-disable-next-line
-            (bool sent,) = _receivers[i].call{value: _amounts[i]}('');
-            require(sent, 'Failed to send Ether');
+
+            if (_amounts[i] > 0)    {
+                require(
+                    address(this).balance >= _amounts[i],
+                    'Contract balance too low'
+                );
+
+                // solhint-disable-next-line
+                (bool sent,) = _receivers[i].call{value: _amounts[i]}('');
+                require(sent, 'Failed to send Ether');                
+            }
         }
 
         return super.fulfillWithProvenance(
