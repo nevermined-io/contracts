@@ -323,7 +323,7 @@ contract TransferNFTCondition is Condition, ITransferNFT, ReentrancyGuardUpgrade
                 token.safeTransferFrom(_account, _nftReceiver, uint256(_did), _nftAmount, '');
             else  {// Check that `account` (_msgSender()) is DID owner or provider
                 require(didRegistry.isDIDProviderOrOwner(_did, _account), 'Only owner or provider');
-                if (token.nftType() == keccak256('nft721-subscription'))  {
+                if (token.nftType() == keccak256('nft1155-subscription'))  {
                     NFT1155SubscriptionUpgradeable(_nftContractAddress).mint(_nftReceiver, uint256(_did), _nftAmount, _expirationBlock, '');
                 } else {
                     token.mint(_nftReceiver, uint256(_did), _nftAmount, '');
@@ -393,7 +393,7 @@ contract TransferNFTCondition is Condition, ITransferNFT, ReentrancyGuardUpgrade
      * @param _nftAmount amount of NFTs to transfer  
      * @param _lockPaymentCondition lock payment condition identifier
      * @param _nftHolder is the address of the account to receive the NFT
-     * @param _nftContractAddress the address of the ERC-721 NFT contract      
+     * @param _nftContractAddress the address of the ERC-1155 NFT contract      
      * @param _transfer if yes it does a transfer if false it mints the NFT
      * @return condition state (Fulfilled/Aborted)
      */
