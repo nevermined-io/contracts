@@ -26,9 +26,13 @@ echo Ok
 
 npx hardhat run --no-compile --network tools server/main.js &
 
-sleep 10
+until curl -H "Content-Type: application/json" -X POST localhost:23451/ready
+    do
+        sleep 1
+    done
 
 echo "Make secret"
+sleep 5
 
 # Make the shared secret
 

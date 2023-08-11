@@ -118,7 +118,6 @@ contract TransferNFT721Condition is Condition, ITransferNFT, ReentrancyGuardUpgr
     )
         public
         pure
-        override
         returns (bytes32)
     {
         return keccak256(abi.encode(_did, _nftHolder, _nftReceiver, _nftAmount, _lockCondition, _contract, _transfer));
@@ -173,7 +172,6 @@ contract TransferNFT721Condition is Condition, ITransferNFT, ReentrancyGuardUpgr
         bool _transfer
     )
         public
-        override
         nonReentrant
         returns (ConditionStoreLibrary.ConditionState)
     {

@@ -215,6 +215,7 @@ contract AccessDLEQCondition is Condition {
         uint[2] _secretId;
         uint[2] _provider;
         uint[2] _buyer;
+        bool ready;
     }
 
     // secret x buyer public key
@@ -289,6 +290,16 @@ contract AccessDLEQCondition is Condition {
     function fulfillFromNetwork(bytes32 agreementId, uint[2] memory reencrypt, uint[2] memory proof) public {
         Params memory p = authorizedParams[agreementId];
         this.fulfill(agreementId, p._cipher, p._secretId, network, p._buyer, reencrypt, proof);
+        authorizedParams[agreementId].ready = true;
+    }
+
+   /**
+    * @notice check if has already been fulfilled
+    * 
+    * @param agreementId associated agreement
+    */
+    function fulfilled(bytes32 agreementId) public view returns (bool) {
+        return authorizedParams[agreementId].ready;
     }
 
     function auth(
@@ -309,7 +320,7 @@ contract AccessDLEQCondition is Condition {
         uint[2] memory arr1 = [secretId1,secretId2];
         uint[2] memory arr2 = [buyer1,buyer2];
         authorized[keccak256(abi.encode(arr1))][keccak256(abi.encode(arr2))] = true;
-        authorizedParams[id[0]] = Params(id[0], cipher, arr1, [p1, p2], arr2);
+        authorizedParams[id[0]] = Params(id[0], cipher, arr1, [p1, p2], arr2, false);
         emit Authorized(arr1, arr2, id[0], id[1]);
     }
 
