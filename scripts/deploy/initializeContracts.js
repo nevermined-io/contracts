@@ -202,6 +202,20 @@ async function initializeContracts({
         verbose
     })
 
+    addressBook.NFT1155SubscriptionUpgradeable = await zosCreate({
+        contract: 'NFT1155SubscriptionUpgradeable',
+        ctx,
+        args: [
+            roles.ownerWallet,
+            getAddress('DIDRegistry'),
+            'Nevermined Smart Subscription',
+            'NVM',
+            ''
+        ],
+        isCore: true,
+        verbose
+    })
+
     // testnet only!
     if (contracts.indexOf('NeverminedToken') > -1) {
         addressBook.NeverminedToken = await zosCreate({

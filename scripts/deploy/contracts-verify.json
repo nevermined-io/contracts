@@ -2,6 +2,7 @@
   "NeverminedConfig",
   "DIDRegistry",
   "NFT1155Upgradeable",
+  "NFT1155SubscriptionUpgradeable",
   "NFT721Upgradeable",
   "NFT721SubscriptionUpgradeable",
   "StandardRoyalties",
