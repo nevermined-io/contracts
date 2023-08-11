@@ -143,6 +143,7 @@ contract TransferNFTCondition is Condition, ITransferNFT, ReentrancyGuardUpgrade
     * @param _lockCondition lock condition identifier
     * @param _nftContractAddress NFT contract to use
     * @param _transfer Indicates if the NFT will be transferred (true) or minted (false)
+    * @param _expirationBlock Block in which the token expires. If zero means no expiration
     * @return bytes32 hash of all these values 
     */
     function hashValues(
@@ -185,6 +186,7 @@ contract TransferNFTCondition is Condition, ITransferNFT, ReentrancyGuardUpgrade
      * @param _lockPaymentCondition lock payment condition identifier
      * @param _nftContractAddress the NFT contract to use     
      * @param _transfer if yes it does a transfer if false it mints the NFT
+     * @param _expirationBlock Block in which the token expires. If zero means no expiration     
      * @return the encoded parameters
      */
     function encodeParams(
@@ -273,7 +275,7 @@ contract TransferNFTCondition is Condition, ITransferNFT, ReentrancyGuardUpgrade
      * @param _lockPaymentCondition lock payment condition identifier
      * @param _nftContractAddress NFT contract to use
      * @param _transfer Indicates if the NFT will be transferred (true) or minted (false)
-     * @param _expirationBlock expiration of subscription
+     * @param _expirationBlock Block in which the token expires. If zero means no expiration
      * @return condition state (Fulfilled/Aborted)
      */
     function fulfill(
@@ -323,7 +325,7 @@ contract TransferNFTCondition is Condition, ITransferNFT, ReentrancyGuardUpgrade
                 token.safeTransferFrom(_account, _nftReceiver, uint256(_did), _nftAmount, '');
             else  {// Check that `account` (_msgSender()) is DID owner or provider
                 require(didRegistry.isDIDProviderOrOwner(_did, _account), 'Only owner or provider');
-                if (token.nftType() == keccak256('nft721-subscription'))  {
+                if (token.nftType() == keccak256('nft1155-subscription'))  {
                     NFT1155SubscriptionUpgradeable(_nftContractAddress).mint(_nftReceiver, uint256(_did), _nftAmount, _expirationBlock, '');
                 } else {
                     token.mint(_nftReceiver, uint256(_did), _nftAmount, '');
@@ -378,7 +380,7 @@ contract TransferNFTCondition is Condition, ITransferNFT, ReentrancyGuardUpgrade
     
     returns (ConditionStoreLibrary.ConditionState)
     {
-        return fulfillForDelegate(_agreementId, _did, _nftHolder, _nftReceiver, _nftAmount, _lockPaymentCondition, address(erc1155), _transfer);
+        return fulfillForDelegate(_agreementId, _did, _nftHolder, _nftReceiver, _nftAmount, _lockPaymentCondition, address(erc1155), _transfer, 0);
     }
 
 
@@ -393,8 +395,9 @@ contract TransferNFTCondition is Condition, ITransferNFT, ReentrancyGuardUpgrade
      * @param _nftAmount amount of NFTs to transfer  
      * @param _lockPaymentCondition lock payment condition identifier
      * @param _nftHolder is the address of the account to receive the NFT
-     * @param _nftContractAddress the address of the ERC-721 NFT contract      
+     * @param _nftContractAddress the address of the ERC-1155 NFT contract      
      * @param _transfer if yes it does a transfer if false it mints the NFT
+     * @param _expirationBlock Block in which the token expires. If zero means no expiration     
      * @return condition state (Fulfilled/Aborted)
      */
     function fulfillForDelegate(
@@ -405,7 +408,8 @@ contract TransferNFTCondition is Condition, ITransferNFT, ReentrancyGuardUpgrade
         uint256 _nftAmount,
         bytes32 _lockPaymentCondition,
         address _nftContractAddress,
-        bool _transfer
+        bool _transfer,
+        uint256 _expirationBlock
     )
     public
 
@@ -415,7 +419,7 @@ contract TransferNFTCondition is Condition, ITransferNFT, ReentrancyGuardUpgrade
             || NFT1155Upgradeable(_nftContractAddress).isApprovedForAll(_nftHolder, _msgSender())
             || didRegistry.isDIDProviderOrOwner(_did, _msgSender())
         , 'Only Market role or approvedForAll');
-        return fulfillInternal(_nftHolder, _agreementId, _did, _nftReceiver, _nftAmount, _lockPaymentCondition, _nftContractAddress, _transfer, 0);
+        return fulfillInternal(_nftHolder, _agreementId, _did, _nftReceiver, _nftAmount, _lockPaymentCondition, _nftContractAddress, _transfer, _expirationBlock);
     }
 
     function _msgSender() internal override(CommonOwnable,ContextUpgradeable) virtual view returns (address ret) {
