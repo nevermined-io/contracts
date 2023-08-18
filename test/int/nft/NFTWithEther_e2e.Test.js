@@ -209,7 +209,7 @@ contract('End to End NFT Scenarios (with Ether)', (accounts) => {
         const conditionIdLockPayment = await lockPaymentCondition.hashValues(did, escrowCondition.address, constants.address.zero, _amounts.map(a => String(a)), _receivers)
         const fullIdLockPayment = await lockPaymentCondition.generateId(agreementId, conditionIdLockPayment)
         const conditionIdTransferNFT = await transferCondition.methods['hashValues(bytes32,address,address,uint256,bytes32,address,bool)'](
-                        did, _seller, _buyer, _numberNFTs, fullIdLockPayment, nft.address, true)
+            did, _seller, _buyer, _numberNFTs, fullIdLockPayment, nft.address, true)
         const fullIdTransferNFT = await transferCondition.generateId(agreementId, conditionIdTransferNFT)
 
         const conditionIdEscrow = await escrowCondition.hashValues(did, _amounts.map(a => String(a)), _receivers, _buyer, escrowCondition.address, constants.address.zero, fullIdLockPayment, fullIdTransferNFT)
