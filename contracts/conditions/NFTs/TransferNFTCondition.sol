@@ -183,8 +183,7 @@ contract TransferNFTCondition is Condition, ITransferNFT, ReentrancyGuardUpgrade
      * @param _nftAmount amount of NFTs to transfer  
      * @param _lockPaymentCondition lock payment condition identifier
      * @param _nftContractAddress the NFT contract to use     
-     * @param _transfer if yes it does a transfer if false it mints the NFT
-     * @param _expirationBlock Block in which the token expires. If zero means no expiration     
+     * @param _transfer if yes it does a transfer if false it mints the NFT     
      * @return the encoded parameters
      */
     function encodeParams(
@@ -194,10 +193,9 @@ contract TransferNFTCondition is Condition, ITransferNFT, ReentrancyGuardUpgrade
         uint256 _nftAmount,
         bytes32 _lockPaymentCondition,
         address _nftContractAddress,
-        bool _transfer,
-        uint256 _expirationBlock
+        bool _transfer
     ) external pure returns (bytes memory) {
-        return abi.encode(_did, _nftHolder, _nftReceiver, _nftAmount, _lockPaymentCondition, _nftContractAddress, _transfer, _expirationBlock);
+        return abi.encode(_did, _nftHolder, _nftReceiver, _nftAmount, _lockPaymentCondition, _nftContractAddress, _transfer);
     }
 
     /**
@@ -224,11 +222,10 @@ contract TransferNFTCondition is Condition, ITransferNFT, ReentrancyGuardUpgrade
         bytes32 _lockPaymentCondition;
         address _nftContractAddress;
         bool _transfer;
-        uint256 _expirationBlock;
-        (_did, _nftHolder, _nftReceiver, _nftAmount, _lockPaymentCondition, _nftContractAddress, _transfer, _expirationBlock) = abi.decode(_params, (bytes32, address, address, uint256, bytes32, address, bool, uint256));
+        (_did, _nftHolder, _nftReceiver, _nftAmount, _lockPaymentCondition, _nftContractAddress, _transfer) = abi.decode(_params, (bytes32, address, address, uint256, bytes32, address, bool));
 
         require(hasRole(PROXY_ROLE, _msgSender()), 'Proxy role required');
-        fulfillInternal(_account, _agreementId, _did, _nftReceiver, _nftAmount, _lockPaymentCondition, _nftContractAddress, _transfer, _expirationBlock);
+        fulfillInternal(_account, _agreementId, _did, _nftReceiver, _nftAmount, _lockPaymentCondition, _nftContractAddress, _transfer, 0);
     }
     
     /**
