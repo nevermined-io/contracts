@@ -104,7 +104,7 @@ describe('using ethers with OpenGSN forwarder', () => {
 
             const sig = await signer._signTypedData(domain, types, req)
 
-            await forwarder.execute(
+            await forwarder.connect(ethers.provider.getSigner(5)).execute(
                 req,
                 separator,
                 '0x2510fc5e187085770200b027d9f2cc4b930768f3b2bd81daafb71ffeb53d21c4',
