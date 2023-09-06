@@ -1,9 +1,8 @@
 const { ethers, web3 } = require('hardhat')
 const { it, describe, before } = require('mocha')
 const { assert } = require('chai')
-const constants = require('./helpers/constants.js')
-const testUtils = require('./helpers/utils.js')
-const Web3HttpProvider = require('web3-providers-http')
+const constants = require('../helpers/constants.js')
+const testUtils = require('../helpers/utils.js')
 
 async function deployContract(contract, deployer, libraries, args) {
     const C = await ethers.getContractFactory(contract, { libraries })
