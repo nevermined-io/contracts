@@ -23,6 +23,7 @@ describe('using ethers with OpenGSN forwarder', () => {
     const nftMetadataURL = 'https://nevermined.io/metadata.json'
     let account
     let forwarder
+    let separator
     before(async () => {
         const deployer = await ethers.provider.getSigner(8)
         const deploymentProvider = ethers.provider
@@ -33,6 +34,20 @@ describe('using ethers with OpenGSN forwarder', () => {
 
         await forwarder.registerDomainSeparator("Nevermined", "1")
 
+        let keccak = a => ethers.utils.solidityKeccak256(['bytes'], [a])
+
+        let pake =             ethers.utils.defaultAbiCoder.encode(["bytes32", "bytes32", "bytes32", "uint256", "address"],
+            [
+                keccak(Buffer.from('EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)')),
+                keccak(Buffer.from('Nevermined')),
+                keccak(Buffer.from('1')),
+                await web3.eth.getChainId(),
+                forwarder.address
+            ])
+            
+        console.log('pake', pake.length, pake)   
+        separator = ethers.utils.keccak256(pake)
+        console.log('separator', separator,                       )
 
         accounts = await web3.eth.getAccounts()
         const owner = accounts[0]
@@ -110,7 +125,7 @@ describe('using ethers with OpenGSN forwarder', () => {
 
             await forwarder.execute(
                 req,
-                "0xc3f2eba0fc9b898fe103e579c225132f6b31c351c0e50ddc84c09ee64e8c5f73",
+                separator,
                 "0x2510fc5e187085770200b027d9f2cc4b930768f3b2bd81daafb71ffeb53d21c4",
                 [],
                 sig
