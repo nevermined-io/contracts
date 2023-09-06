@@ -17,8 +17,6 @@ async function deployContract(contract, deployer, libraries, args) {
 describe('using ethers with OpenGSN forwarder', () => {
     let didRegistry, nft
     let accounts
-    let etherProvider
-    // let web3provider
     const value = 'https://nevermined.io/did/nevermined/test-attr-example.txt'
     const nftMetadataURL = 'https://nevermined.io/metadata.json'
     let account
@@ -27,16 +25,16 @@ describe('using ethers with OpenGSN forwarder', () => {
     before(async () => {
         const deployer = await ethers.provider.getSigner(8)
         const deploymentProvider = ethers.provider
-        const Forwarder = await ethers.getContractFactory("Forwarder")
+        const Forwarder = await ethers.getContractFactory('Forwarder')
         const signer = Forwarder.connect(deployer)
         forwarder = await signer.deploy()
         await forwarder.deployed()
 
-        await forwarder.registerDomainSeparator("Nevermined", "1")
+        await forwarder.registerDomainSeparator('Nevermined', '1')
 
-        let keccak = a => ethers.utils.solidityKeccak256(['bytes'], [a])
+        const keccak = a => ethers.utils.solidityKeccak256(['bytes'], [a])
 
-        let pake =             ethers.utils.defaultAbiCoder.encode(["bytes32", "bytes32", "bytes32", "uint256", "address"],
+        const pake = ethers.utils.defaultAbiCoder.encode(['bytes32', 'bytes32', 'bytes32', 'uint256', 'address'],
             [
                 keccak(Buffer.from('EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)')),
                 keccak(Buffer.from('Nevermined')),
@@ -44,10 +42,8 @@ describe('using ethers with OpenGSN forwarder', () => {
                 await web3.eth.getChainId(),
                 forwarder.address
             ])
-            
-        console.log('pake', pake.length, pake)   
+
         separator = ethers.utils.keccak256(pake)
-        console.log('separator', separator,                       )
 
         accounts = await web3.eth.getAccounts()
         const owner = accounts[0]
@@ -65,28 +61,20 @@ describe('using ethers with OpenGSN forwarder', () => {
         )
         nft = await deployContract('NFT1155Upgradeable', deployer, {}, [owner, didRegistry.address, '', '', ''])
         nft.connect(await deploymentProvider.getSigner(owner)).setNvmConfigAddress(nvmConfig.address)
-
     })
 
     describe('Register an Asset with a DID', () => {
         it('Should mint and burn NFTs after initialization', async () => {
             const didSeed = testUtils.generateId()
-            console.log('Make DID')
             account = accounts[4]
             const signer = await ethers.provider.getSigner(4)
             const did = await didRegistry.hashDID(didSeed, account)
             const checksum = testUtils.generateId()
 
-            console.log('Registering DID')
-
-            /*
-            await didRegistry['registerMintableDID(bytes32,address,bytes32,address[],string,uint256,uint256,bytes32,string,string)'](
-                didSeed, nft.address, checksum, [], value, 20, 0, constants.activities.GENERATED, nftMetadataURL, '', { from: account, gasLimit: 5000000 })
-            */
             const req = {
                 from: account,
                 to: didRegistry.address,
-                value: "0",
+                value: '0',
                 nonce: 0,
                 validUntil: 0,
                 gas: 5000000,
@@ -94,39 +82,32 @@ describe('using ethers with OpenGSN forwarder', () => {
                     didSeed, nft.address, checksum, [], value, 20, 0, constants.activities.GENERATED, nftMetadataURL, ''
                 ])
             }
-            console.log('Req made', req)
 
-            let data = await forwarder._getEncoded(req, "0x2510fc5e187085770200b027d9f2cc4b930768f3b2bd81daafb71ffeb53d21c4", [])
-            console.log('Data', data)
-
-            let domain = {
-                name: "Nevermined",
-                version: "1",
+            const domain = {
+                name: 'Nevermined',
+                version: '1',
                 chainId: await web3.eth.getChainId(),
-                verifyingContract: forwarder.address,
+                verifyingContract: forwarder.address
             }
-            console.log('Domain', domain)
 
             const types = {
                 ForwardRequest: [
-                    { name: "from", type: "address" },
-                    { name: "to", type: "address" },
-                    { name: "value", type: "uint256" },
-                    { name: "gas", type: "uint256" },
-                    { name: "nonce", type: "uint256" },
-                    { name: "data", type: "bytes" },
-                    { name: "validUntil", type: "uint256" },
-                ],
+                    { name: 'from', type: 'address' },
+                    { name: 'to', type: 'address' },
+                    { name: 'value', type: 'uint256' },
+                    { name: 'gas', type: 'uint256' },
+                    { name: 'nonce', type: 'uint256' },
+                    { name: 'data', type: 'bytes' },
+                    { name: 'validUntil', type: 'uint256' }
+                ]
             }
 
-            // let sig = await web3.eth.sign(data, account)
-            let sig = await signer._signTypedData(domain, types, req)
-            console.log('Signature', sig)
+            const sig = await signer._signTypedData(domain, types, req)
 
             await forwarder.execute(
                 req,
                 separator,
-                "0x2510fc5e187085770200b027d9f2cc4b930768f3b2bd81daafb71ffeb53d21c4",
+                '0x2510fc5e187085770200b027d9f2cc4b930768f3b2bd81daafb71ffeb53d21c4',
                 [],
                 sig
             )
