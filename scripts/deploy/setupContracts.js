@@ -447,6 +447,11 @@ async function setupContracts({
         await callContract(artifacts.DIDRegistry, a => a.setNFT1155(addressBook.NFT1155Upgradeable))
         addresses.stage = 24
     }
+    if (addressBook.NeverminedConfig && addressBook.EscrowPaymentCondition && addresses.stage < 25) {
+        console.log('Grant Proxy Approval (EscrowPaymentCondition): ' + addressBook.EscrowPaymentCondition)
+        await callContract(artifacts.NeverminedConfig, a => a.grantNVMOperatorRole(addressBook.EscrowPaymentCondition))
+        addresses.stage = 25
+    }
 }
 
 module.exports = setupContracts
