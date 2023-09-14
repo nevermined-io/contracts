@@ -28,6 +28,7 @@ contract('NFT Sales with Access Proof Template integration test', (accounts) => 
         conditionStoreManager,
         templateStoreManager,
         did,
+        nvmConfig,
         transferCondition,
         nftSalesTemplate,
         escrowCondition,

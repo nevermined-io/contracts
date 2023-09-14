@@ -16,6 +16,7 @@ contract('NFTMarkedLockCondition', (accounts) => {
     let didRegistry
     let lockCondition
     let nft
+    let nvmConfig
 
     const receiver = accounts[2]
     const owner = accounts[1]

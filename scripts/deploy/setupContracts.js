@@ -483,7 +483,6 @@ async function setupContracts({
         await callContract(artifacts.NFT721SubscriptionUpgradeable, a => a.grantOperatorRole(addressBook.NFT721LockCondition))
         addresses.stage = 29
     }
-
 }
 
 module.exports = setupContracts

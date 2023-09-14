@@ -115,11 +115,11 @@ contract('TransferNFT Condition', (accounts) => {
             )
 
             // We allow DIDRegistry and TransferCondition to mint NFTs
-            await nft.setNvmConfigAddress(nvmConfig.address, {from: owner})
-            await nvmConfig.setOperator(didRegistry.address, {from: owner})
-            await nvmConfig.setOperator(owner, {from: owner})
-            await nvmConfig.setOperator(seller, {from: owner})
-            await nvmConfig.setOperator(transferCondition.address, {from: owner})
+            await nft.setNvmConfigAddress(nvmConfig.address, { from: owner })
+            await nvmConfig.setOperator(didRegistry.address, { from: owner })
+            await nvmConfig.setOperator(owner, { from: owner })
+            await nvmConfig.setOperator(seller, { from: owner })
+            await nvmConfig.setOperator(transferCondition.address, { from: owner })
         }
 
         const did = await didRegistry.hashDID(didSeed, seller)

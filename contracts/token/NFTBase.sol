@@ -229,14 +229,10 @@ abstract contract NFTBase is IERC2981Upgradeable, CommonOwnable, AccessControlUp
     virtual
     returns (bool)
     {
-        console.log(11223344);
         if (nvmConfig == address(0)) {
             return AccessControlUpgradeable.hasRole(NVM_OPERATOR_ROLE, operator);
         }
-        console.log(operator);
-        bool res = NeverminedConfig(nvmConfig).isOperator(operator) || AccessControlUpgradeable.hasRole(NVM_OPERATOR_ROLE, operator);
-        console.log(res);
-        return res;
+        return NeverminedConfig(nvmConfig).isOperator(operator) || AccessControlUpgradeable.hasRole(NVM_OPERATOR_ROLE, operator);
     }
 
     function _msgSender() internal override(CommonOwnable,ContextUpgradeable) virtual view returns (address ret) {

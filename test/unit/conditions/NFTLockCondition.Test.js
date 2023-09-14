@@ -16,6 +16,7 @@ contract('NFTLockCondition', (accounts) => {
     let didRegistry
     let lockCondition
     let nft
+    let nvmConfig
 
     const owner = accounts[1]
     const createRole = accounts[0]

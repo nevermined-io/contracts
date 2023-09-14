@@ -57,6 +57,7 @@ contract('End to End NFT Scenarios', (accounts) => {
         didRegistry,
         token,
         nft,
+        nvmConfig,
         agreementStoreManager,
         conditionStoreManager,
         templateStoreManager,

@@ -120,7 +120,6 @@ contract NFT721Upgradeable is ERC721Upgradeable, NFTBase {
     override
     returns (bool) 
     {
-        console.log(operator);
         return super.isApprovedForAll(account, operator) || isOperator(operator);
     }
     
@@ -245,7 +244,6 @@ contract NFT721Upgradeable is ERC721Upgradeable, NFTBase {
     )
     public
     {
-        console.log(_msgSender());
         require(isOperator(_msgSender()), 'only nft operator');
         _setTokenRoyalty(tokenId, receiver, royaltyAmount);
     }

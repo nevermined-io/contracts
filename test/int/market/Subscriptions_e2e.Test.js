@@ -49,6 +49,7 @@ contract('End to End NFT721 Scenarios', (accounts) => {
         didRegistry,
         token,
         nft,
+        nvmConfig,
         agreementStoreManager,
         conditionStoreManager,
         templateStoreManager,

@@ -72,11 +72,9 @@ contract NFT1155Upgradeable is ERC1155Upgradeable, NFTBase {
     virtual
     onlyInitializing
     {
-        /*
         AccessControlUpgradeable._setupRole(NVM_OPERATOR_ROLE, _msgSender());
         AccessControlUpgradeable._setupRole(NVM_OPERATOR_ROLE, didRegistryAddress);
         AccessControlUpgradeable._setupRole(NVM_OPERATOR_ROLE, owner);
-        */
         setContractMetadataUri(uri_);
         name = name_;
         symbol = symbol_;
@@ -104,12 +102,10 @@ contract NFT1155Upgradeable is ERC1155Upgradeable, NFTBase {
         address cloneAddress = ClonesUpgradeable.clone(implementation);
         NFT1155Upgradeable nftContract = NFT1155Upgradeable(cloneAddress);
         nftContract.initialize(_msgSender(), address(nftRegistry), _name, _symbol, _uri);
-        /*
         for (uint256 i = 0; i < _operators.length; i++) {
             nftContract.grantOperatorRole(_operators[i]);
         }
         nftContract.renounceOperatorRole();
-        */
         emit NFTCloned(cloneAddress, implementation, 1155);
         return cloneAddress;
     }    

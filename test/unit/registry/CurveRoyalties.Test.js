@@ -27,7 +27,7 @@ contract('CurveRoyalties', (accounts) => {
 
     async function setupTest() {
         if (!didRegistry) {
-            config = await artifacts.require('NeverminedConfig').new()
+            const config = await artifacts.require('NeverminedConfig').new()
             await config.initialize(owner, owner, true)
             didRegistry = await DIDRegistry.new()
             await didRegistry.initialize(owner, constants.address.zero, constants.address.zero, config.address, constants.address.zero)
@@ -39,9 +39,9 @@ contract('CurveRoyalties', (accounts) => {
             await royalties.initialize(didRegistry.address)
             await didRegistry.registerRoyaltiesChecker(royalties.address, { from: owner })
 
-            await nft.setNvmConfigAddress(config.address, {from: owner})
-            await config.setOperator(didRegistry.address, {from: owner})
-            await config.setOperator(owner, {from: owner})
+            await nft.setNvmConfigAddress(config.address, { from: owner })
+            await config.setOperator(didRegistry.address, { from: owner })
+            await config.setOperator(owner, { from: owner })
         }
     }
 
