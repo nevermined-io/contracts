@@ -45,12 +45,18 @@ contract('NFT1155 Subscription', (accounts) => {
     let didRegistry
 
     async function setupTest() {
+        config = await artifacts.require('NeverminedConfig').new()
+        await config.initialize(owner, owner, true)
         didRegistry = await DIDRegistry.new()
-        await didRegistry.initialize(owner, constants.address.zero, constants.address.zero, constants.address.zero, constants.address.zero)
+        await didRegistry.initialize(owner, constants.address.zero, constants.address.zero, config.address, constants.address.zero)
 
         nft = await TestERC1155.new({ from: deployer })
         await nft.initialize(owner, didRegistry.address, 'TestERC1155', 'TEST', '', { from: owner })
-        await nft.grantOperatorRole(minter)
+
+        await nft.setNvmConfigAddress(config.address, {from: owner})
+        await config.setOperator(didRegistry.address, {from: owner})
+        await config.setOperator(owner, {from: owner})
+        await config.setOperator(minter, {from: owner})
     }
 
     describe('As a minter I want to use NFTs as subscriptions', () => {

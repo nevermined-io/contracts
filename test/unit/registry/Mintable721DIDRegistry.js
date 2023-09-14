@@ -29,12 +29,19 @@ contract('Mintable DIDRegistry (ERC-721)', (accounts) => {
             const StandardRoyalties = artifacts.require('StandardRoyalties')
             const standardRoyalties = await StandardRoyalties.new()
 
+            config = await artifacts.require('NeverminedConfig').new()
+            await config.initialize(owner, owner, true)
+
             didRegistry = await DIDRegistry.new()
-            await didRegistry.initialize(owner, constants.address.zero, constants.address.zero, constants.address.zero, standardRoyalties.address)
+            await didRegistry.initialize(owner, constants.address.zero, constants.address.zero, config.address, standardRoyalties.address)
             await standardRoyalties.initialize(didRegistry.address)
 
             nft = await NFT.new()
             await nft.initialize(owner, didRegistry.address, '', '', nftMetadataURL, 0, { from: deployer })
+
+            await nft.setNvmConfigAddress(config.address, {from: owner})
+            await config.setOperator(didRegistry.address, {from: owner})
+            await config.setOperator(owner, {from: owner})
         }
     }
 

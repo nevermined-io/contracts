@@ -95,6 +95,9 @@ const utils = {
         await nft.initialize(owner, didRegistry.address, 'NFT1155', 'NVM', '')
         const conditionStoreManager = await ConditionStoreManager.new()
         await conditionStoreManager.initialize(createRole, owner, nvmConfig.address, { from: owner })
+        await nvmConfig.setOperator(owner, {from: owner})
+        await nvmConfig.setOperator(didRegistry.address, {from: owner})
+        await nft.setNvmConfigAddress(nvmConfig.address, {from: owner})
         return {
             didRegistry,
             nvmConfig,

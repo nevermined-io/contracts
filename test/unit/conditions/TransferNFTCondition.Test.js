@@ -60,7 +60,7 @@ contract('TransferNFT Condition', (accounts) => {
             await nvmConfig.initialize(owner, owner, false)
 
             didRegistry = await DIDRegistry.new()
-            await didRegistry.initialize(owner, constants.address.zero, constants.address.zero, constants.address.zero, constants.address.zero)
+            await didRegistry.initialize(owner, constants.address.zero, constants.address.zero, nvmConfig.address, constants.address.zero)
 
             nft = await NFT.new()
             await nft.initialize(owner, didRegistry.address, 'NFT1155', 'NVM', '')
@@ -115,7 +115,11 @@ contract('TransferNFT Condition', (accounts) => {
             )
 
             // We allow DIDRegistry and TransferCondition to mint NFTs
-            await nft.grantOperatorRole(transferCondition.address, { from: owner })
+            await nft.setNvmConfigAddress(nvmConfig.address, {from: owner})
+            await nvmConfig.setOperator(didRegistry.address, {from: owner})
+            await nvmConfig.setOperator(owner, {from: owner})
+            await nvmConfig.setOperator(seller, {from: owner})
+            await nvmConfig.setOperator(transferCondition.address, {from: owner})
         }
 
         const did = await didRegistry.hashDID(didSeed, seller)
@@ -126,7 +130,7 @@ contract('TransferNFT Condition', (accounts) => {
                 { from: seller }
             )
             if (mintDID) {
-                await nft.grantOperatorRole(seller, { from: owner })
+                // await nft.grantOperatorRole(seller, { from: owner })
                 await nft.methods['mint(uint256,uint256)'](did, mintCap, { from: seller })
                 await nft.safeTransferFrom(seller, other, did, 10, [], { from: seller })
             }
@@ -245,7 +249,6 @@ contract('TransferNFT Condition', (accounts) => {
                 { from: owner }
             )
 
-            await nft.grantOperatorRole(transferCondition.address, { from: owner })
             const result = await transferCondition.methods['fulfill(bytes32,bytes32,address,uint256,bytes32)'](
                 agreementId, did, rewardAddress, numberNFTs,
                 conditionIdPayment,

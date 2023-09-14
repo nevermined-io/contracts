@@ -4,12 +4,15 @@ pragma solidity ^0.8.0;
 // Code is Apache-2.0 and docs are CC-BY-4.0
 
 import '../Common.sol';
+import '../governance/NeverminedConfig.sol';
 import '@openzeppelin/contracts-upgradeable/interfaces/IERC2981Upgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/proxy/ClonesUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/utils/StorageSlotUpgradeable.sol';
+
+import 'hardhat/console.sol';
 
 /**
  * @title Nevermined NFT Base
@@ -217,7 +220,7 @@ abstract contract NFTBase is IERC2981Upgradeable, CommonOwnable, AccessControlUp
     {
         AccessControlUpgradeable._revokeRole(NVM_OPERATOR_ROLE, _msgSender());
     }
-    
+
     function isOperator(
         address operator
     )
@@ -226,7 +229,14 @@ abstract contract NFTBase is IERC2981Upgradeable, CommonOwnable, AccessControlUp
     virtual
     returns (bool)
     {
-        return AccessControlUpgradeable.hasRole(NVM_OPERATOR_ROLE, operator);
+        console.log(11223344);
+        if (nvmConfig == address(0)) {
+            return AccessControlUpgradeable.hasRole(NVM_OPERATOR_ROLE, operator);
+        }
+        console.log(operator);
+        bool res = NeverminedConfig(nvmConfig).isOperator(operator) || AccessControlUpgradeable.hasRole(NVM_OPERATOR_ROLE, operator);
+        console.log(res);
+        return res;
     }
 
     function _msgSender() internal override(CommonOwnable,ContextUpgradeable) virtual view returns (address ret) {
