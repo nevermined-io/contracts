@@ -238,8 +238,8 @@ contract('TransferNFT Condition', (accounts) => {
                 (await conditionStoreManager.getConditionState(conditionIdPayment)).toNumber(),
                 constants.condition.state.fulfilled)
 
-            const hashValues = await transferCondition.methods['hashValues(bytes32,address,address,uint256,bytes32,address,bool,uint256)'](
-                did, seller, rewardAddress, numberNFTs, conditionIdPayment, nft.address, true, 0)
+            const hashValues = await transferCondition.methods['hashValues(bytes32,address,address,uint256,bytes32,address,bool)'](
+                did, seller, rewardAddress, numberNFTs, conditionIdPayment, nft.address, true)
 
             const conditionId = await transferCondition.generateId(agreementId, hashValues)
 
@@ -301,8 +301,8 @@ contract('TransferNFT Condition', (accounts) => {
                 (await conditionStoreManager.getConditionState(conditionIdPayment)).toNumber(),
                 constants.condition.state.fulfilled)
 
-            const hashValues = await transferCondition.methods['hashValues(bytes32,address,address,uint256,bytes32,address,bool,uint256)'](
-                did, seller, rewardAddress, numberNFTs, conditionIdPayment, nft.address, false, expiration
+            const hashValues = await transferCondition.methods['hashValues(bytes32,address,address,uint256,bytes32,address,bool)'](
+                did, seller, rewardAddress, numberNFTs, conditionIdPayment, nft.address, false
             )
 
             const conditionId = await transferCondition.generateId(agreementId, hashValues)
@@ -363,8 +363,8 @@ contract('TransferNFT Condition', (accounts) => {
                 (await conditionStoreManager.getConditionState(conditionIdPayment)).toNumber(),
                 constants.condition.state.fulfilled)
 
-            const hashValues = await transferCondition.methods['hashValues(bytes32,address,address,uint256,bytes32,address,bool,uint256)'](
-                did, other, rewardAddress, numberNFTs, conditionIdPayment, nft.address, true, 0)
+            const hashValues = await transferCondition.methods['hashValues(bytes32,address,address,uint256,bytes32,address,bool)'](
+                did, other, rewardAddress, numberNFTs, conditionIdPayment, nft.address, true)
 
             const conditionId = await transferCondition.generateId(agreementId, hashValues)
 
@@ -417,8 +417,8 @@ contract('TransferNFT Condition', (accounts) => {
                 (await conditionStoreManager.getConditionState(conditionIdPayment)).toNumber(),
                 constants.condition.state.fulfilled)
 
-            const hashValues = await transferCondition.methods['hashValues(bytes32,address,address,uint256,bytes32,address,bool,uint256)'](
-                did, seller, rewardAddress, numberNFTs, conditionIdPayment, nft.address, true, 0)
+            const hashValues = await transferCondition.methods['hashValues(bytes32,address,address,uint256,bytes32,address,bool)'](
+                did, seller, rewardAddress, numberNFTs, conditionIdPayment, nft.address, true)
 
             const conditionId = await transferCondition.generateId(agreementId, hashValues)
 
@@ -478,8 +478,8 @@ contract('TransferNFT Condition', (accounts) => {
                 (await conditionStoreManager.getConditionState(conditionIdPayment)).toNumber(),
                 constants.condition.state.fulfilled)
 
-            const hashValues = await transferCondition.methods['hashValues(bytes32,address,address,uint256,bytes32,address,bool,uint256)'](
-                did, seller, rewardAddress, numberNFTs, conditionIdPayment, nft.address, true, 0)
+            const hashValues = await transferCondition.methods['hashValues(bytes32,address,address,uint256,bytes32,address,bool)'](
+                did, seller, rewardAddress, numberNFTs, conditionIdPayment, nft.address, true)
 
             const conditionId = await transferCondition.generateId(agreementId, hashValues)
 
