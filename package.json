@@ -80,7 +80,7 @@
     "clean:build": "rm -rf ./build/ ./artifacts/*.development.json ./artifacts/*.spree.json ./artifacts/*.hardhat.json ./artifacts/*.external.json",
     "clean:cache": "rm -rf ./cache/ ./deploy-cache.json ./upgrade-cache.json ./transactions.json",
     "clean:coverage": "rm -rf ./coverage/ ./coverageEnv/ ./coverage.json",
-    "clean:zos": "rm -rf ./zos.json ./zos.dev-8996.json ./zos.dev-8997.json ./.zos.session ./wallets.json deploy-cache.json .openzeppelin/unknown-31337.json zos/ ./artifacts/*.development.json ./artifacts/*.spree.json ./artifacts/*.hardhat.json ./artifacts/*.testing.json ./artifacts/*.external.json",
+    "clean:zos": "rm -rf ./zos.json ./zos.dev-8996.json ./zos.dev-8997.json ./.zos.session ./wallets.json deploy-cache.json ./upgrade-cache.json .openzeppelin/unknown-31337.json zos/ ./artifacts/*.development.json ./artifacts/*.spree.json ./artifacts/*.hardhat.json ./artifacts/*.testing.json ./artifacts/*.external.json",
     "lint": "yarn lint:eslint&&yarn lint:ethlint",
     "lint:eslint": "eslint --ignore-path .gitignore --ignore-pattern circuits --ext .js .",
     "lint:ethlint": "solhint --max-warnings 0 'contracts/**/*.sol'",
