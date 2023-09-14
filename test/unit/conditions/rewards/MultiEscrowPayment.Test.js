@@ -96,10 +96,10 @@ function testMultiEscrow(EscrowPaymentCondition, LockPaymentCondition, Token, nf
                     escrowPayment.address,
                     { from: owner }
                 )
-                await nvmConfig.setOperator(owner, { from: owner })
-                await nvmConfig.setOperator(didRegistry.address, { from: owner })
-                await nvmConfig.setOperator(lockPaymentCondition.address, { from: owner })
-                await nvmConfig.setOperator(escrowPayment.address, { from: owner })
+                await nvmConfig.grantNVMOperatorRole(owner, { from: owner })
+                await nvmConfig.grantNVMOperatorRole(didRegistry.address, { from: owner })
+                await nvmConfig.grantNVMOperatorRole(lockPaymentCondition.address, { from: owner })
+                await nvmConfig.grantNVMOperatorRole(escrowPayment.address, { from: owner })
             }
 
             return {

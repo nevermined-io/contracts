@@ -12,8 +12,6 @@ import '@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol
 import '@openzeppelin/contracts-upgradeable/proxy/ClonesUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/utils/StorageSlotUpgradeable.sol';
 
-import 'hardhat/console.sol';
-
 /**
  * @title Nevermined NFT Base
  * @author Nevermined
@@ -232,7 +230,7 @@ abstract contract NFTBase is IERC2981Upgradeable, CommonOwnable, AccessControlUp
         if (nvmConfig == address(0)) {
             return AccessControlUpgradeable.hasRole(NVM_OPERATOR_ROLE, operator);
         }
-        return NeverminedConfig(nvmConfig).isOperator(operator) || AccessControlUpgradeable.hasRole(NVM_OPERATOR_ROLE, operator);
+        return NeverminedConfig(nvmConfig).hasNVMOperatorRole(operator) || AccessControlUpgradeable.hasRole(NVM_OPERATOR_ROLE, operator);
     }
 
     function _msgSender() internal override(CommonOwnable,ContextUpgradeable) virtual view returns (address ret) {

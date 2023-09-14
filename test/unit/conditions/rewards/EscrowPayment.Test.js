@@ -100,10 +100,10 @@ function escrowTest(EscrowPaymentCondition, LockPaymentCondition, Token, nft, nf
                     { from: owner }
                 )
 
-                await nvmConfig.setOperator(owner, { from: owner })
-                await nvmConfig.setOperator(didRegistry.address, { from: owner })
-                await nvmConfig.setOperator(lockPaymentCondition.address, { from: owner })
-                await nvmConfig.setOperator(escrowPayment.address, { from: owner })
+                await nvmConfig.grantNVMOperatorRole(owner, { from: owner })
+                await nvmConfig.grantNVMOperatorRole(didRegistry.address, { from: owner })
+                await nvmConfig.grantNVMOperatorRole(lockPaymentCondition.address, { from: owner })
+                await nvmConfig.grantNVMOperatorRole(escrowPayment.address, { from: owner })
             }
 
             return {
@@ -221,16 +221,6 @@ function escrowTest(EscrowPaymentCondition, LockPaymentCondition, Token, nft, nf
                         totalAmount,
                         { from: sender })
                 }
-
-                /*
-                if (nft) {
-                    await testUtils.approveProxy('NFT1155Upgradeable', owner, token.address, lockPaymentCondition.address)
-                    await testUtils.approveProxy('NFT1155Upgradeable', owner, token.address, escrowPayment.address)
-                }
-                if (nft721) {
-                    await testUtils.approveProxy('NFT721Upgradeable', owner, token.address, lockPaymentCondition.address)
-                    await testUtils.approveProxy('NFT721Upgradeable', owner, token.address, escrowPayment.address)
-                } */
 
                 await lockPaymentCondition.fulfillWrap(agreementId, did, escrowPayment.address, token.address, amounts, receivers)
 

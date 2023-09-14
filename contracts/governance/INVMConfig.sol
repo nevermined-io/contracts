@@ -69,6 +69,6 @@ abstract contract INVMConfig {
      * @param _address The address to validate
      * @return true if is a governor 
      */    
-    function isOperator(address _address)
+    function hasNVMOperatorRole(address _address)
     external view virtual returns (bool);
 }

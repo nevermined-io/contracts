@@ -40,8 +40,8 @@ contract('CurveRoyalties', (accounts) => {
             await didRegistry.registerRoyaltiesChecker(royalties.address, { from: owner })
 
             await nft.setNvmConfigAddress(config.address, { from: owner })
-            await config.setOperator(didRegistry.address, { from: owner })
-            await config.setOperator(owner, { from: owner })
+            await config.grantNVMOperatorRole(didRegistry.address, { from: owner })
+            await config.grantNVMOperatorRole(owner, { from: owner })
         }
     }
 

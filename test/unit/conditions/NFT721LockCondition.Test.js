@@ -50,7 +50,7 @@ contract('NFT721LockCondition', (accounts) => {
         await erc721.setNvmConfigAddress(nvmConfig.address, { from: createRole })
         // ERC-721 deployed on address `nftTokenAddress`
         // Approving NFT721LockCondition as proxy in the NFT contract
-        await nvmConfig.setOperator(lockCondition.address, { from: owner })
+        await nvmConfig.grantNVMOperatorRole(lockCondition.address, { from: owner })
     }
 
     describe('fulfill correctly', () => {

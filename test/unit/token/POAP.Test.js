@@ -41,9 +41,9 @@ contract('POAP', (accounts) => {
         await nft.initialize(owner, didRegistry.address, 'TestPOAP', 'TEST', '', 0, { from: owner })
 
         await nft.setNvmConfigAddress(config.address, { from: owner })
-        await config.setOperator(didRegistry.address, { from: owner })
-        await config.setOperator(owner, { from: owner })
-        await config.setOperator(minter, { from: owner })
+        await config.grantNVMOperatorRole(didRegistry.address, { from: owner })
+        await config.grantNVMOperatorRole(owner, { from: owner })
+        await config.grantNVMOperatorRole(minter, { from: owner })
     }
 
     describe('As a minter I want to distribute POAPs', () => {

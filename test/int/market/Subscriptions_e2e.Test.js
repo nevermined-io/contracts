@@ -138,7 +138,7 @@ contract('End to End NFT721 Scenarios', (accounts) => {
             await templateStoreManager.approveTemplate(nftAccessTemplate.address, { from: owner })
 
             // IMPORTANT: Here we give ERC-721 transfer grants to the TransferNFTCondition condition
-            await nvmConfig.setOperator(transferCondition.address, { from: owner })
+            await nvmConfig.grantNVMOperatorRole(transferCondition.address, { from: owner })
         }
 
         const checkpoint = await getCheckpoint(token, [artist, collector1, collector2, gallery, someone, lockPaymentCondition.address, escrowCondition.address])

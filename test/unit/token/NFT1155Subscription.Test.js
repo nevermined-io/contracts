@@ -54,9 +54,9 @@ contract('NFT1155 Subscription', (accounts) => {
         await nft.initialize(owner, didRegistry.address, 'TestERC1155', 'TEST', '', { from: owner })
 
         await nft.setNvmConfigAddress(config.address, { from: owner })
-        await config.setOperator(didRegistry.address, { from: owner })
-        await config.setOperator(owner, { from: owner })
-        await config.setOperator(minter, { from: owner })
+        await config.grantNVMOperatorRole(didRegistry.address, { from: owner })
+        await config.grantNVMOperatorRole(owner, { from: owner })
+        await config.grantNVMOperatorRole(minter, { from: owner })
     }
 
     describe('As a minter I want to use NFTs as subscriptions', () => {

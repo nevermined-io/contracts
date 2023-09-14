@@ -41,7 +41,7 @@ contract('NFTMarkedLockCondition', (accounts) => {
                 nft.address,
                 { from: createRole }
             )
-            await nvmConfig.setOperator(lockCondition.address, { from: owner })
+            await nvmConfig.grantNVMOperatorRole(lockCondition.address, { from: owner })
         }
     }
 

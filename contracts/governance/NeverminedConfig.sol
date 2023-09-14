@@ -102,15 +102,15 @@ INVMConfig
         return hasRole(GOVERNOR_ROLE, _address);
     }
 
-    function setOperator(address _address) external onlyOwner {
+    function grantNVMOperatorRole(address _address) external onlyOwner {
         _grantRole(NVM_OPERATOR_ROLE, _address);
     }
 
-    function revokeOperator(address _address) external onlyOwner {
+    function revokeNVMOperatorRole(address _address) external onlyOwner {
         _revokeRole(NVM_OPERATOR_ROLE, _address);
     }
 
-    function isOperator(
+    function hasNVMOperatorRole(
         address _address
     )
     external

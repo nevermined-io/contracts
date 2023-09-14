@@ -38,9 +38,9 @@ const deployManagers = async function(deployer, owner, governor = owner, subscri
     )
 
     if (testUtils.deploying) {
-        await nvmConfig.setOperator(didRegistry.address, { from: owner })
-        await nvmConfig.setOperator(owner, { from: owner })
-        await nvmConfig.setOperator(deployer, { from: owner })
+        await nvmConfig.grantNVMOperatorRole(didRegistry.address, { from: owner })
+        await nvmConfig.grantNVMOperatorRole(owner, { from: owner })
+        await nvmConfig.grantNVMOperatorRole(deployer, { from: owner })
         await nft.setNvmConfigAddress(nvmConfig.address, { from: deployer })
         await nft721.setNvmConfigAddress(nvmConfig.address, { from: deployer })
         await conditionStoreManager.delegateCreateRole(

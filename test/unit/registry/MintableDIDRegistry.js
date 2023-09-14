@@ -40,8 +40,8 @@ contract('Mintable DIDRegistry', (accounts) => {
             await nft.initialize(owner, didRegistry.address, 'NFT1155', 'NVM', '', { from: deployer })
 
             await nft.setNvmConfigAddress(config.address, { from: owner })
-            await config.setOperator(didRegistry.address, { from: owner })
-            await config.setOperator(owner, { from: owner })
+            await config.grantNVMOperatorRole(didRegistry.address, { from: owner })
+            await config.grantNVMOperatorRole(owner, { from: owner })
         }
     }
 

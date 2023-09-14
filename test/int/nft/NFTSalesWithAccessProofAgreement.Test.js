@@ -96,7 +96,7 @@ contract('NFT Sales with Access Proof Template integration test', (accounts) => 
         )
 
         if (testUtils.deploying) {
-            await nvmConfig.setOperator(transferCondition.address, { from: owner })
+            await nvmConfig.grantNVMOperatorRole(transferCondition.address, { from: owner })
             await templateStoreManager.proposeTemplate(nftSalesTemplate.address)
             await templateStoreManager.approveTemplate(nftSalesTemplate.address, { from: owner })
         }
