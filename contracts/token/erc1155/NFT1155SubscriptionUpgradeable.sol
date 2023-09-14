@@ -91,6 +91,7 @@ contract NFT1155SubscriptionUpgradeable is NFT1155Upgradeable {
      * @dev See {NFT1155Upgradeableable-balanceOf}.
      */
     function balanceOf(address account, uint256 tokenId) public view virtual override returns (uint256) {
+
         bytes32 _key = _getTokenKey(account, tokenId);
         uint256 _balance;
         for (uint index = 0; index < _tokens[_key].length; index++) {
