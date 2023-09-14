@@ -447,7 +447,6 @@ async function setupContracts({
         await callContract(artifacts.DIDRegistry, a => a.setNFT1155(addressBook.NFT1155Upgradeable))
         addresses.stage = 24
     }
-
 }
 
 module.exports = setupContracts
