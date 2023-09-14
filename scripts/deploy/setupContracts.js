@@ -447,10 +447,15 @@ async function setupContracts({
         await callContract(artifacts.DIDRegistry, a => a.setNFT1155(addressBook.NFT1155Upgradeable))
         addresses.stage = 24
     }
-    if (addressBook.NeverminedConfig && addressBook.EscrowPaymentCondition && addresses.stage < 25) {
-        console.log('Grant Proxy Approval (EscrowPaymentCondition): ' + addressBook.EscrowPaymentCondition)
-        await callContract(artifacts.NeverminedConfig, a => a.grantNVMOperatorRole(addressBook.EscrowPaymentCondition))
+    if (addressBook.NeverminedConfig && addressBook.NFTEscrowPaymentCondition && addresses.stage < 25) {
+        console.log('Grant Proxy Approval (NFTEscrowPaymentCondition): ' + addressBook.NFTEscrowPaymentCondition)
+        await callContract(artifacts.NeverminedConfig, a => a.grantNVMOperatorRole(addressBook.NFTEscrowPaymentCondition))
         addresses.stage = 25
+    }
+    if (addressBook.NeverminedConfig && addressBook.NFT721EscrowPaymentCondition && addresses.stage < 26) {
+        console.log('Grant Proxy Approval (NFT721EscrowPaymentCondition): ' + addressBook.NFT721EscrowPaymentCondition)
+        await callContract(artifacts.NeverminedConfig, a => a.grantNVMOperatorRole(addressBook.NFT721EscrowPaymentCondition))
+        addresses.stage = 26
     }
 }
 
