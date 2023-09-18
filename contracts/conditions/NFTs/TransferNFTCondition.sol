@@ -131,7 +131,7 @@ contract TransferNFTCondition is Condition, ITransferNFT, ReentrancyGuardUpgrade
         view
         returns (bytes32)
     {
-        return hashValues(_did, _nftHolder, _nftReceiver, _nftAmount, _lockCondition, address(erc1155), true, 0);
+        return hashValues(_did, _nftHolder, _nftReceiver, _nftAmount, _lockCondition, address(erc1155), true);
     }
 
    /**
@@ -152,14 +152,13 @@ contract TransferNFTCondition is Condition, ITransferNFT, ReentrancyGuardUpgrade
         uint256 _nftAmount,
         bytes32 _lockCondition,
         address _nftContractAddress,
-        bool _transfer,
-        uint256 _expirationBlock
+        bool _transfer
     )
         public
         pure
         returns (bytes32)
     {
-        return keccak256(abi.encode(_did, _nftHolder, _nftReceiver, _nftAmount, _lockCondition, _nftContractAddress, _transfer, _expirationBlock));
+        return keccak256(abi.encode(_did, _nftHolder, _nftReceiver, _nftAmount, _lockCondition, _nftContractAddress, _transfer));
     }
 
     function fulfill(
@@ -184,7 +183,7 @@ contract TransferNFTCondition is Condition, ITransferNFT, ReentrancyGuardUpgrade
      * @param _nftAmount amount of NFTs to transfer  
      * @param _lockPaymentCondition lock payment condition identifier
      * @param _nftContractAddress the NFT contract to use     
-     * @param _transfer if yes it does a transfer if false it mints the NFT
+     * @param _transfer if yes it does a transfer if false it mints the NFT     
      * @return the encoded parameters
      */
     function encodeParams(
@@ -194,10 +193,9 @@ contract TransferNFTCondition is Condition, ITransferNFT, ReentrancyGuardUpgrade
         uint256 _nftAmount,
         bytes32 _lockPaymentCondition,
         address _nftContractAddress,
-        bool _transfer,
-        uint256 _expirationBlock
+        bool _transfer
     ) external pure returns (bytes memory) {
-        return abi.encode(_did, _nftHolder, _nftReceiver, _nftAmount, _lockPaymentCondition, _nftContractAddress, _transfer, _expirationBlock);
+        return abi.encode(_did, _nftHolder, _nftReceiver, _nftAmount, _lockPaymentCondition, _nftContractAddress, _transfer);
     }
 
     /**
@@ -224,11 +222,10 @@ contract TransferNFTCondition is Condition, ITransferNFT, ReentrancyGuardUpgrade
         bytes32 _lockPaymentCondition;
         address _nftContractAddress;
         bool _transfer;
-        uint256 _expirationBlock;
-        (_did, _nftHolder, _nftReceiver, _nftAmount, _lockPaymentCondition, _nftContractAddress, _transfer, _expirationBlock) = abi.decode(_params, (bytes32, address, address, uint256, bytes32, address, bool, uint256));
+        (_did, _nftHolder, _nftReceiver, _nftAmount, _lockPaymentCondition, _nftContractAddress, _transfer) = abi.decode(_params, (bytes32, address, address, uint256, bytes32, address, bool));
 
         require(hasRole(PROXY_ROLE, _msgSender()), 'Proxy role required');
-        fulfillInternal(_account, _agreementId, _did, _nftReceiver, _nftAmount, _lockPaymentCondition, _nftContractAddress, _transfer, _expirationBlock);
+        fulfillInternal(_account, _agreementId, _did, _nftReceiver, _nftAmount, _lockPaymentCondition, _nftContractAddress, _transfer, 0);
     }
     
     /**
@@ -273,7 +270,7 @@ contract TransferNFTCondition is Condition, ITransferNFT, ReentrancyGuardUpgrade
      * @param _lockPaymentCondition lock payment condition identifier
      * @param _nftContractAddress NFT contract to use
      * @param _transfer Indicates if the NFT will be transferred (true) or minted (false)
-     * @param _expirationBlock expiration of subscription
+     * @param _expirationBlock Block in which the token expires. If zero means no expiration
      * @return condition state (Fulfilled/Aborted)
      */
     function fulfill(
@@ -309,7 +306,7 @@ contract TransferNFTCondition is Condition, ITransferNFT, ReentrancyGuardUpgrade
     {
         bytes32 _id = generateId(
             _agreementId,
-            hashValues(_did, _account, _nftReceiver, _nftAmount, _lockPaymentCondition, _nftContractAddress, _transfer, _expirationBlock)
+            hashValues(_did, _account, _nftReceiver, _nftAmount, _lockPaymentCondition, _nftContractAddress, _transfer)
         );
 
         require(
@@ -323,7 +320,7 @@ contract TransferNFTCondition is Condition, ITransferNFT, ReentrancyGuardUpgrade
                 token.safeTransferFrom(_account, _nftReceiver, uint256(_did), _nftAmount, '');
             else  {// Check that `account` (_msgSender()) is DID owner or provider
                 require(didRegistry.isDIDProviderOrOwner(_did, _account), 'Only owner or provider');
-                if (token.nftType() == keccak256('nft721-subscription'))  {
+                if (token.nftType() == keccak256('nft1155-subscription'))  {
                     NFT1155SubscriptionUpgradeable(_nftContractAddress).mint(_nftReceiver, uint256(_did), _nftAmount, _expirationBlock, '');
                 } else {
                     token.mint(_nftReceiver, uint256(_did), _nftAmount, '');
@@ -378,7 +375,7 @@ contract TransferNFTCondition is Condition, ITransferNFT, ReentrancyGuardUpgrade
     
     returns (ConditionStoreLibrary.ConditionState)
     {
-        return fulfillForDelegate(_agreementId, _did, _nftHolder, _nftReceiver, _nftAmount, _lockPaymentCondition, address(erc1155), _transfer);
+        return fulfillForDelegate(_agreementId, _did, _nftHolder, _nftReceiver, _nftAmount, _lockPaymentCondition, address(erc1155), _transfer, 0);
     }
 
 
@@ -393,8 +390,9 @@ contract TransferNFTCondition is Condition, ITransferNFT, ReentrancyGuardUpgrade
      * @param _nftAmount amount of NFTs to transfer  
      * @param _lockPaymentCondition lock payment condition identifier
      * @param _nftHolder is the address of the account to receive the NFT
-     * @param _nftContractAddress the address of the ERC-721 NFT contract      
+     * @param _nftContractAddress the address of the ERC-1155 NFT contract      
      * @param _transfer if yes it does a transfer if false it mints the NFT
+     * @param _expirationBlock Block in which the token expires. If zero means no expiration     
      * @return condition state (Fulfilled/Aborted)
      */
     function fulfillForDelegate(
@@ -405,7 +403,8 @@ contract TransferNFTCondition is Condition, ITransferNFT, ReentrancyGuardUpgrade
         uint256 _nftAmount,
         bytes32 _lockPaymentCondition,
         address _nftContractAddress,
-        bool _transfer
+        bool _transfer,
+        uint256 _expirationBlock
     )
     public
 
@@ -415,7 +414,7 @@ contract TransferNFTCondition is Condition, ITransferNFT, ReentrancyGuardUpgrade
             || NFT1155Upgradeable(_nftContractAddress).isApprovedForAll(_nftHolder, _msgSender())
             || didRegistry.isDIDProviderOrOwner(_did, _msgSender())
         , 'Only Market role or approvedForAll');
-        return fulfillInternal(_nftHolder, _agreementId, _did, _nftReceiver, _nftAmount, _lockPaymentCondition, _nftContractAddress, _transfer, 0);
+        return fulfillInternal(_nftHolder, _agreementId, _did, _nftReceiver, _nftAmount, _lockPaymentCondition, _nftContractAddress, _transfer, _expirationBlock);
     }
 
     function _msgSender() internal override(CommonOwnable,ContextUpgradeable) virtual view returns (address ret) {
