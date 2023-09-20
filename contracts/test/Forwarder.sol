@@ -221,7 +221,7 @@ contract Forwarder is IForwarder {
         bytes calldata suffixData
     )
     public
-    view
+    pure
     returns (
         bytes memory
     ) {

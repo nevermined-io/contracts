@@ -394,13 +394,13 @@ async function setupContracts({
     }
 
     if (addressBook.NFTLockCondition && addressBook.NeverminedConfig && addresses.stage < 21) {
-        console.log('Grant Proxy Approval (NFT721Upgradeable): ' + addressBook.NFTLockCondition)
+        console.log('Grant Proxy Approval (NFTLockCondition): ' + addressBook.NFTLockCondition)
         await callContract(artifacts.NeverminedConfig, a => a.grantNVMOperatorRole(addressBook.NFTLockCondition))
         addresses.stage = 21
     }
 
     if (addressBook.NeverminedConfig && addressBook.NFT721LockCondition && addresses.stage < 22) {
-        console.log('Grant Proxy Approval (NFT721Upgradeable): ' + addressBook.NFT721LockCondition)
+        console.log('Grant Proxy Approval (NFT721LockCondition): ' + addressBook.NFT721LockCondition)
         await callContract(artifacts.NeverminedConfig, a => a.grantNVMOperatorRole(addressBook.NFT721LockCondition))
         addresses.stage = 22
     }
