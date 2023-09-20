@@ -18,7 +18,7 @@ jobs:
           toolchain: stable
       - uses: actions/setup-node@v1
         with:
-          node-version: 14
+          node-version: 16
           registry-url: https://registry.npmjs.org/
       - name: Copy contracts
         run: mkdir -p lib && cp -R contracts/* lib
