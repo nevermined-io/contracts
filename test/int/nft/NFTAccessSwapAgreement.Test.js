@@ -28,6 +28,7 @@ contract('NFT Sales with Access Proof Template integration test', (accounts) => 
         templateStoreManager,
         did,
         nftTemplate,
+        nvmConfig,
         nftAgreement,
         escrowCondition,
         lockPaymentCondition,
@@ -50,6 +51,7 @@ contract('NFT Sales with Access Proof Template integration test', (accounts) => 
             nft,
             agreementStoreManager,
             conditionStoreManager,
+            nvmConfig,
             templateStoreManager
         } = await deployManagers(
             deployer,
@@ -91,6 +93,8 @@ contract('NFT Sales with Access Proof Template integration test', (accounts) => 
         if (testUtils.deploying) {
             await templateStoreManager.proposeTemplate(nftTemplate.address)
             await templateStoreManager.approveTemplate(nftTemplate.address, { from: owner })
+            await nvmConfig.grantNVMOperatorRole(lockPaymentCondition.address, { from: owner })
+            await nvmConfig.grantNVMOperatorRole(escrowCondition.address, { from: owner })
         }
     }
 
@@ -192,7 +196,6 @@ contract('NFT Sales with Access Proof Template integration test', (accounts) => 
             console.log(`NFT Contract owner: ${nftOwner}`)
             console.log(`Accounts Owner: ${owner}`)
             console.log(`Accounts Deployer: ${deployer}`)
-            await nft.grantOperatorRole(lockPaymentCondition.address, { from: nftOwner })
             await lockPaymentCondition.fulfillMarked(agreementId, did, escrowCondition.address, amount, receiver, token.address, { from: artist })
 
             const { state } = await conditionStoreManager.getCondition(conditionIds[0])
@@ -205,7 +208,6 @@ contract('NFT Sales with Access Proof Template integration test', (accounts) => 
                 (await conditionStoreManager.getConditionState(conditionIds[2])).toNumber(),
                 constants.condition.state.fulfilled)
 
-            await nft.grantOperatorRole(escrowCondition.address, { from: nftOwner })
             // escrow
             await escrowCondition.fulfill(
                 agreementId,

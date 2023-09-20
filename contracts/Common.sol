@@ -8,6 +8,8 @@ import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol';
 import './governance/INVMConfig.sol';
 
+import 'hardhat/console.sol';
+
 /**
  * @title Common functions
  * @author Nevermined

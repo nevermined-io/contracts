@@ -32,12 +32,18 @@ contract('POAP', (accounts) => {
     let didRegistry
 
     async function setupTest() {
+        const config = await artifacts.require('NeverminedConfig').new()
+        await config.initialize(owner, owner, true)
         didRegistry = await DIDRegistry.new()
-        await didRegistry.initialize(owner, constants.address.zero, constants.address.zero, constants.address.zero, constants.address.zero)
+        await didRegistry.initialize(owner, constants.address.zero, constants.address.zero, config.address, constants.address.zero)
 
         nft = await POAPUpgradeable.new({ from: deployer })
         await nft.initialize(owner, didRegistry.address, 'TestPOAP', 'TEST', '', 0, { from: owner })
-        await nft.grantOperatorRole(minter)
+
+        await nft.setNvmConfigAddress(config.address, { from: owner })
+        await config.grantNVMOperatorRole(didRegistry.address, { from: owner })
+        await config.grantNVMOperatorRole(owner, { from: owner })
+        await config.grantNVMOperatorRole(minter, { from: owner })
     }
 
     describe('As a minter I want to distribute POAPs', () => {

@@ -16,6 +16,7 @@ contract('NFT721LockCondition', (accounts) => {
     let conditionStoreManager
     let didRegistry
     let lockCondition
+    let nvmConfig
     let erc721
     let nftTokenAddress
 
@@ -31,7 +32,7 @@ contract('NFT721LockCondition', (accounts) => {
 
     async function setupTest() {
         if (!conditionStoreManager) {
-            ({ didRegistry, conditionStoreManager } = await testUtils.deployManagers(owner, createRole))
+            ({ didRegistry, conditionStoreManager, nvmConfig } = await testUtils.deployManagers(owner, createRole))
 
             lockCondition = await NFTLockCondition.new()
 
@@ -46,9 +47,10 @@ contract('NFT721LockCondition', (accounts) => {
         erc721 = await NFT721Upgradeable.new()
         await erc721.initialize(createRole, didRegistry.address, '', '', '', 0, { from: createRole })
         nftTokenAddress = erc721.address
+        await erc721.setNvmConfigAddress(nvmConfig.address, { from: createRole })
         // ERC-721 deployed on address `nftTokenAddress`
         // Approving NFT721LockCondition as proxy in the NFT contract
-        await erc721.grantOperatorRole(lockCondition.address)
+        await nvmConfig.grantNVMOperatorRole(lockCondition.address, { from: owner })
     }
 
     describe('fulfill correctly', () => {

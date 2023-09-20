@@ -9,7 +9,6 @@ import '@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/utils/StringsUpgradeable.sol';
 import '../../interfaces/IExternalRegistry.sol';
 
-
 /**
  *
  * @dev Implementation of the basic standard multi-token.

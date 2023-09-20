@@ -142,7 +142,7 @@ contract('End to End NFT Scenarios (with Ether)', (accounts) => {
 
         if (testUtils.deploying) {
             // IMPORTANT: Here we give ERC1155 transfer grants to the TransferNFTCondition condition
-            await nft.grantOperatorRole(transferCondition.address, { from: deployer })
+            await nvmConfig.grantNVMOperatorRole(transferCondition.address, { from: owner })
 
             await conditionStoreManager.grantProxyRole(
                 escrowCondition.address,

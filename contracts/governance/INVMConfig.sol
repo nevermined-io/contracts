@@ -57,6 +57,18 @@ abstract contract INVMConfig {
     function getProvenanceStorage()
     external view virtual returns (bool);
 
+    /**
+     * @notice Returns the address of OpenGSN forwarder contract
+     * @return a address of OpenGSN forwarder contract
+     */    
     function getTrustedForwarder()
     external virtual view returns(address);
+
+    /**
+     * @notice Indicates if an address is a having the OPERATOR role
+     * @param _address The address to validate
+     * @return true if is a governor 
+     */    
+    function hasNVMOperatorRole(address _address)
+    external view virtual returns (bool);
 }

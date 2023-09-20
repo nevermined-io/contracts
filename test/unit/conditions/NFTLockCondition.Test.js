@@ -16,6 +16,7 @@ contract('NFTLockCondition', (accounts) => {
     let didRegistry
     let lockCondition
     let nft
+    let nvmConfig
 
     const owner = accounts[1]
     const createRole = accounts[0]
@@ -29,7 +30,7 @@ contract('NFTLockCondition', (accounts) => {
 
     async function setupTest() {
         if (!conditionStoreManager) {
-            ({ didRegistry, conditionStoreManager, nft } = await testUtils.deployManagers(owner, createRole))
+            ({ didRegistry, conditionStoreManager, nft, nvmConfig } = await testUtils.deployManagers(owner, createRole))
 
             lockCondition = await NFTLockCondition.new()
 
@@ -39,8 +40,9 @@ contract('NFTLockCondition', (accounts) => {
                 nft.address,
                 { from: createRole }
             )
-            await nft.grantOperatorRole(lockCondition.address, { from: owner })
-            await nft.grantOperatorRole(accounts[0], { from: owner })
+            console.log(await nft.getNvmConfigAddress())
+            await nvmConfig.grantNVMOperatorRole(lockCondition.address, { from: owner })
+            await nvmConfig.grantNVMOperatorRole(accounts[0], { from: owner })
         }
     }
 

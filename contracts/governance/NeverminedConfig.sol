@@ -13,6 +13,9 @@ contract NeverminedConfig is
 INVMConfig
 {
 
+    // Role to operate the NFT contract
+    bytes32 public constant NVM_OPERATOR_ROLE = keccak256('NVM_OPERATOR_ROLE');
+
     ///////////////////////////////////////////////////////////////////////////////////////
     /////// NEVERMINED GOVERNABLE VARIABLES ////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////
@@ -99,6 +102,25 @@ INVMConfig
         return hasRole(GOVERNOR_ROLE, _address);
     }
 
+    function grantNVMOperatorRole(address _address) external onlyOwner {
+        _grantRole(NVM_OPERATOR_ROLE, _address);
+    }
+
+    function revokeNVMOperatorRole(address _address) external onlyOwner {
+        _revokeRole(NVM_OPERATOR_ROLE, _address);
+    }
+
+    function hasNVMOperatorRole(
+        address _address
+    )
+    external
+    view
+    override
+    returns (bool)
+    {
+        return hasRole(NVM_OPERATOR_ROLE, _address);
+    }
+
     function getMarketplaceFee()
     external
     view
@@ -143,6 +165,6 @@ INVMConfig
             'NeverminedConfig: Only governor'
         );
         _;
-    }    
+    }
     
 }

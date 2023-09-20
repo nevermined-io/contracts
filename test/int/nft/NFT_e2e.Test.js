@@ -57,6 +57,7 @@ contract('End to End NFT Scenarios', (accounts) => {
         didRegistry,
         token,
         nft,
+        nvmConfig,
         agreementStoreManager,
         conditionStoreManager,
         templateStoreManager,
@@ -78,6 +79,7 @@ contract('End to End NFT Scenarios', (accounts) => {
             conditionStoreManager,
             templateStoreManager,
             nft,
+            nvmConfig,
             royaltyManager
         } = await deployManagers(
             deployer,
@@ -140,7 +142,7 @@ contract('End to End NFT Scenarios', (accounts) => {
             await templateStoreManager.approveTemplate(nftAccessTemplate.address, { from: owner })
 
             // IMPORTANT: Here we give ERC1155 transfer grants to the TransferNFTCondition condition
-            await nft.grantOperatorRole(transferCondition.address, { from: deployer })
+            await nvmConfig.grantNVMOperatorRole(transferCondition.address, { from: owner })
         }
 
         const checkpoint = await getCheckpoint(token, [artist, collector1, collector2, market, gallery, someone, lockPaymentCondition.address, escrowCondition.address])

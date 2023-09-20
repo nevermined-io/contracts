@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 // Code is Apache-2.0 and docs are CC-BY-4.0
 
 import '../Common.sol';
+import '../governance/NeverminedConfig.sol';
 import '@openzeppelin/contracts-upgradeable/interfaces/IERC2981Upgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
@@ -217,7 +218,7 @@ abstract contract NFTBase is IERC2981Upgradeable, CommonOwnable, AccessControlUp
     {
         AccessControlUpgradeable._revokeRole(NVM_OPERATOR_ROLE, _msgSender());
     }
-    
+
     function isOperator(
         address operator
     )
@@ -226,7 +227,10 @@ abstract contract NFTBase is IERC2981Upgradeable, CommonOwnable, AccessControlUp
     virtual
     returns (bool)
     {
-        return AccessControlUpgradeable.hasRole(NVM_OPERATOR_ROLE, operator);
+        if (nvmConfig == address(0)) {
+            return AccessControlUpgradeable.hasRole(NVM_OPERATOR_ROLE, operator);
+        }
+        return NeverminedConfig(nvmConfig).hasNVMOperatorRole(operator) || AccessControlUpgradeable.hasRole(NVM_OPERATOR_ROLE, operator);
     }
 
     function _msgSender() internal override(CommonOwnable,ContextUpgradeable) virtual view returns (address ret) {

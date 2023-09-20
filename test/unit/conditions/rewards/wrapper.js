@@ -123,9 +123,9 @@ function tokenTokenWrapper(contract) {
 }
 
 function nftTokenWrapper(contract) {
-    contract.initWrap = async (owner, _b, registry) => {
+    contract.initWrap = async (owner, _b, registry, config) => {
         await contract.initialize(owner, registry.address, '', '', '')
-        await contract.grantOperatorRole(registry.address, { from: owner })
+        await contract.setNvmConfigAddress(config.address, { from: owner })
     }
     contract.getBalance = async (addr) => {
         if (!contract.did) {
@@ -155,9 +155,9 @@ function nftTokenWrapper(contract) {
 }
 
 function nft721TokenWrapper(contract) {
-    contract.initWrap = async (owner, _b, registry) => {
+    contract.initWrap = async (owner, _b, registry, config) => {
         await contract.initialize(owner, registry.address, '', '', '', 0)
-        await contract.grantOperatorRole(registry.address, { from: owner })
+        await contract.setNvmConfigAddress(config.address, { from: owner })
     }
     contract.getBalance = async (addr) => {
         if (!contract.did) {
