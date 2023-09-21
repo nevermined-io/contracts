@@ -27,13 +27,14 @@ describe('using ethers with OpenGSN', () => {
     let account
     before(async () => {
         const env = await GsnTestEnvironment.startGsn('localhost')
-
         const { paymasterAddress, forwarderAddress } = env.contractsDeployment
-
         const web3provider = new Web3HttpProvider('http://localhost:8545')
 
         const deploymentProvider = new ethers.providers.Web3Provider(web3provider)
         const deployer = await deploymentProvider.getSigner(8)
+
+        const forwarder = await ethers.getContractAt("Forwarder", forwarderAddress)
+        await forwarder.connect(await deploymentProvider.getSigner(0)).registerDomainSeparator('Nevermined', '1')
 
         accounts = await web3.eth.getAccounts()
         const owner = accounts[0]
