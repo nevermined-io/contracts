@@ -218,7 +218,7 @@ contract AgreementStoreManager is CommonAccessControl {
     )
         public payable
     {
-        require(hasRole(PROXY_ROLE, _msgSender()), 'Proxy role required');
+        require(hasRole(PROXY_ROLE, _msgSender()) || hasNVMOperatorRole(_msgSender()), 'Proxy role required');
         createAgreement(_id, _did, _conditionTypes, _conditionIds, _timeLocks, _timeOuts);
         if (_idx.length > 0) {
             ICondition(_conditionTypes[_idx[0]]).fulfillProxy{value: msg.value}(_account[0], _id, params[0]);

@@ -46,7 +46,7 @@ contract DIDRegistry is DIDFactory {
     modifier onlyRegistryOperator
     {
         require(
-            isRegistryOperator(_msgSender()),
+            isRegistryOperator(_msgSender()) || hasNVMOperatorRole(_msgSender()),
             'Only registry operator'
         );
         _;

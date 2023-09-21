@@ -416,7 +416,7 @@ contract ConditionStoreManager is CommonAccessControl {
     )
     external
     {
-        require(hasRole(PROXY_ROLE, _msgSender()), 'Invalid access role');
+        require(hasRole(PROXY_ROLE, _msgSender()) || hasNVMOperatorRole(_msgSender()), 'Invalid access role');
         conditionList.updateKeyValue(
             _id, 
             _key, 

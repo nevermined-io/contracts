@@ -321,7 +321,7 @@ contract LockPaymentCondition is ILockPayment, ReentrancyGuardUpgradeable, Condi
         uint256[] memory _amounts;
         address[] memory _receivers;
         (_did, _rewardAddress, _tokenAddress, _amounts, _receivers) = abi.decode(params, (bytes32, address, address, uint256[], address[]));
-        require(hasRole(PROXY_ROLE, _msgSender()), 'Invalid access role');
+        require(hasRole(PROXY_ROLE, _msgSender()) || hasNVMOperatorRole(_msgSender()), 'Invalid access role');
         fulfillInternal(_account, _agreementId, _did, _rewardAddress, _tokenAddress, _amounts, _receivers);
     }
  
@@ -371,7 +371,7 @@ contract LockPaymentCondition is ILockPayment, ReentrancyGuardUpgradeable, Condi
 
     modifier allowedExternalContract(address _externalContractAddress) {
         require(
-            hasRole(ALLOWED_EXTERNAL_CONTRACT_ROLE, _externalContractAddress), 
+            hasRole(ALLOWED_EXTERNAL_CONTRACT_ROLE, _externalContractAddress)  || hasNVMOperatorRole(_msgSender()), 
                 'Invalid external contract'
         );
         _;
