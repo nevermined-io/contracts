@@ -33,7 +33,7 @@ describe('using ethers with OpenGSN', () => {
         const deploymentProvider = new ethers.providers.Web3Provider(web3provider)
         const deployer = await deploymentProvider.getSigner(8)
 
-        const forwarder = await ethers.getContractAt("Forwarder", forwarderAddress)
+        const forwarder = await ethers.getContractAt('Forwarder', forwarderAddress)
         await forwarder.connect(await deploymentProvider.getSigner(0)).registerDomainSeparator('Nevermined', '1')
 
         accounts = await web3.eth.getAccounts()
