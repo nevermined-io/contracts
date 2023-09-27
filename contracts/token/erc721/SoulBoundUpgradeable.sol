@@ -18,13 +18,14 @@ contract SoulBoundUpgradeable is NFT721Upgradeable {
         string memory name,
         string memory symbol,
         string memory uri,
-        uint256 cap
+        uint256 cap,
+        address nvmConfig_
     )
     public
     override
     initializer
     {
-        __NFT721Upgradeable_init(owner, didRegistryAddress, name, symbol, uri, cap);
+        __NFT721Upgradeable_init(owner, didRegistryAddress, name, symbol, uri, cap, nvmConfig_);
     }    
     
     function _beforeTokenTransfer(

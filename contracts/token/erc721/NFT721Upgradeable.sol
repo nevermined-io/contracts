@@ -31,13 +31,14 @@ contract NFT721Upgradeable is ERC721Upgradeable, NFTBase {
         string memory name,
         string memory symbol,
         string memory uri,
-        uint256 cap
+        uint256 cap,
+        address nvmConfig_
     )
     public
     virtual
     initializer
     {
-        __NFT721Upgradeable_init(owner, didRegistryAddress, name, symbol, uri, cap);
+        __NFT721Upgradeable_init(owner, didRegistryAddress, name, symbol, uri, cap, nvmConfig_);
     }
 
     // solhint-disable-next-line
@@ -47,7 +48,8 @@ contract NFT721Upgradeable is ERC721Upgradeable, NFTBase {
         string memory name,
         string memory symbol,
         string memory uri,
-        uint256 cap
+        uint256 cap,
+        address nvmConfig_
     )
     internal
     onlyInitializing
@@ -57,7 +59,7 @@ contract NFT721Upgradeable is ERC721Upgradeable, NFTBase {
         __ERC721_init_unchained(name, symbol);
         __Ownable_init_unchained();
         AccessControlUpgradeable.__AccessControl_init();
-        __NFT721Upgradeable_unchained(owner, didRegistryAddress, uri, cap);
+        __NFT721Upgradeable_unchained(owner, didRegistryAddress, uri, cap, nvmConfig_);
     }
 
     // solhint-disable-next-line
@@ -65,7 +67,8 @@ contract NFT721Upgradeable is ERC721Upgradeable, NFTBase {
         address owner,
         address didRegistryAddress,
         string memory uri,
-        uint256 cap
+        uint256 cap,
+        address nvmConfig_
     )
     internal
     onlyInitializing
@@ -75,6 +78,7 @@ contract NFT721Upgradeable is ERC721Upgradeable, NFTBase {
         AccessControlUpgradeable._setupRole(NVM_OPERATOR_ROLE, owner);
         setContractMetadataUri(uri);
         _nftContractCap = cap;
+        nvmConfig = nvmConfig_;
 
         nftRegistry = IExternalRegistry(didRegistryAddress);
         if (owner != _msgSender()) {
@@ -99,7 +103,7 @@ contract NFT721Upgradeable is ERC721Upgradeable, NFTBase {
         }        
         address cloneAddress = ClonesUpgradeable.clone(implementation);
         NFT721Upgradeable nftContract = NFT721Upgradeable(cloneAddress);
-        nftContract.initialize(_msgSender(), address(nftRegistry), name, symbol, uri, cap);
+        nftContract.initialize(_msgSender(), address(nftRegistry), name, symbol, uri, cap, nvmConfig);
         for (uint256 i = 0; i < _operators.length; i++) {
             nftContract.grantOperatorRole(_operators[i]);
         }

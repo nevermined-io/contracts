@@ -51,7 +51,7 @@ contract('NFT1155 Subscription', (accounts) => {
         await didRegistry.initialize(owner, constants.address.zero, constants.address.zero, config.address, constants.address.zero)
 
         nft = await TestERC1155.new({ from: deployer })
-        await nft.initialize(owner, didRegistry.address, 'TestERC1155', 'TEST', '', { from: owner })
+        await nft.initialize(owner, didRegistry.address, 'TestERC1155', 'TEST', '', config.address, { from: owner })
 
         await nft.setNvmConfigAddress(config.address, { from: owner })
         await config.grantNVMOperatorRole(didRegistry.address, { from: owner })

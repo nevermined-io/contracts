@@ -39,8 +39,10 @@ contract('NFT Clones', (accounts) => {
 
     describe('As a user I want to clone an existing ERC-721 NFT Contract', () => {
         it('I can clone an existing ERC-721 NFT Contract', async () => {
+            const config = await artifacts.require('NeverminedConfig').new()
+            await config.initialize(owner, owner, true)
             nft721 = await NFT721.new({ from: deployer })
-            await nft721.initialize(owner, didRegistry.address, 'TestERC721', 'TEST', 'http', 10, { from: owner })
+            await nft721.initialize(owner, didRegistry.address, 'TestERC721', 'TEST', 'http', 10, config.address, { from: owner })
 
             const result = await nft721.createClone('My Name', 'xXx', 'cid', 100, [account2], { from: account1 })
 
@@ -67,8 +69,10 @@ contract('NFT Clones', (accounts) => {
 
     describe('As a user I want to clone an existing ERC-1155 NFT Contract', () => {
         it('I can clone an existing ERC-1155 NFT Contract', async () => {
+            const config = await artifacts.require('NeverminedConfig').new()
+            await config.initialize(owner, owner, true)
             nft1155 = await NFT1155.new({ from: deployer })
-            await nft1155.initialize(owner, didRegistry.address, 'TestERC1155', '1155', 'http', { from: owner })
+            await nft1155.initialize(owner, didRegistry.address, 'TestERC1155', '1155', 'http', config.address, { from: owner })
 
             const result = await nft1155.createClone('My 1155', 'yYy', 'cid', [account2], { from: account1 })
 

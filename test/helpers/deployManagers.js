@@ -6,13 +6,13 @@ const deployManagers = async function(deployer, owner, governor = owner, subscri
     const nvmConfig = await testUtils.deploy('NeverminedConfig', [owner, governor, false], deployer)
     const didRegistry = await testUtils.deploy('DIDRegistry', [owner, constants.address.zero, constants.address.zero, nvmConfig.address, constants.address.zero], deployer)
 
-    const nft = await testUtils.deploy('NFT1155Upgradeable', [deployer, didRegistry.address, 'NFT1155', 'NVM', 'http'], deployer, [], 'initialize')
+    const nft = await testUtils.deploy('NFT1155Upgradeable', [deployer, didRegistry.address, 'NFT1155', 'NVM', 'http', nvmConfig.address], deployer, [], 'initialize')
 
     let nft721
     if (subscription) {
-        nft721 = await testUtils.deploy('NFT721SubscriptionUpgradeable', [deployer, didRegistry.address, 'NFT721', 'NVM', '', 0], deployer, [], 'initialize')
+        nft721 = await testUtils.deploy('NFT721SubscriptionUpgradeable', [deployer, didRegistry.address, 'NFT721', 'NVM', '', 0, nvmConfig.address], deployer, [], 'initialize')
     } else {
-        nft721 = await testUtils.deploy('NFT721Upgradeable', [deployer, didRegistry.address, 'NFT721', 'NVM', '', 0], deployer, [], 'initialize')
+        nft721 = await testUtils.deploy('NFT721Upgradeable', [deployer, didRegistry.address, 'NFT721', 'NVM', '', 0, nvmConfig.address], deployer, [], 'initialize')
     }
 
     const royaltyManager = await testUtils.deploy('StandardRoyalties', [didRegistry.address], deployer)

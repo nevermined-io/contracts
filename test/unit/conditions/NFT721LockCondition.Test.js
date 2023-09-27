@@ -45,9 +45,8 @@ contract('NFT721LockCondition', (accounts) => {
 
         // We deploy the ERC-721 in each test iteration
         erc721 = await NFT721Upgradeable.new()
-        await erc721.initialize(createRole, didRegistry.address, '', '', '', 0, { from: createRole })
+        await erc721.initialize(createRole, didRegistry.address, '', '', '', 0, nvmConfig.address, { from: createRole })
         nftTokenAddress = erc721.address
-        await erc721.setNvmConfigAddress(nvmConfig.address, { from: createRole })
         // ERC-721 deployed on address `nftTokenAddress`
         // Approving NFT721LockCondition as proxy in the NFT contract
         await nvmConfig.grantNVMOperatorRole(lockCondition.address, { from: owner })

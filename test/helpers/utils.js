@@ -92,12 +92,11 @@ const utils = {
         await didRegistry.initialize(owner, constants.address.zero, constants.address.zero, nvmConfig.address, royalties.address)
         await royalties.initialize(didRegistry.address)
         const nft = await NFT.new()
-        await nft.initialize(owner, didRegistry.address, 'NFT1155', 'NVM', '')
+        await nft.initialize(owner, didRegistry.address, 'NFT1155', 'NVM', '', nvmConfig.address)
         const conditionStoreManager = await ConditionStoreManager.new()
         await conditionStoreManager.initialize(createRole, owner, nvmConfig.address, { from: owner })
         await nvmConfig.grantNVMOperatorRole(owner, { from: owner })
         await nvmConfig.grantNVMOperatorRole(didRegistry.address, { from: owner })
-        await nft.setNvmConfigAddress(nvmConfig.address, { from: owner })
         return {
             didRegistry,
             nvmConfig,

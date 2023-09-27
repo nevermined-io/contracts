@@ -59,7 +59,7 @@ describe('using ethers with OpenGSN forwarder', () => {
             {},
             [owner, constants.address.zero, constants.address.zero, nvmConfig.address, constants.address.zero]
         )
-        nft = await deployContract('NFT1155Upgradeable', deployer, {}, [owner, didRegistry.address, '', '', ''])
+        nft = await deployContract('NFT1155Upgradeable', deployer, {}, [owner, didRegistry.address, '', '', '', nvmConfig.address])
         nft.connect(await deploymentProvider.getSigner(owner)).setNvmConfigAddress(nvmConfig.address)
     })
 
