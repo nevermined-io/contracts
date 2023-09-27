@@ -50,8 +50,7 @@ describe('using ethers with OpenGSN', () => {
             {},
             [owner, constants.address.zero, constants.address.zero, nvmConfig.address, constants.address.zero]
         )
-        nft = await deployContract('NFT1155Upgradeable', deployer, {}, [owner, didRegistry.address, '', '', ''])
-        nft.connect(await deploymentProvider.getSigner(owner)).setNvmConfigAddress(nvmConfig.address)
+        nft = await deployContract('NFT1155Upgradeable', deployer, {}, [owner, didRegistry.address, '', '', '', nvmConfig.address])
 
         const config = await {
             paymasterAddress: paymasterAddress,
