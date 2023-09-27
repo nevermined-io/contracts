@@ -64,6 +64,7 @@ contract('NFT Clones', (accounts) => {
 
             const contractOwner = await instance.owner()
             assert.strictEqual(account1, contractOwner)
+            assert.strictEqual(await instance.getNvmConfigAddress(), config.address)
         })
     })
 
@@ -91,6 +92,7 @@ contract('NFT Clones', (accounts) => {
             const newName = await instance.name()
 
             assert.strictEqual('My 1155', newName)
+            assert.strictEqual(await instance.getNvmConfigAddress(), config.address)
         })
     })
 })

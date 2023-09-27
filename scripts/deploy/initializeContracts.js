@@ -168,7 +168,8 @@ async function initializeContracts({
             getAddress('DIDRegistry'),
             'Nevermined NFT-1155',
             'NVM',
-            ''
+            '',
+            getAddress('NeverminedConfig'),
         ],
         isCore: true,
         verbose
@@ -182,7 +183,8 @@ async function initializeContracts({
             'Nevermined NFT-721',
             'NVM',
             '',
-            0
+            0,
+            getAddress('NeverminedConfig'),
         ],
         isCore: true,
         verbose
@@ -196,7 +198,8 @@ async function initializeContracts({
             'Nevermined NFT-721',
             'NVM',
             '',
-            0
+            0,
+            getAddress('NeverminedConfig'),
         ],
         isCore: true,
         verbose
@@ -210,7 +213,8 @@ async function initializeContracts({
             getAddress('DIDRegistry'),
             'Nevermined Smart Subscription',
             'NVM',
-            ''
+            '',
+            getAddress('NeverminedConfig'),
         ],
         isCore: true,
         verbose
