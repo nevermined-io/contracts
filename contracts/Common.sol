@@ -92,6 +92,14 @@ abstract contract Common {
         return INVMConfig(addr).getTrustedForwarder();
     }
 
+    function hasNVMOperatorRole(address a) public virtual view returns(bool) {
+        address addr = getNvmConfigAddress();
+        if (addr == address(0)) {
+            return false;
+        }
+        return INVMConfig(addr).hasNVMOperatorRole(a);
+    }
+
     function isTrustedForwarder(address forwarder) public virtual view returns(bool) {
         return forwarder == getTrustedForwarder();
     }
