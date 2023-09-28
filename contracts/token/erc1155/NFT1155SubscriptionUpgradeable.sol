@@ -25,14 +25,15 @@ contract NFT1155SubscriptionUpgradeable is NFT1155Upgradeable {
         address didRegistryAddress,
         string memory name_,
         string memory symbol_,
-        string memory uri_
+        string memory uri_,
+        address nvmConfig_
     )
     public
     override
     virtual
     initializer
     {
-        __NFT1155Upgradeable_init(owner, didRegistryAddress, name_, symbol_, uri_);
+        __NFT1155Upgradeable_init(owner, didRegistryAddress, name_, symbol_, uri_, nvmConfig_);
     }
     
     

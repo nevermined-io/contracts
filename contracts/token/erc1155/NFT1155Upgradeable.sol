@@ -26,7 +26,8 @@ contract NFT1155Upgradeable is ERC1155Upgradeable, NFTBase {
         address didRegistryAddress,
         string memory name_,
         string memory symbol_,
-        string memory uri_
+        string memory uri_,
+        address nvmConfig_
     )
     public
     virtual
@@ -36,7 +37,7 @@ contract NFT1155Upgradeable is ERC1155Upgradeable, NFTBase {
             owner != address(0) && didRegistryAddress != address(0),
             'Invalid address'
         );
-        __NFT1155Upgradeable_init(owner, didRegistryAddress, name_, symbol_, uri_);
+        __NFT1155Upgradeable_init(owner, didRegistryAddress, name_, symbol_, uri_, nvmConfig_);
     }
 
     // solhint-disable-next-line
@@ -45,7 +46,8 @@ contract NFT1155Upgradeable is ERC1155Upgradeable, NFTBase {
         address didRegistryAddress,
         string memory name_,
         string memory symbol_,
-        string memory uri_
+        string memory uri_,
+        address nvmConfig_
     )
     public
     virtual
@@ -57,7 +59,7 @@ contract NFT1155Upgradeable is ERC1155Upgradeable, NFTBase {
         __Ownable_init_unchained();
         
         AccessControlUpgradeable.__AccessControl_init();
-    __NFT1155Upgradeable_unchained(owner, didRegistryAddress, name_, symbol_, uri_);
+    __NFT1155Upgradeable_unchained(owner, didRegistryAddress, name_, symbol_, uri_, nvmConfig_);
     }
 
     // solhint-disable-next-line
@@ -66,7 +68,8 @@ contract NFT1155Upgradeable is ERC1155Upgradeable, NFTBase {
         address didRegistryAddress,
         string memory name_,
         string memory symbol_,
-        string memory uri_
+        string memory uri_,
+        address nvmConfig_
     )
     public
     virtual
@@ -78,6 +81,7 @@ contract NFT1155Upgradeable is ERC1155Upgradeable, NFTBase {
         setContractMetadataUri(uri_);
         name = name_;
         symbol = symbol_;
+        nvmConfig = nvmConfig_;
 
         nftRegistry = IExternalRegistry(didRegistryAddress);
         if (owner != _msgSender()) {
@@ -101,7 +105,7 @@ contract NFT1155Upgradeable is ERC1155Upgradeable, NFTBase {
         }
         address cloneAddress = ClonesUpgradeable.clone(implementation);
         NFT1155Upgradeable nftContract = NFT1155Upgradeable(cloneAddress);
-        nftContract.initialize(_msgSender(), address(nftRegistry), _name, _symbol, _uri);
+        nftContract.initialize(_msgSender(), address(nftRegistry), _name, _symbol, _uri, nvmConfig);
         for (uint256 i = 0; i < _operators.length; i++) {
             nftContract.grantOperatorRole(_operators[i]);
         }

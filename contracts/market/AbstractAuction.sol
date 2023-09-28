@@ -172,7 +172,7 @@ abstract contract AbstractAuction is
                 return false;
             } else if (_msgSender() == auctions[_auctionId].whoCanClaim)    { // The winner of the auction cant withdraw
                 return false;
-            } else if (hasRole(NVM_AGREEMENT_ROLE, _msgSender())) { // Approved proxy or contract can withdraw for locking into service agreements
+            } else if (hasRole(NVM_AGREEMENT_ROLE, _msgSender()) || hasNVMOperatorRole(_msgSender())) { // Approved proxy or contract can withdraw for locking into service agreements
                 if (_withdrawAddress != address(0))
                     withdrawalAddress = _withdrawAddress;
                 else

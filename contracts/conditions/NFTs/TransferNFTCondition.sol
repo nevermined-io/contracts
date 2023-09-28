@@ -224,7 +224,7 @@ contract TransferNFTCondition is Condition, ITransferNFT, ReentrancyGuardUpgrade
         bool _transfer;
         (_did, _nftHolder, _nftReceiver, _nftAmount, _lockPaymentCondition, _nftContractAddress, _transfer) = abi.decode(_params, (bytes32, address, address, uint256, bytes32, address, bool));
 
-        require(hasRole(PROXY_ROLE, _msgSender()), 'Proxy role required');
+        require(hasRole(PROXY_ROLE, _msgSender()) || hasNVMOperatorRole(_msgSender()), 'Proxy role required');
         fulfillInternal(_account, _agreementId, _did, _nftReceiver, _nftAmount, _lockPaymentCondition, _nftContractAddress, _transfer, 0);
     }
     

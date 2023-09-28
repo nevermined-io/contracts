@@ -92,7 +92,7 @@ contract('End to End NFT721 Scenarios', (accounts) => {
         ))
 
         nftUpgradable = await testUtils.deploy('NFT721Upgradeable',
-            [owner, didRegistry.address, '', '', '', 0],
+            [owner, didRegistry.address, '', '', '', 0, nvmConfig.address],
             deployer)
 
         transferCondition = await testUtils.deploy('TransferNFT721Condition', [owner,

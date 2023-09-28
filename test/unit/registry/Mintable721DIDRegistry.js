@@ -37,7 +37,7 @@ contract('Mintable DIDRegistry (ERC-721)', (accounts) => {
             await standardRoyalties.initialize(didRegistry.address)
 
             nft = await NFT.new()
-            await nft.initialize(owner, didRegistry.address, '', '', nftMetadataURL, 0, { from: deployer })
+            await nft.initialize(owner, didRegistry.address, '', '', nftMetadataURL, 0, config.address, { from: deployer })
 
             await nft.setNvmConfigAddress(config.address, { from: owner })
             await config.grantNVMOperatorRole(didRegistry.address, { from: owner })

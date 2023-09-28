@@ -38,7 +38,7 @@ contract('POAP', (accounts) => {
         await didRegistry.initialize(owner, constants.address.zero, constants.address.zero, config.address, constants.address.zero)
 
         nft = await POAPUpgradeable.new({ from: deployer })
-        await nft.initialize(owner, didRegistry.address, 'TestPOAP', 'TEST', '', 0, { from: owner })
+        await nft.initialize(owner, didRegistry.address, 'TestPOAP', 'TEST', '', 0, config.address, { from: owner })
 
         await nft.setNvmConfigAddress(config.address, { from: owner })
         await config.grantNVMOperatorRole(didRegistry.address, { from: owner })

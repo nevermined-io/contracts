@@ -63,7 +63,7 @@ contract('TransferNFT Condition', (accounts) => {
             await didRegistry.initialize(owner, constants.address.zero, constants.address.zero, nvmConfig.address, constants.address.zero)
 
             nft = await NFT.new()
-            await nft.initialize(owner, didRegistry.address, 'NFT1155', 'NVM', '')
+            await nft.initialize(owner, didRegistry.address, 'NFT1155', 'NVM', '', nvmConfig.address)
 
             conditionStoreManager = await ConditionStoreManager.new()
 

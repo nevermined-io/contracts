@@ -30,15 +30,15 @@ describe('using ethers with OpenGSN forwarder', () => {
         forwarder = await signer.deploy()
         await forwarder.deployed()
 
-        await forwarder.registerDomainSeparator('Nevermined', '1')
+        await forwarder.registerDomainSeparator('GSN Relayed Transaction', '2')
 
         const keccak = a => ethers.utils.solidityKeccak256(['bytes'], [a])
 
         const pake = ethers.utils.defaultAbiCoder.encode(['bytes32', 'bytes32', 'bytes32', 'uint256', 'address'],
             [
                 keccak(Buffer.from('EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)')),
-                keccak(Buffer.from('Nevermined')),
-                keccak(Buffer.from('1')),
+                keccak(Buffer.from('GSN Relayed Transaction')),
+                keccak(Buffer.from('2')),
                 await web3.eth.getChainId(),
                 forwarder.address
             ])
@@ -59,7 +59,7 @@ describe('using ethers with OpenGSN forwarder', () => {
             {},
             [owner, constants.address.zero, constants.address.zero, nvmConfig.address, constants.address.zero]
         )
-        nft = await deployContract('NFT1155Upgradeable', deployer, {}, [owner, didRegistry.address, '', '', ''])
+        nft = await deployContract('NFT1155Upgradeable', deployer, {}, [owner, didRegistry.address, '', '', '', nvmConfig.address])
         nft.connect(await deploymentProvider.getSigner(owner)).setNvmConfigAddress(nvmConfig.address)
     })
 
@@ -84,8 +84,8 @@ describe('using ethers with OpenGSN forwarder', () => {
             }
 
             const domain = {
-                name: 'Nevermined',
-                version: '1',
+                name: 'GSN Relayed Transaction',
+                version: '2',
                 chainId: await web3.eth.getChainId(),
                 verifyingContract: forwarder.address
             }
