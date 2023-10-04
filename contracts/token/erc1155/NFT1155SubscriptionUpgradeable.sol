@@ -120,4 +120,28 @@ contract NFT1155SubscriptionUpgradeable is NFT1155Upgradeable {
     function _getTokenKey(address account, uint256 tokenId) internal pure returns (bytes32) {
         return keccak256(abi.encode(account, tokenId));
     }
+
+    function mintBatch(
+        address to,
+        uint256[] memory ids,
+        uint256[] memory amounts,
+        uint256[] memory expirations,
+        bytes memory data
+    ) external {
+        require(ids.length == amounts.length && ids.length == expirations.length, 'mintBatch: lengths do not match');
+        for (uint i = 0; i < ids.length; i++) {
+            mint(to, ids[i], amounts[i], expirations[i], data);
+        }
+    }
+
+    function burnBatch(
+        address from,
+        uint256[] memory ids,
+        uint256[] memory amounts
+    ) external {
+        require(ids.length == amounts.length, 'burnBatch: lengths do not match');
+        for (uint i = 0; i < ids.length; i++) {
+            burn(from, ids[i], amounts[i]);
+        }
+    }
 }
