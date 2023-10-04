@@ -14,7 +14,7 @@ async function main() {
     const verbose = true
     const testnet = process.env.TESTNET === 'true'
     let restore = process.env.CONTRACTS_RESTORE === 'true'
-    let deeperClean = process.env.CONTRACTS_DEEPER_CLEAN === 'true'
+    const deeperClean = process.env.CONTRACTS_DEEPER_CLEAN === 'true'
     console.log('Doing Restore Contracts deployment?', restore)
     console.log('Doing Deep Clean Deployment deployment?', deeperClean)
     try {
