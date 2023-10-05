@@ -25,11 +25,6 @@ async function main() {
         return new ethers.Contract(afact.address, afact.abi, await ethers.provider.getSigner())
     }
 
-    const config = await readContract('NeverminedConfig')
-    console.log(await config.getTrustedForwarder())
-
-    return
-
     const didRegistry = await readContract('DIDRegistry')
     const transferCondition = await readContract('TransferDIDOwnershipCondition')
     const nftLock = await readContract('NFTLockCondition')
