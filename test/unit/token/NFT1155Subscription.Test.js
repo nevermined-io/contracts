@@ -184,6 +184,30 @@ contract('NFT1155 Subscription', (accounts) => {
             // Balance is 6
             balance = new BigNumber(await nft.balanceOf(account2, tokenId3))
             assert.strictEqual(balance.toNumber(), 6)
+
+            // Batch mint
+            const didSeed4 = testUtils.generateId()
+            const tokenId4 = await didRegistry.hashDID(didSeed4, minter)
+            await didRegistry.methods[
+                'registerMintableDID(bytes32,address,bytes32,address[],string,uint256,uint256,bool,bytes32,string,string)'
+            ](didSeed4, nft.address, checksum, [], url, 0, 0, false, constants.activities.GENERATED, '', '', { from: minter })
+            
+            // Also test balance batch
+            await nft.mintBatch(account2, [tokenId3, tokenId4], [10, 15], [currentBlockNumber + 5000, currentBlockNumber + 5000], data, { from: minter })
+            balance = new BigNumber(await nft.balanceOf(account2, tokenId3))
+            let balance2 = new BigNumber(await nft.balanceOf(account2, tokenId4))
+            assert.strictEqual(balance.toNumber(), 16)
+            assert.strictEqual(balance2.toNumber(), 15)
+
+            let balances = (await nft.balanceOfBatch([account2,account2], [tokenId3,tokenId4])).map(a => new BigNumber(a).toNumber())
+            assert.strictEqual(balances[0], 16)
+            assert.strictEqual(balances[1], 15)
+
+            await nft.burnBatch(account2, [tokenId3, tokenId4], [15, 14], { from: minter })
+            balance = new BigNumber(await nft.balanceOf(account2, tokenId3))
+            balance2 = new BigNumber(await nft.balanceOf(account2, tokenId4))
+            assert.strictEqual(balance.toNumber(), 1)
+            assert.strictEqual(balance2.toNumber(), 1)
         })
 
         it('Tokens are minted, burned and expired', async () => {
