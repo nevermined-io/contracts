@@ -13,6 +13,7 @@
 ASSET=$1
 NETWORK=$2
 TAG=$3
+UPGRADE=$4
 
 if [[ "$ASSET" != "abis" && "$ASSET" != "contracts" && "$ASSET" != "circuits" ]]; then
   echo "ERROR: Asset not provided. Usage: ./upload_artifacts_gs.sh <asset> <network> [<tag>]. Asset must be abis, contracts or circuits"
@@ -26,6 +27,10 @@ if [ -z "$TAG" ]; then
   TAG="common"
 fi
 
+if [ -z "$UPGRADE" ]; then
+  UPGRADE="false"
+fi
+
 SCRIPT_DIR=$(cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd)
 CONTRACTS_DIR="$SCRIPT_DIR/../artifacts"
 CIRCUITS_DIR="$SCRIPT_DIR/../circuits"
@@ -37,18 +42,18 @@ DEPENDENCIES=(gsutil zip tar jq)
 declare -A NETWORKS_MAP
 NETWORKS_MAP=(
   ["mainnet"]="1"
-  ["rinkeby"]="4" 
-  ["goerli"]="5" 
-  ["gnosis"]="100" 
-  ["matic"]="137" 
+  ["rinkeby"]="4"
+  ["goerli"]="5"
+  ["gnosis"]="100"
+  ["matic"]="137"
   ["chiado"]="10200"
-  ["arbitrum-one"]="42161" 
-  ["celo-alfajores"]="44787" 
+  ["arbitrum-one"]="42161"
+  ["celo-alfajores"]="44787"
   ["hyperspace"]="3141"
-  ["celo"]="42220" 
-  ["mumbai"]="80001" 
-  ["arbitrum-goerli"]="421613" 
-  ["aurora"]="1313161554" 
+  ["celo"]="42220"
+  ["mumbai"]="80001"
+  ["arbitrum-goerli"]="421613"
+  ["aurora"]="1313161554"
   ["aurora-testnet"]="1313161555"
  )
 
@@ -168,12 +173,18 @@ function check_and_get_contract_version {
   filenames=$(get_network_contracts)
   filenamesarray=($filenames)
   local ref_version
+
   ref_version=$(jq -r .version "${filenamesarray[0]}")
+  if [[ "$UPGRADE" == "upgrade" ]]; then
+      echo "$ref_version"
+      return
+  fi
   for artifact in "${filenamesarray[@]}"; do
     local version
     version=$(jq -r .version "${artifact}")
     if [[ "$version" != "$ref_version" ]]; then
-      echo "ERROR: Artifact versions do not match. Artifact ${artifact} version ${version} is different to version ${ref_version} from ${filenamesarray[0]}"
+      echo "WARN: Is it a upgrade?"
+      echo "WARN: Artifact versions do not match. Artifact ${artifact} version ${version} is different to version ${ref_version} from ${filenamesarray[0]}"
       exit 1
     fi
   done
