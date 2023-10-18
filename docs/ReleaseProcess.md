@@ -117,7 +117,7 @@ forwarder address for the network. The OpenGSN v2 contract addresses should be u
 This step will create `cache/` and `deploy-cache.json` used to resume the deployment in case something fails.
 
 :::info
-If you want to make a clean deployment, do: `export CONTRACTS_DEEPER_CLEAN=true`
+If you want to make a clean deployment, do: `export CONTRACTS_DEEPER_CLEAN=true && rm deploy-cache.json`
 :::
 
 #### Script for uploading the artifacts (abis/contracts) to Contract Repository
