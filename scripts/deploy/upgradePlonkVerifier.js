@@ -4,7 +4,6 @@ const { loadWallet } = require('./wallets')
 
 const DEPLOY_AAVE = process.env.DEPLOY_AAVE === 'true'
 
-
 async function deployLibrary(c, verbose) {
     const afact = readArtifact(c)
     const factory = await ethers.getContractFactory(c, { libraries: afact.libraries })
@@ -39,7 +38,7 @@ async function main() {
         console.log(`setting dispute manager to ${plonkAddress}`)
     }
 
-    if (DEPLOY_AAVE)    {
+    if (DEPLOY_AAVE) {
         await callContract('AccessProofCondition', roles, c => c.changeDisputeManager(plonkAddress))
 
         const vaultAddress = await deployLibrary('AaveCreditVault', verbose)
@@ -48,7 +47,6 @@ async function main() {
         }
         await callContract('AaveCreditTemplate', roles, c => c.changeCreditVaultLibrary(vaultAddress))
     }
-
 }
 
 main()

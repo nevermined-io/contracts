@@ -145,9 +145,6 @@ async function initializeContracts({
     console.log('NVM Config: [marketplaceFee] = ' + configMarketplaceFee)
     console.log('NVM Config: [feeReceiver] = ' + configFeeReceiver)
 
-
-
-
     addressBook.NeverminedConfig = await zosCreate({
         contract: 'NeverminedConfig',
         ctx,
