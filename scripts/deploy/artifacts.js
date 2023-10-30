@@ -133,6 +133,13 @@ async function deployLibrary(name, addresses, signer) {
     }
 }
 
+function resolveAddress(contractName, addressBook, proxies = undefined) {
+    let address = addressBook[contractName] || proxies[contractName]
+    if (address instanceof Object) { address = address.address }
+    console.log(`resolveAddress :: ${contractName} = ${address}`)
+    return address
+}
+
 module.exports = {
     updateArtifact,
     writeArtifact,
@@ -140,5 +147,6 @@ module.exports = {
     exportLibraryArtifacts,
     exportLibraryArtifact,
     exportArtifacts,
-    deployLibrary
+    deployLibrary,
+    resolveAddress
 }
