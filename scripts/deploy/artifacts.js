@@ -41,12 +41,14 @@ function createArtifact(
     version,
     libraries
 ) {
+    const _impAddress = implementationAddress instanceof Object ? implementationAddress.address : implementationAddress
+    const _proxyAddress = proxyAddress instanceof Object ? proxyAddress.address : proxyAddress
     return {
         name,
         abi: generateFunctionSignaturesInABI(contract.abi),
         bytecode: contract.bytecode,
-        address: proxyAddress,
-        implementation: implementationAddress,
+        address: _proxyAddress,
+        implementation: _impAddress,
         version,
         libraries
     }
@@ -133,6 +135,7 @@ async function deployLibrary(name, addresses, signer) {
     }
 }
 
+// returns either the address from the address book or the address of the manual set proxies
 function resolveAddress(contractName, addressBook, proxies = undefined) {
     let address = addressBook[contractName] || proxies[contractName]
     if (address instanceof Object) { address = address.address }

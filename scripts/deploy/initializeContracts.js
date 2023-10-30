@@ -145,14 +145,8 @@ async function initializeContracts({
     console.log('NVM Config: [marketplaceFee] = ' + configMarketplaceFee)
     console.log('NVM Config: [feeReceiver] = ' + configFeeReceiver)
 
-    // returns either the address from the address book or the address of the manual set proxies
-    //    const getAddress = (contract) => {
-    //        let address = addressBook[contract] || proxies[contract]
-    //        if (address instanceof Object)
-    //            address = address.address
-    //        console.log(`getAddress :: ${contract} = ${address}`)
-    //        return address
-    //    }
+
+
 
     addressBook.NeverminedConfig = await zosCreate({
         contract: 'NeverminedConfig',
