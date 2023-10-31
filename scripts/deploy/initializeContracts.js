@@ -1,7 +1,9 @@
 /* eslint-disable no-console */
 const ZeroAddress = '0x0000000000000000000000000000000000000000'
 const { ethers, upgrades, web3 } = require('hardhat')
-const { writeArtifact, exportLibraryArtifact } = require('./artifacts')
+const { writeArtifact, exportLibraryArtifact, resolveAddress } = require('./artifacts')
+
+const DEPLOY_AAVE = process.env.DEPLOY_AAVE === 'true'
 
 function getSignatureOfMethod(
     contractInstace,
@@ -22,14 +24,18 @@ function getSignatureOfMethod(
 async function doDeploy(contractName, signer, args, isCore) {
     const methodSignature = getSignatureOfMethod(signer, 'initialize', args)
 
+    console.log(`  doDeploy :: Deploying ${contractName} with ${methodSignature}`)
     if (!isCore || process.env.NO_PROXY === 'true') {
+        console.log(`  doDeploy :: Deploying ${contractName} without proxy and args ${JSON.stringify(args)}`)
         const c = await signer.deploy()
         await c.deployed()
         const tx = await c[methodSignature](...args)
         await tx.wait()
+        console.log(`  doDeploy :: Exporting Library artifact: ${contractName}`)
         await exportLibraryArtifact(contractName, c)
         return c
     } else {
+        console.log(`  doDeploy :: Deploying ${contractName} WITH proxy`)
         const c = await upgrades.deployProxy(signer, args, { unsafeAllowLinkedLibraries: true, initializer: methodSignature })
         await c.deployed()
         await writeArtifact(contractName, c)
@@ -44,16 +50,24 @@ async function zosCreate({ contract, args, libraries, verbose, ctx, isCore }) {
             console.error(`Error: core contract ${contract} is not in cache`)
             process.exit(1)
         }
-        console.log(`Contract ${contract} found from cache`)
+        console.log(`Core Contract ${contract} found from cache`)
         return addresses[contract]
     } else if (addresses[contract]) {
         console.log(`Contract ${contract} found from cache`)
         const C = await ethers.getContractFactory(contract, { libraries })
-        cache[contract] = C.attach(addresses[contract]).connect(roles.deployerSigner)
+
+        const _address = addresses[contract] instanceof Object ? addresses[contract].address : addresses[contract]
+        console.log(`  Attaching to factory ${contract}: ${_address} and signer: ${JSON.stringify(roles.deployerSigner)}`)
+        cache[contract] = C.attach(_address).connect(roles.deployerSigner)
+        console.log(`  Contract ${contract} attached to cache`)
         return addresses[contract]
     } else {
+        console.log(`Contract ${contract} NOT found in cache, deploying ...`)
+        console.log(`  Get Contract Factory: ${contract}`)
         const C = await ethers.getContractFactory(contract, { libraries })
+        console.log(`  Do Deploy: ${contract}`)
         const c = await doDeploy(contract, C.connect(roles.deployerSigner), args, isCore)
+        console.log(`  Storing in Cache: ${contract}`)
         cache[contract] = c
         if (verbose) {
             console.log(`${contract}: ${c.address}`)
@@ -65,7 +79,7 @@ async function zosCreate({ contract, args, libraries, verbose, ctx, isCore }) {
 
 async function deployLibrary(name, addresses, cache, signer) {
     if (addresses[name]) {
-        console.log(`Contract ${name} found from cache`)
+        console.log(`deployLibrary :: Contract ${name} found from cache`)
         const C = await ethers.getContractFactory(name, signer)
         cache[name] = C.attach(addresses[name])
         return addresses[name]
@@ -131,11 +145,6 @@ async function initializeContracts({
     console.log('NVM Config: [marketplaceFee] = ' + configMarketplaceFee)
     console.log('NVM Config: [feeReceiver] = ' + configFeeReceiver)
 
-    // returns either the address from the address book or the address of the manual set proxies
-    const getAddress = (contract) => {
-        return addressBook[contract] || proxies[contract]
-    }
-
     addressBook.NeverminedConfig = await zosCreate({
         contract: 'NeverminedConfig',
         ctx,
@@ -165,11 +174,11 @@ async function initializeContracts({
         ctx,
         args: [
             roles.ownerWallet,
-            getAddress('DIDRegistry'),
+            resolveAddress('DIDRegistry', addressBook, proxies),
             'Nevermined NFT-1155',
             'NVM',
             '',
-            getAddress('NeverminedConfig')
+            resolveAddress('NeverminedConfig', addressBook, proxies)
         ],
         isCore: true,
         verbose
@@ -179,12 +188,12 @@ async function initializeContracts({
         ctx,
         args: [
             roles.ownerWallet,
-            getAddress('DIDRegistry'),
+            resolveAddress('DIDRegistry', addressBook, proxies),
             'Nevermined NFT-721',
             'NVM',
             '',
             0,
-            getAddress('NeverminedConfig')
+            resolveAddress('NeverminedConfig', addressBook, proxies)
         ],
         isCore: true,
         verbose
@@ -194,12 +203,12 @@ async function initializeContracts({
         ctx,
         args: [
             roles.ownerWallet,
-            getAddress('DIDRegistry'),
+            resolveAddress('DIDRegistry', addressBook, proxies),
             'Nevermined NFT-721',
             'NVM',
             '',
             0,
-            getAddress('NeverminedConfig')
+            resolveAddress('NeverminedConfig', addressBook, proxies)
         ],
         isCore: true,
         verbose
@@ -210,11 +219,11 @@ async function initializeContracts({
         ctx,
         args: [
             roles.ownerWallet,
-            getAddress('DIDRegistry'),
+            resolveAddress('DIDRegistry', addressBook, proxies),
             'Nevermined Smart Subscription',
             'NVM',
             '',
-            getAddress('NeverminedConfig')
+            resolveAddress('NeverminedConfig', addressBook, proxies)
         ],
         isCore: true,
         verbose
@@ -240,13 +249,13 @@ async function initializeContracts({
     // testnet only!
     if (
         contracts.indexOf('Dispenser') > -1 &&
-        getAddress('Token')
+        resolveAddress('Token', addressBook, proxies)
     ) {
         addressBook.Dispenser = await zosCreate({
             contract: 'Dispenser',
             ctx,
             args: [
-                getAddress('Token'),
+                resolveAddress('Token', addressBook, proxies),
                 roles.ownerWallet
             ],
             verbose
@@ -256,13 +265,13 @@ async function initializeContracts({
     addressBook.ConditionStoreManager = await zosCreate({
         contract: 'ConditionStoreManager',
         ctx,
-        args: [roles.deployer, roles.deployer, getAddress('NeverminedConfig')],
+        args: [roles.deployer, roles.deployer, resolveAddress('NeverminedConfig', addressBook, proxies)],
         verbose
     })
 
     proxies.PlonkVerifier = await deployLibrary('PlonkVerifier', addresses, cache, roles.deployerSigner)
 
-    proxies.AaveCreditVault = await deployLibrary('AaveCreditVault', addresses, cache, roles.deployerSigner)
+    if (DEPLOY_AAVE) { proxies.AaveCreditVault = await deployLibrary('AaveCreditVault', addresses, cache, roles.deployerSigner) }
 
     addressBook.TemplateStoreManager = await zosCreate({
         contract: 'TemplateStoreManager',
@@ -276,7 +285,7 @@ async function initializeContracts({
         ctx,
         args: [
             roles.ownerWallet,
-            getAddress('ConditionStoreManager')
+            resolveAddress('ConditionStoreManager', addressBook, proxies)
         ],
         verbose
     })
@@ -286,7 +295,7 @@ async function initializeContracts({
         ctx,
         args: [
             roles.ownerWallet,
-            getAddress('ConditionStoreManager')
+            resolveAddress('ConditionStoreManager', addressBook, proxies)
         ],
         verbose
     })
@@ -296,7 +305,7 @@ async function initializeContracts({
         ctx,
         args: [
             roles.ownerWallet,
-            getAddress('ConditionStoreManager')
+            resolveAddress('ConditionStoreManager', addressBook, proxies)
         ],
         verbose
     })
@@ -306,7 +315,7 @@ async function initializeContracts({
         ctx,
         args: [
             roles.ownerWallet,
-            getAddress('ConditionStoreManager')
+            resolveAddress('ConditionStoreManager', addressBook, proxies)
         ],
         verbose
     })
@@ -316,7 +325,7 @@ async function initializeContracts({
         ctx,
         args: [
             roles.ownerWallet,
-            getAddress('ConditionStoreManager')
+            resolveAddress('ConditionStoreManager', addressBook, proxies)
         ],
         verbose
     })
@@ -325,7 +334,7 @@ async function initializeContracts({
         ctx,
         args: [
             roles.ownerWallet,
-            getAddress('ConditionStoreManager')
+            resolveAddress('ConditionStoreManager', addressBook, proxies)
         ],
         verbose
     })
@@ -334,7 +343,7 @@ async function initializeContracts({
         ctx,
         args: [
             roles.ownerWallet,
-            getAddress('ConditionStoreManager')
+            resolveAddress('ConditionStoreManager', addressBook, proxies)
         ],
         verbose
     })
@@ -343,7 +352,7 @@ async function initializeContracts({
         ctx,
         args: [
             roles.ownerWallet,
-            getAddress('ConditionStoreManager')
+            resolveAddress('ConditionStoreManager', addressBook, proxies)
         ],
         verbose
     })
@@ -352,55 +361,57 @@ async function initializeContracts({
         ctx,
         args: [
             roles.ownerWallet,
-            getAddress('ConditionStoreManager')
+            resolveAddress('ConditionStoreManager', addressBook, proxies)
         ],
         verbose
     })
-    addressBook.AaveBorrowCondition = await zosCreate({
-        contract: 'AaveBorrowCondition',
-        ctx,
-        args: [
-            roles.ownerWallet,
-            getAddress('ConditionStoreManager')
-        ],
-        verbose
-    })
-    addressBook.AaveCollateralDepositCondition = await zosCreate({
-        contract: 'AaveCollateralDepositCondition',
-        ctx,
-        args: [
-            roles.ownerWallet,
-            getAddress('ConditionStoreManager')
-        ],
-        verbose
-    })
-    addressBook.AaveCollateralWithdrawCondition = await zosCreate({
-        contract: 'AaveCollateralWithdrawCondition',
-        ctx,
-        args: [
-            roles.ownerWallet,
-            getAddress('ConditionStoreManager')
-        ],
-        verbose
-    })
-    addressBook.AaveRepayCondition = await zosCreate({
-        contract: 'AaveRepayCondition',
-        ctx,
-        args: [
-            roles.ownerWallet,
-            getAddress('ConditionStoreManager')
-        ],
-        verbose
-    })
+    if (DEPLOY_AAVE) {
+        addressBook.AaveBorrowCondition = await zosCreate({
+            contract: 'AaveBorrowCondition',
+            ctx,
+            args: [
+                roles.ownerWallet,
+                resolveAddress('ConditionStoreManager', addressBook, proxies)
+            ],
+            verbose
+        })
+        addressBook.AaveCollateralDepositCondition = await zosCreate({
+            contract: 'AaveCollateralDepositCondition',
+            ctx,
+            args: [
+                roles.ownerWallet,
+                resolveAddress('ConditionStoreManager', addressBook, proxies)
+            ],
+            verbose
+        })
+        addressBook.AaveCollateralWithdrawCondition = await zosCreate({
+            contract: 'AaveCollateralWithdrawCondition',
+            ctx,
+            args: [
+                roles.ownerWallet,
+                resolveAddress('ConditionStoreManager', addressBook, proxies)
+            ],
+            verbose
+        })
+        addressBook.AaveRepayCondition = await zosCreate({
+            contract: 'AaveRepayCondition',
+            ctx,
+            args: [
+                roles.ownerWallet,
+                resolveAddress('ConditionStoreManager', addressBook, proxies)
+            ],
+            verbose
+        })
+    }
 
     addressBook.AgreementStoreManager = await zosCreate({
         contract: 'AgreementStoreManager',
         ctx,
         args: [
             roles.deployer,
-            getAddress('ConditionStoreManager'),
-            getAddress('TemplateStoreManager'),
-            getAddress('DIDRegistry')
+            resolveAddress('ConditionStoreManager', addressBook, proxies),
+            resolveAddress('TemplateStoreManager', addressBook, proxies),
+            resolveAddress('DIDRegistry', addressBook, proxies)
         ],
         verbose
     })
@@ -408,9 +419,9 @@ async function initializeContracts({
         contract: 'RewardsDistributor',
         ctx,
         args: [
-            getAddress('DIDRegistry'),
-            getAddress('ConditionStoreManager'),
-            getAddress('EscrowPaymentCondition')
+            resolveAddress('DIDRegistry', addressBook, proxies),
+            resolveAddress('ConditionStoreManager', addressBook, proxies),
+            resolveAddress('EscrowPaymentCondition', addressBook, proxies)
         ],
         verbose
     })
@@ -419,8 +430,8 @@ async function initializeContracts({
         ctx,
         args: [
             roles.deployer,
-            getAddress('ConditionStoreManager'),
-            getAddress('DIDRegistry')
+            resolveAddress('ConditionStoreManager', addressBook, proxies),
+            resolveAddress('DIDRegistry', addressBook, proxies)
         ],
         verbose
     })
@@ -429,8 +440,8 @@ async function initializeContracts({
         ctx,
         args: [
             roles.ownerWallet,
-            getAddress('ConditionStoreManager'),
-            getAddress('DIDRegistry')
+            resolveAddress('ConditionStoreManager', addressBook, proxies),
+            resolveAddress('DIDRegistry', addressBook, proxies)
         ],
         verbose
     })
@@ -439,8 +450,8 @@ async function initializeContracts({
         ctx,
         args: [
             roles.ownerWallet,
-            getAddress('ConditionStoreManager'),
-            getAddress('DIDRegistry')
+            resolveAddress('ConditionStoreManager', addressBook, proxies),
+            resolveAddress('DIDRegistry', addressBook, proxies)
         ],
         verbose
     })
@@ -449,9 +460,9 @@ async function initializeContracts({
         ctx,
         args: [
             roles.ownerWallet,
-            getAddress('ConditionStoreManager'),
-            getAddress('DIDRegistry'),
-            getAddress('PlonkVerifier')
+            resolveAddress('ConditionStoreManager', addressBook, proxies),
+            resolveAddress('DIDRegistry', addressBook, proxies),
+            resolveAddress('PlonkVerifier', addressBook, proxies)
         ],
         verbose
     })
@@ -460,10 +471,10 @@ async function initializeContracts({
         ctx,
         args: [
             roles.ownerWallet,
-            getAddress('ConditionStoreManager'),
-            getAddress('DIDRegistry'),
-            getAddress('LockPaymentCondition'),
-            getAddress('EscrowPaymentCondition')
+            resolveAddress('ConditionStoreManager', addressBook, proxies),
+            resolveAddress('DIDRegistry', addressBook, proxies),
+            resolveAddress('LockPaymentCondition', addressBook, proxies),
+            resolveAddress('EscrowPaymentCondition', addressBook, proxies)
         ],
         verbose
     })
@@ -472,8 +483,8 @@ async function initializeContracts({
         ctx,
         args: [
             roles.ownerWallet,
-            getAddress('ConditionStoreManager'),
-            getAddress('NFT1155Upgradeable')
+            resolveAddress('ConditionStoreManager', addressBook, proxies),
+            resolveAddress('NFT1155Upgradeable', addressBook, proxies)
         ],
         verbose
     })
@@ -482,8 +493,8 @@ async function initializeContracts({
         ctx,
         args: [
             roles.ownerWallet,
-            getAddress('ConditionStoreManager'),
-            getAddress('NFT1155Upgradeable')
+            resolveAddress('ConditionStoreManager', addressBook, proxies),
+            resolveAddress('NFT1155Upgradeable', addressBook, proxies)
         ],
         verbose
     })
@@ -493,9 +504,9 @@ async function initializeContracts({
         ctx,
         args: [
             roles.deployer,
-            getAddress('ConditionStoreManager'),
-            getAddress('DIDRegistry'),
-            getAddress('NFT1155Upgradeable'),
+            resolveAddress('ConditionStoreManager', addressBook, proxies),
+            resolveAddress('DIDRegistry', addressBook, proxies),
+            resolveAddress('NFT1155Upgradeable', addressBook, proxies),
             ZeroAddress
         ],
         verbose
@@ -505,8 +516,8 @@ async function initializeContracts({
         ctx,
         args: [
             roles.ownerWallet,
-            getAddress('ConditionStoreManager'),
-            getAddress('AgreementStoreManager')
+            resolveAddress('ConditionStoreManager', addressBook, proxies),
+            resolveAddress('AgreementStoreManager', addressBook, proxies)
         ],
         verbose
     })
@@ -515,8 +526,8 @@ async function initializeContracts({
         ctx,
         args: [
             roles.ownerWallet,
-            getAddress('ConditionStoreManager'),
-            getAddress('AgreementStoreManager')
+            resolveAddress('ConditionStoreManager', addressBook, proxies),
+            resolveAddress('AgreementStoreManager', addressBook, proxies)
         ],
         verbose
     })
@@ -526,10 +537,10 @@ async function initializeContracts({
         ctx,
         args: [
             roles.deployer,
-            getAddress('ConditionStoreManager'),
-            getAddress('DIDRegistry'),
-            getAddress('NFT721Upgradeable'),
-            getAddress('LockPaymentCondition')
+            resolveAddress('ConditionStoreManager', addressBook, proxies),
+            resolveAddress('DIDRegistry', addressBook, proxies),
+            resolveAddress('NFT721Upgradeable', addressBook, proxies),
+            resolveAddress('LockPaymentCondition', addressBook, proxies)
         ],
         verbose
     })
@@ -538,8 +549,8 @@ async function initializeContracts({
         ctx,
         args: [
             roles.ownerWallet,
-            getAddress('ConditionStoreManager'),
-            getAddress('NFT721LockCondition')
+            resolveAddress('ConditionStoreManager', addressBook, proxies),
+            resolveAddress('NFT721LockCondition', addressBook, proxies)
         ],
         verbose
     })
@@ -548,11 +559,11 @@ async function initializeContracts({
         ctx,
         args: [
             roles.ownerWallet,
-            getAddress('AgreementStoreManager'),
-            getAddress('DIDRegistry'),
-            getAddress('AccessCondition'),
-            getAddress('LockPaymentCondition'),
-            getAddress('EscrowPaymentCondition')
+            resolveAddress('AgreementStoreManager', addressBook, proxies),
+            resolveAddress('DIDRegistry', addressBook, proxies),
+            resolveAddress('AccessCondition', addressBook, proxies),
+            resolveAddress('LockPaymentCondition', addressBook, proxies),
+            resolveAddress('EscrowPaymentCondition', addressBook, proxies)
         ],
         verbose
     })
@@ -561,11 +572,11 @@ async function initializeContracts({
         ctx,
         args: [
             roles.ownerWallet,
-            getAddress('AgreementStoreManager'),
-            getAddress('DIDRegistry'),
-            getAddress('AccessProofCondition'),
-            getAddress('LockPaymentCondition'),
-            getAddress('EscrowPaymentCondition')
+            resolveAddress('AgreementStoreManager', addressBook, proxies),
+            resolveAddress('DIDRegistry', addressBook, proxies),
+            resolveAddress('AccessProofCondition', addressBook, proxies),
+            resolveAddress('LockPaymentCondition', addressBook, proxies),
+            resolveAddress('EscrowPaymentCondition', addressBook, proxies)
         ],
         verbose
     })
@@ -574,11 +585,11 @@ async function initializeContracts({
         ctx,
         args: [
             roles.ownerWallet,
-            getAddress('AgreementStoreManager'),
-            getAddress('DIDRegistry'),
-            getAddress('AccessDLEQCondition'),
-            getAddress('LockPaymentCondition'),
-            getAddress('EscrowPaymentCondition')
+            resolveAddress('AgreementStoreManager', addressBook, proxies),
+            resolveAddress('DIDRegistry', addressBook, proxies),
+            resolveAddress('AccessDLEQCondition', addressBook, proxies),
+            resolveAddress('LockPaymentCondition', addressBook, proxies),
+            resolveAddress('EscrowPaymentCondition', addressBook, proxies)
         ],
         verbose
     })
@@ -587,9 +598,9 @@ async function initializeContracts({
         ctx,
         args: [
             roles.ownerWallet,
-            getAddress('AgreementStoreManager'),
-            getAddress('NFTHolderCondition'),
-            getAddress('AccessProofCondition')
+            resolveAddress('AgreementStoreManager', addressBook, proxies),
+            resolveAddress('NFTHolderCondition', addressBook, proxies),
+            resolveAddress('AccessProofCondition', addressBook, proxies)
         ],
         verbose
     })
@@ -598,9 +609,9 @@ async function initializeContracts({
         ctx,
         args: [
             roles.ownerWallet,
-            getAddress('AgreementStoreManager'),
-            getAddress('NFTHolderCondition'),
-            getAddress('AccessDLEQCondition')
+            resolveAddress('AgreementStoreManager', addressBook, proxies),
+            resolveAddress('NFTHolderCondition', addressBook, proxies),
+            resolveAddress('AccessDLEQCondition', addressBook, proxies)
         ],
         verbose
     })
@@ -609,10 +620,10 @@ async function initializeContracts({
         ctx,
         args: [
             roles.ownerWallet,
-            getAddress('AgreementStoreManager'),
-            getAddress('NFTLockCondition'),
-            getAddress('NFTEscrowPaymentCondition'),
-            getAddress('AccessProofCondition')
+            resolveAddress('AgreementStoreManager', addressBook, proxies),
+            resolveAddress('NFTLockCondition', addressBook, proxies),
+            resolveAddress('NFTEscrowPaymentCondition', addressBook, proxies),
+            resolveAddress('AccessProofCondition', addressBook, proxies)
         ],
         verbose
     })
@@ -621,11 +632,11 @@ async function initializeContracts({
         ctx,
         args: [
             roles.ownerWallet,
-            getAddress('AgreementStoreManager'),
-            getAddress('LockPaymentCondition'),
-            getAddress('TransferNFTCondition'),
-            getAddress('EscrowPaymentCondition'),
-            getAddress('AccessProofCondition')
+            resolveAddress('AgreementStoreManager', addressBook, proxies),
+            resolveAddress('LockPaymentCondition', addressBook, proxies),
+            resolveAddress('TransferNFTCondition', addressBook, proxies),
+            resolveAddress('EscrowPaymentCondition', addressBook, proxies),
+            resolveAddress('AccessProofCondition', addressBook, proxies)
         ],
         verbose
     })
@@ -635,11 +646,11 @@ async function initializeContracts({
         ctx,
         args: [
             roles.ownerWallet,
-            getAddress('AgreementStoreManager'),
-            getAddress('LockPaymentCondition'),
-            getAddress('TransferNFTCondition'),
-            getAddress('EscrowPaymentCondition'),
-            getAddress('AccessDLEQCondition')
+            resolveAddress('AgreementStoreManager', addressBook, proxies),
+            resolveAddress('LockPaymentCondition', addressBook, proxies),
+            resolveAddress('TransferNFTCondition', addressBook, proxies),
+            resolveAddress('EscrowPaymentCondition', addressBook, proxies),
+            resolveAddress('AccessDLEQCondition', addressBook, proxies)
         ],
         verbose
     })
@@ -648,9 +659,9 @@ async function initializeContracts({
         ctx,
         args: [
             roles.ownerWallet,
-            getAddress('AgreementStoreManager'),
-            getAddress('NFT721HolderCondition'),
-            getAddress('AccessProofCondition')
+            resolveAddress('AgreementStoreManager', addressBook, proxies),
+            resolveAddress('NFT721HolderCondition', addressBook, proxies),
+            resolveAddress('AccessProofCondition', addressBook, proxies)
         ],
         verbose
     })
@@ -659,9 +670,9 @@ async function initializeContracts({
         ctx,
         args: [
             roles.ownerWallet,
-            getAddress('AgreementStoreManager'),
-            getAddress('NFT721HolderCondition'),
-            getAddress('AccessDLEQCondition')
+            resolveAddress('AgreementStoreManager', addressBook, proxies),
+            resolveAddress('NFT721HolderCondition', addressBook, proxies),
+            resolveAddress('AccessDLEQCondition', addressBook, proxies)
         ],
         verbose
     })
@@ -670,10 +681,10 @@ async function initializeContracts({
         ctx,
         args: [
             roles.ownerWallet,
-            getAddress('AgreementStoreManager'),
-            getAddress('NFT721LockCondition'),
-            getAddress('NFT721EscrowPaymentCondition'),
-            getAddress('AccessProofCondition')
+            resolveAddress('AgreementStoreManager', addressBook, proxies),
+            resolveAddress('NFT721LockCondition', addressBook, proxies),
+            resolveAddress('NFT721EscrowPaymentCondition', addressBook, proxies),
+            resolveAddress('AccessProofCondition', addressBook, proxies)
         ],
         verbose
     })
@@ -682,11 +693,11 @@ async function initializeContracts({
         ctx,
         args: [
             roles.ownerWallet,
-            getAddress('AgreementStoreManager'),
-            getAddress('LockPaymentCondition'),
-            getAddress('TransferNFT721Condition'),
-            getAddress('EscrowPaymentCondition'),
-            getAddress('AccessProofCondition')
+            resolveAddress('AgreementStoreManager', addressBook, proxies),
+            resolveAddress('LockPaymentCondition', addressBook, proxies),
+            resolveAddress('TransferNFT721Condition', addressBook, proxies),
+            resolveAddress('EscrowPaymentCondition', addressBook, proxies),
+            resolveAddress('AccessProofCondition', addressBook, proxies)
         ],
         verbose
     })
@@ -695,11 +706,11 @@ async function initializeContracts({
         ctx,
         args: [
             roles.ownerWallet,
-            getAddress('AgreementStoreManager'),
-            getAddress('LockPaymentCondition'),
-            getAddress('TransferNFT721Condition'),
-            getAddress('EscrowPaymentCondition'),
-            getAddress('AccessDLEQCondition')
+            resolveAddress('AgreementStoreManager', addressBook, proxies),
+            resolveAddress('LockPaymentCondition', addressBook, proxies),
+            resolveAddress('TransferNFT721Condition', addressBook, proxies),
+            resolveAddress('EscrowPaymentCondition', addressBook, proxies),
+            resolveAddress('AccessDLEQCondition', addressBook, proxies)
         ],
         verbose
     })
@@ -709,11 +720,11 @@ async function initializeContracts({
         ctx,
         args: [
             roles.ownerWallet,
-            getAddress('AgreementStoreManager'),
-            getAddress('DIDRegistry'),
-            getAddress('ComputeExecutionCondition'),
-            getAddress('LockPaymentCondition'),
-            getAddress('EscrowPaymentCondition')
+            resolveAddress('AgreementStoreManager', addressBook, proxies),
+            resolveAddress('DIDRegistry', addressBook, proxies),
+            resolveAddress('ComputeExecutionCondition', addressBook, proxies),
+            resolveAddress('LockPaymentCondition', addressBook, proxies),
+            resolveAddress('EscrowPaymentCondition', addressBook, proxies)
         ],
         verbose
     })
@@ -722,9 +733,9 @@ async function initializeContracts({
         ctx,
         args: [
             roles.ownerWallet,
-            getAddress('AgreementStoreManager'),
-            getAddress('NFTHolderCondition'),
-            getAddress('NFTAccessCondition')
+            resolveAddress('AgreementStoreManager', addressBook, proxies),
+            resolveAddress('NFTHolderCondition', addressBook, proxies),
+            resolveAddress('NFTAccessCondition', addressBook, proxies)
         ],
         verbose
     })
@@ -733,9 +744,9 @@ async function initializeContracts({
         ctx,
         args: [
             roles.ownerWallet,
-            getAddress('AgreementStoreManager'),
-            getAddress('NFT721HolderCondition'),
-            getAddress('NFTAccessCondition')
+            resolveAddress('AgreementStoreManager', addressBook, proxies),
+            resolveAddress('NFT721HolderCondition', addressBook, proxies),
+            resolveAddress('NFTAccessCondition', addressBook, proxies)
         ],
         verbose
     })
@@ -744,10 +755,10 @@ async function initializeContracts({
         ctx,
         args: [
             roles.ownerWallet,
-            getAddress('AgreementStoreManager'),
-            getAddress('LockPaymentCondition'),
-            getAddress('TransferNFTCondition'),
-            getAddress('EscrowPaymentCondition')
+            resolveAddress('AgreementStoreManager', addressBook, proxies),
+            resolveAddress('LockPaymentCondition', addressBook, proxies),
+            resolveAddress('TransferNFTCondition', addressBook, proxies),
+            resolveAddress('EscrowPaymentCondition', addressBook, proxies)
         ],
         verbose
     })
@@ -756,10 +767,10 @@ async function initializeContracts({
         ctx,
         args: [
             roles.ownerWallet,
-            getAddress('AgreementStoreManager'),
-            getAddress('LockPaymentCondition'),
-            getAddress('TransferNFT721Condition'),
-            getAddress('EscrowPaymentCondition')
+            resolveAddress('AgreementStoreManager', addressBook, proxies),
+            resolveAddress('LockPaymentCondition', addressBook, proxies),
+            resolveAddress('TransferNFT721Condition', addressBook, proxies),
+            resolveAddress('EscrowPaymentCondition', addressBook, proxies)
         ],
         verbose
     })
@@ -768,29 +779,33 @@ async function initializeContracts({
         ctx,
         args: [
             roles.ownerWallet,
-            getAddress('AgreementStoreManager'),
-            getAddress('LockPaymentCondition'),
-            getAddress('TransferDIDOwnershipCondition'),
-            getAddress('EscrowPaymentCondition')
+            resolveAddress('AgreementStoreManager', addressBook, proxies),
+            resolveAddress('LockPaymentCondition', addressBook, proxies),
+            resolveAddress('TransferDIDOwnershipCondition', addressBook, proxies),
+            resolveAddress('EscrowPaymentCondition', addressBook, proxies)
         ],
         verbose
     })
-    addressBook.AaveCreditTemplate = await zosCreate({
-        contract: 'AaveCreditTemplate',
-        ctx,
-        args: [
-            roles.ownerWallet,
-            getAddress('AgreementStoreManager'),
-            getAddress('NFT721LockCondition'),
-            getAddress('AaveCollateralDepositCondition'),
-            getAddress('AaveBorrowCondition'),
-            getAddress('AaveRepayCondition'),
-            getAddress('AaveCollateralWithdrawCondition'),
-            getAddress('DistributeNFTCollateralCondition'),
-            getAddress('AaveCreditVault')
-        ],
-        verbose
-    })
+
+    if (DEPLOY_AAVE) {
+        console.log(' ** Deploying AaveCreditTemplate ** ')
+        addressBook.AaveCreditTemplate = await zosCreate({
+            contract: 'AaveCreditTemplate',
+            ctx,
+            args: [
+                roles.ownerWallet,
+                resolveAddress('AgreementStoreManager', addressBook, proxies),
+                resolveAddress('NFT721LockCondition', addressBook, proxies),
+                resolveAddress('AaveCollateralDepositCondition', addressBook, proxies),
+                resolveAddress('AaveBorrowCondition', addressBook, proxies),
+                resolveAddress('AaveRepayCondition', addressBook, proxies),
+                resolveAddress('AaveCollateralWithdrawCondition', addressBook, proxies),
+                resolveAddress('DistributeNFTCollateralCondition', addressBook, proxies),
+                resolveAddress('AaveCreditVault', addressBook, proxies)
+            ],
+            verbose
+        })
+    }
 
     return { cache, addressBook, proxies }
 }
