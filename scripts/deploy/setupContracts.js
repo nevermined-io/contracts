@@ -34,7 +34,6 @@ async function approveTemplate({
 }
 
 async function setupTemplate({ verbose, TemplateStoreManagerInstance, templateName, addressBook, roles } = {}) {
-//    const templateAddress = addressBook[templateName] instanceof Object ? addressBook[templateName].address : addressBook[templateName]
     const templateAddress = resolveAddress(templateName, addressBook)
 
     console.log(`  setupTemplate :: ${templateName} :: ${templateAddress}`)
@@ -132,11 +131,11 @@ async function setupContracts({
     if (!addresses.stage) {
         addresses.stage = 0
     }
-    if (addressBook.TemplateStoreManager && addresses.stage < 1) {
+    if (addressBook.TemplateStoreManager) { // && addresses.stage < 1) { // Temporary change to validate templates in all the iterations
         const TemplateStoreManagerInstance = artifacts.TemplateStoreManager
 
         const templates = Object.keys(addressBook).filter(a => a.match(/Template$/))
-
+        console.log(`Templates Found: ${JSON.stringify(templates)}`)
         for (const templateName of templates) {
             console.log(`Setting up template: ${templateName}`)
             await setupTemplate({
