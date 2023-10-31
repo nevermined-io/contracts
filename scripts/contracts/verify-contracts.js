@@ -10,6 +10,9 @@ const defaultToVerify = require('../deploy/contracts-verify.json')
 * - Smart Contracts version. Example: v2.1.0
 * - Network name. Example: mainnet, goerli, etc
 * - Tag Name. Nevermined Smart Contracts can be deployed multiple times under different tag names. Example: public or common
+* Optional parameters:
+* - Temporary Path. Example: /tmp/nvm_contracts_verification_1234
+* - Contract name to verify. Example: NeverminedToken or all
 */
 
 function parseArguments() {

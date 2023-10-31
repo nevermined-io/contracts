@@ -250,40 +250,12 @@ module.exports = {
             mainnet: process.env.ETHERSCAN_TOKEN,
             polygonMumbai: process.env.POLYGONSCAN_TOKEN,
             polygon: process.env.POLYGONSCAN_TOKEN,
-            'arbitrum-goerli': process.env.ARBISCAN_TOKEN,
-            'arbitrum-one': process.env.ARBISCAN_TOKEN,
+            arbitrumGoerli: process.env.ARBISCAN_TOKEN,
+            arbitrumOne: process.env.ARBISCAN_TOKEN,
             chiado: process.env.GNOSIS_TOKEN,
             gnosis: process.env.GNOSIS_TOKEN
         },
         customChains: [
-            {
-                network: 'arbitrum-goerli',
-                chainId: 421613,
-                urls: {
-                    apiURL: 'https://api-goerli.arbiscan.io/api',
-                    browserURL: 'https://api-goerli.arbiscan.io'
-                }
-            }, {
-                network: 'chiado',
-                chainId: 10200,
-                urls: {
-                // Blockscout
-                    apiURL: 'https://blockscout.com/gnosis/chiado/api',
-                    browserURL: 'https://blockscout.com/gnosis/chiado'
-                }
-            }, {
-                network: 'gnosis',
-                chainId: 100,
-                urls: {
-                // 3) Select to what explorer verify the contracts
-                // Gnosisscan
-                    apiURL: 'https://api.gnosisscan.io/api',
-                    browserURL: 'https://gnosisscan.io/'
-                // Blockscout
-                // apiURL: "https://blockscout.com/xdai/mainnet/api",
-                // browserURL: "https://blockscout.com/xdai/mainnet",
-                }
-            }
         ]
     }
 }
