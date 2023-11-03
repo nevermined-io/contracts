@@ -63,6 +63,7 @@ contract NFT1155SubscriptionUpgradeable is NFT1155Upgradeable {
         require(
             isOperator(_msgSender()) || // Or the DIDRegistry is burning the NFT 
             to == _msgSender() || // Or the NFT owner is _msgSender() 
+            nftRegistry.isDIDProvider(bytes32(id), _msgSender()) || // Or the DID Provider (Node) is burning the NFT
             isApprovedForAll(to, _msgSender()), // Or the _msgSender() is approved
             'ERC1155: caller is not owner nor approved'
         );

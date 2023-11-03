@@ -179,8 +179,8 @@ contract NFT721Upgradeable is ERC721Upgradeable, NFTBase {
     public 
     {
         require(
-            isOperator(_msgSender()) || // Or the DIDRegistry is burning the NFT 
-            balanceOf(_msgSender()) > 0, // Or the _msgSender() is owner and have balance: if has one token can burn any token in contract?
+            isOperator(_msgSender()) || // The DIDRegistry is burning the NFT 
+            ownerOf(tokenId) == _msgSender(), // Or the _msgSender() is owner of the tokenId
             'ERC721: caller is not owner or not have balance'
         );
         // Update nftSupply
