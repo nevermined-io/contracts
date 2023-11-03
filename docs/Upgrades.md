@@ -143,7 +143,7 @@ tar xvzf artifacts.tar.gz -C artifacts/
 
 ##### Deploy and initialize new version of agreement contracts
 
-- To deploy and initialize all contracts run `yarn deploy:$NETWORK`
+- To deploy and initialize all contracts: See the [Release Process](ReleaseProcess.md).
 
 This process will show multiple errors for the contracts that are being upgraded. You can ignore those messages.
 
