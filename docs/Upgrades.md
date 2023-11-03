@@ -155,7 +155,15 @@ New versions are deployed with new addresses to make sure that existing agreemen
 
 ##### Upload the artifacts to the repository and persist any change in `openzeppelin/` file
 
-- To upload the artifacts to the repository run `./scripts/upload_artifacts_gs.sh contracts $NETWORK $TAG`. You need to have access to S3.
+- To upload the artifacts to the repository run:
+
+```bash
+# Because we are upgrading to a specific version export which version is
+export UPGRADE_VERSION=v3.5.4
+./scripts/upload_artifacts_gs.sh contracts $NETWORK $TAG
+./scripts/upload_artifacts_gs.sh abis $NETWORK $TAG
+./scripts/upload_artifacts_gs.sh circuits $NETWORK $TAG
+```
 
 - Copy the openzeppeling file base on tag: `cp -rp .openzeppelin/unknown-$NETWORK_ID.json .openzeppelin/unknown-$NETWORK_ID.json.$TAG`
 
