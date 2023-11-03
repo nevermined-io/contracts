@@ -37,18 +37,18 @@ DEPENDENCIES=(gsutil zip tar jq)
 declare -A NETWORKS_MAP
 NETWORKS_MAP=(
   ["mainnet"]="1"
-  ["rinkeby"]="4" 
-  ["goerli"]="5" 
-  ["gnosis"]="100" 
-  ["matic"]="137" 
+  ["rinkeby"]="4"
+  ["goerli"]="5"
+  ["gnosis"]="100"
+  ["matic"]="137"
   ["chiado"]="10200"
-  ["arbitrum-one"]="42161" 
-  ["celo-alfajores"]="44787" 
+  ["arbitrum-one"]="42161"
+  ["celo-alfajores"]="44787"
   ["hyperspace"]="3141"
-  ["celo"]="42220" 
-  ["mumbai"]="80001" 
-  ["arbitrum-goerli"]="421613" 
-  ["aurora"]="1313161554" 
+  ["celo"]="42220"
+  ["mumbai"]="80001"
+  ["arbitrum-goerli"]="421613"
+  ["aurora"]="1313161554"
   ["aurora-testnet"]="1313161555"
  )
 
@@ -165,8 +165,15 @@ function get_network_circuits_no_path {
 # TODO: Think if is better to skip if version does not match
 function check_and_get_contract_version {
   local filenames filenamesarray
+
+  if [[ "$UPGRADE_VERSION" != "" ]]; then
+      echo "$UPGRADE_VERSION"
+      return
+  fi
+
   filenames=$(get_network_contracts)
   filenamesarray=($filenames)
+
   local ref_version
   ref_version=$(jq -r .version "${filenamesarray[0]}")
   for artifact in "${filenamesarray[@]}"; do

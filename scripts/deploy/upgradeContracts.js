@@ -50,6 +50,7 @@ async function upgradeContracts({ verbose, testnet, fail, strict }) {
             console.log(`upgrading ${c} at ${afact.address}`)
         }
         try {
+            console.log(`Preparing to upgrade ${c} with address ${afact.address}`)
             const contract = await upgrades.upgradeProxy(afact.address, C)
             await contract.deployed()
             taskBook[c] = await writeArtifact(c, contract, afact.libraries)
@@ -58,7 +59,8 @@ async function upgradeContracts({ verbose, testnet, fail, strict }) {
                 fs.writeFileSync('upgrade-cache.json', JSON.stringify(success, undefined, 2))
             }
         } catch (e) {
-            console.log('Cannot upgrade', e)
+            console.warn(`Cannot upgrade: ${c}`)
+            console.warn(e)
             if (fail) {
                 process.exit(-1)
             }
