@@ -59,6 +59,58 @@ contract('NFT1155 Subscription', (accounts) => {
         await config.grantNVMOperatorRole(minter, { from: owner })
     }
 
+    describe('Providers can burn', () => {
+        const initialAmount = 10
+        let tokenId
+
+        it('As a minter can register a DID without providers', async () => {
+            await setupTest()
+            const didSeed = testUtils.generateId()
+
+            tokenId = await didRegistry.hashDID(didSeed, minter)
+            await didRegistry.methods[
+                'registerMintableDID(bytes32,address,bytes32,address[],string,uint256,uint256,bool,bytes32,string,string)'
+            ](didSeed, nft.address, checksum, [], url, 0, 0, false, constants.activities.GENERATED, '', '', { from: minter })
+
+            await nft.methods[
+                'mint(address,uint256,uint256,uint256,bytes)'
+            ](account1, tokenId, initialAmount, 0, data, { from: minter })
+
+            const balance = new BigNumber(await nft.balanceOf(account1, tokenId))
+            assert.strictEqual(balance.toNumber(), initialAmount)
+        })
+
+        it('NFT holder can burn', async () => {
+            await nft.methods[
+                'burn(address,uint256,uint256)'
+            ](account1, tokenId, 1, { from: account1 })
+
+            const balance = new BigNumber(await nft.balanceOf(account1, tokenId))
+            assert.strictEqual(balance.toNumber(), initialAmount - 1)
+        })
+
+        it('Account can not burn unless is a provider', async () => {
+            await assert.isRejected(
+                nft.methods[
+                    'burn(address,uint256,uint256)'
+                ](account1, tokenId, 1, { from: account2 }),
+                'ERC1155: caller is not owner nor approved'
+            )
+
+            let balance = new BigNumber(await nft.balanceOf(account1, tokenId))
+            assert.strictEqual(balance.toNumber(), initialAmount - 1)
+
+            await didRegistry.addDIDProvider(tokenId, account2, { from: minter })
+
+            await nft.methods[
+                'burn(address,uint256,uint256)'
+            ](account1, tokenId, 1, { from: account2 })
+
+            balance = new BigNumber(await nft.balanceOf(account1, tokenId))
+            assert.strictEqual(balance.toNumber(), initialAmount - 2)
+        })
+    })
+
     describe('As a minter I want to use NFTs as subscriptions', () => {
         it('As a minter I am minting a subscription that will expire in a few blocks', async () => {
             await setupTest()

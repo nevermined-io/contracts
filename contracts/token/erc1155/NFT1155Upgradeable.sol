@@ -154,9 +154,10 @@ contract NFT1155Upgradeable is ERC1155Upgradeable, NFTBase {
     
     function burn(address to, uint256 id, uint256 amount) virtual public {
         require(balanceOf(to, id) >= amount, 'ERC1155: burn amount exceeds balance');
-        require(
+        require(         
             isOperator(_msgSender()) || // Or the DIDRegistry is burning the NFT 
-            to == _msgSender() || // Or the NFT owner is _msgSender() 
+            to == _msgSender() || // Or the NFT owner is _msgSender()
+            nftRegistry.isDIDProvider(bytes32(id), _msgSender()) || // Or the DID Provider (Node) is burning the NFT
             isApprovedForAll(to, _msgSender()), // Or the _msgSender() is approved
             'ERC1155: caller is not owner nor approved'
         );

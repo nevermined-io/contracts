@@ -20,8 +20,18 @@ interface IExternalRegistry {
     external
     returns (bool success);
 
+    
     function getDIDOwner(bytes32 _did)
     external
     view
     returns (address didOwner);
+
+    
+    function isDIDProvider(
+        bytes32 _did,
+        address _provider
+    )
+    external
+    view
+    returns (bool);
 }
