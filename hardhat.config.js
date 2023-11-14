@@ -175,6 +175,15 @@ module.exports = {
             gasPrice: 1200000000
 
         },
+        'arbitrum-sepolia': {
+            url: url || `https://sepolia-rollup.arbitrum.io/rpc`,
+            accounts,
+            chainId: 421614,
+            //            skipDryRun: true,
+            from: '0x73943d14131268F23b721E668911bCDDEcA9da62',
+            gasPrice: 1200000000
+
+        },
         'arbitrum-one': {
             url: url || `https://arbitrum-mainnet.infura.io/v3/${process.env.INFURA_TOKEN}`,
             accounts,
@@ -251,6 +260,7 @@ module.exports = {
             polygonMumbai: process.env.POLYGONSCAN_TOKEN,
             polygon: process.env.POLYGONSCAN_TOKEN,
             arbitrumGoerli: process.env.ARBISCAN_TOKEN,
+            arbitrumSepolia: process.env.ARBISCAN_TOKEN,
             arbitrumOne: process.env.ARBISCAN_TOKEN,
             chiado: process.env.GNOSIS_TOKEN,
             gnosis: process.env.GNOSIS_TOKEN
