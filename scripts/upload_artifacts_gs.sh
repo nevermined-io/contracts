@@ -48,6 +48,7 @@ NETWORKS_MAP=(
   ["celo"]="42220"
   ["mumbai"]="80001"
   ["arbitrum-goerli"]="421613"
+  ["arbitrum-sepolia"]="421614"
   ["aurora"]="1313161554"
   ["aurora-testnet"]="1313161555"
  )
