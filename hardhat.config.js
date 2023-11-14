@@ -176,7 +176,7 @@ module.exports = {
 
         },
         'arbitrum-sepolia': {
-            url: url || `https://sepolia-rollup.arbitrum.io/rpc`,
+            url: url || 'https://sepolia-rollup.arbitrum.io/rpc',
             accounts,
             chainId: 421614,
             //            skipDryRun: true,
