@@ -34,4 +34,12 @@ interface IExternalRegistry {
     external
     view
     returns (bool);
+
+    function isDIDProviderOrOwner(
+        bytes32 _did,
+        address _provider
+    )
+    external
+    view
+    returns (bool);
 }
