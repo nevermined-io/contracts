@@ -224,7 +224,7 @@ module.exports = {
         },
         // Polygon: matic mainnet
         matic: {
-            url: url || 'https://matic-mainnet.chainstacklabs.com',
+            url: url || 'https://polygon-mainnet.infura.io/v3/d61e640c4d2c4079b775e99ca0cfcc32',
             chainId: 137,
             accounts,
             confirmations: 2,
@@ -260,7 +260,7 @@ module.exports = {
             polygonMumbai: process.env.POLYGONSCAN_TOKEN,
             polygon: process.env.POLYGONSCAN_TOKEN,
             arbitrumGoerli: process.env.ARBISCAN_TOKEN,
-            arbitrumSepolia: process.env.ARBISCAN_TOKEN,
+            //            arbitrumSepolia: process.env.ARBISCAN_TOKEN,
             arbitrumOne: process.env.ARBISCAN_TOKEN,
             chiado: process.env.GNOSIS_TOKEN,
             gnosis: process.env.GNOSIS_TOKEN
