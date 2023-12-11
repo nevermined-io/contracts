@@ -129,7 +129,7 @@ contract NFT1155Upgradeable is ERC1155Upgradeable, NFTBase {
         // Only can mint if:
         require(isOperator(_msgSender()) || // is contract operator  
             to == owner() || // is contract owner
-            _msgSender() == nftRegistry.getDIDOwner(bytes32(id)) // is asset owner
+            nftRegistry.isDIDProviderOrOwner(bytes32(id), _msgSender()) // is asset owner or provider
             , // Is operator or the NFT owner is _msgSender() 
             'only operator can mint');
         
