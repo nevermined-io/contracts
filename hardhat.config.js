@@ -281,19 +281,19 @@ module.exports = {
         },
         customChains: [
             {
-                network: "neonevm",
+                network: 'neonevm',
                 chainId: 245022926,
                 urls: {
-                    apiURL: "https://devnet-api.neonscan.org/hardhat/verify",
-                    browserURL: "https://devnet.neonscan.org"
+                    apiURL: 'https://devnet-api.neonscan.org/hardhat/verify',
+                    browserURL: 'https://devnet.neonscan.org'
                 }
             },
             {
-                network: "neonevm",
+                network: 'neonevm',
                 chainId: 245022934,
                 urls: {
-                    apiURL: "https://api.neonscan.org/hardhat/verify",
-                    browserURL: "https://neonscan.org"
+                    apiURL: 'https://api.neonscan.org/hardhat/verify',
+                    browserURL: 'https://neonscan.org'
                 }
             }
         ]
