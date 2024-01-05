@@ -44,6 +44,8 @@
     "deploy:arbitrum-sepolia": "export NETWORK=arbitrum-sepolia&&export TESTNET=true&&yarn deploy --network arbitrum-sepolia",
     "deploy:mainnet": "export NETWORK=mainnet&&yarn deploy --network mainnet",
     "deploy:arbitrum-one": "export NETWORK=arbitrum-one&&export TESTNET=false&&yarn deploy --network arbitrum-one",
+    "deploy:neon-devnet": "export NETWORK=neon-devnet&&export TESTNET=true&&yarn deploy --network neon-devnet",
+    "deploy:neon-mainnet": "export NETWORK=neon-mainnet&&export TESTNET=false&&yarn deploy --network neon-mainnet",
     "deploy:mumbai": "export NETWORK=mumbai&&export TESTNET=true&&yarn deploy --network mumbai",
     "deploy:matic": "export NETWORK=matic&&export TESTNET=false&&yarn deploy --network matic",
     "deploy:chiado": "export NETWORK=chiado &&export TESTNET=true&&yarn deploy --network chiado",

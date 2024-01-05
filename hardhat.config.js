@@ -184,6 +184,20 @@ module.exports = {
             gasPrice: 1200000000
 
         },
+        'neon-devnet': {
+            url: url || 'https://devnet.neonevm.org',
+            accounts, // [process.env.PRIVATE_KEY_OWNER],
+            chainId: 245022926,
+            //            skipDryRun: true,
+            from: '0x73943d14131268F23b721E668911bCDDEcA9da62'
+        },
+        'neon-mainnet': {
+            url: url || 'https://neon-proxy-mainnet.solana.p2p.org',
+            accounts,
+            chainId: 245022934,
+            //            skipDryRun: true,
+            from: '0x73943d14131268F23b721E668911bCDDEcA9da62'
+        },
         'arbitrum-one': {
             url: url || `https://arbitrum-mainnet.infura.io/v3/${process.env.INFURA_TOKEN}`,
             accounts,
@@ -266,6 +280,22 @@ module.exports = {
             gnosis: process.env.GNOSIS_TOKEN
         },
         customChains: [
+            {
+                network: 'neonevm',
+                chainId: 245022926,
+                urls: {
+                    apiURL: 'https://devnet-api.neonscan.org/hardhat/verify',
+                    browserURL: 'https://devnet.neonscan.org'
+                }
+            },
+            {
+                network: 'neonevm',
+                chainId: 245022934,
+                urls: {
+                    apiURL: 'https://api.neonscan.org/hardhat/verify',
+                    browserURL: 'https://neonscan.org'
+                }
+            }
         ]
     }
 }
