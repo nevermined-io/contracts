@@ -3,7 +3,7 @@
  */
 require('@openzeppelin/hardhat-upgrades')
 require('@nomiclabs/hardhat-truffle5')
-require('@nomiclabs/hardhat-etherscan')
+require("@nomicfoundation/hardhat-verify")
 require('hardhat-dependency-compiler')
 require('hardhat-gas-reporter')
 require('solidity-coverage')
@@ -267,6 +267,9 @@ module.exports = {
             gasPrice: parseInt(utils.toWei('45', 'gwei'))
         }
     },
+    sourcify: {
+        enabled: false
+    },
     etherscan: {
         apiKey: {
             goerli: process.env.ETHERSCAN_TOKEN,
@@ -274,12 +277,20 @@ module.exports = {
             polygonMumbai: process.env.POLYGONSCAN_TOKEN,
             polygon: process.env.POLYGONSCAN_TOKEN,
             arbitrumGoerli: process.env.ARBISCAN_TOKEN,
-            //            arbitrumSepolia: process.env.ARBISCAN_TOKEN,
+            arbitrumSepolia: process.env.ARBISCAN_TOKEN,
             arbitrumOne: process.env.ARBISCAN_TOKEN,
             chiado: process.env.GNOSIS_TOKEN,
             gnosis: process.env.GNOSIS_TOKEN
         },
         customChains: [
+            {
+                network: 'arbitrumSepolia',
+                chainId: 421614,
+                urls: {
+                    apiURL: 'https://api-sepolia.arbiscan.io/api',
+                    browserURL: 'https://sepolia.arbiscan.io/'
+                }
+            },
             {
                 network: 'neonevm',
                 chainId: 245022926,

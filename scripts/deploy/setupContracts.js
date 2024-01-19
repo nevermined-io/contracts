@@ -95,9 +95,10 @@ async function transferOwnership({
         console.log('Error getting contract owner from contract')
     }
     console.log(contractOwner, roles.deployer)
-    if (contractOwner === roles.owner) {
+    if (contractOwner == roles.owner) {
         console.log(`The owner wallet {roles.owner} is already owner of the contract ${name}`)
-    } else if (contractOwner === roles.deployer) {
+    } else if (contractOwner == roles.deployer) {
+        console.log(`Transferring ownership of ${name} from ${roles.deployer} to ${roles.ownerWallet}`)
         const tx = await ContractInstance.connect(roles.deployerSigner).transferOwnership(
             roles.ownerWallet,
             { from: roles.deployer }

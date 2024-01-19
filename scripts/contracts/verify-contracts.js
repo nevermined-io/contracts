@@ -4,6 +4,12 @@ const path = require('path')
 const fs = require('fs')
 const defaultToVerify = require('../deploy/contracts-verify.json')
 
+// Map of network names which are different in hardhat
+const networksMap = {}
+networksMap['arbitrum-one'] = 'arbitrum-one'
+
+
+
 /**
 * This script verify all the contracts source code for a given version, network & tag name
 * It requires the following parameters:
@@ -92,7 +98,11 @@ function processContracts(tempDir, artifactsDir, network, contractsToVerify) {
 }
 
 function verifyContract(contractAddress, network, tempDir, contractEntity) {
-    const verifyCommand = `npx hardhat verify --network ${network} ${contractAddress} --contract ${contractEntity}`
+    const networkName = networksMap[network] || network
+
+    console.log(`Using Verification Network Name: ${networkName}`)
+
+    const verifyCommand = `npx hardhat verify --network ${networkName} ${contractAddress} --contract ${contractEntity}`
     console.log(`Executing verification command: ${verifyCommand}`)
     execSync(verifyCommand, { cwd: `${tempDir}` })
 }
@@ -125,6 +135,7 @@ if (args.length > 3) {
 }
 
 if (args.length > 4) { tempDir = args[4] } else { tempDir = createEphemeralFolder(version) }
+
 
 console.log(`\nVerifying contracts (${contractsToVerify}) of version ${version} deployed on network ${network} using the tag ${tag}\n`)
 console.log(`Using contracts folder ${tempDir}`)
