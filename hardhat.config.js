@@ -3,7 +3,7 @@
  */
 require('@openzeppelin/hardhat-upgrades')
 require('@nomiclabs/hardhat-truffle5')
-require("@nomicfoundation/hardhat-verify")
+require('@nomicfoundation/hardhat-verify')
 require('hardhat-dependency-compiler')
 require('hardhat-gas-reporter')
 require('solidity-coverage')

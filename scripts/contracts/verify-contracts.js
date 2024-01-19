@@ -8,8 +8,6 @@ const defaultToVerify = require('../deploy/contracts-verify.json')
 const networksMap = {}
 networksMap['arbitrum-one'] = 'arbitrum-one'
 
-
-
 /**
 * This script verify all the contracts source code for a given version, network & tag name
 * It requires the following parameters:
@@ -135,7 +133,6 @@ if (args.length > 3) {
 }
 
 if (args.length > 4) { tempDir = args[4] } else { tempDir = createEphemeralFolder(version) }
-
 
 console.log(`\nVerifying contracts (${contractsToVerify}) of version ${version} deployed on network ${network} using the tag ${tag}\n`)
 console.log(`Using contracts folder ${tempDir}`)
