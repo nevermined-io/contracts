@@ -263,73 +263,111 @@ contract('NFT1155 Subscription', (accounts) => {
         })
 
         it('Tokens are minted, burned and expired', async () => {
+                await setupTest()
+
+                let balance
+                const didSeed4 = testUtils.generateId()
+                const tokenId4 = await didRegistry.hashDID(didSeed4, minter)
+                await didRegistry.methods[
+                    'registerMintableDID(bytes32,address,bytes32,address[],string,uint256,uint256,bool,bytes32,string,string)'
+                ](didSeed4, nft.address, checksum, [], url, 0, 0, false, constants.activities.GENERATED, '', '', { from: minter })
+
+                let currentBlockNumber = await ethers.provider.getBlockNumber()
+
+                // We MINT 10 tokens
+                await nft.methods[
+                    'mint(address,uint256,uint256,uint256,bytes)'
+                ](account2, tokenId4, 10, currentBlockNumber + blocksExpiring, data, { from: minter })
+
+                // Balance is 10
+                balance = new BigNumber(await nft.balanceOf(account2, tokenId4))
+                assert.strictEqual(balance.toNumber(), 10)
+
+                // We BURN 2 tokens
+                await nft.methods[
+                    'burn(address,uint256,uint256)'
+                ](account2, tokenId4, 2, { from: minter })
+
+                // Balance is 8
+                balance = new BigNumber(await nft.balanceOf(account2, tokenId4))
+                assert.strictEqual(balance.toNumber(), 10 - 2)
+
+                await increaseTime.mineBlocks(web3, blocksExpiring)
+
+                // Balance is 0
+                balance = new BigNumber(await nft.balanceOf(account2, tokenId4))
+                assert.strictEqual(balance.toNumber(), 0)
+
+                currentBlockNumber = await ethers.provider.getBlockNumber()
+
+                // We MINT 15 tokens
+                await nft.methods[
+                    'mint(address,uint256,uint256,uint256,bytes)'
+                ](account2, tokenId4, 15, currentBlockNumber + blocksExpiring, data, { from: minter })
+
+                // Balance is 15
+                balance = new BigNumber(await nft.balanceOf(account2, tokenId4))
+                assert.strictEqual(balance.toNumber(), 15)
+
+                // BURN 3 tokens
+                await nft.methods[
+                    'burn(address,uint256,uint256)'
+                ](account2, tokenId4, 3, { from: minter })
+
+                // Balance is 12
+                balance = new BigNumber(await nft.balanceOf(account2, tokenId4))
+                assert.strictEqual(balance.toNumber(), 12)
+
+                // EXPIRE 12 tokens
+                await increaseTime.mineBlocks(web3, blocksExpiring)
+
+                // Balance is 0
+                balance = new BigNumber(await nft.balanceOf(account2, tokenId4))
+                assert.strictEqual(balance.toNumber(), 0)
+
+                const minted = await nft.getMintedEntries(account2, tokenId4)
+                for (var index = 0; index < minted.length; index++) {
+                    console.log(`Token ${minted[index].isMintOps ? 'MINTED' : 'BURNED'} on block ${minted[index].mintBlock}, amount ${minted[index].amountMinted} and expiring = ${minted[index].expirationBlock}`)
+                }
+                assert.strictEqual(minted.length, 4)
+        })
+
+        it('Multiple tokens can be burned without generating provenance issues', async () => {
+
             await setupTest()
 
             let balance
-            const didSeed4 = testUtils.generateId()
-            const tokenId4 = await didRegistry.hashDID(didSeed4, minter)
+            const didSeed5 = testUtils.generateId()
+            const tokenId5 = await didRegistry.hashDID(didSeed5, minter)
             await didRegistry.methods[
                 'registerMintableDID(bytes32,address,bytes32,address[],string,uint256,uint256,bool,bytes32,string,string)'
-            ](didSeed4, nft.address, checksum, [], url, 0, 0, false, constants.activities.GENERATED, '', '', { from: minter })
+            ](didSeed5, nft.address, checksum, [], url, 0, 0, false, constants.activities.GENERATED, '', '', { from: minter })
 
             let currentBlockNumber = await ethers.provider.getBlockNumber()
 
             // We MINT 10 tokens
             await nft.methods[
                 'mint(address,uint256,uint256,uint256,bytes)'
-            ](account2, tokenId4, 10, currentBlockNumber + blocksExpiring, data, { from: minter })
+            ](account2, tokenId5, 10, currentBlockNumber + blocksExpiring, data, { from: minter })
 
-            // Balance is 10
-            balance = new BigNumber(await nft.balanceOf(account2, tokenId4))
-            assert.strictEqual(balance.toNumber(), 10)
 
-            // We BURN 2 tokens
-            await nft.methods[
-                'burn(address,uint256,uint256)'
-            ](account2, tokenId4, 2, { from: minter })
+
+            // We BURN 1 tokens 2 times
+            await nft.burnBatch(account2, [tokenId5, tokenId5], [1, 1], { from: minter })
+//            nft.methods[
+//                'burn(address,uint256,uint256)'
+//            ](account2, tokenId5, 1, { from: minter })
+//
+//            await nft.methods[
+//                'burn(address,uint256,uint256)'
+//            ](account2, tokenId5, 1, { from: minter })
+
+            await increaseTime.mineBlocks(web3, 2)
 
             // Balance is 8
-            balance = new BigNumber(await nft.balanceOf(account2, tokenId4))
+            balance = new BigNumber(await nft.balanceOf(account2, tokenId5))
             assert.strictEqual(balance.toNumber(), 10 - 2)
 
-            await increaseTime.mineBlocks(web3, blocksExpiring)
-
-            // Balance is 0
-            balance = new BigNumber(await nft.balanceOf(account2, tokenId4))
-            assert.strictEqual(balance.toNumber(), 0)
-
-            currentBlockNumber = await ethers.provider.getBlockNumber()
-
-            // We MINT 15 tokens
-            await nft.methods[
-                'mint(address,uint256,uint256,uint256,bytes)'
-            ](account2, tokenId4, 15, currentBlockNumber + blocksExpiring, data, { from: minter })
-
-            // Balance is 15
-            balance = new BigNumber(await nft.balanceOf(account2, tokenId4))
-            assert.strictEqual(balance.toNumber(), 15)
-
-            // BURN 3 tokens
-            await nft.methods[
-                'burn(address,uint256,uint256)'
-            ](account2, tokenId4, 3, { from: minter })
-
-            // Balance is 12
-            balance = new BigNumber(await nft.balanceOf(account2, tokenId4))
-            assert.strictEqual(balance.toNumber(), 12)
-
-            // EXPIRE 12 tokens
-            await increaseTime.mineBlocks(web3, blocksExpiring)
-
-            // Balance is 0
-            balance = new BigNumber(await nft.balanceOf(account2, tokenId4))
-            assert.strictEqual(balance.toNumber(), 0)
-
-            const minted = await nft.getMintedEntries(account2, tokenId4)
-            for (var index = 0; index < minted.length; index++) {
-                console.log(`Token ${minted[index].isMintOps ? 'MINTED' : 'BURNED'} on block ${minted[index].mintBlock}, amount ${minted[index].amountMinted} and expiring = ${minted[index].expirationBlock}`)
-            }
-            assert.strictEqual(minted.length, 4)
         })
     })
 })

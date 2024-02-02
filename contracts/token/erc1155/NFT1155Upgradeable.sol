@@ -142,7 +142,7 @@ contract NFT1155Upgradeable is ERC1155Upgradeable, NFTBase {
         _nftAttributes[id].nftSupply += amount;
         // Register provenance event
         nftRegistry.used(
-            keccak256(abi.encode(id, _msgSender(), 'mint', amount, block.number)),
+            keccak256(abi.encode(id, _msgSender(), 'mint', amount, block.number, _nftAttributes[id].nftSupply, data)),
             bytes32(id), _msgSender(), keccak256('mint'), '', 'mint');
         
         _mint(to, id, amount, data);
@@ -151,8 +151,12 @@ contract NFT1155Upgradeable is ERC1155Upgradeable, NFTBase {
     function burn(uint256 id, uint256 amount) virtual public {
         burn(_msgSender(), id, amount); 
     }
-    
+
     function burn(address to, uint256 id, uint256 amount) virtual public {
+        burn(to, id, amount, 0);
+    }
+    
+    function burn(address to, uint256 id, uint256 amount, uint256 seed) virtual public {
         require(balanceOf(to, id) >= amount, 'ERC1155: burn amount exceeds balance');
         require(         
             isOperator(_msgSender()) || // Or the DIDRegistry is burning the NFT 
@@ -166,7 +170,7 @@ contract NFT1155Upgradeable is ERC1155Upgradeable, NFTBase {
         _nftAttributes[id].nftSupply -= amount;
         // Register provenance event
         nftRegistry.used(
-            keccak256(abi.encode(id, _msgSender(), 'burn', amount, block.number)),
+            keccak256(abi.encode(id, _msgSender(), 'burn', amount, block.number, seed, _nftAttributes[id].nftSupply)),
                 bytes32(id), _msgSender(), keccak256('burn'), '', 'burn');
         
         _burn(to, id, amount);
