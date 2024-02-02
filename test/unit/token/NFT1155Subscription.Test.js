@@ -331,5 +331,30 @@ contract('NFT1155 Subscription', (accounts) => {
             }
             assert.strictEqual(minted.length, 4)
         })
+
+        it('Multiple tokens can be burned without generating provenance issues', async () => {
+            await setupTest()
+
+            const didSeed5 = testUtils.generateId()
+            const tokenId5 = await didRegistry.hashDID(didSeed5, minter)
+            await didRegistry.methods[
+                'registerMintableDID(bytes32,address,bytes32,address[],string,uint256,uint256,bool,bytes32,string,string)'
+            ](didSeed5, nft.address, checksum, [], url, 0, 0, false, constants.activities.GENERATED, '', '', { from: minter })
+
+            const currentBlockNumber = await ethers.provider.getBlockNumber()
+
+            // We MINT 10 tokens
+            await nft.methods[
+                'mint(address,uint256,uint256,uint256,bytes)'
+            ](account2, tokenId5, 10, currentBlockNumber + blocksExpiring, data, { from: minter })
+
+            // We BURN 1 tokens 2 times
+            await nft.burnBatch(account2, [tokenId5, tokenId5], [1, 1], { from: minter })
+            await increaseTime.mineBlocks(web3, 2)
+
+            // Balance is 8
+            const balance = new BigNumber(await nft.balanceOf(account2, tokenId5))
+            assert.strictEqual(balance.toNumber(), 10 - 2)
+        })
     })
 })
