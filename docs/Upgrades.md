@@ -169,6 +169,12 @@ export UPGRADE_VERSION=v3.5.4
 
 - Commit all changes in `.openzeppelin/unknown-$NETWORK_ID.json.$TAG` file
 
+- Verify the changes
+
+```bash
+nodejs ./scripts/contracts/verify-contracts.js $UPGRADE_VERSION $NETWORK $TAG
+```
+
 ### 4. Approve Upgrade(s) -no applicable for current deployments-
 
 All upgrades of the contracts have to be approved by the `upgrader` wallet configured in the `wallets.json` file.

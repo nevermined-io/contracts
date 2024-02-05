@@ -7,6 +7,7 @@ const defaultToVerify = require('../deploy/contracts-verify.json')
 // Map of network names which are different in hardhat
 const networksMap = {}
 networksMap['arbitrum-one'] = 'arbitrum-one'
+networksMap['gnosis'] = 'gnosis'
 
 /**
 * This script verify all the contracts source code for a given version, network & tag name
