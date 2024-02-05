@@ -238,7 +238,7 @@ module.exports = {
         },
         // Polygon: matic mainnet
         matic: {
-            url: url || 'https://polygon-mainnet.infura.io/v3/d61e640c4d2c4079b775e99ca0cfcc32',
+            url: url || `https://polygon-mainnet.infura.io/v3/${process.env.INFURA_TOKEN}`,
             chainId: 137,
             accounts,
             confirmations: 2,
