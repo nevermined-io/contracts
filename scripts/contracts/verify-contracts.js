@@ -7,6 +7,8 @@ const defaultToVerify = require('../deploy/contracts-verify.json')
 // Map of network names which are different in hardhat
 const networksMap = {}
 networksMap['arbitrum-one'] = 'arbitrum-one'
+networksMap.optimism = 'optimism'
+networksMap.base = 'base'
 networksMap.gnosis = 'gnosis'
 
 /**

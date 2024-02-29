@@ -158,23 +158,6 @@ module.exports = {
             deploymentPollingInterval: 8000,
             from: '0xB6d47415AfCDD06c5155d0E191530027FD51CCfD'
         },
-        goerli: {
-            url: url || `https://goerli.infura.io/v3/${process.env.INFURA_TOKEN}`,
-            accounts,
-            chainId: 0x5, // 5
-            skipDryRun: true,
-            from: '0x73943d14131268F23b721E668911bCDDEcA9da62'
-        },
-        'arbitrum-goerli': {
-            // url: url || `https://arbitrum-goerli.infura.io/v3/${process.env.INFURA_TOKEN}`,
-            url: 'https://goerli-rollup.arbitrum.io/rpc',
-            accounts,
-            chainId: 421613,
-            //            skipDryRun: true,
-            from: '0x73943d14131268F23b721E668911bCDDEcA9da62',
-            gasPrice: 1200000000
-
-        },
         'arbitrum-sepolia': {
             url: url || 'https://sepolia-rollup.arbitrum.io/rpc',
             accounts,
@@ -197,6 +180,20 @@ module.exports = {
             chainId: 245022934,
             //            skipDryRun: true,
             from: '0x73943d14131268F23b721E668911bCDDEcA9da62'
+        },
+        'optimism': {
+            url: url || `https://optimism-mainnet.infura.io/v3/${process.env.INFURA_TOKEN}`,
+            accounts,
+            chainId: 10,
+            skipDryRun: true
+            //            from: '0x73943d14131268F23b721E668911bCDDEcA9da62'
+        },
+        'base': {
+            url: url || `https://mainnet.base.org`,
+            accounts,
+            chainId: 8453,
+            skipDryRun: true
+            //            from: '0x73943d14131268F23b721E668911bCDDEcA9da62'
         },
         'arbitrum-one': {
             url: url || `https://arbitrum-mainnet.infura.io/v3/${process.env.INFURA_TOKEN}`,
@@ -272,11 +269,9 @@ module.exports = {
     },
     etherscan: {
         apiKey: {
-            goerli: process.env.ETHERSCAN_TOKEN,
             mainnet: process.env.ETHERSCAN_TOKEN,
             polygonMumbai: process.env.POLYGONSCAN_TOKEN,
             polygon: process.env.POLYGONSCAN_TOKEN,
-            arbitrumGoerli: process.env.ARBISCAN_TOKEN,
             arbitrumSepolia: process.env.ARBISCAN_TOKEN,
             arbitrumOne: process.env.ARBISCAN_TOKEN,
             chiado: process.env.GNOSIS_TOKEN,
