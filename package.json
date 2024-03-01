@@ -42,7 +42,7 @@
     "deploy:arbitrum-sepolia": "export NETWORK=arbitrum-sepolia&&export TESTNET=true&&yarn deploy --network arbitrum-sepolia",
     "deploy:mainnet": "export NETWORK=mainnet&&yarn deploy --network mainnet",
     "deploy:arbitrum-one": "export NETWORK=arbitrum-one&&export TESTNET=false&&yarn deploy --network arbitrum-one",
-    "deploy:optimism": "export NETWORK=optimism&&export TESTNET=false&&yarn deploy --network optimism",
+    "deploy:optimism": "export NETWORK=optimism && export TESTNET=false&&yarn deploy --network optimism",
     "deploy:base": "export NETWORK=base&&export TESTNET=false&&yarn deploy --network base",
     "deploy:neon-devnet": "export NETWORK=neon-devnet&&export TESTNET=true&&yarn deploy --network neon-devnet",
     "deploy:neon-mainnet": "export NETWORK=neon-mainnet&&export TESTNET=false&&yarn deploy --network neon-mainnet",

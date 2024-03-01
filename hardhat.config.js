@@ -272,6 +272,8 @@ module.exports = {
             mainnet: process.env.ETHERSCAN_TOKEN,
             polygonMumbai: process.env.POLYGONSCAN_TOKEN,
             polygon: process.env.POLYGONSCAN_TOKEN,
+            optimism: process.env.ETHERSCAN_TOKEN,
+            base: process.env.BASESCAN_TOKEN,
             arbitrumSepolia: process.env.ARBISCAN_TOKEN,
             arbitrumOne: process.env.ARBISCAN_TOKEN,
             chiado: process.env.GNOSIS_TOKEN,

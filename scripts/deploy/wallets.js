@@ -7,6 +7,7 @@ const fs = require('fs')
 
 async function loadWallet({ makeWallet }) {
     const accounts = await web3.eth.getAccounts()
+
     console.log('Account', accounts)
 
     while (accounts.length < 10) {
