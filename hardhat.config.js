@@ -181,15 +181,15 @@ module.exports = {
             //            skipDryRun: true,
             from: '0x73943d14131268F23b721E668911bCDDEcA9da62'
         },
-        'optimism': {
+        optimism: {
             url: url || `https://optimism-mainnet.infura.io/v3/${process.env.INFURA_TOKEN}`,
             accounts,
             chainId: 10,
             skipDryRun: true
             //            from: '0x73943d14131268F23b721E668911bCDDEcA9da62'
         },
-        'base': {
-            url: url || `https://mainnet.base.org`,
+        base: {
+            url: url || 'https://mainnet.base.org',
             accounts,
             chainId: 8453,
             skipDryRun: true
