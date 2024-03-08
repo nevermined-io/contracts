@@ -61,8 +61,9 @@ contract NFT1155SubscriptionUpgradeable is NFT1155Upgradeable {
     function burn(address to, uint256 id, uint256 amount) override public {
         burn(to, id, amount, 0);
     }
-    
-    function burn(address to, uint256 id, uint256 amount, uint256 seed) override public {
+
+    // solhint-disable-next-line
+    function burn(address to, uint256 id, uint256 amount, uint256 _seed) override public {
         require(balanceOf(to, id) >= amount, 'ERC1155: burn amount exceeds balance');
         require(
             isOperator(_msgSender()) || // Or the DIDRegistry is burning the NFT 
@@ -75,9 +76,9 @@ contract NFT1155SubscriptionUpgradeable is NFT1155Upgradeable {
         // Update nftSupply
         _nftAttributes[id].nftSupply -= amount;
         // Register provenance event
-        nftRegistry.used(
-            keccak256(abi.encode(id, _msgSender(), 'burn', amount, block.number, seed, _nftAttributes[id].nftSupply)),
-            bytes32(id), _msgSender(), keccak256('burn'), '', 'burn');
+//        nftRegistry.used(
+//            keccak256(abi.encode(id, _msgSender(), 'burn', amount, block.number, seed, _nftAttributes[id].nftSupply)),
+//            bytes32(id), _msgSender(), keccak256('burn'), '', 'burn');
         
         bytes32 _key = _getTokenKey(to, id);
 

@@ -54,7 +54,7 @@ module.exports = {
     gasReporter: {
         enabled: !!(process.env.REPORT_GAS),
         showTimeSpent: true,
-        currency: 'EUR'
+        currency: 'USD'
     },
     docgen: {
         outputDir: 'docs/generated/'
