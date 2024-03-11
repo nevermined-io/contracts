@@ -1,0 +1,3427 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Nevermined, The world's first enterprise-grade unstoppable data sharing ecosystem">
+      
+      
+        <meta name="author" content="Nevermined">
+      
+      
+        <link rel="canonical" href="http://docs.nevermined.io/Upgrades/">
+      
+      
+        <link rel="prev" href="../ReleaseProcess/">
+      
+      
+        <link rel="next" href="../contracts/Common/">
+      
+      
+      <link rel="icon" href="../assets/nevermined/favicon-nvm.ico">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.13">
+    
+    
+      
+        <title>Upgrade Process - Nevermined Contracts Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.7e359304.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="black" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#upgrade-process" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Nevermined Contracts Documentation" class="md-header__button md-logo" aria-label="Nevermined Contracts Documentation" data-md-component="logo">
+      
+  <img src="../assets/nevermined/favicon-32.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Nevermined Contracts Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Upgrade Process
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/nevermined-io/contracts" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    nevermined-io/contracts
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Nevermined Contracts Documentation" class="md-nav__button md-logo" aria-label="Nevermined Contracts Documentation" data-md-component="logo">
+      
+  <img src="../assets/nevermined/favicon-32.png" alt="logo">
+
+    </a>
+    Nevermined Contracts Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/nevermined-io/contracts" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    nevermined-io/contracts
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Solidity API
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ContractABIs/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Contracts ABIs
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Frost/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Frost network
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Packages/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Packages
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ReleaseProcess/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Release Process
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Upgrade Process
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Upgrade Process
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#quickstart" class="md-nav__link">
+    <span class="md-ellipsis">
+      Quickstart
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#details" class="md-nav__link">
+    <span class="md-ellipsis">
+      Details
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#roles" class="md-nav__link">
+    <span class="md-ellipsis">
+      Roles
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#-governor-has-to-have-the-governor_role-in-the-contracts-it-is-used-for-issuing-upgrade-config-requests" class="md-nav__link">
+    <span class="md-ellipsis">
+      - Governor: Has to have the GOVERNOR_ROLE in the contracts. It is used for issuing upgrade config requests.
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deploy-upgrade" class="md-nav__link">
+    <span class="md-ellipsis">
+      Deploy &amp; Upgrade
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Deploy & Upgrade">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Configuration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-preparation" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Preparation
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-deploy-upgrade" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Deploy &amp; Upgrade
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Deploy & Upgrade">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#copy-the-files-and-artifacts" class="md-nav__link">
+    <span class="md-ellipsis">
+      Copy the files and artifacts
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Copy the files and artifacts">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#upgrade-already-deployed-core-contracts" class="md-nav__link">
+    <span class="md-ellipsis">
+      Upgrade already deployed core contracts
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deploy-and-initialize-new-version-of-agreement-contracts" class="md-nav__link">
+    <span class="md-ellipsis">
+      Deploy and initialize new version of agreement contracts
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#upgrade-the-plonk-verifier-contract-to-the-new-version" class="md-nav__link">
+    <span class="md-ellipsis">
+      Upgrade the plonk verifier contract to the new version
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#upload-the-artifacts-to-the-repository-and-persist-any-change-in-openzeppelin-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      Upload the artifacts to the repository and persist any change in openzeppelin/ file
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-approve-upgrades-no-applicable-for-current-deployments-" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Approve Upgrade(s) -no applicable for current deployments-
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-audit-contracts-no-applicable-for-current-deployments-" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Audit Contracts -no applicable for current deployments-
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-typical-problems-and-workarounds" class="md-nav__link">
+    <span class="md-ellipsis">
+      6. Typical problems and workarounds
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Typical problems and workarounds">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#transfer-proxy-address-ownership-to-upgrader-wallet" class="md-nav__link">
+    <span class="md-ellipsis">
+      Transfer Proxy Address Ownership to Upgrader Wallet
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cannot-upgrade-error-deployment-at-address-0x-is-not-registered" class="md-nav__link">
+    <span class="md-ellipsis">
+      Cannot upgrade Error: Deployment at address 0x... is not registered
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Contracts
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            Contracts
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contracts/Common/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Common
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contracts/Dispenser/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Dispenser
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contracts/HashLists/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    HashLists
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contracts/NeverminedToken/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    NeverminedToken
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contracts/PlonkVerifier/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    PlonkVerifier
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_7_6" id="__nav_7_6_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Agreements
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_7_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7_6">
+            <span class="md-nav__icon md-icon"></span>
+            Agreements
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contracts/agreements/AgreementStoreLibrary/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    AgreementStoreLibrary
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contracts/agreements/AgreementStoreManager/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    AgreementStoreManager
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7_7" id="__nav_7_7_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Conditions
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_7_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7_7">
+            <span class="md-nav__icon md-icon"></span>
+            Conditions
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contracts/conditions/AccessCondition/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    AccessCondition
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contracts/conditions/AccessProofCondition/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    AccessProofCondition
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contracts/conditions/ComputeExecutionCondition/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ComputeExecutionCondition
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contracts/conditions/Condition/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Condition
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contracts/conditions/ConditionStoreLibrary/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ConditionStoreLibrary
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contracts/conditions/ConditionStoreManager/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ConditionStoreManager
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contracts/conditions/HashLockCondition/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    HashLockCondition
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contracts/conditions/IDisputeManager/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    IDisputeManager
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contracts/conditions/LockPaymentCondition/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    LockPaymentCondition
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contracts/conditions/SignCondition/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    SignCondition
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contracts/conditions/ThresholdCondition/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ThresholdCondition
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contracts/conditions/TransferDIDOwnershipCondition/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TransferDIDOwnershipCondition
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contracts/conditions/WhitelistingCondition/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    WhitelistingCondition
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7_7_14" >
+        
+          
+          <label class="md-nav__link" for="__nav_7_7_14" id="__nav_7_7_14_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    NFTs
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_7_7_14_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7_7_14">
+            <span class="md-nav__icon md-icon"></span>
+            NFTs
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contracts/conditions/NFTs/INFTAccess/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    INFTAccess
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contracts/conditions/NFTs/INFTHolder/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    INFTHolder
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contracts/conditions/NFTs/ITransferNFT/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ITransferNFT
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contracts/conditions/NFTs/NFT721HolderCondition/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    NFT721HolderCondition
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contracts/conditions/NFTs/NFTAccessCondition/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    NFTAccessCondition
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contracts/conditions/NFTs/NFTHolderCondition/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    NFTHolderCondition
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contracts/conditions/NFTs/NFTLockCondition/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    NFTLockCondition
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contracts/conditions/NFTs/TransferNFT721Condition/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TransferNFT721Condition
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contracts/conditions/NFTs/TransferNFTCondition/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TransferNFTCondition
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7_7_15" >
+        
+          
+          <label class="md-nav__link" for="__nav_7_7_15" id="__nav_7_7_15_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Rewards
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_7_7_15_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7_7_15">
+            <span class="md-nav__icon md-icon"></span>
+            Rewards
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contracts/conditions/rewards/EscrowPaymentCondition/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    EscrowPaymentCondition
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contracts/conditions/rewards/Reward/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Reward
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_7_8" id="__nav_7_8_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Interfaces
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_7_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7_8">
+            <span class="md-nav__icon md-icon"></span>
+            Interfaces
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contracts/interfaces/IList/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    IList
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contracts/interfaces/ISecretStore/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ISecretStore
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contracts/interfaces/ISecretStorePermission/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ISecretStorePermission
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_7_9" id="__nav_7_9_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Libraries
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_7_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7_9">
+            <span class="md-nav__icon md-icon"></span>
+            Libraries
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contracts/libraries/EpochLibrary/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    EpochLibrary
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contracts/libraries/HashListLibrary/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    HashListLibrary
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7_10" >
+        
+          
+          <label class="md-nav__link" for="__nav_7_10" id="__nav_7_10_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Registry
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_7_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7_10">
+            <span class="md-nav__icon md-icon"></span>
+            Registry
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contracts/registry/DIDFactory/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DIDFactory
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contracts/registry/DIDRegistry/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DIDRegistry
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contracts/registry/DIDRegistryLibrary/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DIDRegistryLibrary
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contracts/registry/ProvenanceRegistry/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ProvenanceRegistry
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7_11" >
+        
+          
+          <label class="md-nav__link" for="__nav_7_11" id="__nav_7_11_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Templates
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_7_11_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7_11">
+            <span class="md-nav__icon md-icon"></span>
+            Templates
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contracts/templates/AccessProofTemplate/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    AccessProofTemplate
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contracts/templates/AccessTemplate/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    AccessTemplate
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contracts/templates/AgreementTemplate/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    AgreementTemplate
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contracts/templates/BaseEscrowTemplate/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    BaseEscrowTemplate
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contracts/templates/DIDSalesTemplate/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DIDSalesTemplate
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contracts/templates/DynamicAccessTemplate/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DynamicAccessTemplate
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contracts/templates/EscrowComputeExecutionTemplate/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    EscrowComputeExecutionTemplate
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contracts/templates/NFTAccessTemplate/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    NFTAccessTemplate
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contracts/templates/NFTSalesTemplate/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    NFTSalesTemplate
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contracts/templates/TemplateStoreLibrary/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TemplateStoreLibrary
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contracts/templates/TemplateStoreManager/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TemplateStoreManager
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7_12" >
+        
+          
+          <label class="md-nav__link" for="__nav_7_12" id="__nav_7_12_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Test
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_7_12_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7_12">
+            <span class="md-nav__icon md-icon"></span>
+            Test
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contracts/test/IPNFT/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    IPNFT
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contracts/test/TestDisputeManager/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TestDisputeManager
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contracts/test/TestERC721/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TestERC721
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7_12_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_7_12_4" id="__nav_7_12_4_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    AgreementStoreManager
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_7_12_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7_12_4">
+            <span class="md-nav__icon md-icon"></span>
+            AgreementStoreManager
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contracts/test/AgreementStoreManager/AgreementStoreManagerChangeFunctionSignature/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    AgreementStoreManagerChangeFunctionSignature
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contracts/test/AgreementStoreManager/AgreementStoreManagerChangeInStorage/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    AgreementStoreManagerChangeInStorage
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contracts/test/AgreementStoreManager/AgreementStoreManagerChangeInStorageAndLogic/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    AgreementStoreManagerChangeInStorageAndLogic
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contracts/test/AgreementStoreManager/AgreementStoreManagerExtraFunctionality/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    AgreementStoreManagerExtraFunctionality
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contracts/test/AgreementStoreManager/AgreementStoreManagerWithBug/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    AgreementStoreManagerWithBug
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7_12_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_7_12_5" id="__nav_7_12_5_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    ConditionStoreManager
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_7_12_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7_12_5">
+            <span class="md-nav__icon md-icon"></span>
+            ConditionStoreManager
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contracts/test/ConditionStoreManager/ConditionStoreChangeFunctionSignature/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ConditionStoreChangeFunctionSignature
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contracts/test/ConditionStoreManager/ConditionStoreChangeInStorage/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ConditionStoreChangeInStorage
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contracts/test/ConditionStoreManager/ConditionStoreChangeInStorageAndLogic/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ConditionStoreChangeInStorageAndLogic
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contracts/test/ConditionStoreManager/ConditionStoreExtraFunctionality/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ConditionStoreExtraFunctionality
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contracts/test/ConditionStoreManager/ConditionStoreWithBug/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ConditionStoreWithBug
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7_12_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_7_12_6" id="__nav_7_12_6_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    DIDRegistry
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_7_12_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7_12_6">
+            <span class="md-nav__icon md-icon"></span>
+            DIDRegistry
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contracts/test/DIDRegistry/DIDRegistryChangeFunctionSignature/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DIDRegistryChangeFunctionSignature
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contracts/test/DIDRegistry/DIDRegistryChangeInStorage/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DIDRegistryChangeInStorage
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contracts/test/DIDRegistry/DIDRegistryChangeInStorageAndLogic/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DIDRegistryChangeInStorageAndLogic
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contracts/test/DIDRegistry/DIDRegistryExtraFunctionality/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DIDRegistryExtraFunctionality
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contracts/test/DIDRegistry/DIDRegistryWithBug/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DIDRegistryWithBug
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7_12_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7_12_7" id="__nav_7_12_7_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    TemplateStoreManager
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_7_12_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7_12_7">
+            <span class="md-nav__icon md-icon"></span>
+            TemplateStoreManager
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contracts/test/TemplateStoreManager/TemplateStoreChangeFunctionSignature/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TemplateStoreChangeFunctionSignature
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contracts/test/TemplateStoreManager/TemplateStoreChangeInStorage/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TemplateStoreChangeInStorage
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contracts/test/TemplateStoreManager/TemplateStoreChangeInStorageAndLogic/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TemplateStoreChangeInStorageAndLogic
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contracts/test/TemplateStoreManager/TemplateStoreExtraFunctionality/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TemplateStoreExtraFunctionality
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contracts/test/TemplateStoreManager/TemplateStoreWithBug/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TemplateStoreWithBug
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7_12_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_7_12_8" id="__nav_7_12_8_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Libraries
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_7_12_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7_12_8">
+            <span class="md-nav__icon md-icon"></span>
+            Libraries
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contracts/test/libraries/DIDRegistryLibraryProxy/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DIDRegistryLibraryProxy
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contracts/test/libraries/EpochLibraryProxy/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    EpochLibraryProxy
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contracts/test/libraries/HashListLibraryProxy/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    HashListLibraryProxy
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7_13" >
+        
+          
+          <label class="md-nav__link" for="__nav_7_13" id="__nav_7_13_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Token
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_7_13_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7_13">
+            <span class="md-nav__icon md-icon"></span>
+            Token
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7_13_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_7_13_1" id="__nav_7_13_1_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Erc1155
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_7_13_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7_13_1">
+            <span class="md-nav__icon md-icon"></span>
+            Erc1155
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contracts/token/erc1155/NFTUpgradeable/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    NFTUpgradeable
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Generated
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            Generated
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../generated/solidity-api/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Solidity API
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+<h1 id="upgrade-process">Upgrade Process<a class="headerlink" href="#upgrade-process" title="Permanent link">&para;</a></h1>
+<p>This documents explains in detail how <a href="https://github.com/nevermined-io/contracts">nevermined-contracts</a> should be
+deployed using zeppelinOS and how the contracts can be upgraded. The latest section describes the test procedure.</p>
+<h2 id="quickstart">Quickstart<a class="headerlink" href="#quickstart" title="Permanent link">&para;</a></h2>
+<p>The first step to work with <code>zos</code> is to install dependencies then initialize the project. Then compile contracts and add contracts to the project.
+Finally push the contracts into the network and create the  upgradable instances. Once the contracts are deployed they can be tested and upgraded.
+Also we change the proxy administrator to a MultiSignature wallet to approve upgrades.
+We are going to use the <a href="https://github.com/nevermined-io/contract-tools">Nevermined Contract Tools</a> in order to perform
+any future deployments/upgrades.</p>
+<h2 id="details">Details<a class="headerlink" href="#details" title="Permanent link">&para;</a></h2>
+<p>Here we provide more details into each step of the initial deploy and the approach of upgradeability and governance.</p>
+<h2 id="roles">Roles<a class="headerlink" href="#roles" title="Permanent link">&para;</a></h2>
+<blockquote>
+<p><img alt="⚠️" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/svg/26a0.svg" title=":warning:" /> wallets.json file is needed if using a Gnosis MultiSig Wallet for the deployment. Currently none of the Nevermined contract deployments is using Gnosis Multisig wallets.</p>
+</blockquote>
+<p>Before going into more details about the deployment. We should differentiate between different roles in the system which
+govern the upgradeability in nevermined-contracts.</p>
+<p>Roles are defined as follows (check code configuration in <a href="../scripts/deploy/wallets.js">wallets.js</a>):</p>
+<div class="highlight"><pre><span></span><code>deployer: represented as accounts[8]
+upgrader: represented as accounts[8]
+governor: represented as accounts[9]
+ownerWallet: represented as the owner from wallets.json or accounts[8]
+upgraderWallet: represented as the upgrader from wallets.json or accounts[8]
+governorWallet: represented as the governor from wallets.json or accounts[9]
+</code></pre></div>
+<ul>
+<li>
+<p><strong>Deployer</strong>: Can be any account. It is used for deploying the initial <code>proxy contracts</code> and the <code>logic contracts</code>.</p>
+</li>
+<li>
+<p><strong>Upgrader</strong>: Has to be an <code>owner</code> of the <code>upgrader</code> multi sig wallet. It is used for issuing upgrade requests against the upgrader multi sig wallet.</p>
+</li>
+</ul>
+<h2 id="-governor-has-to-have-the-governor_role-in-the-contracts-it-is-used-for-issuing-upgrade-config-requests">- <strong>Governor</strong>: Has to have the <code>GOVERNOR_ROLE</code> in the contracts. It is used for issuing upgrade config requests.<a class="headerlink" href="#-governor-has-to-have-the-governor_role-in-the-contracts-it-is-used-for-issuing-upgrade-config-requests" title="Permanent link">&para;</a></h2>
+<ul>
+<li>
+<p><strong>UpgraderWallet</strong>: One instance of the multi sig wallet, defined as <code>upgrader</code>. This wallet will be assigned as zos admin and is required to do upgrades.</p>
+</li>
+<li>
+<p><strong>OwnerWallet</strong>: One instance of the multi sig wallet, defined as <code>owner</code>. This wallet will be assigned as the owner of all the contracts. It can be used to call specific functions in the contracts ie. change the configuration.</p>
+</li>
+<li>
+<p><strong>GovernorWallet</strong>: One instance of the multi sig wallet, defined as <code>governor</code>. This wallet will be assigned as zos admin and is required to do config updates in a Nevermined deployment.</p>
+</li>
+</ul>
+<h2 id="deploy-upgrade">Deploy &amp; Upgrade<a class="headerlink" href="#deploy-upgrade" title="Permanent link">&para;</a></h2>
+<p><code>zos</code> does not support migrations, hence all the initial configuration should be performed with
+<a href="https://github.com/nevermined-io/contract-tools">Nevermined Contract Tools</a>.
+Contract constructors are ignored so the initial setup of the contract should be made in a
+<a href="https://docs.zeppelinos.org/docs/advanced.html#initializers-vs-constructors"><code>initialize</code></a>
+function that will be executed only once after the initial deployment.</p>
+<h3 id="1-configuration">1. Configuration<a class="headerlink" href="#1-configuration" title="Permanent link">&para;</a></h3>
+<p><a href="https://github.com/nevermined-io/contract-tools">Nevermined Contract Tools</a> checks the <code>contracts.json</code> in order to
+detect the current contracts that are going to be deployed:</p>
+<div class="highlight"><pre><span></span><code><span class="p">[</span>
+<span class="w">  </span><span class="s2">&quot;ConditionStoreManager&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="s2">&quot;TemplateStoreManager&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="s2">&quot;AgreementStoreManager&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="s2">&quot;SignCondition&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="s2">&quot;HashLockCondition&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="s2">&quot;LockRewardCondition&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="s2">&quot;NFTHolderCondition&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="s2">&quot;AccessCondition&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="s2">&quot;EscrowReward&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="s2">&quot;EscrowAccessSecretStoreTemplate&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="s2">&quot;NFTAccessTemplate&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="s2">&quot;DIDRegistry&quot;</span>
+<span class="p">]</span>
+</code></pre></div>
+<p>Moreover for each network, <a href="https://github.com/nevermined-io/contract-tools">Nevermined Contract Tools</a> needs to detect
+the roles and their addresses from a pre-defined wallets config file.
+The following configuration should be an example for <code>wallets-&lt;NETWORK_NAME&gt;.json</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;upgrader&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;address&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;0x24eb26d4042a2ab576e7e39b87c3f33f276aef92&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;owner&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;address&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;0xd02d68c62401472ce35ba3c7e505deae62db2b8b&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;governor&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;address&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;0xeeff68c62401472ce35ba3c7e505deae62db2b8b&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">]</span>
+</code></pre></div>
+<h3 id="2-preparation">2. Preparation<a class="headerlink" href="#2-preparation" title="Permanent link">&para;</a></h3>
+<p>The following commands clean, install dependencies and compile the contracts:</p>
+<div class="highlight"><pre><span></span><code>yarn<span class="w"> </span>clean<span class="w"> </span><span class="c1">#to clean the work dir</span>
+yarn<span class="w"> </span><span class="c1">#install dependencies</span>
+yarn<span class="w"> </span>compile<span class="w"> </span><span class="c1">#to compile the contracts</span>
+</code></pre></div>
+<h3 id="3-deploy-upgrade">3. Deploy &amp; Upgrade<a class="headerlink" href="#3-deploy-upgrade" title="Permanent link">&para;</a></h3>
+<p>The following steps shows how to perform contracts deployment and upgrade on <code>Mumbai</code> and <code>&lt;Polygon&gt;</code> networks.</p>
+<h4 id="copy-the-files-and-artifacts">Copy the files and artifacts<a class="headerlink" href="#copy-the-files-and-artifacts" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Export the <code>NETWORK_ID</code> (check in <a href="https://chainlist.org/">https://chainlist.org/</a>) and contract's tag <code>TAG</code>, and latest version deployed <code>VERSION</code> for this contract release:</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="nb">export</span><span class="w"> </span><span class="nv">NETWORK_ID</span><span class="o">=</span><span class="m">80001</span><span class="w"> </span><span class="c1"># Network_ID for mumbai</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">NETWORK</span><span class="o">=</span>mumbai
+<span class="nb">export</span><span class="w"> </span><span class="nv">TAG</span><span class="o">=</span>public
+<span class="nb">export</span><span class="w"> </span><span class="nv">VERSION</span><span class="o">=</span><span class="s1">&#39;3.1.0&#39;</span>
+</code></pre></div>
+<ul>
+<li>Copy the .openzeppelin file for the <code>&lt;NETWORK_ID&gt;</code> and <code>&lt;TAG&gt;</code>(like <code>common</code> or <code>public</code>) deployment you want to upgrade:</li>
+<li><code>cp .openzeppelin/unknown-$NETWORK_ID.json.$TAG .openzeppelin/unknown-$NETWORK_ID.json</code></li>
+<li>Unpack the latest version of the artifacts for the <code>&lt;NETWORK_ID&gt;</code> and <code>&lt;TAG&gt;</code> in <code>artifacts</code>:</li>
+</ul>
+<div class="highlight"><pre><span></span><code>wget<span class="w"> </span>-O<span class="w"> </span>artifacts.tar.gz<span class="w"> </span><span class="s2">&quot;https://artifacts.nevermined.network/</span><span class="nv">$NETWORK_ID</span><span class="s2">/</span><span class="nv">$TAG</span><span class="s2">/contracts_v</span><span class="nv">$VERSION</span><span class="s2">.tar.gz&quot;</span>
+tar<span class="w"> </span>xvzf<span class="w"> </span>artifacts.tar.gz<span class="w"> </span>-C<span class="w"> </span>artifacts/
+</code></pre></div>
+<ul>
+<li>run <code>export MNEMONIC=&lt;deployment's mnemonic&gt;</code>. You will find them in the password manager.</li>
+</ul>
+<h5 id="upgrade-already-deployed-core-contracts">Upgrade already deployed core contracts<a class="headerlink" href="#upgrade-already-deployed-core-contracts" title="Permanent link">&para;</a></h5>
+<ul>
+<li>To upgrade the contracts run <code>yarn upgrade:$NETWORK</code></li>
+</ul>
+<h5 id="deploy-and-initialize-new-version-of-agreement-contracts">Deploy and initialize new version of agreement contracts<a class="headerlink" href="#deploy-and-initialize-new-version-of-agreement-contracts" title="Permanent link">&para;</a></h5>
+<ul>
+<li>To deploy and initialize all contracts: See the <a href="../ReleaseProcess/">Release Process</a>.</li>
+</ul>
+<p>This process will show multiple errors for the contracts that are being upgraded. You can ignore those messages.</p>
+<p>New versions are deployed with new addresses to make sure that existing agreements won't be messed up.</p>
+<h5 id="upgrade-the-plonk-verifier-contract-to-the-new-version">Upgrade the plonk verifier contract to the new version<a class="headerlink" href="#upgrade-the-plonk-verifier-contract-to-the-new-version" title="Permanent link">&para;</a></h5>
+<ul>
+<li>To upgrade the plonk verifier contract to the new version run <code>npx hardhat run ./scripts/deploy/upgradePlonkVerifier.js --network $NETWORK</code></li>
+</ul>
+<h5 id="upload-the-artifacts-to-the-repository-and-persist-any-change-in-openzeppelin-file">Upload the artifacts to the repository and persist any change in <code>openzeppelin/</code> file<a class="headerlink" href="#upload-the-artifacts-to-the-repository-and-persist-any-change-in-openzeppelin-file" title="Permanent link">&para;</a></h5>
+<ul>
+<li>To upload the artifacts to the repository run:</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># Because we are upgrading to a specific version export which version is</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">UPGRADE_VERSION</span><span class="o">=</span>v3.5.4
+./scripts/upload_artifacts_gs.sh<span class="w"> </span>contracts<span class="w"> </span><span class="nv">$NETWORK</span><span class="w"> </span><span class="nv">$TAG</span>
+./scripts/upload_artifacts_gs.sh<span class="w"> </span>abis<span class="w"> </span><span class="nv">$NETWORK</span><span class="w"> </span><span class="nv">$TAG</span>
+./scripts/upload_artifacts_gs.sh<span class="w"> </span>circuits<span class="w"> </span><span class="nv">$NETWORK</span><span class="w"> </span><span class="nv">$TAG</span>
+</code></pre></div>
+<ul>
+<li>
+<p>Copy the openzeppeling file base on tag: <code>cp -rp .openzeppelin/unknown-$NETWORK_ID.json .openzeppelin/unknown-$NETWORK_ID.json.$TAG</code></p>
+</li>
+<li>
+<p>Commit all changes in <code>.openzeppelin/unknown-$NETWORK_ID.json.$TAG</code> file</p>
+</li>
+<li>
+<p>Verify the changes</p>
+</li>
+</ul>
+<div class="highlight"><pre><span></span><code>nodejs<span class="w"> </span>./scripts/contracts/verify-contracts.js<span class="w"> </span><span class="nv">$UPGRADE_VERSION</span><span class="w"> </span><span class="nv">$NETWORK</span><span class="w"> </span><span class="nv">$TAG</span>
+</code></pre></div>
+<h3 id="4-approve-upgrades-no-applicable-for-current-deployments-">4. Approve Upgrade(s) -no applicable for current deployments-<a class="headerlink" href="#4-approve-upgrades-no-applicable-for-current-deployments-" title="Permanent link">&para;</a></h3>
+<p>All upgrades of the contracts have to be approved by the <code>upgrader</code> wallet configured in the <code>wallets.json</code> file.</p>
+<ul>
+<li>go to <a href="https://wallet.gnosis.pm">https://wallet.gnosis.pm</a></li>
+<li>Load <code>upgrader</code> wallet</li>
+<li>Select an Ethereum Account that is an <code>owner</code> of the multi sig wallet, but not the one who issued the upgrade request. This can be done in the following ways:</li>
+<li>Connect to a local Blockchain node that holds the private key.</li>
+<li>Connect to MetaMask and select the owner account from the multi sig wallet.</li>
+<li>Connect a hardware wallet like ledger or trezor.</li>
+<li>Select the transaction you want to confirm (the upgrade script will tell you which transactions have to be approved in which wallets)</li>
+<li>Click Confirm</li>
+</ul>
+<h3 id="5-audit-contracts-no-applicable-for-current-deployments-">5. Audit Contracts -no applicable for current deployments-<a class="headerlink" href="#5-audit-contracts-no-applicable-for-current-deployments-" title="Permanent link">&para;</a></h3>
+<p>To check or document that all transactions have been approved in the multi sig wallet you can run <code>yarn audit:rinkeby</code> to get a list of all the current transactions and their current status.</p>
+<div class="highlight"><pre><span></span><code> Wallet: 0x24EB26D4042a2AB576E7E39b87c3f33f276AeF92
+
+ Transaction ID: 64
+ Destination: 0xfA16d26e9F4fffC6e40963B281a0bB08C31ed40C
+ Contract: EscrowAccessSecretStoreTemplate
+ Data is `upgradeTo` call: true
+ Confirmed from: 0x7A13E1aD23546c9b804aDFd13e9AcB184EfCAF58
+ Executed: false
+</code></pre></div>
+<h3 id="6-typical-problems-and-workarounds">6. Typical problems and workarounds<a class="headerlink" href="#6-typical-problems-and-workarounds" title="Permanent link">&para;</a></h3>
+<p>Workarounds for some of the operational problems suffered to the date. For these, you have to configure your environment as for any upgrade (replacing openzeppelin files, artifacts, exporting mnemnic, running <code>yarn</code>, <code>yarn compile</code>, ...).</p>
+<h4 id="transfer-proxy-address-ownership-to-upgrader-wallet">Transfer Proxy Address Ownership to Upgrader Wallet<a class="headerlink" href="#transfer-proxy-address-ownership-to-upgrader-wallet" title="Permanent link">&para;</a></h4>
+<ul>
+<li>
+<p>Get the DIDRegistry contract address from the <code>artifacts/DIDRegistry.json</code> file: <code>cat artifacts/DIDRegistry.mumbai.json| grep -i '"address":'</code></p>
+</li>
+<li>
+<p>Run the <code>hardhat</code> console: <code>npx hardhat console --network mumbai</code></p>
+</li>
+<li>
+<p>Execute the next snippet replacing the <code>&lt;DIDRegistryAddress&gt;</code> with the DIDRegistry contract address:</p>
+</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">PROXY_ADMIN_ABI</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sb">`[{</span>
+<span class="sb">    &quot;inputs&quot;: [],</span>
+<span class="sb">    &quot;name&quot;: &quot;owner&quot;,</span>
+<span class="sb">    &quot;outputs&quot;: [</span>
+<span class="sb">      {</span>
+<span class="sb">        &quot;internalType&quot;: &quot;address&quot;,</span>
+<span class="sb">        &quot;name&quot;: &quot;&quot;,</span>
+<span class="sb">        &quot;type&quot;: &quot;address&quot;</span>
+<span class="sb">      }</span>
+<span class="sb">    ],</span>
+<span class="sb">    &quot;payable&quot;: false,</span>
+<span class="sb">    &quot;stateMutability&quot;: &quot;view&quot;,</span>
+<span class="sb">    &quot;type&quot;: &quot;function&quot;</span>
+<span class="sb">  }, {</span>
+<span class="sb">    &quot;inputs&quot;: [</span>
+<span class="sb">      {</span>
+<span class="sb">        &quot;internalType&quot;: &quot;address&quot;,</span>
+<span class="sb">        &quot;name&quot;: &quot;newOwner&quot;,</span>
+<span class="sb">        &quot;type&quot;: &quot;address&quot;</span>
+<span class="sb">      }</span>
+<span class="sb">    ],</span>
+<span class="sb">    &quot;name&quot;: &quot;transferOwnership&quot;,</span>
+<span class="sb">    &quot;outputs&quot;: [],</span>
+<span class="sb">    &quot;payable&quot;: false,</span>
+<span class="sb">    &quot;stateMutability&quot;: &quot;nonpayable&quot;,</span>
+<span class="sb">    &quot;type&quot;: &quot;function&quot;</span>
+<span class="sb">}]`</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">DIDRegistry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;&lt;DIDRegistryAddress&gt;&#39;</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">addr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">ethers</span><span class="p">.</span><span class="nx">provider</span><span class="p">.</span><span class="nx">getStorageAt</span><span class="p">(</span><span class="nx">DIDRegistry</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103&#39;</span><span class="p">)</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Proxy admin address&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">addr</span><span class="p">)</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">admin</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">ethers</span><span class="p">.</span><span class="nx">Contract</span><span class="p">(</span><span class="s1">&#39;0x&#39;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">addr</span><span class="p">.</span><span class="nx">substring</span><span class="p">(</span><span class="mf">26</span><span class="p">),</span><span class="w"> </span><span class="nx">PROXY_ADMIN_ABI</span><span class="p">,</span><span class="w"> </span><span class="nx">ethers</span><span class="p">.</span><span class="nx">provider</span><span class="p">)</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">adminOwner</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">admin</span><span class="p">.</span><span class="nx">owner</span><span class="p">()</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Proxy admin owner&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">adminOwner</span><span class="p">)</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">signer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ethers</span><span class="p">.</span><span class="nx">provider</span><span class="p">.</span><span class="nx">getSigner</span><span class="p">(</span><span class="nx">adminOwner</span><span class="p">)</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">accounts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">web3</span><span class="p">.</span><span class="nx">eth</span><span class="p">.</span><span class="nx">getAccounts</span><span class="p">()</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">upgraderWallet</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">accounts</span><span class="p">[</span><span class="mf">8</span><span class="p">]</span>
+<span class="k">await</span><span class="w"> </span><span class="nx">admin</span><span class="p">.</span><span class="nx">connect</span><span class="p">(</span><span class="nx">signer</span><span class="p">).</span><span class="nx">transferOwnership</span><span class="p">(</span><span class="nx">upgraderWallet</span><span class="p">)</span>
+</code></pre></div>
+<h4 id="cannot-upgrade-error-deployment-at-address-0x-is-not-registered">Cannot upgrade Error: Deployment at address 0x... is not registered<a class="headerlink" href="#cannot-upgrade-error-deployment-at-address-0x-is-not-registered" title="Permanent link">&para;</a></h4>
+<p>This happens when the contract is not registered in openzeppelin file. It can be fixed using the <a href="https://docs.openzeppelin.com/upgrades-plugins/1.x/api-hardhat-upgrades#force-import"><code>forceImport</code></a> function from openzeppelin library.</p>
+<p>Given the next error:</p>
+<div class="highlight"><pre><span></span><code>upgrading<span class="w"> </span>NFT721EscrowPaymentCondition<span class="w"> </span>at<span class="w"> </span>0x7fF506C7148a46e57b8A349C1F848F0cC6d9Cfa8
+Cannot<span class="w"> </span>upgrade<span class="w"> </span>Error:<span class="w"> </span>Deployment<span class="w"> </span>at<span class="w"> </span>address<span class="w"> </span>0xB54C6A5d60cB3984f8120EFA0c629a59DA8881aA<span class="w"> </span>is<span class="w"> </span>not<span class="w"> </span>registered
+
+To<span class="w"> </span>register<span class="w"> </span>a<span class="w"> </span>previously<span class="w"> </span>deployed<span class="w"> </span>proxy<span class="w"> </span><span class="k">for</span><span class="w"> </span>upgrading,<span class="w"> </span>use<span class="w"> </span>the<span class="w"> </span>forceImport<span class="w"> </span><span class="k">function</span>.
+
+/Users/jcortejoso/Projects/nevermined/contracts/node_modules/@openzeppelin/upgrades-core/src/manifest-storage-layout.ts:20
+<span class="w">    </span>throw<span class="w"> </span>new<span class="w"> </span>UpgradesError<span class="o">(</span>
+<span class="w">          </span>^
+Error:<span class="w"> </span>Deployment<span class="w"> </span>at<span class="w"> </span>address<span class="w"> </span>0xB54C6A5d60cB3984f8120EFA0c629a59DA8881aA<span class="w"> </span>is<span class="w"> </span>not<span class="w"> </span>registered
+
+To<span class="w"> </span>register<span class="w"> </span>a<span class="w"> </span>previously<span class="w"> </span>deployed<span class="w"> </span>proxy<span class="w"> </span><span class="k">for</span><span class="w"> </span>upgrading,<span class="w"> </span>use<span class="w"> </span>the<span class="w"> </span>forceImport<span class="w"> </span><span class="k">function</span>.
+<span class="w">    </span>at<span class="w"> </span>getStorageLayoutForAddress<span class="w"> </span><span class="o">(</span>/Users/jcortejoso/Projects/nevermined/contracts/node_modules/@openzeppelin/upgrades-core/src/manifest-storage-layout.ts:20:11<span class="o">)</span>
+<span class="w">    </span>at<span class="w"> </span>deployImpl<span class="w"> </span><span class="o">(</span>/Users/jcortejoso/Projects/nevermined/contracts/node_modules/@openzeppelin/hardhat-upgrades/src/utils/deploy-impl.ts:108:27<span class="o">)</span>
+<span class="w">    </span>at<span class="w"> </span>Proxy.prepareUpgrade<span class="w"> </span><span class="o">(</span>/Users/jcortejoso/Projects/nevermined/contracts/node_modules/@openzeppelin/hardhat-upgrades/src/prepare-upgrade.ts:25:22<span class="o">)</span>
+<span class="w">    </span>at<span class="w"> </span>upgradeContracts<span class="w"> </span><span class="o">(</span>/Users/jcortejoso/Projects/nevermined/contracts/scripts/deploy/truffle-wrapper/upgradeContracts.js:76:29<span class="o">)</span>
+<span class="w">    </span>at<span class="w"> </span>main<span class="w"> </span><span class="o">(</span>/Users/jcortejoso/Projects/nevermined/contracts/scripts/deploy/truffle-wrapper/upgradeContractsWrapper.js:9:5<span class="o">)</span>
+error<span class="w"> </span>Command<span class="w"> </span>failed<span class="w"> </span>with<span class="w"> </span><span class="nb">exit</span><span class="w"> </span>code<span class="w"> </span><span class="m">1</span>.
+info<span class="w"> </span>Visit<span class="w"> </span>https://yarnpkg.com/en/docs/cli/run<span class="w"> </span><span class="k">for</span><span class="w"> </span>documentation<span class="w"> </span>about<span class="w"> </span>this<span class="w"> </span>command.
+error<span class="w"> </span>Command<span class="w"> </span>failed<span class="w"> </span>with<span class="w"> </span><span class="nb">exit</span><span class="w"> </span>code<span class="w"> </span><span class="m">1</span>.
+info<span class="w"> </span>Visit<span class="w"> </span>https://yarnpkg.com/en/docs/cli/run<span class="w"> </span><span class="k">for</span><span class="w"> </span>documentation<span class="w"> </span>about<span class="w"> </span>this<span class="w"> </span>command.
+</code></pre></div>
+<p>To fix it you can run the next commands in <code>hardhat</code> console, replacing the contract name and the proxy address (<code>npx hardhat console --network mumbai</code>):</p>
+<div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ethers</span><span class="p">,</span><span class="w"> </span><span class="nx">upgrades</span><span class="p">,</span><span class="w"> </span><span class="nx">web3</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">require</span><span class="p">(</span><span class="s1">&#39;hardhat&#39;</span><span class="p">)</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">factory</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">ethers</span><span class="p">.</span><span class="nx">getContractFactory</span><span class="p">(</span><span class="s1">&#39;NFT721EscrowPaymentCondition&#39;</span><span class="p">)</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">update</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">upgrades</span><span class="p">.</span><span class="nx">forceImport</span><span class="p">(</span><span class="s2">&quot;0x7fF506C7148a46e57b8A349C1F848F0cC6d9Cfa8&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">factory</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="nx">kind</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;transparent&quot;</span><span class="p">})</span>
+<span class="p">.</span><span class="nx">exit</span>
+</code></pre></div>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2021 Nevermined
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://nevermined.io" target="_blank" rel="noopener" title="nevermined.io" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M352 256c0 22.2-1.2 43.6-3.3 64H163.3c-2.2-20.4-3.3-41.8-3.3-64s1.2-43.6 3.3-64h185.4c2.2 20.4 3.3 41.8 3.3 64zm28.8-64h123.1c5.3 20.5 8.1 41.9 8.1 64s-2.8 43.5-8.1 64H380.8c2.1-20.6 3.2-42 3.2-64s-1.1-43.4-3.2-64zm112.6-32H376.7c-10-63.9-29.8-117.4-55.3-151.6 78.3 20.7 142 77.5 171.9 151.6zm-149.1 0H167.7c6.1-36.4 15.5-68.6 27-94.7 10.5-23.6 22.2-40.7 33.5-51.5C239.4 3.2 248.7 0 256 0s16.6 3.2 27.8 13.8c11.3 10.8 23 27.9 33.5 51.5 11.6 26 20.9 58.2 27 94.7zm-209 0H18.6c30-74.1 93.6-130.9 172-151.6-25.5 34.2-45.3 87.7-55.3 151.6zM8.1 192h123.1c-2.1 20.6-3.2 42-3.2 64s1.1 43.4 3.2 64H8.1C2.8 299.5 0 278.1 0 256s2.8-43.5 8.1-64zm186.6 254.6c-11.6-26-20.9-58.2-27-94.6h176.6c-6.1 36.4-15.5 68.6-27 94.6-10.5 23.6-22.2 40.7-33.5 51.5-11.2 10.7-20.5 13.9-27.8 13.9s-16.6-3.2-27.8-13.8c-11.3-10.8-23-27.9-33.5-51.5zM135.3 352c10 63.9 29.8 117.4 55.3 151.6-78.4-20.7-142-77.5-172-151.6h116.7zm358.1 0c-30 74.1-93.6 130.9-171.9 151.6 25.5-34.2 45.2-87.7 55.3-151.6h116.6z"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://linkedin.com/company/nevermined" target="_blank" rel="noopener" title="linkedin.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M416 32H31.9C14.3 32 0 46.5 0 64.3v383.4C0 465.5 14.3 480 31.9 480H416c17.6 0 32-14.5 32-32.3V64.3c0-17.8-14.4-32.3-32-32.3zM135.4 416H69V202.2h66.5V416zm-33.2-243c-21.3 0-38.5-17.3-38.5-38.5S80.9 96 102.2 96c21.2 0 38.5 17.3 38.5 38.5 0 21.3-17.2 38.5-38.5 38.5zm282.1 243h-66.4V312c0-24.8-.5-56.7-34.5-56.7-34.6 0-39.9 27-39.9 54.9V416h-66.4V202.2h63.7v29.2h.9c8.9-16.8 30.6-34.5 62.9-34.5 67.2 0 79.7 44.3 79.7 101.9V416z"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://medium.com/nevermined-io" target="_blank" rel="noopener" title="medium.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M180.5 74.262C80.813 74.262 0 155.633 0 256s80.819 181.738 180.5 181.738S361 356.373 361 256 280.191 74.262 180.5 74.262Zm288.25 10.646c-49.845 0-90.245 76.619-90.245 171.095s40.406 171.1 90.251 171.1 90.251-76.619 90.251-171.1H559c0-94.503-40.4-171.095-90.248-171.095Zm139.506 17.821c-17.526 0-31.735 68.628-31.735 153.274s14.2 153.274 31.735 153.274S640 340.631 640 256c0-84.649-14.215-153.271-31.742-153.271Z"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/nevermined-io" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://twitter.com/nevermined_io" target="_blank" rel="noopener" title="twitter.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M459.37 151.716c.325 4.548.325 9.097.325 13.645 0 138.72-105.583 298.558-298.558 298.558-59.452 0-114.68-17.219-161.137-47.106 8.447.974 16.568 1.299 25.34 1.299 49.055 0 94.213-16.568 130.274-44.832-46.132-.975-84.792-31.188-98.112-72.772 6.498.974 12.995 1.624 19.818 1.624 9.421 0 18.843-1.3 27.614-3.573-48.081-9.747-84.143-51.98-84.143-102.985v-1.299c13.969 7.797 30.214 12.67 47.431 13.319-28.264-18.843-46.781-51.005-46.781-87.391 0-19.492 5.197-37.36 14.294-52.954 51.655 63.675 129.3 105.258 216.365 109.807-1.624-7.797-2.599-15.918-2.599-24.04 0-57.828 46.782-104.934 104.934-104.934 30.213 0 57.502 12.67 76.67 33.137 23.715-4.548 46.456-13.32 66.599-25.34-7.798 24.366-24.366 44.833-46.132 57.827 21.117-2.273 41.584-8.122 60.426-16.243-14.292 20.791-32.161 39.308-52.628 54.253z"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://discord.gg/GZju2qScKq" target="_blank" rel="noopener" title="discord.gg" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M524.531 69.836a1.5 1.5 0 0 0-.764-.7A485.065 485.065 0 0 0 404.081 32.03a1.816 1.816 0 0 0-1.923.91 337.461 337.461 0 0 0-14.9 30.6 447.848 447.848 0 0 0-134.426 0 309.541 309.541 0 0 0-15.135-30.6 1.89 1.89 0 0 0-1.924-.91 483.689 483.689 0 0 0-119.688 37.107 1.712 1.712 0 0 0-.788.676C39.068 183.651 18.186 294.69 28.43 404.354a2.016 2.016 0 0 0 .765 1.375 487.666 487.666 0 0 0 146.825 74.189 1.9 1.9 0 0 0 2.063-.676A348.2 348.2 0 0 0 208.12 430.4a1.86 1.86 0 0 0-1.019-2.588 321.173 321.173 0 0 1-45.868-21.853 1.885 1.885 0 0 1-.185-3.126 251.047 251.047 0 0 0 9.109-7.137 1.819 1.819 0 0 1 1.9-.256c96.229 43.917 200.41 43.917 295.5 0a1.812 1.812 0 0 1 1.924.233 234.533 234.533 0 0 0 9.132 7.16 1.884 1.884 0 0 1-.162 3.126 301.407 301.407 0 0 1-45.89 21.83 1.875 1.875 0 0 0-1 2.611 391.055 391.055 0 0 0 30.014 48.815 1.864 1.864 0 0 0 2.063.7A486.048 486.048 0 0 0 610.7 405.729a1.882 1.882 0 0 0 .765-1.352c12.264-126.783-20.532-236.912-86.934-334.541ZM222.491 337.58c-28.972 0-52.844-26.587-52.844-59.239s23.409-59.241 52.844-59.241c29.665 0 53.306 26.82 52.843 59.239 0 32.654-23.41 59.241-52.843 59.241Zm195.38 0c-28.971 0-52.843-26.587-52.843-59.239s23.409-59.241 52.843-59.241c29.667 0 53.307 26.82 52.844 59.239 0 32.654-23.177 59.241-52.844 59.241Z"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://www.youtube.com/channel/UCaDKPgnEk4ekvQo2vO6FIBQ" target="_blank" rel="noopener" title="www.youtube.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M549.655 124.083c-6.281-23.65-24.787-42.276-48.284-48.597C458.781 64 288 64 288 64S117.22 64 74.629 75.486c-23.497 6.322-42.003 24.947-48.284 48.597-11.412 42.867-11.412 132.305-11.412 132.305s0 89.438 11.412 132.305c6.281 23.65 24.787 41.5 48.284 47.821C117.22 448 288 448 288 448s170.78 0 213.371-11.486c23.497-6.321 42.003-24.171 48.284-47.821 11.412-42.867 11.412-132.305 11.412-132.305s0-89.438-11.412-132.305zm-317.51 213.508V175.185l142.739 81.205-142.739 81.201z"/></svg>
+    </a>
+  
+    
+    
+    
+    
+    <a href="mailto:info@nevermined.io" target="_blank" rel="noopener" title="" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M16.1 260.2c-22.6 12.9-20.5 47.3 3.6 57.3L160 376v103.3c0 18.1 14.6 32.7 32.7 32.7 9.7 0 18.9-4.3 25.1-11.8l62-74.3 123.9 51.6c18.9 7.9 40.8-4.5 43.9-24.7l64-416c1.9-12.1-3.4-24.3-13.5-31.2s-23.3-7.5-34-1.4l-448 256zm52.1 25.5L409.7 90.6 190.1 336l1.2 1-123.1-51.3zm335.1 139.7-166.6-69.5 214.1-239.3-47.5 308.8z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["toc.integrate"], "search": "../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.c8d2eff1.min.js"></script>
+      
+    
+  </body>
+</html>
