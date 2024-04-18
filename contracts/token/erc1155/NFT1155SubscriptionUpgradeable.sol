@@ -9,8 +9,8 @@ import './NFT1155Upgradeable.sol';
 contract NFT1155SubscriptionUpgradeable is NFT1155Upgradeable {
     
     struct MintedTokens {
-        uint256 amountMinted;
-        uint256 expirationBlock;
+        uint256 amountMinted; // uint64
+        uint256 expirationBlock; // uint64
         uint256 mintBlock;
         bool isMintOps; // true means mint, false means burn
     }
