@@ -13,21 +13,9 @@ const TestERC1155 = artifacts.require('NFT1155SubscriptionWithoutBlocks')
 
 const testUtils = require('../../helpers/utils.js')
 const constants = require('../../helpers/constants.js')
-const increaseTime = require('../../helpers/increaseTime.js')
 const BigNumber = require('bignumber.js')
 
 contract('NFT1155 Subscription', (accounts) => {
-    const web3 = global.web3
-
-    const didSeedExpiring = testUtils.generateId()
-    const didSeedNonExpiring = testUtils.generateId()
-
-    let tokenIdExpiring
-    let tokenIdNonExpiring
-
-    const amount = 1
-    const blocksExpiring = 10
-    const blocksNonExpiring = 0
     const data = '0x'
 
     const checksum = testUtils.generateId()
@@ -111,7 +99,6 @@ contract('NFT1155 Subscription', (accounts) => {
         })
     })
 
-
     describe('Mint and burn', () => {
         it('New tokens can be minted and burned', async () => {
             await setupTest()
@@ -122,8 +109,6 @@ contract('NFT1155 Subscription', (accounts) => {
             await didRegistry.methods[
                 'registerMintableDID(bytes32,address,bytes32,address[],string,uint256,uint256,bool,bytes32,string,string)'
             ](didSeed3, nft.address, checksum, [], url, 0, 0, false, constants.activities.GENERATED, '', '', { from: minter })
-
-            const currentBlockNumber = await ethers.provider.getBlockNumber()
 
             // MINT 7 tokens
             await nft.methods[
@@ -176,6 +161,5 @@ contract('NFT1155 Subscription', (accounts) => {
             assert.strictEqual(balance.toNumber(), 1)
             assert.strictEqual(balance2.toNumber(), 1)
         })
-
     })
 })
