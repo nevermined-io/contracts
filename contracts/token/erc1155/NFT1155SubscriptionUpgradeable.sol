@@ -10,7 +10,7 @@ contract NFT1155SubscriptionUpgradeable is NFT1155Upgradeable {
     
     struct MintedTokens {
         uint256 amountMinted; // uint64
-        uint256 expirationBlock; // uint64
+        uint256 expirationBlock;
         uint256 mintBlock;
         bool isMintOps; // true means mint, false means burn
     }
@@ -64,12 +64,13 @@ contract NFT1155SubscriptionUpgradeable is NFT1155Upgradeable {
 
     // solhint-disable-next-line
     function burn(address to, uint256 id, uint256 amount, uint256 _seed) override public {
+        address _sender = _msgSender();
         require(balanceOf(to, id) >= amount, 'ERC1155: burn amount exceeds balance');
         require(
-            isOperator(_msgSender()) || // Or the DIDRegistry is burning the NFT 
-            to == _msgSender() || // Or the NFT owner is _msgSender() 
-            nftRegistry.isDIDProvider(bytes32(id), _msgSender()) || // Or the DID Provider (Node) is burning the NFT
-            isApprovedForAll(to, _msgSender()), // Or the _msgSender() is approved
+            isOperator(_sender) || // Or the DIDRegistry is burning the NFT 
+            to == _sender || // Or the NFT owner is _msgSender() 
+            nftRegistry.isDIDProvider(bytes32(id), _sender) || // Or the DID Provider (Node) is burning the NFT
+            isApprovedForAll(to, _sender), // Or the _msgSender() is approved
             'ERC1155: caller is not owner nor approved'
         );
 
@@ -83,15 +84,15 @@ contract NFT1155SubscriptionUpgradeable is NFT1155Upgradeable {
         bytes32 _key = _getTokenKey(to, id);
 
         uint256 _pendingToBurn = amount;
-
         for (uint index = 0; index < _tokens[_key].length; index++) {
-            if (_tokens[_key][index].expirationBlock == 0 || _tokens[_key][index].expirationBlock > block.number)   {
-                if (_pendingToBurn <= _tokens[_key][index].amountMinted) {
-                    _tokens[_key].push( MintedTokens(_pendingToBurn, _tokens[_key][index].expirationBlock, block.number, false));
+            MintedTokens memory entry = _tokens[_key][index];
+            if (entry.expirationBlock == 0 || entry.expirationBlock > block.number)   {
+                if (_pendingToBurn <= entry.amountMinted) {
+                    _tokens[_key].push( MintedTokens(_pendingToBurn, entry.expirationBlock, block.number, false));
                     break;
                 } else {
-                    _pendingToBurn -= _tokens[_key][index].amountMinted;
-                    _tokens[_key].push( MintedTokens(_tokens[_key][index].amountMinted, _tokens[_key][index].expirationBlock, block.number, false));
+                    _pendingToBurn -= entry.amountMinted;
+                    _tokens[_key].push( MintedTokens(entry.amountMinted, entry.expirationBlock, block.number, false));
                 }   
             }
         }
