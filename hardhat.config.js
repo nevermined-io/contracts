@@ -167,6 +167,15 @@ module.exports = {
             gasPrice: 1200000000
 
         },
+        'peaq-agung': {
+            url: url || 'https://rpcpc1-qa.agung.peaq.network',
+            accounts,
+            chainId: 9990,
+            //            skipDryRun: true,
+            from: '0x73943d14131268F23b721E668911bCDDEcA9da62',
+//            gasPrice: 1200000000
+
+        },
         'neon-devnet': {
             url: url || 'https://devnet.neonevm.org',
             accounts, // [process.env.PRIVATE_KEY_OWNER],
