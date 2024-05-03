@@ -27,6 +27,7 @@ NETWORKS_MAP=(
   ["gnosis"]="100"
   ["matic"]="137"
   ["base"]="8453"
+  ["peaq-agung"]="9990"
   ["chiado"]="10200"
   ["arbitrum-one"]="42161"
   ["celo-alfajores"]="44787"
