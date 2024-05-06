@@ -46,6 +46,7 @@ NETWORKS_MAP=(
   ["arbitrum-one"]="42161"
   ["celo-alfajores"]="44787"
   ["hyperspace"]="3141"
+  ["peaq-agung"]="9990"
   ["celo"]="42220"
   ["mumbai"]="80001"
   ["arbitrum-sepolia"]="421614"
