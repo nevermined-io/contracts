@@ -167,14 +167,17 @@ module.exports = {
             gasPrice: 1200000000
 
         },
+        'peaq-mainnet': {
+            url: url || 'https://erpc-mpfn1.peaq.network/',
+            accounts,
+            chainId: 3338,
+            from: '0x73943d14131268F23b721E668911bCDDEcA9da62'
+        },
         'peaq-agung': {
             url: url || 'https://rpcpc1-qa.agung.peaq.network',
             accounts,
             chainId: 9990,
-            //            skipDryRun: true,
             from: '0x73943d14131268F23b721E668911bCDDEcA9da62'
-            //            gasPrice: 1200000000
-
         },
         'neon-devnet': {
             url: url || 'https://devnet.neonevm.org',
