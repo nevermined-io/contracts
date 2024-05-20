@@ -235,16 +235,6 @@ module.exports = {
             from: '0xBb0EB77DC8967D61d82B059C7bDB9974425494C1'
         },
         // Polygon Networks: https://docs.matic.network/docs/develop/network-details/network/
-        // Polygon: mumbai testnet
-        mumbai: {
-            url: url || `https://polygon-mumbai.infura.io/v3/${process.env.INFURA_TOKEN}`,
-            accounts,
-            chainId: 80001,
-            confirmations: 2,
-            timeoutBlocks: 200,
-            skipDryRun: true,
-            from: '0x73943d14131268F23b721E668911bCDDEcA9da62'
-        },
         // Polygon: matic mainnet
         matic: {
             url: url || `https://polygon-mainnet.infura.io/v3/${process.env.INFURA_TOKEN}`,
@@ -282,7 +272,6 @@ module.exports = {
     etherscan: {
         apiKey: {
             mainnet: process.env.ETHERSCAN_TOKEN,
-            polygonMumbai: process.env.POLYGONSCAN_TOKEN,
             polygon: process.env.POLYGONSCAN_TOKEN,
             optimism: process.env.ETHERSCAN_TOKEN,
             base: process.env.BASESCAN_TOKEN,

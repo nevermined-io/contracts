@@ -49,7 +49,6 @@ NETWORKS_MAP=(
   ["peaq-mainnet"]="3338"
   ["peaq-agung"]="9990"
   ["celo"]="42220"
-  ["mumbai"]="80001"
   ["arbitrum-sepolia"]="421614"
   ["neon-devnet"]="245022926"
   ["neon-mainnet"]="245022934"
