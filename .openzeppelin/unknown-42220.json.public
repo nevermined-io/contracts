@@ -5799,7 +5799,7 @@
             "label": "erc1155",
             "offset": 0,
             "slot": "205",
-            "type": "t_contract(NFT1155Upgradeable)40878",
+            "type": "t_contract(NFT1155Upgradeable)41079",
             "contract": "DIDRegistry",
             "src": "contracts/registry/DIDRegistry.sol:35"
           },
@@ -5807,7 +5807,7 @@
             "label": "erc721",
             "offset": 0,
             "slot": "206",
-            "type": "t_contract(NFT721Upgradeable)41889",
+            "type": "t_contract(NFT721Upgradeable)42090",
             "contract": "DIDRegistry",
             "src": "contracts/registry/DIDRegistry.sol:36"
           },
@@ -5873,11 +5873,11 @@
             "label": "contract IRoyaltyScheme",
             "numberOfBytes": "20"
           },
-          "t_contract(NFT1155Upgradeable)40878": {
+          "t_contract(NFT1155Upgradeable)41079": {
             "label": "contract NFT1155Upgradeable",
             "numberOfBytes": "20"
           },
-          "t_contract(NFT721Upgradeable)41889": {
+          "t_contract(NFT721Upgradeable)42090": {
             "label": "contract NFT721Upgradeable",
             "numberOfBytes": "20"
           },
