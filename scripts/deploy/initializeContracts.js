@@ -270,7 +270,7 @@ async function initializeContracts({
         verbose
     })
 
-    // proxies.PlonkVerifier = await deployLibrary('PlonkVerifier', addresses, cache, roles.deployerSigner)
+    if (DEPLOY_DLEQ) { proxies.PlonkVerifier = await deployLibrary('PlonkVerifier', addresses, cache, roles.deployerSigner) }
 
     if (DEPLOY_AAVE) { proxies.AaveCreditVault = await deployLibrary('AaveCreditVault', addresses, cache, roles.deployerSigner) }
 
