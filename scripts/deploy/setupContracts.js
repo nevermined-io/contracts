@@ -3,6 +3,7 @@ const { resolveAddress } = require('./artifacts')
 
 /* eslint-disable no-console */
 const ZeroAddress = '0x0000000000000000000000000000000000000000'
+const DEPLOY_DLEQ = process.env.DEPLOY_DLEQ === 'true'
 
 async function callContract(instance, f) {
     const contractOwner = await instance.owner()
@@ -30,7 +31,21 @@ async function approveTemplate({
     templateAddress
 } = {}) {
     console.log(`  approveTemplate :: ${templateAddress}`)
-    await callContract(TemplateStoreManagerInstance, a => a.approveTemplate(templateAddress))
+    try {
+        const isApproved = await TemplateStoreManagerInstance.isTemplateApproved(templateAddress)
+        if (!isApproved) {
+            const tx = await TemplateStoreManagerInstance.approveTemplate(templateAddress)
+            await tx.wait()
+            const isApprovedNow = await TemplateStoreManagerInstance.isTemplateApproved(templateAddress)
+            console.log(`  Template approved: ${templateAddress} = ${isApprovedNow}`)
+        } else {
+            console.log(`  Template already approved: ${templateAddress}`)
+        }
+    } catch (err) {
+        console.log(`  Warning: error approving template with address ${templateAddress}`)
+        console.log(err)
+    }
+    // await callContract(TemplateStoreManagerInstance, a => a.approveTemplate(templateAddress))
 }
 
 async function setupTemplate({ verbose, TemplateStoreManagerInstance, templateName, addressBook, roles } = {}) {
@@ -135,7 +150,10 @@ async function setupContracts({
     if (addressBook.TemplateStoreManager) { // && addresses.stage < 1) { // Temporary change to validate templates in all the iterations
         const TemplateStoreManagerInstance = artifacts.TemplateStoreManager
 
-        const templates = Object.keys(addressBook).filter(a => a.match(/Template$/))
+        const templates = DEPLOY_DLEQ
+            ? Object.keys(addressBook).filter(a => a.match(/Template$/))
+            : Object.keys(addressBook).filter(a => a.match(/Template$/)).filter(a => !a.includes('DLEQ'))
+
         console.log(`Templates Found: ${JSON.stringify(templates)}`)
         for (const templateName of templates) {
             console.log(`Setting up template: ${templateName}`)

@@ -43,6 +43,7 @@ async function deployContracts({ contracts: origContracts, verbose, testnet, mak
         testnet
     })
 
+    console.log(`Deeper Clean: ${deeperClean}`)
     if (!deeperClean) {
         for (const el of core) {
             const afact = readArtifact(el)
