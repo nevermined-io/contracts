@@ -267,6 +267,7 @@ async function initializeContracts({
         contract: 'ConditionStoreManager',
         ctx,
         args: [roles.deployer, roles.deployer, resolveAddress('NeverminedConfig', addressBook, proxies)],
+        isCore: false,
         verbose
     })
 
@@ -278,6 +279,7 @@ async function initializeContracts({
         contract: 'TemplateStoreManager',
         ctx,
         args: [roles.deployer],
+        isCore: false,
         verbose
     })
 
@@ -414,6 +416,7 @@ async function initializeContracts({
             resolveAddress('TemplateStoreManager', addressBook, proxies),
             resolveAddress('DIDRegistry', addressBook, proxies)
         ],
+        isCore: false,
         verbose
     })
     addressBook.RewardsDistributor = await zosCreate({

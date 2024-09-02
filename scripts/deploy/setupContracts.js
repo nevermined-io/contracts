@@ -30,12 +30,15 @@ async function approveTemplate({
     TemplateStoreManagerInstance,
     templateAddress
 } = {}) {
-    console.log(`  approveTemplate :: ${templateAddress}`)
     try {
         const isApproved = await TemplateStoreManagerInstance.isTemplateApproved(templateAddress)
+        console.log(`  approveTemplate :: ${templateAddress} - is already approved? ${isApproved}`)
+
         if (!isApproved) {
-            const tx = await TemplateStoreManagerInstance.approveTemplate(templateAddress)
-            await tx.wait()
+            // const tx = await TemplateStoreManagerInstance.approveTemplate(templateAddress)
+            // await tx.wait()
+            await callContract(TemplateStoreManagerInstance, a => a.approveTemplate(templateAddress))
+
             const isApprovedNow = await TemplateStoreManagerInstance.isTemplateApproved(templateAddress)
             console.log(`  Template approved: ${templateAddress} = ${isApprovedNow}`)
         } else {
@@ -53,6 +56,8 @@ async function setupTemplate({ verbose, TemplateStoreManagerInstance, templateNa
 
     console.log(`  setupTemplate :: ${templateName} :: ${templateAddress}`)
     if (templateAddress) {
+        const templateData = await TemplateStoreManagerInstance.getTemplate(templateAddress)
+        console.log(templateData)
         const approved = await TemplateStoreManagerInstance.isTemplateApproved(templateAddress)
 
         if (approved) {
