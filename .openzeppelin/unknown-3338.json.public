@@ -1,50 +1,85 @@
 {
   "manifestVersion": "3.2",
   "admin": {
-    "address": "0xF0d7F37616d007BA6ae19D01d3f6f52aEDA3Ffe2",
-    "txHash": "0x96850bea2b9c1865da8ccab0a5388afc7f57f02585bbe557d6c3b92e014ddf42"
+    "address": "0x9618BB3C9177d6592cd28600C35eB90f402Dc8a4",
+    "txHash": "0x2466d5623a50eff27a167b76d4204ed33e89b11cd5eb0ccccb622750b5acd26c"
   },
   "proxies": [
     {
-      "address": "0x384E332B6F2b66EC66dFC01D362f6fc62D3D0fE1",
-      "txHash": "0xfdda0d5c1f4273cb4a23e634601da05eaa8aa702f8a1c42a7b6133a97e9600ed",
+      "address": "0xAFA0eF9fdc66581dCA192714322EEAe9574FEEA1",
+      "txHash": "0x613ca5b3584fe4b958a60d4bb33a3c17e2c398b86b1ef379ddeaa3047edb7e2b",
       "kind": "transparent"
     },
     {
-      "address": "0x5FD091093152403BEE33a5c4Db60721Fc513985D",
-      "txHash": "0x7210233a08acc37c5a223a1a974ac4c5a349b7efc3240dcae72a8840c7db3d54",
+      "address": "0xE57a81fD46D7b4D6213dBB8FE302B6F93DF9C7C4",
+      "txHash": "0xfd18742093c6ca74f59cb1d1806a3b27f82a7cba4c00dfaa4eef621395df9350",
       "kind": "transparent"
     },
     {
-      "address": "0x150012b53119eca4A29868e37CC0A1c8510598d9",
-      "txHash": "0xdf58c8d38905808fa9f8bdc446bbfd9aee8ad3dfcf08427f7177cf43617188f2",
+      "address": "0x18e0626508241DF4A2f36E5978fBfE53374ABab2",
+      "txHash": "0x440928b1c1e825cd1c62a92d117b6018ae3ad2c6f63415082a5ba09ce02f4e5a",
       "kind": "transparent"
     },
     {
-      "address": "0x40EfaC6fb83E967e468a33a87664e88183beed08",
-      "txHash": "0x1c3b98eba313e62ab05a91f054108f49bb2e2c2d68d5ae93252d0f8530b559ec",
+      "address": "0x2503007E5fdab885e4Fd01C51b47C3F4B50c3439",
+      "txHash": "0xa2c472bba14371fdcdf0f7b3a9ab93c7c46e75835feadccae5a9007e0c1a6560",
       "kind": "transparent"
     },
     {
-      "address": "0xF4fF7b7593b1b598031b2802bdC26d5fE24Ae5b5",
-      "txHash": "0x28384f41d4aa2e894706de5ea0a2a6d248a9a8a9a87ccbda670915bf4fe66136",
+      "address": "0xBaE7C99C071cA2C179383dC82b7C4d95D43F2464",
+      "txHash": "0x0bbfb3243f849cfad51f11f0ac1cef8a16b8e256fbcd21c59435959fb2954a27",
       "kind": "transparent"
     },
     {
-      "address": "0xE2988884c39c7cC0b4421bDf3D9Ab4a705C891E1",
-      "txHash": "0x305309ff5b918aa5c350c04d3a8f3af017bc24394f10cc4509013dc50dd953a0",
+      "address": "0xA22fd72345df8e4BB24aa94d84262FdDb4ae2251",
+      "txHash": "0xcb0b3fc07010c5010219fb710c0784ac3216bd50ed674a2b6e833c066c095c5a",
       "kind": "transparent"
     },
     {
-      "address": "0xE24f60aE42F7Cc3B3357480C94165afD86B66583",
-      "txHash": "0x05c2ade548821afe8342e11dd2d0012dc6452e705ca69cc6af51e0f13e5ee364",
+      "address": "0xE6F969DE25fe457b13ce91C4Bd175589EB6f3a4E",
+      "txHash": "0x2cf8972fce2f4de168369ecf7a88aa124576b50ada51a282ef4e102795277422",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x9E6741eC9D1f3f2CE7Cc92db1DeA9BEb9A5578dd",
+      "txHash": "0xde2f1cc8ec8632fef93731632b30317d9f597b5436dd84361b1b534160322397",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x727638771E5e1DD749973CD8063588519D5Bad43",
+      "txHash": "0x62e954303564b9d73b809ec867d0d1b2239a4a253b6877362e7dae50a9bbce01",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xB65f844dEF62Ab190a03eA40548A7ccED9439f1D",
+      "txHash": "0xb6eb54dcc8d2e63303958b76cdb0b6d435e7efab7786d5874ac60399ebd6ab49",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xAD05D1F82F8B11BC6738DeC31B834B832Bf6700B",
+      "txHash": "0x930baa70fe761117476918309cc731f4a281c2df882f0a3b2d6a6123d53a195e",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x08Dfa8cffeE222F3A3276fF46731B270C9918D5c",
+      "txHash": "0x39e5dc0bbf34816cf03ab4f2026a6ca0d2e1651b3688ea7b050051eeeb9678a3",
+      "kind": "transparent"
+    },
+    {
+      "address": "0xAF0aad10E2030735d515B78F254eBd6Bf119FAf4",
+      "txHash": "0x081c25bf581fe723eabd82138da4da1c65407626f47bb078aae2818fea542eef",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x3F61BD9C269d9116079b7aeDEe94c086e8edeBCd",
+      "txHash": "0xfd592f9c47abf4d369e059aa892d77cb4ac74c99e5592a4a62da1d724cb51425",
       "kind": "transparent"
     }
   ],
   "impls": {
     "892b6797ed627265a679caf78277fe602443a8fa2c3ac1a5a6090c0027c21052": {
-      "address": "0x08e5917ca065D74BB5d989B4861ca25897738bbF",
-      "txHash": "0x6b49653f9b1e1da9553584fe5576d3f215554a5be9dfb83156d9121605ac6697",
+      "address": "0xCCf9db936b81A82650E777F8FE885f8C67CAbF43",
+      "txHash": "0xcfc8ec78acc1707332419545d9acf101c8b9b36fa28bf13daca32c15d0b7bed9",
       "layout": {
         "solcVersion": "0.8.17",
         "storage": [
@@ -206,8 +241,8 @@
       }
     },
     "16275ea04ec6a399b470a73b8c3437c16990e2e154606370b11ddc456d12b693": {
-      "address": "0x510b35C4265EE15ECA2Dc15Fe9060Ae0E6d63908",
-      "txHash": "0xec1fc28f5d3edd48434ce675664ce54399489d230d30b30a77bc1e9e25bf9965",
+      "address": "0x9F1c0bD108C042B7501ac1F609D1ae5869Bfe082",
+      "txHash": "0xc5ecfb169c98150bbaac9ec840f58a6bea4a99144f0103c8cf4ea29feb5965f0",
       "layout": {
         "solcVersion": "0.8.17",
         "storage": [
@@ -312,7 +347,7 @@
             "label": "erc1155",
             "offset": 0,
             "slot": "205",
-            "type": "t_contract(NFT1155Upgradeable)40845",
+            "type": "t_contract(NFT1155Upgradeable)41079",
             "contract": "DIDRegistry",
             "src": "contracts/registry/DIDRegistry.sol:35"
           },
@@ -320,7 +355,7 @@
             "label": "erc721",
             "offset": 0,
             "slot": "206",
-            "type": "t_contract(NFT721Upgradeable)41856",
+            "type": "t_contract(NFT721Upgradeable)42090",
             "contract": "DIDRegistry",
             "src": "contracts/registry/DIDRegistry.sol:36"
           },
@@ -386,11 +421,11 @@
             "label": "contract IRoyaltyScheme",
             "numberOfBytes": "20"
           },
-          "t_contract(NFT1155Upgradeable)40845": {
+          "t_contract(NFT1155Upgradeable)41079": {
             "label": "contract NFT1155Upgradeable",
             "numberOfBytes": "20"
           },
-          "t_contract(NFT721Upgradeable)41856": {
+          "t_contract(NFT721Upgradeable)42090": {
             "label": "contract NFT721Upgradeable",
             "numberOfBytes": "20"
           },
@@ -627,8 +662,8 @@
       }
     },
     "008194aeb76ab8c710f50c713046918035e3c2654b7b810057790734815c9147": {
-      "address": "0x748eC1F28c5Afd6B09Cb88187A970C2154cDbc0A",
-      "txHash": "0x1ca18acc2c610ec1afbed135b67da001203f206d82b3b9269ece054a8137d441",
+      "address": "0xcfD22a8d3613a5AEFb6999Ab94D579cBf45Cb63C",
+      "txHash": "0x0d155ac5b0e5e25dac82c0896310dcedba481729f3545dbf30ff9cb24ee0705f",
       "layout": {
         "solcVersion": "0.8.17",
         "storage": [
@@ -696,8 +731,8 @@
       }
     },
     "66ef9bbdb5257df506473135d5e11cfcde9a0713e22a81f920de728d8a2f3341": {
-      "address": "0x7059eC9B71A31CFC488D99b801815c89F191c4aC",
-      "txHash": "0xd17ae8822fba942381661b9b6996e4f1bf754eefd010e66699bbe021e424d006",
+      "address": "0xEe7Da4AA5a8AAe9994a6Ccc480d2a25bB3d25bc4",
+      "txHash": "0x86612674dd0365b6fea4fb220352e69a0030a99cf588fbc845dc3076b220fc7f",
       "layout": {
         "solcVersion": "0.8.17",
         "storage": [
@@ -1003,8 +1038,8 @@
       }
     },
     "95c2848f38c41b9986375afb2c46947b4b975e7e2d1ca6b535e885fefe99d125": {
-      "address": "0xFaEB9687C0879F28a4F93C1B1535ece6dEB24BED",
-      "txHash": "0xa14487ad930be1ea3cad7e56e23d795fda885032b9e86c97827acf5b8a23cd94",
+      "address": "0x3a05d1244ED3dC1f5AE0C2b831BE853F32CBC146",
+      "txHash": "0xc2b77fbd004ba93fd8ac65c92238524ae181b8fb3b6cf9a23a430b4bbc85b722",
       "layout": {
         "solcVersion": "0.8.17",
         "storage": [
@@ -1346,8 +1381,8 @@
       }
     },
     "289f043618cad820bbb3f983f4a43bfb59eae2d262cf1798bbdc3acb40a2656c": {
-      "address": "0x595dDAF9afCfb601F5F7C85417A33837C721ff43",
-      "txHash": "0xc938e87aad475fb689223a4e1e3e9cab2021d1e2504bba8a02d59c71054cadfc",
+      "address": "0x89D9a4d5868f60ada896cFc1De3955F157995225",
+      "txHash": "0xed8d2e1f6a5f5cc5db96aff6fc96e2ad1a11276627874d6af2d7afc83f2805f9",
       "layout": {
         "solcVersion": "0.8.17",
         "storage": [
@@ -1540,7 +1575,7 @@
             "label": "_tokens",
             "offset": 0,
             "slot": "259",
-            "type": "t_mapping(t_address,t_array(t_struct(MintedTokens)40858_storage)dyn_storage)",
+            "type": "t_mapping(t_address,t_array(t_struct(MintedTokens)41092_storage)dyn_storage)",
             "contract": "NFT721SubscriptionUpgradeable",
             "src": "contracts/token/erc721/NFT721SubscriptionUpgradeable.sol:17"
           }
@@ -1550,7 +1585,7 @@
             "label": "address",
             "numberOfBytes": "20"
           },
-          "t_array(t_struct(MintedTokens)40858_storage)dyn_storage": {
+          "t_array(t_struct(MintedTokens)41092_storage)dyn_storage": {
             "label": "struct NFT721SubscriptionUpgradeable.MintedTokens[]",
             "numberOfBytes": "32"
           },
@@ -1578,7 +1613,7 @@
             "label": "contract IExternalRegistry",
             "numberOfBytes": "20"
           },
-          "t_mapping(t_address,t_array(t_struct(MintedTokens)40858_storage)dyn_storage)": {
+          "t_mapping(t_address,t_array(t_struct(MintedTokens)41092_storage)dyn_storage)": {
             "label": "mapping(address => struct NFT721SubscriptionUpgradeable.MintedTokens[])",
             "numberOfBytes": "32"
           },
@@ -1626,7 +1661,7 @@
             ],
             "numberOfBytes": "32"
           },
-          "t_struct(MintedTokens)40858_storage": {
+          "t_struct(MintedTokens)41092_storage": {
             "label": "struct NFT721SubscriptionUpgradeable.MintedTokens",
             "members": [
               {
@@ -1728,9 +1763,9 @@
         "namespaces": {}
       }
     },
-    "9996a45f8036b25c0f620dc58562abf24c644a32021a45755be4f2845b7e7a47": {
-      "address": "0x4daA62Fe74bFE5558D97F5B9fC45b999c6508A8e",
-      "txHash": "0x45c047af12fdeedaebf2d2135d3aa72a82825d9c9b79ba9fd8c04ccb775f0276",
+    "90b75b698a55b1359b8319ee21dea9c8f95914d4613ae65adf3df10bf66fbc44": {
+      "address": "0x90c3491Cf8dbD206C50440CCB892039C18DFc7e8",
+      "txHash": "0x4cba44ac6b3c4a7c25437f01575922e73b4a6e78e444744e2a56c903f1532fde",
       "layout": {
         "solcVersion": "0.8.17",
         "storage": [
