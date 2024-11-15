@@ -128,4 +128,16 @@ contract NFT1155SubscriptionWithoutBlocks is NFT1155Upgradeable {
             burn(from, ids[i], amounts[i]);
         }
     }
+
+    function burnBatchFromHolders(
+        address[] memory from,
+        uint256[] memory ids,
+        uint256[] memory amounts
+    ) external {
+        require(ids.length == amounts.length, 'burnBatch: lengths do not match');
+        require(ids.length == from.length, 'burnBatch: lengths do not match');
+        for (uint i = 0; i < ids.length; i++) {
+            burn(from[i], ids[i], amounts[i]);
+        }
+    }
 }
