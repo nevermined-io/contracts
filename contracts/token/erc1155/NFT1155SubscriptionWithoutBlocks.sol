@@ -42,6 +42,10 @@ contract NFT1155SubscriptionWithoutBlocks is NFT1155Upgradeable {
         super.mint(to, tokenId, amount, data);
     }    
     
+    function mint(address to, uint256 tokenId, uint256 amount, uint256 _expirationBlock, bytes memory data) virtual public {
+        super.mint(to, tokenId, amount, data);
+    } 
+
     function burn(uint256 id, uint256 amount) override public {
         burn(_msgSender(), id, amount);
     }

@@ -155,7 +155,7 @@ It's possible to deploy new instances having the ABIs and using the Nevermined C
 
 ncli nfts721 deploy build/contracts/token/erc721/NFT721SubscriptionUpgradeable.sol/NFT721SubscriptionUpgradeable.json --params "Nevermined NFT" --params "NVM"
 
-
+ncli nfts1155 deploy build/contracts/token/erc1155/NFT1155SubscriptionWithoutBlocks.sol/NFT1155SubscriptionWithoutBlocks.json --params "Nevermined Credits Plan" --params "NVM"
 ```
 
 ## Verifying contracts code in different networks
