@@ -40,8 +40,9 @@ contract NFT1155SubscriptionWithoutBlocks is NFT1155Upgradeable {
     
     function mint(address to, uint256 tokenId, uint256 amount, bytes memory data) virtual override public {
         super.mint(to, tokenId, amount, data);
-    }    
-    
+    }
+
+    // solhint-disable-next-line
     function mint(address to, uint256 tokenId, uint256 amount, uint256 _expirationBlock, bytes memory data) virtual public {
         super.mint(to, tokenId, amount, data);
     } 
