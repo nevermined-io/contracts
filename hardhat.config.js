@@ -4,6 +4,7 @@
 require('@openzeppelin/hardhat-upgrades')
 require('@nomiclabs/hardhat-truffle5')
 require('@nomicfoundation/hardhat-verify')
+// require('@nomicfoundation/hardhat-ignition-ethers')
 require('hardhat-dependency-compiler')
 require('hardhat-gas-reporter')
 require('solidity-coverage')
@@ -276,6 +277,7 @@ module.exports = {
             optimism: process.env.ETHERSCAN_TOKEN,
             base: process.env.BASESCAN_TOKEN,
             arbitrumSepolia: process.env.ARBISCAN_TOKEN,
+            peaqMainnet: process.env.PEAQSCAN_TOKEN,
             arbitrumOne: process.env.ARBISCAN_TOKEN,
             chiado: process.env.GNOSIS_TOKEN,
             gnosis: process.env.GNOSIS_TOKEN
@@ -303,6 +305,14 @@ module.exports = {
                 urls: {
                     apiURL: 'https://api.neonscan.org/hardhat/verify',
                     browserURL: 'https://neonscan.org'
+                }
+            },
+            {
+                network: 'peaqMainnet',
+                chainId: 3338,
+                urls: {
+                    apiURL: 'https://peaq.api.subscan.io',
+                    browserURL: 'https://peaq.subscan.io/'
                 }
             }
         ]
