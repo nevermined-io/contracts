@@ -25,7 +25,8 @@ contract('NFT1155 Subscription', (accounts) => {
         deployer,
         minter,
         account1,
-        account2
+        account2,
+        account3
     ] = accounts
 
     let nft
@@ -154,7 +155,9 @@ contract('NFT1155 Subscription', (accounts) => {
             assert.strictEqual(balances[0], 23)
             assert.strictEqual(balances[1], 15)
 
-            await nft.burnBatchFromHolders([account2, account2], [tokenId3, tokenId4], [22, 14], { from: minter })
+            await nft.mintBatch(account3, [tokenId3, tokenId4], [50, 50], data, { from: minter })
+
+            await nft.burnBatchFromHolders([account2, account3, account2], [tokenId3, tokenId3, tokenId4], [22, 10, 14], { from: minter })
             balance = new BigNumber(await nft.balanceOf(account2, tokenId3))
             balance2 = new BigNumber(await nft.balanceOf(account2, tokenId4))
             assert.strictEqual(balance.toNumber(), 1)

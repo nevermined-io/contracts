@@ -243,4 +243,17 @@ abstract contract NFTBase is IERC2981Upgradeable, CommonOwnable, AccessControlUp
     function nftType() external pure virtual returns (bytes32) {
         return keccak256('');
     }
+
+    error BatchError(bytes innerError);
+
+    function _getRevertMsg(bytes memory _returnData) internal pure{
+        // If the _res length is less than 68, then
+        // the transaction failed with custom error or silently (without a revert message)
+        if (_returnData.length < 68) revert BatchError(_returnData);
+
+        // Slice the sighash.
+        // solhint-disable-next-line
+        assembly { _returnData := add(_returnData, 0x04) }
+        revert(abi.decode(_returnData, (string))); // All that remains is the revert string
+    }    
 }

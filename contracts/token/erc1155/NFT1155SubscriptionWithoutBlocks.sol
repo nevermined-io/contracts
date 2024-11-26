@@ -75,41 +75,7 @@ contract NFT1155SubscriptionWithoutBlocks is NFT1155Upgradeable {
      */
     function balanceOf(address account, uint256 tokenId) public view virtual override returns (uint256) {
         return super.balanceOf(account, tokenId);
-//        bytes32 _key = _getTokenKey(account, tokenId);
-//        uint256 _amountBurned;
-//        uint256 _amountMinted;
-//        for (uint index = 0; index < _tokens[_key].length; index++) {
-//            if (_tokens[_key][index].mintBlock > 0 &&
-//                (_tokens[_key][index].expirationBlock == 0 || _tokens[_key][index].expirationBlock > block.number)) {
-//                if (_tokens[_key][index].isMintOps)
-//                    _amountMinted += _tokens[_key][index].amountMinted;
-//                else
-//                    _amountBurned += _tokens[_key][index].amountMinted;
-//            }
-//        }
-//
-//        if (_amountBurned >= _amountMinted)
-//            return 0;
-//        else
-//            return _amountMinted - _amountBurned;
-    }
-    
-//    function whenWasMinted(address owner, uint256 tokenId) public view returns (uint256[] memory) {
-//        bytes32 _key = _getTokenKey(owner, tokenId);
-//        uint256[] memory _whenMinted = new uint256[](_tokens[_key].length);
-//        for (uint index = 0; index < _tokens[_key].length; index++) {
-//            _whenMinted[index] = _tokens[_key][index].mintBlock;
-//        }
-//        return _whenMinted;
-//    }
-//    
-//    function getMintedEntries(address owner, uint256 tokenId) public view returns (MintedTokens[] memory) {
-//        return _tokens[_getTokenKey(owner, tokenId)];
-//    }
-//    
-//    function _getTokenKey(address account, uint256 tokenId) internal pure returns (bytes32) {
-//        return keccak256(abi.encode(account, tokenId));
-//    }
+    }    
 
     function mintBatch(
         address to,
@@ -117,7 +83,7 @@ contract NFT1155SubscriptionWithoutBlocks is NFT1155Upgradeable {
         uint256[] memory amounts,
         bytes memory data
     ) external {
-        require(ids.length == amounts.length, 'mintBatch: lengths do not match');
+        require(ids.length == amounts.length, 'lengths do not match');
         for (uint i = 0; i < ids.length; i++) {
             mint(to, ids[i], amounts[i], data);
         }
@@ -128,7 +94,7 @@ contract NFT1155SubscriptionWithoutBlocks is NFT1155Upgradeable {
         uint256[] memory ids,
         uint256[] memory amounts
     ) external {
-        require(ids.length == amounts.length, 'burnBatch: lengths do not match');
+        require(ids.length == amounts.length, 'lengths do not match');
         for (uint i = 0; i < ids.length; i++) {
             burn(from, ids[i], amounts[i]);
         }
@@ -137,12 +103,26 @@ contract NFT1155SubscriptionWithoutBlocks is NFT1155Upgradeable {
     function burnBatchFromHolders(
         address[] memory from,
         uint256[] memory ids,
-        uint256[] memory amounts
-    ) external {
-        require(ids.length == amounts.length, 'burnBatch: lengths do not match');
-        require(ids.length == from.length, 'burnBatch: lengths do not match');
-        for (uint i = 0; i < ids.length; i++) {
-            burn(from[i], ids[i], amounts[i]);
+        uint256[] memory amounts,
+        bool revertOnFail
+    ) external returns (bool[] memory successes, bytes[] memory results) {
+        uint256 _length = ids.length;
+        require(_length == amounts.length && _length == from.length, 'lengths do not match');                
+        
+        successes = new bool[](_length);
+        results = new bytes[](_length);
+
+        for (uint256 i = 0; i < _length; ++i) {
+            // solhint-disable-next-line
+            (bool success, bytes memory result) = address(this).delegatecall(abi.encodeWithSignature('burn(address,uint256,uint256)', from[i], ids[i], amounts[i]));
+                        
+            if (!success && revertOnFail) {
+                _getRevertMsg(result);
+            }
+            successes[i] = success;
+            results[i] = result;
         }
+        return (successes, results);
     }
+    
 }
