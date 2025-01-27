@@ -19,7 +19,7 @@ contract NFT1155SubscriptionWithoutBlocks is NFT1155Upgradeable {
 
     // It represents the NFT type. It is used to identify the NFT type in the Nevermined ecosystem
     // solhint-disable-next-line
-    bytes32 public constant override nftType = keccak256('nft1155-subscription');
+    bytes32 public constant override nftType = keccak256('nft1155-subscription-noblock');
     
     function initialize(
         address owner,

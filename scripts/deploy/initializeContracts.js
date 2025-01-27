@@ -3,6 +3,7 @@ const ZeroAddress = '0x0000000000000000000000000000000000000000'
 const { ethers, upgrades, web3 } = require('hardhat')
 const { writeArtifact, exportLibraryArtifact, resolveAddress } = require('./artifacts')
 
+const DEPLOY_DLEQ = process.env.DEPLOY_DLEQ === 'true'
 const DEPLOY_AAVE = process.env.DEPLOY_AAVE === 'true'
 
 function getSignatureOfMethod(
@@ -266,10 +267,11 @@ async function initializeContracts({
         contract: 'ConditionStoreManager',
         ctx,
         args: [roles.deployer, roles.deployer, resolveAddress('NeverminedConfig', addressBook, proxies)],
+        isCore: false,
         verbose
     })
 
-    proxies.PlonkVerifier = await deployLibrary('PlonkVerifier', addresses, cache, roles.deployerSigner)
+    if (DEPLOY_DLEQ) { proxies.PlonkVerifier = await deployLibrary('PlonkVerifier', addresses, cache, roles.deployerSigner) }
 
     if (DEPLOY_AAVE) { proxies.AaveCreditVault = await deployLibrary('AaveCreditVault', addresses, cache, roles.deployerSigner) }
 
@@ -277,6 +279,7 @@ async function initializeContracts({
         contract: 'TemplateStoreManager',
         ctx,
         args: [roles.deployer],
+        isCore: false,
         verbose
     })
 
@@ -413,6 +416,7 @@ async function initializeContracts({
             resolveAddress('TemplateStoreManager', addressBook, proxies),
             resolveAddress('DIDRegistry', addressBook, proxies)
         ],
+        isCore: false,
         verbose
     })
     addressBook.RewardsDistributor = await zosCreate({
@@ -455,29 +459,32 @@ async function initializeContracts({
         ],
         verbose
     })
-    addressBook.AccessProofCondition = await zosCreate({
-        contract: 'AccessProofCondition',
-        ctx,
-        args: [
-            roles.ownerWallet,
-            resolveAddress('ConditionStoreManager', addressBook, proxies),
-            resolveAddress('DIDRegistry', addressBook, proxies),
-            resolveAddress('PlonkVerifier', addressBook, proxies)
-        ],
-        verbose
-    })
-    addressBook.AccessDLEQCondition = await zosCreate({
-        contract: 'AccessDLEQCondition',
-        ctx,
-        args: [
-            roles.ownerWallet,
-            resolveAddress('ConditionStoreManager', addressBook, proxies),
-            resolveAddress('DIDRegistry', addressBook, proxies),
-            resolveAddress('LockPaymentCondition', addressBook, proxies),
-            resolveAddress('EscrowPaymentCondition', addressBook, proxies)
-        ],
-        verbose
-    })
+
+    if (DEPLOY_DLEQ) {
+        addressBook.AccessProofCondition = await zosCreate({
+            contract: 'AccessProofCondition',
+            ctx,
+            args: [
+                roles.ownerWallet,
+                resolveAddress('ConditionStoreManager', addressBook, proxies),
+                resolveAddress('DIDRegistry', addressBook, proxies),
+                resolveAddress('PlonkVerifier', addressBook, proxies)
+            ],
+            verbose
+        })
+        addressBook.AccessDLEQCondition = await zosCreate({
+            contract: 'AccessDLEQCondition',
+            ctx,
+            args: [
+                roles.ownerWallet,
+                resolveAddress('ConditionStoreManager', addressBook, proxies),
+                resolveAddress('DIDRegistry', addressBook, proxies),
+                resolveAddress('LockPaymentCondition', addressBook, proxies),
+                resolveAddress('EscrowPaymentCondition', addressBook, proxies)
+            ],
+            verbose
+        })
+    }
     addressBook.NFTHolderCondition = await zosCreate({
         contract: 'NFTHolderCondition',
         ctx,
@@ -567,153 +574,158 @@ async function initializeContracts({
         ],
         verbose
     })
-    addressBook.AccessProofTemplate = await zosCreate({
-        contract: 'AccessProofTemplate',
-        ctx,
-        args: [
-            roles.ownerWallet,
-            resolveAddress('AgreementStoreManager', addressBook, proxies),
-            resolveAddress('DIDRegistry', addressBook, proxies),
-            resolveAddress('AccessProofCondition', addressBook, proxies),
-            resolveAddress('LockPaymentCondition', addressBook, proxies),
-            resolveAddress('EscrowPaymentCondition', addressBook, proxies)
-        ],
-        verbose
-    })
-    addressBook.AccessDLEQTemplate = await zosCreate({
-        contract: 'AccessDLEQTemplate',
-        ctx,
-        args: [
-            roles.ownerWallet,
-            resolveAddress('AgreementStoreManager', addressBook, proxies),
-            resolveAddress('DIDRegistry', addressBook, proxies),
-            resolveAddress('AccessDLEQCondition', addressBook, proxies),
-            resolveAddress('LockPaymentCondition', addressBook, proxies),
-            resolveAddress('EscrowPaymentCondition', addressBook, proxies)
-        ],
-        verbose
-    })
-    addressBook.NFTAccessProofTemplate = await zosCreate({
-        contract: 'NFTAccessProofTemplate',
-        ctx,
-        args: [
-            roles.ownerWallet,
-            resolveAddress('AgreementStoreManager', addressBook, proxies),
-            resolveAddress('NFTHolderCondition', addressBook, proxies),
-            resolveAddress('AccessProofCondition', addressBook, proxies)
-        ],
-        verbose
-    })
-    addressBook.NFTAccessDLEQTemplate = await zosCreate({
-        contract: 'NFTAccessDLEQTemplate',
-        ctx,
-        args: [
-            roles.ownerWallet,
-            resolveAddress('AgreementStoreManager', addressBook, proxies),
-            resolveAddress('NFTHolderCondition', addressBook, proxies),
-            resolveAddress('AccessDLEQCondition', addressBook, proxies)
-        ],
-        verbose
-    })
-    addressBook.NFTAccessSwapTemplate = await zosCreate({
-        contract: 'NFTAccessSwapTemplate',
-        ctx,
-        args: [
-            roles.ownerWallet,
-            resolveAddress('AgreementStoreManager', addressBook, proxies),
-            resolveAddress('NFTLockCondition', addressBook, proxies),
-            resolveAddress('NFTEscrowPaymentCondition', addressBook, proxies),
-            resolveAddress('AccessProofCondition', addressBook, proxies)
-        ],
-        verbose
-    })
-    addressBook.NFTSalesWithAccessTemplate = await zosCreate({
-        contract: 'NFTSalesWithAccessTemplate',
-        ctx,
-        args: [
-            roles.ownerWallet,
-            resolveAddress('AgreementStoreManager', addressBook, proxies),
-            resolveAddress('LockPaymentCondition', addressBook, proxies),
-            resolveAddress('TransferNFTCondition', addressBook, proxies),
-            resolveAddress('EscrowPaymentCondition', addressBook, proxies),
-            resolveAddress('AccessProofCondition', addressBook, proxies)
-        ],
-        verbose
-    })
+    if (DEPLOY_DLEQ) {
+        console.log('Deploying DLEQ STUFF')
+        addressBook.AccessProofTemplate = await zosCreate({
+            contract: 'AccessProofTemplate',
+            ctx,
+            args: [
+                roles.ownerWallet,
+                resolveAddress('AgreementStoreManager', addressBook, proxies),
+                resolveAddress('DIDRegistry', addressBook, proxies),
+                resolveAddress('AccessProofCondition', addressBook, proxies),
+                resolveAddress('LockPaymentCondition', addressBook, proxies),
+                resolveAddress('EscrowPaymentCondition', addressBook, proxies)
+            ],
+            verbose
+        })
+        addressBook.AccessDLEQTemplate = await zosCreate({
+            contract: 'AccessDLEQTemplate',
+            ctx,
+            args: [
+                roles.ownerWallet,
+                resolveAddress('AgreementStoreManager', addressBook, proxies),
+                resolveAddress('DIDRegistry', addressBook, proxies),
+                resolveAddress('AccessDLEQCondition', addressBook, proxies),
+                resolveAddress('LockPaymentCondition', addressBook, proxies),
+                resolveAddress('EscrowPaymentCondition', addressBook, proxies)
+            ],
+            verbose
+        })
 
-    addressBook.NFTSalesWithDLEQTemplate = await zosCreate({
-        contract: 'NFTSalesWithDLEQTemplate',
-        ctx,
-        args: [
-            roles.ownerWallet,
-            resolveAddress('AgreementStoreManager', addressBook, proxies),
-            resolveAddress('LockPaymentCondition', addressBook, proxies),
-            resolveAddress('TransferNFTCondition', addressBook, proxies),
-            resolveAddress('EscrowPaymentCondition', addressBook, proxies),
-            resolveAddress('AccessDLEQCondition', addressBook, proxies)
-        ],
-        verbose
-    })
-    addressBook.NFT721AccessProofTemplate = await zosCreate({
-        contract: 'NFT721AccessProofTemplate',
-        ctx,
-        args: [
-            roles.ownerWallet,
-            resolveAddress('AgreementStoreManager', addressBook, proxies),
-            resolveAddress('NFT721HolderCondition', addressBook, proxies),
-            resolveAddress('AccessProofCondition', addressBook, proxies)
-        ],
-        verbose
-    })
-    addressBook.NFT721AccessDLEQTemplate = await zosCreate({
-        contract: 'NFT721AccessDLEQTemplate',
-        ctx,
-        args: [
-            roles.ownerWallet,
-            resolveAddress('AgreementStoreManager', addressBook, proxies),
-            resolveAddress('NFT721HolderCondition', addressBook, proxies),
-            resolveAddress('AccessDLEQCondition', addressBook, proxies)
-        ],
-        verbose
-    })
-    addressBook.NFT721AccessSwapTemplate = await zosCreate({
-        contract: 'NFT721AccessSwapTemplate',
-        ctx,
-        args: [
-            roles.ownerWallet,
-            resolveAddress('AgreementStoreManager', addressBook, proxies),
-            resolveAddress('NFT721LockCondition', addressBook, proxies),
-            resolveAddress('NFT721EscrowPaymentCondition', addressBook, proxies),
-            resolveAddress('AccessProofCondition', addressBook, proxies)
-        ],
-        verbose
-    })
-    addressBook.NFT721SalesWithAccessTemplate = await zosCreate({
-        contract: 'NFT721SalesWithAccessTemplate',
-        ctx,
-        args: [
-            roles.ownerWallet,
-            resolveAddress('AgreementStoreManager', addressBook, proxies),
-            resolveAddress('LockPaymentCondition', addressBook, proxies),
-            resolveAddress('TransferNFT721Condition', addressBook, proxies),
-            resolveAddress('EscrowPaymentCondition', addressBook, proxies),
-            resolveAddress('AccessProofCondition', addressBook, proxies)
-        ],
-        verbose
-    })
-    addressBook.NFT721SalesWithDLEQTemplate = await zosCreate({
-        contract: 'NFT721SalesWithDLEQTemplate',
-        ctx,
-        args: [
-            roles.ownerWallet,
-            resolveAddress('AgreementStoreManager', addressBook, proxies),
-            resolveAddress('LockPaymentCondition', addressBook, proxies),
-            resolveAddress('TransferNFT721Condition', addressBook, proxies),
-            resolveAddress('EscrowPaymentCondition', addressBook, proxies),
-            resolveAddress('AccessDLEQCondition', addressBook, proxies)
-        ],
-        verbose
-    })
+        addressBook.NFTAccessProofTemplate = await zosCreate({
+            contract: 'NFTAccessProofTemplate',
+            ctx,
+            args: [
+                roles.ownerWallet,
+                resolveAddress('AgreementStoreManager', addressBook, proxies),
+                resolveAddress('NFTHolderCondition', addressBook, proxies),
+                resolveAddress('AccessProofCondition', addressBook, proxies)
+            ],
+            verbose
+        })
+        addressBook.NFTAccessDLEQTemplate = await zosCreate({
+            contract: 'NFTAccessDLEQTemplate',
+            ctx,
+            args: [
+                roles.ownerWallet,
+                resolveAddress('AgreementStoreManager', addressBook, proxies),
+                resolveAddress('NFTHolderCondition', addressBook, proxies),
+                resolveAddress('AccessDLEQCondition', addressBook, proxies)
+            ],
+            verbose
+        })
+
+        addressBook.NFTAccessSwapTemplate = await zosCreate({
+            contract: 'NFTAccessSwapTemplate',
+            ctx,
+            args: [
+                roles.ownerWallet,
+                resolveAddress('AgreementStoreManager', addressBook, proxies),
+                resolveAddress('NFTLockCondition', addressBook, proxies),
+                resolveAddress('NFTEscrowPaymentCondition', addressBook, proxies),
+                resolveAddress('AccessProofCondition', addressBook, proxies)
+            ],
+            verbose
+        })
+        addressBook.NFTSalesWithAccessTemplate = await zosCreate({
+            contract: 'NFTSalesWithAccessTemplate',
+            ctx,
+            args: [
+                roles.ownerWallet,
+                resolveAddress('AgreementStoreManager', addressBook, proxies),
+                resolveAddress('LockPaymentCondition', addressBook, proxies),
+                resolveAddress('TransferNFTCondition', addressBook, proxies),
+                resolveAddress('EscrowPaymentCondition', addressBook, proxies),
+                resolveAddress('AccessProofCondition', addressBook, proxies)
+            ],
+            verbose
+        })
+        addressBook.NFTSalesWithDLEQTemplate = await zosCreate({
+            contract: 'NFTSalesWithDLEQTemplate',
+            ctx,
+            args: [
+                roles.ownerWallet,
+                resolveAddress('AgreementStoreManager', addressBook, proxies),
+                resolveAddress('LockPaymentCondition', addressBook, proxies),
+                resolveAddress('TransferNFTCondition', addressBook, proxies),
+                resolveAddress('EscrowPaymentCondition', addressBook, proxies),
+                resolveAddress('AccessDLEQCondition', addressBook, proxies)
+            ],
+            verbose
+        })
+        addressBook.NFT721AccessProofTemplate = await zosCreate({
+            contract: 'NFT721AccessProofTemplate',
+            ctx,
+            args: [
+                roles.ownerWallet,
+                resolveAddress('AgreementStoreManager', addressBook, proxies),
+                resolveAddress('NFT721HolderCondition', addressBook, proxies),
+                resolveAddress('AccessProofCondition', addressBook, proxies)
+            ],
+            verbose
+        })
+
+        addressBook.NFT721AccessDLEQTemplate = await zosCreate({
+            contract: 'NFT721AccessDLEQTemplate',
+            ctx,
+            args: [
+                roles.ownerWallet,
+                resolveAddress('AgreementStoreManager', addressBook, proxies),
+                resolveAddress('NFT721HolderCondition', addressBook, proxies),
+                resolveAddress('AccessDLEQCondition', addressBook, proxies)
+            ],
+            verbose
+        })
+        addressBook.NFT721AccessSwapTemplate = await zosCreate({
+            contract: 'NFT721AccessSwapTemplate',
+            ctx,
+            args: [
+                roles.ownerWallet,
+                resolveAddress('AgreementStoreManager', addressBook, proxies),
+                resolveAddress('NFT721LockCondition', addressBook, proxies),
+                resolveAddress('NFT721EscrowPaymentCondition', addressBook, proxies),
+                resolveAddress('AccessProofCondition', addressBook, proxies)
+            ],
+            verbose
+        })
+        addressBook.NFT721SalesWithAccessTemplate = await zosCreate({
+            contract: 'NFT721SalesWithAccessTemplate',
+            ctx,
+            args: [
+                roles.ownerWallet,
+                resolveAddress('AgreementStoreManager', addressBook, proxies),
+                resolveAddress('LockPaymentCondition', addressBook, proxies),
+                resolveAddress('TransferNFT721Condition', addressBook, proxies),
+                resolveAddress('EscrowPaymentCondition', addressBook, proxies),
+                resolveAddress('AccessProofCondition', addressBook, proxies)
+            ],
+            verbose
+        })
+        addressBook.NFT721SalesWithDLEQTemplate = await zosCreate({
+            contract: 'NFT721SalesWithDLEQTemplate',
+            ctx,
+            args: [
+                roles.ownerWallet,
+                resolveAddress('AgreementStoreManager', addressBook, proxies),
+                resolveAddress('LockPaymentCondition', addressBook, proxies),
+                resolveAddress('TransferNFT721Condition', addressBook, proxies),
+                resolveAddress('EscrowPaymentCondition', addressBook, proxies),
+                resolveAddress('AccessDLEQCondition', addressBook, proxies)
+            ],
+            verbose
+        })
+    }
 
     addressBook.EscrowComputeExecutionTemplate = await zosCreate({
         contract: 'EscrowComputeExecutionTemplate',

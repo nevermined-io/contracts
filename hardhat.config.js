@@ -169,10 +169,10 @@ module.exports = {
 
         },
         'peaq-mainnet': {
-            url: url || 'https://erpc-mpfn1.peaq.network/',
+            url: url || 'https://evm.peaq.network',
             accounts,
             chainId: 3338,
-            from: '0x73943d14131268F23b721E668911bCDDEcA9da62'
+            skipDryRun: true
         },
         'peaq-agung': {
             url: url || 'https://rpcpc1-qa.agung.peaq.network',
@@ -280,7 +280,8 @@ module.exports = {
             peaqMainnet: process.env.PEAQSCAN_TOKEN,
             arbitrumOne: process.env.ARBISCAN_TOKEN,
             chiado: process.env.GNOSIS_TOKEN,
-            gnosis: process.env.GNOSIS_TOKEN
+            gnosis: process.env.GNOSIS_TOKEN,
+            xdai: process.env.GNOSIS_TOKEN
         },
         customChains: [
             {
