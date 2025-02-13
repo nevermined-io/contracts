@@ -17,6 +17,8 @@ const utils = {
         return web3.utils.sha3(message)
     },
 
+    sleep: (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
+
     generateAccount: () => {
         return web3.eth.accounts.create()
     },
