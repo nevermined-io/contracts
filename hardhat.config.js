@@ -208,6 +208,14 @@ module.exports = {
             skipDryRun: true
             //            from: '0x73943d14131268F23b721E668911bCDDEcA9da62'
         },
+        'base-sepolia': {
+            url: url || 'https://sepolia.base.org',
+            accounts,
+            chainId: 84532
+            //            skipDryRun: true,
+            // from: '0x73943d14131268F23b721E668911bCDDEcA9da62'
+
+        },
         'arbitrum-one': {
             url: url || `https://arbitrum-mainnet.infura.io/v3/${process.env.INFURA_TOKEN}`,
             accounts,
@@ -276,6 +284,7 @@ module.exports = {
             polygon: process.env.POLYGONSCAN_TOKEN,
             optimism: process.env.ETHERSCAN_TOKEN,
             base: process.env.BASESCAN_TOKEN,
+            baseSepolia: process.env.BASESCAN_TOKEN,
             arbitrumSepolia: process.env.ARBISCAN_TOKEN,
             peaqMainnet: process.env.PEAQSCAN_TOKEN,
             arbitrumOne: process.env.ARBISCAN_TOKEN,

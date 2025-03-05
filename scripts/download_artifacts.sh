@@ -27,6 +27,7 @@ NETWORKS_MAP=(
   ["gnosis"]="100"
   ["matic"]="137"
   ["base"]="8453"
+  ["base-sepolia"]="84532"
   ["peaq-mainnet"]="3338"
   ["peaq-agung"]="9990"
   ["chiado"]="10200"
