@@ -42,6 +42,7 @@ NETWORKS_MAP=(
   ["gnosis"]="100"
   ["matic"]="137"
   ["base"]="8453"
+  ["base-sepolia"]="84532"
   ["chiado"]="10200"
   ["arbitrum-one"]="42161"
   ["celo-alfajores"]="44787"
