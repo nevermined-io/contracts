@@ -1,0 +1,31 @@
+{
+  "blockNumber": 33038436,
+  "chainId": 84532,
+  "contracts": {
+    "AccessManager": "0x7Efe7c92bbbAb7c20d4905343e85e3C6f0F2F2F9",
+    "AgreementsStore": "0x76C34673a2629BA1Ca64677290960B362DA376Ea",
+    "AssetsRegistry": "0x022DF767Cb3D8B418E9a7f8aCD148f2A92a5BCA6",
+    "DistributePaymentsCondition": "0xB0704B10087152eDDB04403614ca71829198c295",
+    "FiatPaymentTemplate": "0xE128d54641Fa4BeAE1395687875ddf2674C701fF",
+    "FiatSettlementCondition": "0xea16d6aBeee24b31FA7749ED0fD91f171355d73a",
+    "FixedPaymentTemplate": "0x516a479d096526EE9ea1767CA0E32177A6286D61",
+    "LinearPricing": "0xc64BCc8C2A18feBD7C5A0c0edC925cdC92C81C03",
+    "LockPaymentCondition": "0x7D311C3ca478b38776a65D525af1f07F8B1FF805",
+    "NFT1155Credits": "0x75236F892D93D2ea1e5Bb5a4382163b2f036E541",
+    "NFT1155ExpirableCredits": "0x862904cDe1b5d8fA01373997e227A6aBf025bb75",
+    "NFT1155ExpirableCreditsV2": "0x7D86d899Be23369c71317eE0eFCf771d3D143400",
+    "NVMConfig": "0x6FB803F6743833D299323A1D2d3Ff4Ab7088CD9a",
+    "OneTimeCreatorHook": "0x8e9F78E6d3624335F6C01C6C95192f5b5FE9d514",
+    "PayAsYouGoTemplate": "0x4AB65d2b4c6a2415D66E1851Bd90Ac6E0dCE1e00",
+    "PaymentsVault": "0x926905400501266d451c2c26A89b3C7474d68870",
+    "ProtocolStandardFees": "0x0f8E48f25De3F2ebD5ecc15267ba60A48318640C",
+    "TokenUtils": "0x61Ec9f62eeC5318ACAb7bA94C37D6d2ceBb52b80",
+    "TransferCreditsCondition": "0x991A35c6b828f133F729FcA7A1a3fe80da6840Eb"
+  },
+  "deployedAt": 1761845142,
+  "governor": "0x35aFA2408BB4f479996fafb2bB3A183ec064C265",
+  "owner": "0xb8eF38EFB7DB89d2f8A37d17d87930BA6cC0A834",
+  "snapshotId": 0,
+  "upgrader": "0x2020949c1B565421AC21b76e70340266c4CA9A90",
+  "version": "1.3.1"
+}
