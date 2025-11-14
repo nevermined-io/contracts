@@ -409,10 +409,11 @@ contract AssetsRegistry is IAsset, IIdentityRegistry, ERC721URIStorageUpgradeabl
         PriceConfig memory _priceConfig,
         CreditsConfig memory _creditsConfig
     ) external {
-        uint256 planId = hashPlanId(_priceConfig, _creditsConfig, msg.sender);
+        uint256 nonce = uint256(_seed);
+        uint256 planId = hashPlanId(_priceConfig, _creditsConfig, msg.sender, nonce);
         if (!planExists(planId)) {
             IHook[] memory emptyHooks = new IHook[](0);
-            _createPlan(_priceConfig, _creditsConfig, emptyHooks, 0);
+            _createPlan(_priceConfig, _creditsConfig, emptyHooks, nonce);
         }
 
         uint256[] memory _assetPlans = new uint256[](1);

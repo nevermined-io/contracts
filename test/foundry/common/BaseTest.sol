@@ -100,7 +100,7 @@ abstract contract BaseTest is Test, ToArrayUtils {
         // Set the addresses
         vm.setEnv('GOVERNOR_ADDRESS', vm.toString(governor));
         vm.setEnv('OWNER_ADDRESS', vm.toString(owner));
-        vm.setEnv('CONTRACTS_DEPLOYMENT_VERSION', '1.3.1');
+        vm.setEnv('CONTRACTS_DEPLOYMENT_VERSION', '1.3.2');
 
         // Deploy the contracts
         DeployedContracts memory deployed = new DeployAll().run();

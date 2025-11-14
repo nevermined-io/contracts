@@ -83,7 +83,7 @@ contract LockPaymentConditionTest is BaseTest {
         assetsRegistry.registerAgentAndPlan(seed, 'https://nevermined.io', priceConfig, creditsConfig);
 
         // Get the plan ID
-        planId = assetsRegistry.hashPlanId(priceConfig, creditsConfig, address(this));
+        planId = assetsRegistry.hashPlanId(priceConfig, creditsConfig, address(this), uint256(seed));
 
         // Create agreement
         bytes32 agreementSeed = bytes32(uint256(2));
@@ -175,7 +175,7 @@ contract LockPaymentConditionTest is BaseTest {
         assetsRegistry.registerAgentAndPlan(seed, 'https://nevermined.io', priceConfig, creditsConfig);
 
         // Get the plan ID
-        uint256 erc20PlanId = assetsRegistry.hashPlanId(priceConfig, creditsConfig, address(this));
+        uint256 erc20PlanId = assetsRegistry.hashPlanId(priceConfig, creditsConfig, address(this), uint256(seed));
 
         // Create agreement
         bytes32 agreementSeed = bytes32(uint256(4));
@@ -409,7 +409,7 @@ contract LockPaymentConditionTest is BaseTest {
         assetsRegistry.registerAgentAndPlan(seed, 'https://nevermined.io', priceConfig, creditsConfig);
 
         // Get the plan ID
-        uint256 newPlanId = assetsRegistry.hashPlanId(priceConfig, creditsConfig, address(this));
+        uint256 newPlanId = assetsRegistry.hashPlanId(priceConfig, creditsConfig, address(this), uint256(seed));
 
         // Create agreement
         bytes32 newAgreementId = agreementsStore.hashAgreementId(bytes32(uint256(10)), user);
@@ -490,7 +490,7 @@ contract LockPaymentConditionTest is BaseTest {
         assetsRegistry.registerAgentAndPlan(seed, 'https://nevermined.io', priceConfig, creditsConfig);
 
         // Get the plan ID
-        uint256 erc20PlanId = assetsRegistry.hashPlanId(priceConfig, creditsConfig, address(this));
+        uint256 erc20PlanId = assetsRegistry.hashPlanId(priceConfig, creditsConfig, address(this), uint256(seed));
 
         // Create agreement
         bytes32 agreementSeed = bytes32(uint256(12));
@@ -571,7 +571,7 @@ contract LockPaymentConditionTest is BaseTest {
         vm.prank(address(this));
         assetsRegistry.registerAgentAndPlan(seed, 'https://nevermined.io', priceConfig, creditsConfig);
 
-        uint256 dynamicPlanId = assetsRegistry.hashPlanId(priceConfig, creditsConfig, address(this));
+        uint256 dynamicPlanId = assetsRegistry.hashPlanId(priceConfig, creditsConfig, address(this), uint256(seed));
 
         // Configure the pricing contract with the actual plan ID
         linearPricing.setPlan(dynamicPlanId, baseAmount, slope, receivers, weights);
@@ -630,7 +630,7 @@ contract LockPaymentConditionTest is BaseTest {
         vm.prank(address(this));
         assetsRegistry.registerAgentAndPlan(seed, 'https://nevermined.io', priceConfig, creditsConfig);
 
-        uint256 dynamicPlanId = assetsRegistry.hashPlanId(priceConfig, creditsConfig, address(this));
+        uint256 dynamicPlanId = assetsRegistry.hashPlanId(priceConfig, creditsConfig, address(this), uint256(seed));
 
         // Configure the pricing contract with the actual plan ID
         linearPricing.setPlan(dynamicPlanId, baseAmount, slope, receivers, weights);
@@ -688,7 +688,7 @@ contract LockPaymentConditionTest is BaseTest {
         vm.prank(address(this));
         assetsRegistry.registerAgentAndPlan(seed, 'https://nevermined.io', priceConfig, creditsConfig);
 
-        uint256 dynamicPlanId = assetsRegistry.hashPlanId(priceConfig, creditsConfig, address(this));
+        uint256 dynamicPlanId = assetsRegistry.hashPlanId(priceConfig, creditsConfig, address(this), uint256(seed));
 
         // Configure the pricing contract with the actual plan ID
         linearPricing.setPlan(dynamicPlanId, baseAmount, slope, receivers, weights);
@@ -747,7 +747,7 @@ contract LockPaymentConditionTest is BaseTest {
         vm.prank(address(this));
         assetsRegistry.registerAgentAndPlan(seed, 'https://nevermined.io', priceConfig, creditsConfig);
 
-        uint256 dynamicPlanId = assetsRegistry.hashPlanId(priceConfig, creditsConfig, address(this));
+        uint256 dynamicPlanId = assetsRegistry.hashPlanId(priceConfig, creditsConfig, address(this), uint256(seed));
 
         // Configure the pricing contract with the actual plan ID
         linearPricing.setPlan(dynamicPlanId, baseAmount, slope, receivers, weights);

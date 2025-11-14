@@ -73,7 +73,7 @@ contract TransferCreditsConditionTest is BaseTest {
         assetsRegistry.registerAgentAndPlan(seed, 'https://nevermined.io', priceConfig, creditsConfig);
 
         // Get the plan ID
-        planId = assetsRegistry.hashPlanId(priceConfig, creditsConfig, address(this));
+        planId = assetsRegistry.hashPlanId(priceConfig, creditsConfig, address(this), uint256(seed));
 
         // Create agreement
         bytes32 agreementSeed = bytes32(uint256(2));
@@ -145,7 +145,7 @@ contract TransferCreditsConditionTest is BaseTest {
         assetsRegistry.registerAgentAndPlan(seed, 'https://nevermined.io', priceConfig, creditsConfig);
 
         // Get the plan ID
-        planId = assetsRegistry.hashPlanId(priceConfig, creditsConfig, address(this));
+        planId = assetsRegistry.hashPlanId(priceConfig, creditsConfig, address(this), uint256(seed));
 
         // Create agreement
         bytes32 agreementSeed = bytes32(uint256(4));
@@ -216,7 +216,7 @@ contract TransferCreditsConditionTest is BaseTest {
         assetsRegistry.registerAgentAndPlan(seed, 'https://nevermined.io', priceConfig, creditsConfig);
 
         // Get the plan ID
-        planId = assetsRegistry.hashPlanId(priceConfig, creditsConfig, address(this));
+        planId = assetsRegistry.hashPlanId(priceConfig, creditsConfig, address(this), uint256(seed));
 
         // Create agreement
         bytes32 agreementSeed = bytes32(uint256(6));

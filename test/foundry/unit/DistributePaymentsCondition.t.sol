@@ -81,7 +81,7 @@ contract DistributePaymentsConditionTest is BaseTest {
         vm.prank(address(this));
         assetsRegistry.registerAgentAndPlan(seed, 'https://nevermined.io', priceConfig, creditsConfig);
 
-        uint256 dynamicPlanId = assetsRegistry.hashPlanId(priceConfig, creditsConfig, address(this));
+        uint256 dynamicPlanId = assetsRegistry.hashPlanId(priceConfig, creditsConfig, address(this), uint256(seed));
 
         // Configure the pricing contract with the actual plan ID
         linearPricing.setPlan(dynamicPlanId, baseAmount, slope, receivers, weights);
@@ -186,7 +186,7 @@ contract DistributePaymentsConditionTest is BaseTest {
         vm.prank(address(this));
         assetsRegistry.registerAgentAndPlan(seed, 'https://nevermined.io', priceConfig, creditsConfig);
 
-        uint256 dynamicPlanId = assetsRegistry.hashPlanId(priceConfig, creditsConfig, address(this));
+        uint256 dynamicPlanId = assetsRegistry.hashPlanId(priceConfig, creditsConfig, address(this), uint256(seed));
 
         // Configure the pricing contract with the actual plan ID
         linearPricing.setPlan(dynamicPlanId, baseAmount, slope, receivers, weights);
@@ -292,7 +292,7 @@ contract DistributePaymentsConditionTest is BaseTest {
         vm.prank(address(this));
         assetsRegistry.registerAgentAndPlan(seed, 'https://nevermined.io', priceConfig, creditsConfig);
 
-        uint256 dynamicPlanId = assetsRegistry.hashPlanId(priceConfig, creditsConfig, address(this));
+        uint256 dynamicPlanId = assetsRegistry.hashPlanId(priceConfig, creditsConfig, address(this), uint256(seed));
 
         // Configure the pricing contract with the actual plan ID
         linearPricing.setPlan(dynamicPlanId, baseAmount, slope, receivers, weights);

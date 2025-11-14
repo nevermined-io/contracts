@@ -109,6 +109,51 @@ contract AssetsRegistryTest is BaseTest {
         assertTrue(asset.lastUpdated > 0);
     }
 
+    function test_registerAgentAndPlan() public {
+        bytes32 seed = keccak256('test_registerAgentAndPlan');
+
+        uint256[] memory _amounts = new uint256[](1);
+        _amounts[0] = 998;
+        address[] memory _receivers = new address[](1);
+        _receivers[0] = address(this);
+
+        IAsset.Plan memory plan = IAsset.Plan({
+            owner: address(this),
+            price: IAsset.PriceConfig({
+                isCrypto: true,
+                tokenAddress: address(0),
+                amounts: _amounts,
+                receivers: _receivers,
+                externalPriceAddress: address(0),
+                feeController: IFeeController(address(0)),
+                templateAddress: address(0)
+            }),
+            credits: IAsset.CreditsConfig({
+                isRedemptionAmountFixed: true,
+                redemptionType: IAsset.RedemptionType.ONLY_GLOBAL_ROLE,
+                durationSecs: 0,
+                amount: 100,
+                minAmount: 1,
+                maxAmount: 1,
+                proofRequired: false,
+                nftAddress: address(nftCredits)
+            }),
+            lastUpdated: vm.getBlockTimestamp()
+        });
+
+        // Get the agent ID that will be generated
+        uint256 agentId = assetsRegistry.hashAgentId(seed, owner);
+
+        vm.prank(owner);
+        assetsRegistry.registerAgentAndPlan(seed, URL, plan.price, plan.credits);
+
+        IAsset.DIDAgent memory asset = assetsRegistry.getAgent(agentId);
+        assertTrue(asset.lastUpdated > 0);
+
+        IAsset.Plan memory registeredPlan = assetsRegistry.getPlan(asset.plans[0]);
+        assertTrue(registeredPlan.lastUpdated > 0);
+    }
+
     function test_cannotRegisterIfPlanDoesntExist() public {
         uint256[] memory planIds = new uint256[](1);
         planIds[0] = 999;
