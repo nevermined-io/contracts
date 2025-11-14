@@ -190,6 +190,10 @@ The messages exchanged between the Client, Server and Facilitator are as follows
 
 ### Payment Payload Schema
 
+#### JSON Structure
+
+The client includes payment authorization as JSON in the payment payload field:
+
 ```json
 {
   "x402Version": 2,
@@ -197,17 +201,59 @@ The messages exchanged between the Client, Server and Facilitator are as follows
   "network": "base-sepolia",
   "payload": {
     "signature": "0x2d6a7588d6acca505cbf0d9a4a227e0c52c6c34008c8e8986a1283259764173608a2ce6496642e377d6da8dbbf5836e9bd15092f9ecab05ded3d6293af148b571c",
-    "session-keys-provider": "zerodev",
-    "session-keys": [
-      {
-        "id": "order",
-        "data": "hash-of-session-key-data-for-order-permission"
-      },
-      {
-        "id": "redeem",
-        "data": "hash-of-session-key-data-for-redeem-permission"
-      }
-    ]
+    "authorization": {
+      "sessionKeysProvider": "zerodev",
+      "sessionKeys": [
+        {
+          "id": "order",
+          "data": "hash-of-session-key-data-for-order-permission"
+        },
+        {
+          "id": "redeem",
+          "data": "hash-of-session-key-data-for-redeem-permission"
+        }
+      ]
+    }
   }
 }
 ```
+
+#### Field Descriptions
+
+The `PaymentPayload` schema contains the following fields:
+
+**All fields are required.**
+
+| Field Name    | Type     | Description                                                              |
+| ------------- | -------- | ------------------------------------------------------------------------ |
+| `x402Version` | `number` | Protocol version identifier (must be 2)                                  |
+| `scheme`      | `string` | Payment scheme identifier (must be "contract")                           |
+| `network`     | `string` | Blockchain network identifier (e.g., "base-sepolia", "ethereum-mainnet") |
+| `payload`     | `object` | Payment data object                                                      |
+
+The `payload` field contains a `SchemePayload` object with scheme-specific data:
+
+**All fields are required.**
+
+| Field Name      | Type     | Description                         |
+| --------------- | -------- | ----------------------------------- |
+| `signature`     | `string` | EIP-712 signature for authorization |
+| `authorization` | `object` | The authorization payload           |
+
+The `Authorization` object contains the following fields:
+
+**All fields are required.**
+
+| Field Name            | Type           | Description                                     |
+| --------------------- | -------------- | ----------------------------------------------- |
+| `sessionKeysProvider` | `string`       | The provider for the session keys               |
+| `sessionKeys`         | `object[]`     | An array of session keys                        |
+
+The `SessionKey` object contains the following fields:
+
+**All fields are required.**
+
+| Field Name | Type     | Description                                        |
+| ---------- | -------- | -------------------------------------------------- |
+| `id`       | `string` | The id of the session key (e.g. "order", "redeem") |
+| `data`     | `string` | The keccak256 hash of the b64 encoded session key  |
