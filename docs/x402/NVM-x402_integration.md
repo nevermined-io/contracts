@@ -6,7 +6,6 @@ Status: Work in Progress
 Version: 0.2
 ```
 
-
 ## Summary
 
 The [x402 protocol](https://x402.org/) brought attention to a previously unaddressed problem: payments between agents. Nevermined has been working on this challenge for a long time, well before it became a popular topic, but the x402 team put it in the spotlight with an open protocol leveraging digital native payments (web3).
@@ -41,7 +40,7 @@ To achieve this we propose the following solution:
 - This flow MUST be compatible with the existing x402 protocol, so it can be used by existing x402 clients and servers/agents.
 - The interactions between the Client, Server/Agent and Facilitator MUST follow the same flow as x402 protocol.
 - The payload MUST follow the x402 Payment Payload structure.
-- This flow SHOULD be encapsulated in a new x402 scheme called `contract` (or alternative name) which can be used to represent any Smart Contract interaction.
+- This flow SHOULD be encapsulated in a new **x402 extension** called `smart-account` (or alternative name) which can be used to represent any Smart Contract interaction.
 - The flow MUST leverage `ERC-4337` and the concept of `UserOperations` and `Session Keys` to represent the interactions between the Client and the Smart Contracts.
 - The facilitator MUST be able to verify Client `UserOperations`/Session Keys and settle them as part of the flow.
 - The high-level architecture (and the usage of the new scheme) using `ERC-4337` MUST be generic and independent of Nevermined, so it can be reused by other protocols.
@@ -49,10 +48,14 @@ To achieve this we propose the following solution:
 - The User Operations (and the Session Keys bundling them) will represent the interactions between users and Smart Contracts (purchase plan, redeem credits, etc.)
 - Session Keys and User Operations can include limitations and permissions to enforce rules like spending limits, number of requests, etc.
 - The Client can include several Session Keys representing different delegated permissions, all of them signed locally by the Client and forwarded to the facilitator as part of the x402 Payment Payload.
-- The specific x402 Payload (using the new "contract" scheme) can be serialized in `base64` and sent from the user side (client) to the server/agent side, which will forward it to the facilitator.
-- The flow remains the same as x402, but the message signed locally by the Client represents a different on-chain interaction. While in the x402 "exact" scheme the payload includes an EIP-3009 signature used to authorize an ERC-20 token transfer, in this case ("contract" scheme) the Client signs a payload including the session keys and ERC-4337 `UserOperation`s defining the permissions delegated to the facilitator for the execution of Smart Contract interactions on behalf of the client.
+- The specific x402 Payload (using the new x402 extension) can be serialized in `base64` and sent from the user side (client) to the server/agent side, which will forward it to the facilitator.
+- The flow remains the same as x402, but the message signed locally by the Client represents a different on-chain interaction. While in the x402 "exact" scheme the payload includes an EIP-3009 signature used to authorize an ERC-20 token transfer, in this case ("smart-account" extension) the Client signs a payload including the session keys and ERC-4337 `UserOperation`s defining the permissions delegated to the facilitator for the execution of Smart Contract interactions on behalf of the client.
 
 ### Payment & Execution Flow
+
+The full flow using using a x402 extension for Smart Contract interactions would be as follows: 
+
+https://www.mermaidchart.com/d/657f2f52-a84f-4492-9099-b9a8e1d24950
 
 ```mermaid
 ---
@@ -69,124 +72,144 @@ sequenceDiagram
 
   %% 1) CLIENT SELECTS PAYMENT METHOD & SENDS PAYMENT PAYLOAD
   client->>server: GET /api
+  server->>server: Checks the request includes HTTP header
   server->>client: HTTP 402 + Payment requested
   note over client: Select payment method
-  note over client: Local signing of the Payment Payload<br/> Session Keys order + redemption<br/>(EIP-4337, EIP-7702)
+  client->>client: Local signing of the Payment Payload<br/> UserOperations order + burn
 
   client->>server: Send x402 Payment Payload <br/> HTTP Header "PAYMENT-SIGNATURE"
 
   %%2) VERIFICATION
 
+  activate server
   server->>facilitator: /verify
-  facilitator->>facilitator: check Payment Payload include "redemption" permissions
-  alt no "redemption" permissions
-    facilitator->>server: Payment verification failed<br/> (missing payment permissions)
-    server->>client: HTTP 402 + PAYMENT-FAILED<br/> (missing payment permissions)
+  facilitator->>facilitator: check UserOperations include "burn" permissions
+  alt no "burn" permissions
+    facilitator-->>server: ERROR: Payment verification failed<br/> (no "burn" permissions)
   end
 
-  note over facilitator: "redemption" permissions present
-  facilitator->>blockchain: get Client balance (is a subscriber?)
-  blockchain->>facilitator: Client balance
-  facilitator->>facilitator: check if Client has enough balance
-  facilitator->>facilitator: check Payment Payload include "order" UserOperation
+  note over facilitator: "burn" permissions present
+
+  facilitator->>blockchain: get Client balance
+  blockchain-->>facilitator: Client balance
   activate facilitator
 
   alt not enough balance
     alt "order" permission NOT present
-      facilitator->>server: Payment verification failed<br/> (not enough balance + missing order permission)
-      server->>client: HTTP 402 + PAYMENT-FAILED<br/> (invalid permissions)
+      facilitator-->>server: ERROR: Payment verification failed<br/> (invalid UserOperation)
     end
-    facilitator->>blockchain: execute "order" UserOperation
-    blockchain->>facilitator: order tx result
+    facilitator->>blockchain: Verify "order" UserOperation can be executed
+    blockchain-->>facilitator: UserOperation verification result
+    alt "order" UserOperation can be executed
+      facilitator-->>server: OK: correct verification
+    else "order" UserOperation can NOT be executed
+      facilitator-->>server: ERROR: Invalid UserOperation. Can NOT order
+    end
+  else enough balance
+    facilitator->>blockchain: Verify "burn" UserOperation can be executed
+    blockchain-->>facilitator: UserOperation verification result
+    alt "burn" UserOperation can be executed
+      facilitator-->>server: OK: correct verification
+    else "burn" UserOperation can NOT be executed
+      facilitator-->>server: ERROR: Invalid UserOperation. Can NOT burn
+    end
   end
   deactivate facilitator
 
-  note over facilitator: verify "redemption" UserOperation can be executed
-  activate facilitator
-  facilitator->>blockchain: verify "redemption" UserOperation
-  blockchain->>facilitator: verification result
+  note over server: Check verification result
 
-  alt "redemption" UserOperation invalid
-    facilitator->>server: Payment verification failed<br/> (invalid redemption UserOperation)
-    server->>client: HTTP 402 + PAYMENT-FAILED<br/> (invalid redemption UserOperation)
-  else "redemption" UserOperation valid
-    facilitator->>server: Request verified
+  alt verification was invalid
+    server-->>client: Invalid request. It CAN NOT be verified <br/>HTTP 402
   end
-
-  deactivate facilitator
 
 
   %%3) SETTLEMENT
 
-  note over server: Server does the work to fulfill the Client request
+  server->server: Server does the work to fulfill the client request
 
   server->>facilitator: /settle
 
   activate facilitator
-  facilitator->>blockchain: execute "redemption" UserOperation
-  blockchain->>facilitator: execution result
 
-  alt "redemption" UserOperation failed
-    facilitator->>server: Payment verification failed<br/> (invalid redemption UserOperation)
-    server->>client: HTTP 402 + PAYMENT-FAILED<br/> (invalid redemption UserOperation)
-  else "redemption" UserOperation executed successfully
-    facilitator->>server: Request verified<br/> (redemption tx)
-  end
+    facilitator->>blockchain: get Client balance
+    blockchain-->>facilitator: Client balance
+    alt not enough balance
+        facilitator->>blockchain: Execute "order" UserOperation
+        blockchain-->>facilitator: "order" tx
+    end
+
+
+    facilitator->>blockchain: execute "burn" UserOperation
+    blockchain-->>facilitator: execution result
+
+    alt "burn" OR "order" UserOperation failed
+        facilitator-->>server: Payment verification failed<br/> (invalid UserOperation)
+        server-->>client: HTTP 402 + PAYMENT-FAILED<br/> (invalid UserOperation)
+    else "burn" UserOperation executed
+        facilitator-->>server: Request verified<br/> (payment tx / order tx)
+    end
   deactivate facilitator
-  server->>client: Response + tx payment confirmation<br/> in "QUERY-RESPONSE" header
+
+  server-->>client: Response + tx payment confirmation<br/> in "QUERY-RESPONSE" header
+  deactivate server
+
 ```
 
 Steps:
 
-1. Client makes an HTTP request to a resource server.
-2. Resource server responds with an `HTTP 402 Payment Required` status and a Payment Required Response JSON object in the response body.
+1. Client makes an HTTP request to a Server (AI Agent).
+2. The Server checks if the request includes a valid payment in the `PAYMENT-SIGNATURE` header.
+3. If not the Server responds with a `HTTP 402 Payment Required` status and a Payment Required Response JSON object in the response body.
+4. The client:
 
-- Client selects one of the payment requirements returned by the server response and creates a Payment Payload based on the scheme of the payment requirements they have selected.
-- Client creates and signs locally an x402 Payment Payload including the Session Keys & User Operations representing the Payment Intent (using `EIP-4337`).
+- Client selects one of the paymentRequirements (planId) returned by the server response and creates a Payment Payload based on the scheme of the paymentRequirements they have selected.
+- Client creates and signs locally a `UserOperation` representing the Payment Intent (using `EIP-4337` and `EIP-712`).
 
-3. Client sends a HTTP request to the server including the Payment Payload and the signed `UserOperation`s/Session Keys in a new HTTP header called `PAYMENT-SIGNATURE`.
-4. Server calls the `/verify` method of the facilitator to validate the incoming data and forwards the `PAYMENT-SIGNATURE` value to the facilitator to verify the Client request.
-5. Facilitator checks the request and confirms if it includes "redemption" permissions.
-6. IF the request DOES NOT include "redemption" permissions:
-   - Facilitator rejects the request and returns an error to the server.
-   - Server returns to the client an `HTTP 402 PAYMENT-FAILED` response.
-8. IF the request INCLUDES "redemption" permissions, the Facilitator queries the blockchain to check if the Client is a subscriber.
-9. Blockchain returns the Client balance to the Facilitator.
-10. Facilitator checks if the Client has enough balance to cover the "redemption" User Operation.
-11. Facilitator checks if the "order" User Operation is included.
-12. IF the Client doesn't have balance AND the "order" is NOT included:
+5. Client sends a HTTP request to the server including the x402 Payment Payload and the signed `UserOperation`s in a new HTTP header called `PAYMENT-SIGNATURE`.
+6. Server validates the incoming data and forward the `PAYMENT-SIGNATURE` value to the facilitator to verify the Client request.
+7. Facilitator checks the request and confirm if it includes "burn" permissions
+8. IF the request DOES NOT include "burn" permissions:
+   - Facilitator rejects the request and return an error to the server.
+   - Server returns to the client a `HTTP 402 PAYMENT-FAILED` response.
+9. IF the request INCLUDES "burn" permissions, the Facilitator queries the blockchain to check the Client balance.
+10. Blockchain returns the Client balance to the Facilitator.
+11. Facilitator checks if the "order" User Operation is included. IF the "order" is NOT included:
 
-- Facilitator rejects the request and returns an error to the server.
-- Server returns to the client an `HTTP 402 PAYMENT-FAILED` response.
+- Facilitator rejects the request and return an error to the server.
+- Server returns to the client a `HTTP 402 PAYMENT-FAILED` response.
 
-14. IF the Client doesn't have balance BUT the "order" UserOperation is included, the Facilitator executes the "order" UserOperation on behalf of the Client.
-15. Blockchain returns the order transaction result to the Facilitator.
-16. Facilitator simulates the "redemption" UserOperation to ensure it can be executed successfully.
-17. Blockchain returns the simulation result to the Facilitator.
-18. IF the "redemption" UserOperation verification is INVALID:
+12. IF the "order" UserOperation is included, the Facilitator verifies if the "order" UserOperation can be executed.
+13. Blockchain returns the order verification result to the Facilitator.
+14. IF the "order" UserOperation verification is Correct, the Facilitator confirms to the server that the verification is correct.
+15. IF the "order" UserOperation verification is INVALID, the Facilitator returns an error to the server.
 
-- Facilitator rejects the request and returns an error to the server.
-- Server returns to the client an `HTTP 402 PAYMENT-FAILED` response.
+16. IF the Client has enough balance, the Facilitator verifies if the "burn" UserOperation can be executed.
+17. The Blockchain returns the burn verification result to the Facilitator.
+18. IF the "burn" UserOperation verification is Correct, the Facilitator confirms to the server that the verification is correct.
+19. IF the "burn" UserOperation verification is INVALID, the Facilitator returns an error to the server.
 
-20. IF NOT, the Facilitator confirms to the server that the request is verified (including the payment tx/order tx).
-21. The Server, after verifying the Client request (and AFTER executing the Task), calls the `/settle` endpoint of the Facilitator to settle the request.
-22. Facilitator executes the "redeem" UserOperation on behalf of the Client.
-23. Blockchain returns the execution result to the Facilitator.
-24. IF the "redeem" UserOperation execution FAILED:
+20. The Server after obtain the verification result from the Facilitator (and BEFORE executing any task), checks the verification result. If the verification was INVALID, the Server returns to the client a `HTTP 402 PAYMENT-FAILED` response. If the verification was correct, the Server continues with the request execution.
+21. The Server executes the task to fulfill the client request (AI Task or anything necessary).
+22. The Server calls the `/settle` endpoint of the Facilitator to settle the request
 
-- Facilitator rejects the request and returns an error to the server.
-- Server returns to the client an `HTTP 402 PAYMENT-FAILED` response.
-
-26. IF the "redeem" UserOperation executed successfully, the Facilitator confirms to the server that the request is verified (including the payment tx/order tx).
-27. Server returns to the client the tx payment confirmation in the `QUERY-RESPONSE` header.
+23. Facilitator queries the blockchain to check the Client balance.
+24. Blockchain returns the Client balance to the Facilitator.
+25. IF the Client does NOT have enough balance, the Facilitator executes the "order" UserOperation on behalf of the Client.
+26. Blockchain returns the "order" tx to the Facilitator.
+27. Facilitator executes the "burn" UserOperation on behalf of the Client.
+28. Blockchain returns the execution result to the Facilitator.
+29. IF the "burn" OR "order" UserOperations execution FAILED, the Facilitator rejects the request and return an error to the server.
+30. The Server returns to the client a `HTTP 402 PAYMENT-FAILED` response.
+31. If the "burn" UserOperation executed successfully, the Facilitator confirms to the server that the request is verified (including the payment tx / order tx).
+32. Server returns to the client the tx payment confirmation in the `QUERY-RESPONSE` header.
 
 ## Messages Between Client, Server and Facilitator
 
 The messages exchanged between the Client, Server and Facilitator are as follows:
 
-- They use the standard x402 Payment Payload structure with a new scheme called `contract`.
+- They use the standard **x402 Payment Payload** structure with a new extension called `smart-account`.
 - The "payload" field includes the `signature` field that contains the EIP-712 signature generated locally by the Client.
-- The "session-keys" includes the array of session keys representing the permissions delegated by the Client to the Facilitator.
+- The "sessionKeys" includes the array of session keys representing the permissions delegated by the Client to the Facilitator.
 
 ### Payment Payload Schema
 
@@ -197,24 +220,28 @@ The client includes payment authorization as JSON in the payment payload field:
 ```json
 {
   "x402Version": 2,
-  "scheme": "contract",
+  "scheme": "exact",
   "network": "base-sepolia",
-  "payload": {
-    "signature": "0x2d6a7588d6acca505cbf0d9a4a227e0c52c6c34008c8e8986a1283259764173608a2ce6496642e377d6da8dbbf5836e9bd15092f9ecab05ded3d6293af148b571c",
-    "authorization": {
-      "sessionKeysProvider": "zerodev",
-      "sessionKeys": [
-        {
-          "id": "order",
-          "data": "hash-of-session-key-data-for-order-permission"
-        },
-        {
-          "id": "redeem",
-          "data": "hash-of-session-key-data-for-redeem-permission"
-        }
-      ]
+  "extensions": {
+    "smart-account": {
+      "signature": "EIP-712 signature of the Payment Payload",
+      "authorization": {
+        "provider": "zerodev",
+        "sessionKeys": [
+          {
+            "id": "order",
+            "data": "session-key-data-for-order-permission"
+          },
+          {
+            "id": "redeem",
+            "hash": "hash-of-session-key-data-for-redeem-permission"
+          }
+        ]
+      }
+      
     }
-  }
+  },
+  "payload": {}
 }
 ```
 
@@ -227,33 +254,37 @@ The `PaymentPayload` schema contains the following fields:
 | Field Name    | Type     | Description                                                              |
 | ------------- | -------- | ------------------------------------------------------------------------ |
 | `x402Version` | `number` | Protocol version identifier (must be 2)                                  |
-| `scheme`      | `string` | Payment scheme identifier (must be "contract")                           |
+| `scheme`      | `string` | Payment scheme identifier (must be "exact")                              |
 | `network`     | `string` | Blockchain network identifier (e.g., "base-sepolia", "ethereum-mainnet") |
+| `extensions`  | `object` | Data object including the `smart-account` extension                      |
 | `payload`     | `object` | Payment data object                                                      |
 
-The `payload` field contains a `SchemePayload` object with scheme-specific data:
+The `extensions` object will contain a `smart-account` object with scheme-specific data (using EIP-712 format):
 
 **All fields are required.**
 
-| Field Name      | Type     | Description                         |
-| --------------- | -------- | ----------------------------------- |
-| `signature`     | `string` | EIP-712 signature for authorization |
-| `authorization` | `object` | The authorization payload           |
+| Field Name     | Type       | Description                       |
+| -------------- | ---------- | --------------------------------- |
+| `signature`     | `string`  | The signature of the x402 payload |
+| `authorization` | `object`  | An array of session keys          |
 
-The `Authorization` object contains the following fields:
-
+The `authorization` object contains the following fields: 
 **All fields are required.**
 
-| Field Name            | Type           | Description                                     |
-| --------------------- | -------------- | ----------------------------------------------- |
-| `sessionKeysProvider` | `string`       | The provider for the session keys               |
-| `sessionKeys`         | `object[]`     | An array of session keys                        |
+| Field Name     | Type       | Description                       |
+| -------------- | ---------- | --------------------------------- |
+| `provider`     | `string`   | The provider for the session keys |
+| `sessionKeys` | `object[]` | An array of session keys          |
 
-The `SessionKey` object contains the following fields:
+The **SessionKey** object contains the following fields:
 
-**All fields are required.**
+The **id** field is required. The **data** or **hash** fields must be completed:
+a. If the **data** field is provided, the **hash** field can be omitted. The data field represents the b64 encoded session key, that can be used by the facilitator to reconstruct and verify the session key used to execute the UserOperations.
+b. If the **data** is not provided, the **hash** field must be provided. The hash field represents the keccak256 hash of the b64 encoded session key. This assumes the Facilitator has a way to recover the session key (stored off-chain) from the hash.
 
-| Field Name | Type     | Description                                        |
-| ---------- | -------- | -------------------------------------------------- |
-| `id`       | `string` | The id of the session key (e.g. "order", "redeem") |
-| `data`     | `string` | The keccak256 hash of the b64 encoded session key  |
+
+| Field Name     | Type       | Description                       |
+| -------------- | ---------- | --------------------------------- |
+| `id`     | `string`   | The id of the session key (e.g. "order", "redeem") |
+| `data` | `string` | The b64 encoded session key          |
+| `hash` | `string` | The keccak256 hash of the b64 encoded session key          |
