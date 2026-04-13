@@ -6,15 +6,15 @@
   "license": "Apache-2.0",
   "scripts": {
     "clean": "npx hardhat clean && forge clean && forge cache clean",
-    "test": "yarn test:foundry",
+    "test": "pnpm test:foundry",
     "test:integration": "npx hardhat test $(find test/integration -name '*.*s')",
     "test:foundry": "forge test -v",
-    "test:gas": "yarn test:foundry --gas-report",
+    "test:gas": "pnpm test:foundry --gas-report",
     "coverage": "forge coverage --ir-minimum",
     "chain": "npx hardhat node",
     "lint": " npx solhint contracts/**/*.sol && forge fmt --check",
     "lint:fix": "npx solhint contracts/**/*.sol --fix --noPrompt && forge fmt",
-    "format": "yarn prettier:solidity && yarn prettier:ts",
+    "format": "pnpm prettier:solidity && pnpm prettier:ts",
     "prettier:solidity": "npx prettier --plugin=prettier-plugin-solidity --write contracts/**/*.sol",
     "prettier:ts": "npx prettier --write test/**/*.ts",
     "biome": "npx @biomejs/biome check . ",
@@ -22,19 +22,17 @@
     "build": "forge build",
     "compile": "forge build",
     "compile:hardhat": "npx hardhat compile",
-    "deploy:local": "DEBUG=true && yarn deploy:local:install && yarn deploy:local:config:permissions && yarn deploy:local:config:fees",
+    "deploy:local": "DEBUG=true && pnpm deploy:local:install && pnpm deploy:local:config:permissions && pnpm deploy:local:config:fees",
     "deploy:local:install": "forge script scripts/deploy/DeployAll.sol --extra-output-files abi --rpc-url $RPC_URL --broadcast --mnemonics \"$OWNER_MNEMONIC\" --mnemonic-indexes $OWNER_INDEX --sender $OWNER_ADDRESS ",
     "deploy:local:config:permissions": "forge script scripts/deploy/ConfigureAll.sol --rpc-url $RPC_URL --broadcast --mnemonics \"$OWNER_MNEMONIC\" --mnemonic-indexes $OWNER_INDEX --sender $OWNER_ADDRESS ",
     "deploy:local:config:fees": "forge script scripts/deploy/SetNetworkFees.sol --rpc-url $RPC_URL --broadcast --mnemonics \"$GOVERNOR_MNEMONIC\" --mnemonic-indexes $GOVERNOR_INDEX --sender $GOVERNOR_ADDRESS ",
-    "deploy:base-sepolia": "sh .env.base-sepolia.sh && yarn deploy:remote:install && yarn deploy:remote:config && yarn deploy:remote:config:fees",
-    "deploy:base-mainnet": "sh .env.base-mainnet.sh && yarn deploy:remote:install && yarn deploy:remote:config && yarn deploy:remote:config:fees",
+    "deploy:base-sepolia": "sh .env.base-sepolia.sh && pnpm deploy:remote:install && pnpm deploy:remote:config && pnpm deploy:remote:config:fees",
+    "deploy:base-mainnet": "sh .env.base-mainnet.sh && pnpm deploy:remote:install && pnpm deploy:remote:config && pnpm deploy:remote:config:fees",
     "deploy:remote:install": "forge script scripts/deploy/DeployAll.sol --extra-output-files abi --rpc-url $RPC_URL --broadcast --mnemonics \"$OWNER_MNEMONIC\" --mnemonic-indexes $OWNER_INDEX --sender $OWNER_ADDRESS --verify --verifier etherscan ",
     "deploy:remote:config": "forge script scripts/deploy/ConfigureAll.sol --rpc-url $RPC_URL --broadcast --mnemonics \"$OWNER_MNEMONIC\" --mnemonic-indexes $OWNER_INDEX --sender $OWNER_ADDRESS ",
     "deploy:remote:config:fees": "forge script scripts/deploy/SetNetworkFees.sol --rpc-url $RPC_URL --broadcast --mnemonics \"$GOVERNOR_MNEMONIC\" --mnemonic-indexes $GOVERNOR_INDEX --sender $GOVERNOR_ADDRESS ",
     "upgrade:initiate": "ts-node scripts/upgrade/upgrade.ts --initiate",
-    "upgrade:finalize": "ts-node scripts/upgrade/upgrade.ts --finalize",
-    "prepack": "pinst --disable",
-    "postpack": "pinst --enable"
+    "upgrade:finalize": "ts-node scripts/upgrade/upgrade.ts --finalize"
   },
   "dependencies": {
     "@openzeppelin/contracts": "^5.4.0",
@@ -76,20 +74,24 @@
     "typescript": "^5.4.0",
     "viem": "^2.27.0"
   },
-  "packageManager": "yarn@4.9.2",
-  "resolutions": {
-    "tar": ">=7.5.10",
-    "glob": "^10.5.0",
-    "js-yaml": "^4.1.1",
-    "undici": "^6.23.0",
-    "minimatch": ">=9.0.7",
-    "immutable": ">=4.3.8",
-    "fast-xml-parser": ">=5.3.8",
-    "serialize-javascript": ">=7.0.3",
-    "axios": ">=1.13.5",
-    "bn.js": ">=5.2.3",
-    "lodash": ">=4.17.23",
-    "diff": ">=5.2.2",
-    "qs": ">=6.14.2"
+  "packageManager": "pnpm@10.33.0",
+  "pnpm": {
+    "overrides": {
+      "@openzeppelin/contracts": "5.4.0",
+      "@openzeppelin/contracts-upgradeable": "5.4.0",
+      "tar": ">=7.5.10",
+      "glob": "^10.5.0",
+      "js-yaml": "^4.1.1",
+      "undici": "^6.23.0",
+      "minimatch": ">=9.0.7",
+      "immutable": ">=4.3.8",
+      "fast-xml-parser": ">=5.3.8",
+      "serialize-javascript": ">=7.0.3",
+      "axios": ">=1.13.5",
+      "bn.js": ">=5.2.3",
+      "lodash": ">=4.17.23",
+      "diff": ">=5.2.2",
+      "qs": ">=6.14.2"
+    }
   }
 }
