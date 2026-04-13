@@ -152,7 +152,7 @@ The protocol implements a comprehensive role-based access control system:
 ### Prerequisites
 
 - Node.js (>= 22.x)
-- Yarn (>= 1.22.x)
+- pnpm (>= 10.x)
 - Git
 - Foundry (for advanced testing and deployment)
 
@@ -160,7 +160,7 @@ The protocol implements a comprehensive role-based access control system:
 
 ```bash
 # Install dependencies
-yarn install
+pnpm install
 
 # Install Foundry (if not already installed)
 curl -L https://foundry.paradigm.xyz | bash
@@ -175,26 +175,26 @@ The project includes several scripts to help with development:
 
 ```bash
 # Install dependencies
-yarn install
+pnpm install
 
 # Compile contracts
-yarn compile
+pnpm compile
 ```
 
 ### Testing
 
 ```bash
 # Run unit tests
-yarn test
+pnpm test
 
 # Run integration tests
-yarn test:integration
+pnpm test:integration
 
 # Run tests with gas reporting
-yarn test:gas
+pnpm test:gas
 
 # Run test coverage
-yarn coverage
+pnpm coverage
 ```
 
 ### Local Development
@@ -208,32 +208,32 @@ anvil
 
 ```bash
 # Lint Solidity code
-yarn lint
+pnpm lint
 
 # Fix linting issues
-yarn lint:fix
+pnpm lint:fix
 
 # Format code
-yarn format
+pnpm format
 
 # Test coverage
-yarn coverage
+pnpm coverage
 
 # Gas usage report
-yarn test:gas
+pnpm test:gas
 ```
 
 ### Deployment
 
 ```bash
 # Deploy contracts (general)
-yarn deploy
+pnpm deploy
 
 # Deploy to local network
-yarn deploy:local
+pnpm deploy:local
 
 # Deploy to Sepolia testnet
-yarn deploy:sepolia
+pnpm deploy:sepolia
 ```
 
 ## Contract Interaction Flow

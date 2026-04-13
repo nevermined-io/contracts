@@ -26,7 +26,7 @@ The contracts use **Foundry** for the implementation of the Smart Contracts.
 The code can be compiled using the following command:
 
 ```bash
-yarn build
+pnpm build
 ```
 
 ## Testing
@@ -40,10 +40,10 @@ The tests can be run using the following command:
 
 ```bash
 # Unit tests
-yarn test
+pnpm test
 
 # Integration tests
-yarn test:integration
+pnpm test:integration
 ```
 
 ## Static Analysis
