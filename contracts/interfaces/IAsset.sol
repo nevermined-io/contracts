@@ -126,7 +126,12 @@ interface IAsset {
          */
         RedemptionType redemptionType;
         /**
-         * Whether the credits burn proof signed by the user is required
+         * @notice Deprecated — reserved slot retained for UUPS storage-layout stability.
+         * @dev Formerly gated an EIP-712 signed-burn flow; nullified in protocol#175
+         * (see nvm-monorepo#1253). The slot is kept because `Plan.lastUpdated` follows
+         * `CreditsConfig` in storage; reordering would collide on upgrade. A subsequent
+         * protocol issue will rename this field to repurpose it (see nvm-monorepo#1257).
+         * The on-chain value is ignored at runtime and setting it has no effect.
          */
         bool proofRequired;
         /**

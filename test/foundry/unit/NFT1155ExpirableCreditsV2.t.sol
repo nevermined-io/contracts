@@ -371,8 +371,11 @@ contract NFT1155ExpirableCreditsV2Test is BaseTest {
         nftExpirableCreditsV2.burnBatch(receiver, ids, values, 0, '');
     }
 
-    function test_burnBatch_withSignature_required() public {
-        // Mint credits for multiple plans
+    // Historical name was `test_burnBatch_withSignature_required`; renamed after
+    // protocol#175 nullified the EIP-712 signed-burn flow — the plans here don't set
+    // `proofRequired`, the sig is empty, and the test simply exercises role-gated
+    // batch burn across multiple plans.
+    function test_burnBatch_multiplePlans_succeeds() public {
         vm.prank(minter);
         nftExpirableCreditsV2.mint(receiver, planId, 10, 0, '');
         vm.prank(minter);

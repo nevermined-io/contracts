@@ -57,7 +57,6 @@ The Pricing Plans have the following main attributes:
   - **Redemption Type**: Who can redeem the credits (only accounts having a specific Smart Contract Role, only the owner of the plan, or only an account with specific permissions granted by the plan owner).
   - **Credits Amount**: The amount of credits required for the plan.
   - **Credits Expiration**: The expiration date of the credits (e.g., 1 month, 1 year).
-  - **Redemption Proof is required**: If true, for redeeming the credits the subscriber must provide a signature allowing a third party to redeem the credits on behalf of the subscriber.
   - **Duration in Seconds**: After the purchase of the plan and the credits associated, this states in how many seconds the credits will expire. This is only applicable for expirable Pricing Plans.
 
 ### Manage access to AI Agents via Pricing Plans
@@ -108,7 +107,7 @@ Querying the balance of a user on a specific plan is done via the `balanceOf` fu
 
 Checking the balance, the AI Agents can validate if subscribers (human or agents) have enough credits to access the AI Agents associated with the plan.
 
-Depending on the plan configuration the credits can be redeemed in different ways. When the plan requires the delivery of a proof for redemption, the credits only can be redeemed when a client provides a valid signature allowing a third party to redeem the credits on behalf of the subscriber.
+Depending on the plan configuration the credits can be redeemed in different ways — subscriber-initiated, plan-role holder, plan owner, or a globally-privileged burner account. The choice is encoded in `CreditsConfig.redemptionType` at plan-creation time.
 
 ### Roles and Permissions
 

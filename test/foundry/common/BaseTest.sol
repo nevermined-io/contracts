@@ -230,11 +230,25 @@ abstract contract BaseTest is Test, ToArrayUtils {
         return assetsRegistry.hashPlanId(priceConfig, creditsConfig, address(this), nonce);
     }
 
+    /// @notice Creates a plan with the now-dormant `CreditsConfig.proofRequired` bit set
+    /// to `true` on the call into `createPlan` — used by regression tests that verify such
+    /// plans still burn successfully without an EIP-712 signature after the nullify
+    /// (protocol#175 / nvm-monorepo#1253).
+    /// @dev `_createPlan` normalizes `proofRequired` to `false` before hashing and
+    /// storing; this helper mirrors that normalization when computing the returned
+    /// `planId` so the caller can use it to interact with the stored plan.
     function _createPlanWithProofRequired(uint256 nonce) internal returns (uint256) {
+        return _createPlanWithProofRequired(nonce, IAsset.RedemptionType.ONLY_GLOBAL_ROLE, address(this));
+    }
+
+    function _createPlanWithProofRequired(uint256 nonce, IAsset.RedemptionType redemptionType, address planOwner)
+        internal
+        returns (uint256)
+    {
         uint256[] memory _amounts = new uint256[](1);
         _amounts[0] = 100;
         address[] memory _receivers = new address[](1);
-        _receivers[0] = address(this);
+        _receivers[0] = planOwner;
 
         IAsset.PriceConfig memory priceConfig = IAsset.PriceConfig({
             isCrypto: false,
@@ -247,7 +261,7 @@ abstract contract BaseTest is Test, ToArrayUtils {
         });
         IAsset.CreditsConfig memory creditsConfig = IAsset.CreditsConfig({
             isRedemptionAmountFixed: true,
-            redemptionType: IAsset.RedemptionType.ONLY_GLOBAL_ROLE,
+            redemptionType: redemptionType,
             durationSecs: 0,
             amount: 100,
             minAmount: 1,
@@ -261,46 +275,13 @@ abstract contract BaseTest is Test, ToArrayUtils {
         priceConfig.amounts = amounts;
         priceConfig.receivers = receivers;
 
+        vm.prank(planOwner);
         assetsRegistry.createPlan(priceConfig, creditsConfig, nonce);
-        return assetsRegistry.hashPlanId(priceConfig, creditsConfig, address(this), nonce);
-    }
 
-    function _createPlanWithProofRequiredAndRedemptionType(IAsset.RedemptionType redemptionType)
-        internal
-        returns (uint256)
-    {
-        uint256[] memory _amounts = new uint256[](1);
-        _amounts[0] = 100;
-        address[] memory _receivers = new address[](1);
-        _receivers[0] = address(this);
-
-        IAsset.PriceConfig memory priceConfig = IAsset.PriceConfig({
-            isCrypto: false,
-            tokenAddress: address(0),
-            amounts: _amounts,
-            receivers: _receivers,
-            externalPriceAddress: address(0),
-            feeController: IFeeController(address(0)),
-            templateAddress: address(0)
-        });
-        IAsset.CreditsConfig memory creditsConfig = IAsset.CreditsConfig({
-            isRedemptionAmountFixed: false,
-            redemptionType: redemptionType,
-            durationSecs: 0,
-            amount: 100,
-            minAmount: 1,
-            maxAmount: 100,
-            proofRequired: true,
-            nftAddress: address(nftCredits)
-        });
-
-        (uint256[] memory amounts, address[] memory receivers) =
-            assetsRegistry.includeFeesInPaymentsDistribution(priceConfig, creditsConfig);
-        priceConfig.amounts = amounts;
-        priceConfig.receivers = receivers;
-
-        assetsRegistry.createPlan(priceConfig, creditsConfig, 0);
-        return assetsRegistry.hashPlanId(priceConfig, creditsConfig, address(this), 0);
+        // `_createPlan` normalized `proofRequired` to `false` before hashing; mirror that
+        // here so the returned planId matches the stored plan.
+        creditsConfig.proofRequired = false;
+        return assetsRegistry.hashPlanId(priceConfig, creditsConfig, planOwner, nonce);
     }
 
     function _createPlanWithAmountAndRedemptionType(uint256 amount, IAsset.RedemptionType redemptionType)
@@ -369,45 +350,6 @@ abstract contract BaseTest is Test, ToArrayUtils {
             minAmount: 1,
             maxAmount: 100,
             proofRequired: false,
-            nftAddress: address(nftCredits)
-        });
-
-        (uint256[] memory amounts, address[] memory receivers) =
-            assetsRegistry.includeFeesInPaymentsDistribution(priceConfig, creditsConfig);
-        priceConfig.amounts = amounts;
-        priceConfig.receivers = receivers;
-
-        vm.prank(planOwner);
-        assetsRegistry.createPlan(priceConfig, creditsConfig, 0);
-        return assetsRegistry.hashPlanId(priceConfig, creditsConfig, planOwner, 0);
-    }
-
-    function _createPlanWithProofRequiredAndRedemptionTypeAsOwner(
-        IAsset.RedemptionType redemptionType,
-        address planOwner
-    ) internal returns (uint256) {
-        uint256[] memory _amounts = new uint256[](1);
-        _amounts[0] = 100;
-        address[] memory _receivers = new address[](1);
-        _receivers[0] = planOwner;
-
-        IAsset.PriceConfig memory priceConfig = IAsset.PriceConfig({
-            isCrypto: false,
-            tokenAddress: address(0),
-            amounts: _amounts,
-            receivers: _receivers,
-            externalPriceAddress: address(0),
-            feeController: IFeeController(address(0)),
-            templateAddress: address(0)
-        });
-        IAsset.CreditsConfig memory creditsConfig = IAsset.CreditsConfig({
-            isRedemptionAmountFixed: false,
-            redemptionType: redemptionType,
-            durationSecs: 0,
-            amount: 100,
-            minAmount: 1,
-            maxAmount: 100,
-            proofRequired: true,
             nftAddress: address(nftCredits)
         });
 

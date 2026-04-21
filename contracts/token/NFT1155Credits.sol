@@ -72,9 +72,10 @@ contract NFT1155Credits is NFT1155Base {
      * @param _from Address from which credits will be burned
      * @param _planId Identifier of the plan
      * @param _value Amount of credits to burn
-     * @param _keyspace The keyspace of the nonce used to generate the signature
-     * @param _signature The signature of the credits burn proof
-     * @dev Inherits redemption permission checks from NFT1155Base
+     * @dev Inherits redemption permission checks from `NFT1155Base`. The last two
+     * parameters (a `uint256` keyspace and `bytes calldata` signature) are retained for
+     * ABI stability after the EIP-712 signed-burn flow was nullified (protocol#175 /
+     * nvm-monorepo#1253) and are ignored at runtime.
      */
     function burn(address _from, uint256 _planId, uint256 _value, uint256 _keyspace, bytes calldata _signature)
         public
@@ -89,9 +90,10 @@ contract NFT1155Credits is NFT1155Base {
      * @param _from Address from which credits will be burned
      * @param _ids Array of plan identifiers
      * @param _values Array of credit amounts to burn
-     * @param _keyspace The keyspace of the nonce used to generate the signature
-     * @param _signature The signature of the credits burn proof
-     * @dev Inherits redemption permission checks from NFT1155Base
+     * @dev Inherits redemption permission checks from `NFT1155Base`. The last two
+     * parameters (a `uint256` keyspace and `bytes calldata` signature) are retained for
+     * ABI stability after the EIP-712 signed-burn flow was nullified (protocol#175 /
+     * nvm-monorepo#1253) and are ignored at runtime.
      */
     function burnBatch(
         address _from,

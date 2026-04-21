@@ -310,6 +310,11 @@ contract AssetsRegistry is IAsset, IIdentityRegistry, ERC721URIStorageUpgradeabl
     ) internal returns (uint256) {
         AssetsRegistryStorage storage $ = _getAssetsRegistryStorage();
 
+        // The `proofRequired` slot is dormant after protocol#175 (see nvm-monorepo#1253).
+        // Normalize it to `false` before hashing + storing so two semantically-equivalent
+        // configs never produce different plan IDs because of the vestigial bit.
+        _creditsConfig.proofRequired = false;
+
         if (_creditsConfig.minAmount > _creditsConfig.maxAmount) {
             revert InvalidCreditsConfigAmounts(_creditsConfig.minAmount, _creditsConfig.maxAmount);
         }
@@ -409,6 +414,10 @@ contract AssetsRegistry is IAsset, IIdentityRegistry, ERC721URIStorageUpgradeabl
         PriceConfig memory _priceConfig,
         CreditsConfig memory _creditsConfig
     ) external {
+        // Mirror the normalization inside `_createPlan` so the local `hashPlanId` below
+        // and the internal hash match regardless of the caller's dormant bit.
+        _creditsConfig.proofRequired = false;
+
         uint256 nonce = uint256(_seed);
         uint256 planId = hashPlanId(_priceConfig, _creditsConfig, msg.sender, nonce);
         if (!planExists(planId)) {

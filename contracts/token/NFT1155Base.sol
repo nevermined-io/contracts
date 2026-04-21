@@ -4,15 +4,13 @@
 pragma solidity ^0.8.30;
 
 import {IAsset} from '../interfaces/IAsset.sol';
-import {CREDITS_BURN_PROOF_TYPEHASH, INFT1155} from '../interfaces/INFT1155.sol';
+import {INFT1155} from '../interfaces/INFT1155.sol';
 import {AccessManagedUUPSUpgradeable} from '../proxy/AccessManagedUUPSUpgradeable.sol';
 import {ERC1155Upgradeable} from '@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol';
-import {EIP712Upgradeable} from '@openzeppelin/contracts-upgradeable/utils/cryptography/EIP712Upgradeable.sol';
 
 import {IAccessManager} from '@openzeppelin/contracts/access/manager/IAccessManager.sol';
 
 import {CREDITS_BURNER_ROLE, CREDITS_MINTER_ROLE, CREDITS_TRANSFER_ROLE} from '../common/Roles.sol';
-import {ECDSA} from '@openzeppelin/contracts/utils/cryptography/ECDSA.sol';
 
 /**
  * @title NFT1155Base
@@ -27,7 +25,7 @@ import {ECDSA} from '@openzeppelin/contracts/utils/cryptography/ECDSA.sol';
  *
  * This contract prevents credit transfers by default, as credits are designed to be non-transferable.
  */
-abstract contract NFT1155Base is ERC1155Upgradeable, INFT1155, EIP712Upgradeable, AccessManagedUUPSUpgradeable {
+abstract contract NFT1155Base is ERC1155Upgradeable, INFT1155, AccessManagedUUPSUpgradeable {
     // keccak256(abi.encode(uint256(keccak256("nevermined.nft1155base.storage")) - 1)) & ~bytes32(uint256(0xff))
     bytes32 private constant NFT1155_BASE_STORAGE_LOCATION =
         0x5dc28ad3de163acbf47a88082c92b50b1954ae8a6818aca0c0ef6cb317ac6500;
@@ -35,6 +33,9 @@ abstract contract NFT1155Base is ERC1155Upgradeable, INFT1155, EIP712Upgradeable
     /// @custom:storage-location erc7201:nevermined.nft1155base.storage
     struct NFT1155BaseStorage {
         IAsset assetsRegistry;
+        // Reserved: formerly EIP-712 burn-proof nonces, nullified by protocol#175 (see
+        // nvm-monorepo#1253). Slot retained for UUPS storage-layout stability; do not
+        // reuse without a deliberate upgrade review.
         mapping(address sender => mapping(uint256 keyspace => uint256 nonce)) nonces;
         mapping(address burner => mapping(uint256 planId => bool canBurn)) canBurn;
     }
@@ -53,7 +54,6 @@ abstract contract NFT1155Base is ERC1155Upgradeable, INFT1155, EIP712Upgradeable
         require(_authority != IAccessManager(address(0)), InvalidAddress());
 
         __AccessManagedUUPSUpgradeable_init(address(_authority));
-        __EIP712_init(type(NFT1155Base).name, '1');
 
         $.assetsRegistry = _assetsRegistryAddress;
     }
@@ -134,13 +134,20 @@ abstract contract NFT1155Base is ERC1155Upgradeable, INFT1155, EIP712Upgradeable
     /**
      * It burns/redeem credits for a plan.
      * @notice The redemption rules depend on the plan.credits.redemptionType
+     * @dev The last two parameters (a `uint256` keyspace and `bytes calldata` signature)
+     * are retained for ABI stability after the EIP-712 signed-burn flow was nullified
+     * (protocol#175 / nvm-monorepo#1253). Both are ignored at runtime.
      * @param _from The address of the account that is getting the credits burned
      * @param _planId the plan id
      * @param _amount the number of credits to burn/redeem
-     * @param _keyspace the keyspace of the nonce
-     * @param _signature the signature of the credits burn proof
      */
-    function burn(address _from, uint256 _planId, uint256 _amount, uint256 _keyspace, bytes calldata _signature)
+    function burn(
+        address _from,
+        uint256 _planId,
+        uint256 _amount,
+        uint256, /* _keyspace */
+        bytes calldata /* _signature */
+    )
         public
         virtual
     {
@@ -158,18 +165,6 @@ abstract contract NFT1155Base is ERC1155Upgradeable, INFT1155, EIP712Upgradeable
             InvalidRedemptionPermission(_planId, plan.credits.redemptionType, msg.sender)
         );
 
-        if (plan.credits.proofRequired) {
-            uint256[] memory planIds = new uint256[](1);
-            planIds[0] = _planId;
-
-            CreditsBurnProofData memory proof =
-                CreditsBurnProofData({keyspace: _keyspace, nonce: $.nonces[_from][_keyspace]++, planIds: planIds});
-
-            bytes32 digest = hashCreditsBurnProof(proof);
-            address signer = ECDSA.recover(digest, _signature);
-            require(signer == _from, InvalidCreditsBurnProof(signer, _from));
-        }
-
         _beforeCreditsBurn(_from, _planId, creditsToRedeem);
 
         _burn(_from, _planId, creditsToRedeem);
@@ -177,19 +172,24 @@ abstract contract NFT1155Base is ERC1155Upgradeable, INFT1155, EIP712Upgradeable
 
     /**
      * It burns/redeem credits in batch.
+     * @dev The last two parameters (a `uint256` keyspace and `bytes calldata` signature)
+     * are retained for ABI stability after the EIP-712 signed-burn flow was nullified
+     * (protocol#175 / nvm-monorepo#1253). Both are ignored at runtime.
      * @param _from the address of the account that is getting the credits burned
      * @param _ids the array of plan ids
      * @param _amounts the array of number of credits to burn/redeem
-     * @param _keyspace the keyspace of the nonce
-     * @param _signature the signature of the credits burn proof
      */
     function burnBatch(
         address _from,
         uint256[] memory _ids,
         uint256[] memory _amounts,
-        uint256 _keyspace,
-        bytes calldata _signature
-    ) public virtual restricted {
+        uint256, /* _keyspace */
+        bytes calldata /* _signature */
+    )
+        public
+        virtual
+        restricted
+    {
         NFT1155BaseStorage storage $ = _getNFT1155BaseStorage();
 
         require(_ids.length == _amounts.length, InvalidLength(_ids.length, _amounts.length));
@@ -198,36 +198,13 @@ abstract contract NFT1155Base is ERC1155Upgradeable, INFT1155, EIP712Upgradeable
         // caller's `_amounts` in place — so `_beforeCreditsBurnBatch` and `_burnBatch`
         // see an explicitly-scoped clamped view and the caller's memory is untouched.
         uint256[] memory clampedAmounts = new uint256[](_ids.length);
-        uint256[] memory planIdsToVerify = new uint256[](_ids.length);
-        uint256 counter;
         for (uint256 i = 0; i < _ids.length; i++) {
-            uint256 planId = _ids[i];
-
-            IAsset.Plan memory plan = $.assetsRegistry.getPlan(planId);
-            require(plan.lastUpdated != 0, IAsset.PlanNotFound(planId));
+            IAsset.Plan memory plan = $.assetsRegistry.getPlan(_ids[i]);
+            require(plan.lastUpdated != 0, IAsset.PlanNotFound(_ids[i]));
 
             clampedAmounts[i] = _creditsToRedeem(
                 plan.credits.isRedemptionAmountFixed, _amounts[i], plan.credits.minAmount, plan.credits.maxAmount
             );
-
-            if (plan.credits.proofRequired) {
-                planIdsToVerify[counter++] = planId;
-            }
-        }
-
-        // Set the array length
-        // solhint-disable-next-line no-inline-assembly
-        assembly ('memory-safe') {
-            mstore(planIdsToVerify, counter)
-        }
-
-        if (planIdsToVerify.length > 0) {
-            CreditsBurnProofData memory proof = CreditsBurnProofData({
-                keyspace: _keyspace, nonce: $.nonces[_from][_keyspace]++, planIds: planIdsToVerify
-            });
-            bytes32 digest = hashCreditsBurnProof(proof);
-            address signer = ECDSA.recover(digest, _signature);
-            require(signer == _from, InvalidCreditsBurnProof(signer, _from));
         }
 
         _beforeCreditsBurnBatch(_from, _ids, clampedAmounts);
@@ -255,39 +232,6 @@ abstract contract NFT1155Base is ERC1155Upgradeable, INFT1155, EIP712Upgradeable
         $.canBurn[_burner][_planId] = false;
 
         emit BurnerRevoked(msg.sender, _burner, _planId);
-    }
-
-    /**
-     * @notice Returns the next nonce for the given sender and keyspace
-     * @param _sender The address of the account
-     * @param _keyspaces The keyspaces for which to generate the nonce
-     * @return nonces The next nonce values
-     */
-    function nextNonce(address _sender, uint256[] calldata _keyspaces)
-        external
-        view
-        override
-        returns (uint256[] memory nonces)
-    {
-        NFT1155BaseStorage storage $ = _getNFT1155BaseStorage();
-        nonces = new uint256[](_keyspaces.length);
-        for (uint256 i = 0; i < _keyspaces.length; i++) {
-            nonces[i] = $.nonces[_sender][_keyspaces[i]];
-        }
-        return nonces;
-    }
-
-    function hashCreditsBurnProof(CreditsBurnProofData memory _proof) public view returns (bytes32) {
-        return _hashTypedDataV4(
-            keccak256(
-                abi.encode(
-                    CREDITS_BURN_PROOF_TYPEHASH,
-                    _proof.keyspace,
-                    _proof.nonce,
-                    keccak256(abi.encodePacked(_proof.planIds))
-                )
-            )
-        );
     }
 
     function canBurn(address _burner, uint256 _planId) public view virtual returns (bool) {
@@ -329,8 +273,8 @@ abstract contract NFT1155Base is ERC1155Upgradeable, INFT1155, EIP712Upgradeable
     }
 
     /**
-     * @notice Hook invoked inside `burn` after the redemption-permission and proof-signature
-     * checks pass and immediately before credits are actually burned.
+     * @notice Hook invoked inside `burn` after the redemption-permission check passes and
+     * immediately before credits are actually burned.
      * @dev Subclasses override this to perform pre-burn bookkeeping (for example, pushing
      * burn entries into the expirable-credits array). The hook receives the plan-clamped
      * `_creditsToRedeem` — the exact value that `_burn` consumes — so subclasses keep
@@ -351,16 +295,16 @@ abstract contract NFT1155Base is ERC1155Upgradeable, INFT1155, EIP712Upgradeable
     /**
      * @notice Batch counterpart of `_beforeCreditsBurn`.
      * @dev Invoked by `burnBatch` after `_creditsToRedeem` has been applied per-item and
-     * after the proof-signature check, immediately before `_burnBatch`. Subclasses
-     * override this to perform pre-burn bookkeeping using the plan-clamped amounts, so
-     * any child ledger stays aligned with ERC1155's `_balances` (see issue #173).
+     * immediately before `_burnBatch`. Subclasses override this to perform pre-burn
+     * bookkeeping using the plan-clamped amounts, so any child ledger stays aligned with
+     * ERC1155's `_balances` (see issue #173).
      *
      * The default implementation is a no-op.
      * @param _from The address whose credits will be burned
      * @param _ids Plan identifiers being burned
-     * @param _creditsToRedeem Per-item plan-clamped amounts that will be passed to `_burnBatch`
+     * @param _clampedAmounts Per-item plan-clamped amounts that will be passed to `_burnBatch`
      */
-    function _beforeCreditsBurnBatch(address _from, uint256[] memory _ids, uint256[] memory _creditsToRedeem)
+    function _beforeCreditsBurnBatch(address _from, uint256[] memory _ids, uint256[] memory _clampedAmounts)
         internal
         virtual {}
 

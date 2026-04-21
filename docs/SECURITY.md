@@ -16,7 +16,6 @@ The protocol uses OpenZeppelin libraries for the implementation of the Smart Con
 - `AccessManager`: AccessManager is a central contract to store the permissions of a system. See <https://docs.openzeppelin.com/contracts/5.x/api/access#AccessManager>
 - `ReentrancyGuardTransientUpgradeable`: It is used to protect against reentrancy attacks. See <https://docs.openzeppelin.com/contracts/5.x/api/utils#ReentrancyGuardTransient>
 - `ERC1155Upgradeable`: For the implementation of the ERC1155 standard. See <https://docs.openzeppelin.com/contracts/5.x/api/token/erc1155#ERC1155>
-- `ECDSA`: For the validation of signatures. See <https://docs.openzeppelin.com/contracts/5.x/api/utils#ECDSA>
 - `UUPSUpgradeable`: For the implementation of the UUPS upgradeable pattern. See <https://docs.openzeppelin.com/contracts/5.x/api/proxy#UUPSUpgradeable>
 
 The contracts use **Foundry** for the implementation of the Smart Contracts.

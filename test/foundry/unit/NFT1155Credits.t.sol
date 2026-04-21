@@ -206,74 +206,93 @@ contract NFT1155CreditsTest is BaseTest {
         nftCredits.burn(receiver, planId, 1, 0, '');
     }
 
-    function test_burn_withSignature_required() public {
-        // Create a plan that requires proof
+    // Regression for protocol#175 (nvm-monorepo#1253 protocol slice). A plan whose
+    // `CreditsConfig.proofRequired` bit was requested as `true` at creation — the shape
+    // pre-existing plans on-chain carry — must still burn successfully with an empty
+    // signature and a zero keyspace across every redemption path. `_createPlan`
+    // normalizes the dormant bit to `false` before hashing (see AssetsRegistry), so
+    // the bit is effectively `false` on storage, but we still exercise the full
+    // create-through-burn flow with `proofRequired: true` in the submitted config.
+
+    function test_burn_dormantProofRequired_succeedsWithoutSignature_globalRole() public {
         uint256 planId = _createPlanWithProofRequired(0);
 
-        // Grant necessary roles
         _grantRole(CREDITS_MINTER_ROLE, address(this));
         _grantRole(CREDITS_BURNER_ROLE, address(this));
 
-        // Mint some credits
         nftCredits.mint(receiver, planId, 5, '');
 
-        // Get the next nonce for the keyspace
-        uint256[] memory keyspaces = new uint256[](1);
-        keyspaces[0] = 0;
-        uint256[] memory nonces = nftCredits.nextNonce(receiver, keyspaces);
-        uint256 nonce = nonces[0];
+        nftCredits.burn(receiver, planId, 1, 0, '');
 
-        // Create the proof data
-        uint256[] memory planIds = new uint256[](1);
-        planIds[0] = planId;
-        INFT1155.CreditsBurnProofData memory proof =
-            INFT1155.CreditsBurnProofData({keyspace: 0, nonce: nonce, planIds: planIds});
-
-        // Sign the proof
-        bytes32 digest = nftCredits.hashCreditsBurnProof(proof);
-        (uint8 v, bytes32 r, bytes32 s) = vm.sign(receiverWallet, digest);
-        bytes memory signature = abi.encodePacked(r, s, v);
-
-        // Burn with valid signature
-        nftCredits.burn(receiver, planId, 1, 0, signature);
-
-        // Verify balance after burn
-        uint256 balance = nftCredits.balanceOf(receiver, planId);
-        assertEq(balance, 4);
+        assertEq(nftCredits.balanceOf(receiver, planId), 4);
     }
 
-    function test_burn_withSignature_invalid() public {
-        // Create a plan that requires proof
-        uint256 planId = _createPlanWithProofRequired(0);
+    function test_burn_dormantProofRequired_succeedsWithoutSignature_owner() public {
+        address planOwner = makeAddr('planOwner');
+        uint256 planId = _createPlanWithProofRequired(0, IAsset.RedemptionType.ONLY_OWNER, planOwner);
 
-        // Grant necessary roles
         _grantRole(CREDITS_MINTER_ROLE, address(this));
-        _grantRole(CREDITS_BURNER_ROLE, address(this));
-
-        // Mint some credits
         nftCredits.mint(receiver, planId, 5, '');
 
-        // Get the next nonce for the keyspace
-        uint256[] memory keyspaces = new uint256[](1);
-        keyspaces[0] = 0;
-        uint256[] memory nonces = nftCredits.nextNonce(receiver, keyspaces);
-        uint256 nonce = nonces[0];
+        vm.prank(planOwner);
+        nftCredits.burn(receiver, planId, 1, 0, '');
 
-        // Create the proof data
-        uint256[] memory planIds = new uint256[](1);
-        planIds[0] = planId;
-        INFT1155.CreditsBurnProofData memory proof =
-            INFT1155.CreditsBurnProofData({keyspace: 0, nonce: nonce, planIds: planIds});
+        assertEq(nftCredits.balanceOf(receiver, planId), 4);
+    }
 
-        // Sign the proof with a different private key (not the receiver's)
-        Vm.Wallet memory otherWallet = vm.createWallet('other');
-        bytes32 digest = nftCredits.hashCreditsBurnProof(proof);
-        (uint8 v, bytes32 r, bytes32 s) = vm.sign(otherWallet, digest);
-        bytes memory signature = abi.encodePacked(r, s, v);
+    function test_burn_dormantProofRequired_succeedsWithoutSignature_planRole() public {
+        address planOwner = makeAddr('planOwner');
+        address planBurner = makeAddr('planBurner');
+        uint256 planId = _createPlanWithProofRequired(0, IAsset.RedemptionType.ONLY_PLAN_ROLE, planOwner);
 
-        // Try to burn with invalid signature
-        vm.expectRevert(abi.encodeWithSelector(INFT1155.InvalidCreditsBurnProof.selector, otherWallet.addr, receiver));
-        nftCredits.burn(receiver, planId, 1, 0, signature);
+        _grantRole(CREDITS_MINTER_ROLE, address(this));
+        nftCredits.mint(receiver, planId, 5, '');
+
+        vm.prank(planOwner);
+        nftCredits.allowBurn(planBurner, planId);
+
+        vm.prank(planBurner);
+        nftCredits.burn(receiver, planId, 1, 0, '');
+
+        assertEq(nftCredits.balanceOf(receiver, planId), 4);
+    }
+
+    function test_burn_dormantProofRequired_succeedsWithoutSignature_subscriber() public {
+        address planOwner = makeAddr('planOwner');
+        uint256 planId = _createPlanWithProofRequired(0, IAsset.RedemptionType.ONLY_SUBSCRIBER, planOwner);
+
+        _grantRole(CREDITS_MINTER_ROLE, address(this));
+        nftCredits.mint(receiver, planId, 5, '');
+
+        vm.prank(receiver);
+        nftCredits.burn(receiver, planId, 1, 0, '');
+
+        assertEq(nftCredits.balanceOf(receiver, planId), 4);
+    }
+
+    function test_burn_dormantProofRequired_succeedsWithoutSignature_ownerOrGlobalRole() public {
+        address planOwner = makeAddr('planOwner');
+        uint256 planId = _createPlanWithProofRequired(0, IAsset.RedemptionType.OWNER_OR_GLOBAL_ROLE, planOwner);
+
+        _grantRole(CREDITS_MINTER_ROLE, address(this));
+        _grantRole(CREDITS_BURNER_ROLE, address(this));
+        nftCredits.mint(receiver, planId, 5, '');
+
+        // Any of (owner, global-burner) should succeed; exercise the global-burner path.
+        nftCredits.burn(receiver, planId, 1, 0, '');
+
+        assertEq(nftCredits.balanceOf(receiver, planId), 4);
+    }
+
+    // Sibling of the global-role createPlan normalization: the returned planId and the
+    // on-chain stored plan must agree despite the caller submitting `proofRequired: true`.
+    // Guards against reintroducing a path where `_createPlan` hashes with the raw bit.
+    function test_createPlan_normalizesProofRequired_soPlanIdMatchesNormalizedHash() public {
+        uint256 planId = _createPlanWithProofRequired(42);
+
+        IAsset.Plan memory stored = assetsRegistry.getPlan(planId);
+        assertFalse(stored.credits.proofRequired, 'dormant bit must be normalized to false on storage');
+        assertGt(stored.lastUpdated, 0, 'plan must exist at the returned planId');
     }
 
     function test_burnBatch_correct() public {
@@ -334,58 +353,33 @@ contract NFT1155CreditsTest is BaseTest {
         nftCredits.burnBatch(receiver, ids, burnAmounts, 0, '');
     }
 
-    function test_burnBatch_withSignature_required() public {
-        // Create plans that require proof
+    // Batch counterpart of `test_burn_dormantProofRequired_succeedsWithoutSignature` —
+    // a `burnBatch` over plans that still carry the dormant `proofRequired = true` bit
+    // must succeed with an empty signature (protocol#175 / nvm-monorepo#1253).
+    function test_burnBatch_dormantProofRequired_succeedsWithoutSignature() public {
         uint256 planId1 = _createPlanWithProofRequired(0);
         uint256 planId2 = _createPlanWithProofRequired(1);
 
-        // Grant necessary roles
         _grantRole(CREDITS_MINTER_ROLE, address(this));
         _grantRole(CREDITS_BURNER_ROLE, address(this));
 
-        // Mint credits for both plans
         uint256[] memory ids = new uint256[](2);
-        {
-            uint256[] memory amounts = new uint256[](2);
-            ids[0] = planId1;
-            ids[1] = planId2;
-            amounts[0] = 100;
-            amounts[1] = 200;
-            nftCredits.mintBatch(receiver, ids, amounts, '');
-        }
+        ids[0] = planId1;
+        ids[1] = planId2;
 
-        // Get the next nonce for the keyspace
-        uint256 nonce;
-        {
-            uint256[] memory keyspaces = new uint256[](1);
-            keyspaces[0] = 0;
-            uint256[] memory nonces = nftCredits.nextNonce(receiver, keyspaces);
-            nonce = nonces[0];
-        }
+        uint256[] memory mintAmounts = new uint256[](2);
+        mintAmounts[0] = 100;
+        mintAmounts[1] = 200;
+        nftCredits.mintBatch(receiver, ids, mintAmounts, '');
 
-        // Create the proof data
-        uint256[] memory planIds = new uint256[](2);
-        planIds[0] = planId1;
-        planIds[1] = planId2;
-        INFT1155.CreditsBurnProofData memory proof =
-            INFT1155.CreditsBurnProofData({keyspace: 0, nonce: nonce, planIds: planIds});
-
-        // Sign the proof
-        bytes32 digest = nftCredits.hashCreditsBurnProof(proof);
-        (uint8 v, bytes32 r, bytes32 s) = vm.sign(receiverWallet, digest);
-        bytes memory signature = abi.encodePacked(r, s, v);
-
-        // Burn batch with valid signature
         uint256[] memory burnAmounts = new uint256[](2);
         burnAmounts[0] = 50;
         burnAmounts[1] = 75;
-        nftCredits.burnBatch(receiver, ids, burnAmounts, 0, signature);
+        nftCredits.burnBatch(receiver, ids, burnAmounts, 0, '');
 
-        // Verify balances after burn
-        uint256 balance1 = nftCredits.balanceOf(receiver, planId1);
-        uint256 balance2 = nftCredits.balanceOf(receiver, planId2);
-        assertEq(balance1, 99);
-        assertEq(balance2, 199);
+        // Fixed-amount plan (minAmount=maxAmount=1) clamps each burn to 1.
+        assertEq(nftCredits.balanceOf(receiver, planId1), 99);
+        assertEq(nftCredits.balanceOf(receiver, planId2), 199);
     }
 
     function test_upgraderShouldBeAbleToUpgradeAfterDelay() public {
@@ -493,60 +487,6 @@ contract NFT1155CreditsTest is BaseTest {
         nftCredits.burn(receiver, planId, 1, 0, '');
     }
 
-    function test_burn_plan_role_redemption_type_with_proof() public {
-        // Create a fresh address for plan creation
-        address planOwner = makeAddr('planOwner');
-
-        // Create a plan with ONLY_PLAN_ROLE redemption type and proof required, owned by the fresh address
-        uint256 planId =
-            _createPlanWithProofRequiredAndRedemptionTypeAsOwner(IAsset.RedemptionType.ONLY_PLAN_ROLE, planOwner);
-
-        // Grant CREDITS_MINTER_ROLE to mint credits
-        _grantRole(CREDITS_MINTER_ROLE, address(this));
-
-        // Mint some credits to the receiver
-        nftCredits.mint(receiver, planId, 10, '');
-
-        // Verify initial balance
-        assertEq(nftCredits.balanceOf(receiver, planId), 10);
-
-        // Verify that initially no one can burn
-        assertFalse(nftCredits.canBurn(unauthorized, planId));
-        assertFalse(nftCredits.canBurn(planOwner, planId));
-
-        // Plan owner allows the unauthorized address to burn credits
-        vm.prank(planOwner);
-        nftCredits.allowBurn(unauthorized, planId);
-
-        // Verify that the unauthorized address can now burn
-        assertTrue(nftCredits.canBurn(unauthorized, planId));
-
-        // Get the next nonce for the keyspace
-        uint256[] memory keyspaces = new uint256[](1);
-        keyspaces[0] = 0;
-        uint256[] memory nonces = nftCredits.nextNonce(receiver, keyspaces);
-        uint256 nonce = nonces[0];
-
-        // Create the proof data
-        uint256[] memory planIds = new uint256[](1);
-        planIds[0] = planId;
-        INFT1155.CreditsBurnProofData memory proof =
-            INFT1155.CreditsBurnProofData({keyspace: 0, nonce: nonce, planIds: planIds});
-
-        // Sign the proof with the receiver's wallet (the _from address)
-        bytes32 digest = nftCredits.hashCreditsBurnProof(proof);
-        (uint8 v, bytes32 r, bytes32 s) = vm.sign(receiverWallet, digest);
-        bytes memory signature = abi.encodePacked(r, s, v);
-
-        // Now the unauthorized address should be able to burn credits with valid proof
-        // The signature must be from the receiver (the _from address)
-        vm.prank(unauthorized);
-        nftCredits.burn(receiver, planId, 3, 0, signature);
-
-        // Verify balance after burn
-        assertEq(nftCredits.balanceOf(receiver, planId), 7);
-    }
-
     function test_burn_only_subscriber_redemption() public {
         // Create a fresh address for plan creation
         address planOwner = makeAddr('planOwner');
@@ -623,72 +563,6 @@ contract NFT1155CreditsTest is BaseTest {
 
         // Verify balance still remains unchanged
         assertEq(nftCredits.balanceOf(receiver, planId), 10 - 1);
-    }
-
-    function test_burn_plan_role_redemption_type_without_role_fails_with_proof() public {
-        // Create a fresh address for plan creation
-        address planOwner = makeAddr('planOwner');
-
-        // Create a plan with ONLY_PLAN_ROLE redemption type and proof required, owned by the fresh address
-        uint256 planId =
-            _createPlanWithProofRequiredAndRedemptionTypeAsOwner(IAsset.RedemptionType.ONLY_PLAN_ROLE, planOwner);
-
-        // Grant CREDITS_MINTER_ROLE to mint credits
-        _grantRole(CREDITS_MINTER_ROLE, address(this));
-
-        // Mint some credits to the receiver
-        nftCredits.mint(receiver, planId, 10, '');
-
-        // Verify initial balance
-        assertEq(nftCredits.balanceOf(receiver, planId), 10);
-
-        // Verify that initially no one can burn
-        assertFalse(nftCredits.canBurn(unauthorized, planId));
-        assertFalse(nftCredits.canBurn(planOwner, planId));
-
-        // Get the next nonce for the keyspace
-        uint256[] memory keyspaces = new uint256[](1);
-        keyspaces[0] = 0;
-        uint256[] memory nonces = nftCredits.nextNonce(receiver, keyspaces);
-        uint256 nonce = nonces[0];
-
-        // Create the proof data
-        uint256[] memory planIds = new uint256[](1);
-        planIds[0] = planId;
-        INFT1155.CreditsBurnProofData memory proof =
-            INFT1155.CreditsBurnProofData({keyspace: 0, nonce: nonce, planIds: planIds});
-
-        // Sign the proof with the receiver's wallet (the _from address)
-        bytes32 digest = nftCredits.hashCreditsBurnProof(proof);
-        (uint8 v, bytes32 r, bytes32 s) = vm.sign(receiverWallet, digest);
-        bytes memory signature = abi.encodePacked(r, s, v);
-
-        // Test that an address without burn permission cannot burn credits even with valid proof
-        address unauthorizedAddress = makeAddr('unauthorized');
-        vm.prank(unauthorizedAddress);
-        vm.expectPartialRevert(INFT1155.InvalidRedemptionPermission.selector);
-        nftCredits.burn(receiver, planId, 1, 0, signature);
-
-        // Verify balance remains unchanged
-        assertEq(nftCredits.balanceOf(receiver, planId), 10);
-
-        // Test that even the plan owner cannot burn without explicit permission, even with valid proof
-        vm.prank(planOwner);
-        vm.expectPartialRevert(INFT1155.InvalidRedemptionPermission.selector);
-        nftCredits.burn(receiver, planId, 1, 0, signature);
-
-        // Verify balance still remains unchanged
-        assertEq(nftCredits.balanceOf(receiver, planId), 10);
-
-        // Test that someone with global CREDITS_BURNER_ROLE cannot burn without the plan role, even with valid proof
-        address globalBurner = makeAddr('globalBurner');
-        _grantRole(CREDITS_BURNER_ROLE, globalBurner);
-        vm.prank(globalBurner);
-        vm.expectPartialRevert(INFT1155.InvalidRedemptionPermission.selector);
-        nftCredits.burn(receiver, planId, 1, 0, signature);
-
-        // Verify balance still remains unchanged
-        assertEq(nftCredits.balanceOf(receiver, planId), 10);
     }
 
     function test_revoke_burn_functionality() public {
