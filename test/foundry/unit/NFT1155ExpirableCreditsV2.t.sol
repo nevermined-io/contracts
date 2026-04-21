@@ -5,6 +5,7 @@ pragma solidity ^0.8.30;
 
 import '../../../contracts/common/Roles.sol';
 import {IAsset} from '../../../contracts/interfaces/IAsset.sol';
+import {IFeeController} from '../../../contracts/interfaces/IFeeController.sol';
 import {INFT1155} from '../../../contracts/interfaces/INFT1155.sol';
 import {NFT1155ExpirableCreditsV2} from '../../../contracts/token/NFT1155ExpirableCreditsV2.sol';
 import {BaseTest} from '../common/BaseTest.sol';
@@ -35,8 +36,11 @@ contract NFT1155ExpirableCreditsV2Test is BaseTest {
         _grantRole(CREDITS_BURNER_ROLE, address(this));
         _grantRole(CREDITS_BURNER_ROLE, burner);
 
-        // Create expirable credits plans for testing
-        planId = _createExpirablePlan(1, 10);
+        // Create expirable credits plans for testing. `planId` uses `amount = 100` so
+        // `maxAmount = 100` — large enough that tests burning up to 100 credits in one
+        // call do not hit `_creditsToRedeem` clamping (which would decouple the V2
+        // ledger from ERC1155 `_balances`, see issue #173).
+        planId = _createExpirablePlan(100, 10);
         planId2 = _createExpirablePlan(200, 10);
         planId3 = _createExpirablePlan(300, 10);
     }
@@ -681,13 +685,14 @@ contract NFT1155ExpirableCreditsV2Test is BaseTest {
         assertEq(balance21, 0); // All expired
         assertEq(balance22, 3); // Still available
 
-        // Step 5: Batch burn from both plans
-        uint256[] memory ids = new uint256[](2);
-        uint256[] memory values = new uint256[](2);
-        ids[0] = planId;
-        ids[1] = planId2;
-        values[0] = 0; // No credits to burn from planId (all expired)
-        values[1] = 2; // Burn 2 from planId2
+        // Step 5: Batch burn only from plans that still have credits. `planId` is
+        // omitted because it fully expired above; under the plan-clamped accounting in
+        // issue #173 a passed-in `0` is clamped up to `minAmount = 1`, which would
+        // require live credits that no longer exist.
+        uint256[] memory ids = new uint256[](1);
+        uint256[] memory values = new uint256[](1);
+        ids[0] = planId2;
+        values[0] = 2;
 
         vm.prank(burner);
         nftExpirableCreditsV2.burnBatch(receiver, ids, values, 0, '');
@@ -769,17 +774,18 @@ contract NFT1155ExpirableCreditsV2Test is BaseTest {
         assertEq(balance, 0);
     }
 
-    function test_burn_zeroAmount() public {
-        // First mint some credits
+    function test_burn_zeroAmount_clampsUpToMinAmount() public {
+        // `planId` has `isRedemptionAmountFixed = false` and `minAmount = 1`, so
+        // `_creditsToRedeem(false, 0, 1, 100) = 1`. Burning 0 therefore redeems the
+        // configured minimum (1 credit) — and the expirable ledger decrements by the
+        // same amount as ERC1155 `_balances` (issue #173).
         vm.prank(minter);
         nftExpirableCreditsV2.mint(receiver, planId, 10, 0, '');
 
-        // Burn zero credits
         vm.prank(burner);
         nftExpirableCreditsV2.burn(receiver, planId, 0, 0, '');
 
-        uint256 balance = nftExpirableCreditsV2.balanceOf(receiver, planId);
-        assertEq(balance, 10); // Balance unchanged
+        assertEq(nftExpirableCreditsV2.balanceOf(receiver, planId), 9);
     }
 
     function test_balanceOf_afterAllCreditsExpired() public {
@@ -1238,5 +1244,194 @@ contract NFT1155ExpirableCreditsV2Test is BaseTest {
         // Verify that the balance is correctly updated
         uint256 balance = nftExpirableCreditsV2.balanceOf(receiver, planId);
         assertEq(balance, 0);
+    }
+
+    // Regression tests for issue #170 — ONLY_SUBSCRIBER must see the pre-burn balance.
+    // Before the fix, `_processPreCreditBurn` decremented the expiration-ordered ledger
+    // before `_canRedeemCredits` ran, so burning more than half of the remaining credits
+    // in one call reverted with `InvalidRedemptionPermission`.
+
+    function test_burn_onlySubscriber_drainToZero_expirable() public {
+        uint256 subPlanId = _createExpirableOnlySubscriberPlanV2(4, 86_400, 4);
+
+        vm.prank(minter);
+        nftExpirableCreditsV2.mint(receiver, subPlanId, 4, 86_400, '');
+        assertEq(nftExpirableCreditsV2.balanceOf(receiver, subPlanId), 4);
+
+        vm.prank(receiver);
+        nftExpirableCreditsV2.burn(receiver, subPlanId, 4, 0, '');
+
+        assertEq(nftExpirableCreditsV2.balanceOf(receiver, subPlanId), 0);
+    }
+
+    function test_burn_onlySubscriber_burnMoreThanHalf_expirable() public {
+        uint256 subPlanId = _createExpirableOnlySubscriberPlanV2(4, 86_400, 4);
+
+        vm.prank(minter);
+        nftExpirableCreditsV2.mint(receiver, subPlanId, 4, 86_400, '');
+
+        vm.prank(receiver);
+        nftExpirableCreditsV2.burn(receiver, subPlanId, 3, 0, '');
+
+        assertEq(nftExpirableCreditsV2.balanceOf(receiver, subPlanId), 1);
+    }
+
+    // Regression test for issue #173 — the V2 expirable ledger must decrement by the
+    // plan-clamped `_creditsToRedeem`, matching what ERC1155's `_burn` actually consumes.
+    // Before the fix, a raw `_amount > maxAmount` was recorded in the ledger while `_burn`
+    // consumed the clamped value, so `balanceOf` (override) drifted below the true ERC1155
+    // balance. Asserting the post-burn V2 balance pins this down.
+    function test_burn_clampedBookkeepingMatchesActualBurn_expirable() public {
+        uint256 clampingPlanId = _createExpirableOnlySubscriberPlanV2(10, 86_400, 5);
+
+        vm.prank(minter);
+        nftExpirableCreditsV2.mint(receiver, clampingPlanId, 10, 86_400, '');
+
+        // Subscriber requests 8 but `maxAmount = 5` clamps to 5.
+        vm.prank(receiver);
+        nftExpirableCreditsV2.burn(receiver, clampingPlanId, 8, 0, '');
+
+        // Pre-fix: ledger would record 8 → balanceOf = 2. Post-fix: ledger records 5 → 5.
+        assertEq(nftExpirableCreditsV2.balanceOf(receiver, clampingPlanId), 5);
+    }
+
+    // Mirror of the single-burn convergence test above, exercising `burnBatch` so
+    // `_beforeCreditsBurnBatch` is covered. A future refactor of the batch hook would
+    // reintroduce the #173 drift if this test disappears.
+    function test_burnBatch_clampedBookkeepingMatchesActualBurn_expirable() public {
+        uint256 clampingPlanId = _createExpirableOnlySubscriberPlanV2(10, 86_400, 5);
+
+        vm.startPrank(minter);
+        nftExpirableCreditsV2.mint(receiver, clampingPlanId, 10, 86_400, '');
+        nftExpirableCreditsV2.mint(receiver, planId2, 10, 0, ''); // planId2 has maxAmount = 200 → no clamp
+        vm.stopPrank();
+
+        uint256[] memory ids = new uint256[](2);
+        uint256[] memory values = new uint256[](2);
+        ids[0] = clampingPlanId;
+        ids[1] = planId2;
+        values[0] = 8; // clamps to 5
+        values[1] = 3; // unchanged
+
+        vm.prank(burner);
+        nftExpirableCreditsV2.burnBatch(receiver, ids, values, 0, '');
+
+        // Clamped plan: 10 - 5 = 5 (pre-fix would have been 10 - 8 = 2).
+        // Unclamped plan: 10 - 3 = 7 (unaffected either way).
+        assertEq(nftExpirableCreditsV2.balanceOf(receiver, clampingPlanId), 5);
+        assertEq(nftExpirableCreditsV2.balanceOf(receiver, planId2), 7);
+    }
+
+    // `burnBatch` must reject an unknown plan id just like `burn` does — otherwise the
+    // zeroed `Plan` struct (maxAmount = 0) causes `_creditsToRedeem` to return 0 and the
+    // entry becomes a silent no-op instead of reverting with `PlanNotFound`.
+    function test_burnBatch_invalidPlanId_reverts() public {
+        uint256[] memory ids = new uint256[](1);
+        uint256[] memory values = new uint256[](1);
+        ids[0] = 999; // not registered in the assets registry
+        values[0] = 1;
+
+        vm.prank(burner);
+        vm.expectRevert(abi.encodeWithSelector(IAsset.PlanNotFound.selector, ids[0]));
+        nftExpirableCreditsV2.burnBatch(receiver, ids, values, 0, '');
+    }
+
+    // Under clamped-hook semantics (#173), a plan whose credits have all expired can no
+    // longer silently pass a zero-amount batch entry — the 0 clamps to `minAmount = 1`
+    // and `_processPreCreditBurn` reverts with `NotEnoughCreditsToBurn`. Covers the
+    // invariant that `test_comprehensiveCreditLifecycle_batchOperations` used to touch.
+    function test_burnBatch_expiredPlan_reverts() public {
+        vm.prank(minter);
+        nftExpirableCreditsV2.mint(receiver, planId, 10, 5, ''); // 5-second expiration
+
+        vm.warp(vm.getBlockTimestamp() + 10); // past expiration, no live credits
+
+        uint256[] memory ids = new uint256[](1);
+        uint256[] memory values = new uint256[](1);
+        ids[0] = planId;
+        values[0] = 0; // clamps up to minAmount = 1 but no live credits remain
+
+        vm.prank(burner);
+        vm.expectRevert(
+            abi.encodeWithSelector(NFT1155ExpirableCreditsV2.NotEnoughCreditsToBurn.selector, receiver, planId, 1)
+        );
+        nftExpirableCreditsV2.burnBatch(receiver, ids, values, 0, '');
+    }
+
+    // Batch counterpart of `test_burn_zeroAmount_clampsUpToMinAmount`. `planId` has
+    // `isRedemptionAmountFixed = false` and `minAmount = 1`, so burn(0) in a batch also
+    // clamps up to 1.
+    function test_burnBatch_zeroAmount_clampsUpToMinAmount() public {
+        vm.startPrank(minter);
+        nftExpirableCreditsV2.mint(receiver, planId, 10, 0, '');
+        nftExpirableCreditsV2.mint(receiver, planId2, 10, 0, '');
+        vm.stopPrank();
+
+        uint256[] memory ids = new uint256[](2);
+        uint256[] memory values = new uint256[](2);
+        ids[0] = planId;
+        ids[1] = planId2;
+        values[0] = 0; // clamps to minAmount = 1
+        values[1] = 3; // unchanged
+
+        vm.prank(burner);
+        nftExpirableCreditsV2.burnBatch(receiver, ids, values, 0, '');
+
+        assertEq(nftExpirableCreditsV2.balanceOf(receiver, planId), 9); // 10 - 1 (clamped up)
+        assertEq(nftExpirableCreditsV2.balanceOf(receiver, planId2), 7);
+    }
+
+    function test_burn_onlySubscriber_twoConsecutiveSettles_expirable() public {
+        uint256 subPlanId = _createExpirableOnlySubscriberPlanV2(4, 86_400, 2);
+
+        vm.prank(minter);
+        nftExpirableCreditsV2.mint(receiver, subPlanId, 4, 86_400, '');
+
+        vm.startPrank(receiver);
+        nftExpirableCreditsV2.burn(receiver, subPlanId, 2, 0, '');
+        assertEq(nftExpirableCreditsV2.balanceOf(receiver, subPlanId), 2);
+        nftExpirableCreditsV2.burn(receiver, subPlanId, 2, 0, '');
+        vm.stopPrank();
+
+        assertEq(nftExpirableCreditsV2.balanceOf(receiver, subPlanId), 0);
+    }
+
+    function _createExpirableOnlySubscriberPlanV2(uint256 amount, uint256 durationSecs, uint256 maxAmount)
+        internal
+        returns (uint256)
+    {
+        uint256[] memory _amounts = new uint256[](1);
+        _amounts[0] = 100;
+        address[] memory _receivers = new address[](1);
+        _receivers[0] = owner;
+
+        IAsset.PriceConfig memory priceConfig = IAsset.PriceConfig({
+            isCrypto: true,
+            tokenAddress: address(0),
+            amounts: _amounts,
+            receivers: _receivers,
+            externalPriceAddress: address(0),
+            feeController: IFeeController(address(0)),
+            templateAddress: address(0)
+        });
+        IAsset.CreditsConfig memory creditsConfig = IAsset.CreditsConfig({
+            isRedemptionAmountFixed: false,
+            redemptionType: IAsset.RedemptionType.ONLY_SUBSCRIBER,
+            durationSecs: durationSecs,
+            amount: amount,
+            minAmount: 1,
+            maxAmount: maxAmount,
+            proofRequired: false,
+            nftAddress: address(nftExpirableCreditsV2)
+        });
+
+        (uint256[] memory amounts, address[] memory receivers) =
+            assetsRegistry.includeFeesInPaymentsDistribution(priceConfig, creditsConfig);
+        priceConfig.amounts = amounts;
+        priceConfig.receivers = receivers;
+
+        vm.prank(owner);
+        assetsRegistry.createPlan(priceConfig, creditsConfig, 0);
+        return assetsRegistry.hashPlanId(priceConfig, creditsConfig, owner);
     }
 }

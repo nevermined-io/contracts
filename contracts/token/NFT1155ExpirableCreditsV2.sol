@@ -155,46 +155,36 @@ contract NFT1155ExpirableCreditsV2 is NFT1155Base {
     }
 
     /**
-     * @notice Burns credits from a specific plan, tracking the burn operation
-     * @param _from Address from which credits will be burned
-     * @param _planId Identifier of the plan
-     * @param _value Amount of credits to burn
-     * @param _keyspace The keyspace of the nonce used to generate the signature
-     * @param _signature The signature of the credits burn proof
-     * @dev Implements custom burn logic that records each burn operation against valid, non-expired credits
+     * @notice Hook invoked by `NFT1155Base.burn` after the redemption-permission and
+     * proof-signature checks pass, immediately before `_burn` is called.
+     * @dev Decrements the expiration-ordered ledger by the plan-clamped
+     * `_creditsToRedeem`, so the ledger stays aligned with ERC1155 `_balances`. Running
+     * *after* `_canRedeemCredits` ensures the permission check sees the pre-burn balance
+     * — required for `ONLY_SUBSCRIBER` plans to allow burning more than half of
+     * remaining credits in a single call (issue #170).
+     * @param _from Address whose credits will be burned
+     * @param _planId Plan identifier
+     * @param _creditsToRedeem Plan-clamped amount that matches what `_burn` consumes
      */
-    function burn(address _from, uint256 _planId, uint256 _value, uint256 _keyspace, bytes calldata _signature)
-        public
-        virtual
-        override
-    {
-        _processPreCreditBurn(_from, _planId, _value);
-
-        super.burn(_from, _planId, _value, _keyspace, _signature);
+    function _beforeCreditsBurn(address _from, uint256 _planId, uint256 _creditsToRedeem) internal override {
+        _processPreCreditBurn(_from, _planId, _creditsToRedeem);
     }
 
     /**
-     * @notice Burns multiple credits from multiple plans in a single transaction
-     * @param _from Address from which credits will be burned
-     * @param _ids Array of plan identifiers
-     * @param _values Array of credit amounts to burn
-     * @dev Validates array lengths match before burning each batch
+     * @notice Batch counterpart of `_beforeCreditsBurn`.
+     * @dev Decrements the expiration-ordered ledger per plan using the clamped per-item
+     * amounts, keeping the V2 ledger aligned with what `_burnBatch` consumes (issue #173).
+     * @param _from Address whose credits will be burned
+     * @param _ids Plan identifiers being burned
+     * @param _creditsToRedeem Per-item plan-clamped amounts that match what `_burnBatch` consumes
      */
-    function burnBatch(
-        address _from,
-        uint256[] memory _ids,
-        uint256[] memory _values,
-        uint256 _keyspace,
-        bytes calldata _signature
-    ) public virtual override restricted {
-        uint256 _length = _ids.length;
-        if (_length != _values.length) revert InvalidLength(_length, _values.length);
-
-        for (uint256 i = 0; i < _length; i++) {
-            _processPreCreditBurn(_from, _ids[i], _values[i]);
+    function _beforeCreditsBurnBatch(address _from, uint256[] memory _ids, uint256[] memory _creditsToRedeem)
+        internal
+        override
+    {
+        for (uint256 i = 0; i < _ids.length; i++) {
+            _processPreCreditBurn(_from, _ids[i], _creditsToRedeem[i]);
         }
-
-        super.burnBatch(_from, _ids, _values, _keyspace, _signature);
     }
 
     /**

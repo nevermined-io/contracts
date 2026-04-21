@@ -170,6 +170,8 @@ abstract contract NFT1155Base is ERC1155Upgradeable, INFT1155, EIP712Upgradeable
             require(signer == _from, InvalidCreditsBurnProof(signer, _from));
         }
 
+        _beforeCreditsBurn(_from, _planId, creditsToRedeem);
+
         _burn(_from, _planId, creditsToRedeem);
     }
 
@@ -190,14 +192,21 @@ abstract contract NFT1155Base is ERC1155Upgradeable, INFT1155, EIP712Upgradeable
     ) public virtual restricted {
         NFT1155BaseStorage storage $ = _getNFT1155BaseStorage();
 
+        require(_ids.length == _amounts.length, InvalidLength(_ids.length, _amounts.length));
+
+        // Compute plan-clamped amounts into a fresh array rather than mutating the
+        // caller's `_amounts` in place — so `_beforeCreditsBurnBatch` and `_burnBatch`
+        // see an explicitly-scoped clamped view and the caller's memory is untouched.
+        uint256[] memory clampedAmounts = new uint256[](_ids.length);
         uint256[] memory planIdsToVerify = new uint256[](_ids.length);
         uint256 counter;
         for (uint256 i = 0; i < _ids.length; i++) {
             uint256 planId = _ids[i];
 
             IAsset.Plan memory plan = $.assetsRegistry.getPlan(planId);
+            require(plan.lastUpdated != 0, IAsset.PlanNotFound(planId));
 
-            _amounts[i] = _creditsToRedeem(
+            clampedAmounts[i] = _creditsToRedeem(
                 plan.credits.isRedemptionAmountFixed, _amounts[i], plan.credits.minAmount, plan.credits.maxAmount
             );
 
@@ -221,7 +230,9 @@ abstract contract NFT1155Base is ERC1155Upgradeable, INFT1155, EIP712Upgradeable
             require(signer == _from, InvalidCreditsBurnProof(signer, _from));
         }
 
-        _burnBatch(_from, _ids, _amounts);
+        _beforeCreditsBurnBatch(_from, _ids, clampedAmounts);
+
+        _burnBatch(_from, _ids, clampedAmounts);
     }
 
     function allowBurn(address _burner, uint256 _planId) public virtual override {
@@ -316,6 +327,42 @@ abstract contract NFT1155Base is ERC1155Upgradeable, INFT1155, EIP712Upgradeable
         // }
         // revert IAsset.InvalidRedemptionAmount(_planId, _creditsType, _amount);
     }
+
+    /**
+     * @notice Hook invoked inside `burn` after the redemption-permission and proof-signature
+     * checks pass and immediately before credits are actually burned.
+     * @dev Subclasses override this to perform pre-burn bookkeeping (for example, pushing
+     * burn entries into the expirable-credits array). The hook receives the plan-clamped
+     * `_creditsToRedeem` — the exact value that `_burn` consumes — so subclasses keep
+     * their accounting surface aligned with ERC1155's `_balances` (see issue #173).
+     *
+     * The default implementation is a no-op so non-expirable credits (which rely entirely on
+     * OpenZeppelin's `_balances` mapping) need no extra work. Moving pre-burn bookkeeping
+     * behind this hook ensures `_canRedeemCredits` always evaluates against the pre-burn
+     * balance — matching the non-expirable semantics and preventing `ONLY_SUBSCRIBER`
+     * redemption from reverting when a subscriber burns more than half of their remaining
+     * credits in a single call (see issue #170).
+     * @param _from The address whose credits will be burned
+     * @param _planId The plan whose credits are being burned
+     * @param _creditsToRedeem The plan-clamped amount that will be passed to `_burn`
+     */
+    function _beforeCreditsBurn(address _from, uint256 _planId, uint256 _creditsToRedeem) internal virtual {}
+
+    /**
+     * @notice Batch counterpart of `_beforeCreditsBurn`.
+     * @dev Invoked by `burnBatch` after `_creditsToRedeem` has been applied per-item and
+     * after the proof-signature check, immediately before `_burnBatch`. Subclasses
+     * override this to perform pre-burn bookkeeping using the plan-clamped amounts, so
+     * any child ledger stays aligned with ERC1155's `_balances` (see issue #173).
+     *
+     * The default implementation is a no-op.
+     * @param _from The address whose credits will be burned
+     * @param _ids Plan identifiers being burned
+     * @param _creditsToRedeem Per-item plan-clamped amounts that will be passed to `_burnBatch`
+     */
+    function _beforeCreditsBurnBatch(address _from, uint256[] memory _ids, uint256[] memory _creditsToRedeem)
+        internal
+        virtual {}
 
     /**
      * @notice Internal function to check if an account can redeem credits for a plan
