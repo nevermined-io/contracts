@@ -69,7 +69,7 @@ contract ProtocolStandardFeesTest is BaseTest {
             amount: 100,
             minAmount: 1,
             maxAmount: 1,
-            proofRequired: false,
+            onchainMirror: false,
             nftAddress: address(0)
         });
 
@@ -103,7 +103,7 @@ contract ProtocolStandardFeesTest is BaseTest {
             amount: 100,
             minAmount: 1,
             maxAmount: 1,
-            proofRequired: false,
+            onchainMirror: false,
             nftAddress: address(0)
         });
 
@@ -139,7 +139,7 @@ contract ProtocolStandardFeesTest is BaseTest {
             amount: 100,
             minAmount: 1,
             maxAmount: 1,
-            proofRequired: false,
+            onchainMirror: false,
             nftAddress: address(0)
         });
 

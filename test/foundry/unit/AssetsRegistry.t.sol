@@ -135,7 +135,7 @@ contract AssetsRegistryTest is BaseTest {
                 amount: 100,
                 minAmount: 1,
                 maxAmount: 1,
-                proofRequired: false,
+                onchainMirror: false,
                 nftAddress: address(nftCredits)
             }),
             lastUpdated: vm.getBlockTimestamp()
@@ -187,7 +187,7 @@ contract AssetsRegistryTest is BaseTest {
                 amount: 100,
                 minAmount: 1,
                 maxAmount: 1,
-                proofRequired: false,
+                onchainMirror: false,
                 nftAddress: address(0)
             }),
             lastUpdated: vm.getBlockTimestamp()
@@ -209,7 +209,7 @@ contract AssetsRegistryTest is BaseTest {
             amount: 100,
             minAmount: 1,
             maxAmount: 1,
-            proofRequired: false,
+            onchainMirror: false,
             nftAddress: address(0)
         });
 
@@ -251,7 +251,7 @@ contract AssetsRegistryTest is BaseTest {
             amount: 100,
             minAmount: 1,
             maxAmount: 1,
-            proofRequired: false,
+            onchainMirror: false,
             nftAddress: address(nftCredits)
         });
 
@@ -263,6 +263,91 @@ contract AssetsRegistryTest is BaseTest {
         uint256 planId = 1;
         IAsset.Plan memory plan = assetsRegistry.getPlan(planId);
         assertEq(plan.lastUpdated, 0);
+    }
+
+    // --- protocol#177 regressions: `onchainMirror` repurpose ---
+
+    // Build a minimal valid `(PriceConfig, CreditsConfig)` pair used by the protocol#177
+    // round-trip + event tests below. Separated so each test reads as a short sequence.
+    function _onchainMirrorPair(bool mirror)
+        internal
+        view
+        returns (IAsset.PriceConfig memory priceConfig, IAsset.CreditsConfig memory creditsConfig)
+    {
+        priceConfig = IAsset.PriceConfig({
+            isCrypto: true,
+            tokenAddress: address(0),
+            amounts: new uint256[](1),
+            receivers: new address[](1),
+            externalPriceAddress: address(0),
+            feeController: IFeeController(address(0)),
+            templateAddress: address(0)
+        });
+        priceConfig.amounts[0] = 100;
+        priceConfig.receivers[0] = address(this);
+
+        creditsConfig = IAsset.CreditsConfig({
+            isRedemptionAmountFixed: true,
+            redemptionType: IAsset.RedemptionType.ONLY_GLOBAL_ROLE,
+            durationSecs: 0,
+            amount: 100,
+            minAmount: 1,
+            maxAmount: 1,
+            onchainMirror: mirror,
+            nftAddress: address(nftCredits)
+        });
+
+        (uint256[] memory amounts, address[] memory receivers) =
+            assetsRegistry.includeFeesInPaymentsDistribution(priceConfig, creditsConfig);
+        priceConfig.amounts = amounts;
+        priceConfig.receivers = receivers;
+    }
+
+    function test_createPlan_onchainMirrorDefaultsFalse() public {
+        (IAsset.PriceConfig memory priceConfig, IAsset.CreditsConfig memory creditsConfig) = _onchainMirrorPair(false);
+        uint256 planId = assetsRegistry.createPlan(priceConfig, creditsConfig, 0);
+
+        IAsset.Plan memory stored = assetsRegistry.getPlan(planId);
+        assertFalse(stored.credits.onchainMirror, 'default onchainMirror must be false');
+    }
+
+    function test_createPlan_onchainMirrorTrueRoundTrips() public {
+        (IAsset.PriceConfig memory priceConfig, IAsset.CreditsConfig memory creditsConfig) = _onchainMirrorPair(true);
+        uint256 planId = assetsRegistry.createPlan(priceConfig, creditsConfig, 0);
+
+        IAsset.Plan memory stored = assetsRegistry.getPlan(planId);
+        assertTrue(stored.credits.onchainMirror, 'opt-in onchainMirror must round-trip true');
+    }
+
+    function test_createPlan_emitsPlanRegisteredWithMirrorFalse() public {
+        (IAsset.PriceConfig memory priceConfig, IAsset.CreditsConfig memory creditsConfig) = _onchainMirrorPair(false);
+        uint256 expectedPlanId = assetsRegistry.hashPlanId(priceConfig, creditsConfig, address(this), 0);
+
+        vm.expectEmit(true, true, true, true, address(assetsRegistry));
+        emit IAsset.PlanRegistered(expectedPlanId, address(this), false);
+        assetsRegistry.createPlan(priceConfig, creditsConfig, 0);
+    }
+
+    function test_createPlan_emitsPlanRegisteredWithMirrorTrue() public {
+        (IAsset.PriceConfig memory priceConfig, IAsset.CreditsConfig memory creditsConfig) = _onchainMirrorPair(true);
+        uint256 expectedPlanId = assetsRegistry.hashPlanId(priceConfig, creditsConfig, address(this), 0);
+
+        vm.expectEmit(true, true, true, true, address(assetsRegistry));
+        emit IAsset.PlanRegistered(expectedPlanId, address(this), true);
+        assetsRegistry.createPlan(priceConfig, creditsConfig, 0);
+    }
+
+    // The two configs differ only on `onchainMirror` — after protocol#177 they MUST
+    // resolve to distinct plan IDs (the field is meaningful and included in the hash).
+    // Guards against a re-introduction of the #176 normalization.
+    function test_hashPlanId_onchainMirrorChangesPlanId() public view {
+        (IAsset.PriceConfig memory priceConfig, IAsset.CreditsConfig memory creditsConfigOff) =
+            _onchainMirrorPair(false);
+        (, IAsset.CreditsConfig memory creditsConfigOn) = _onchainMirrorPair(true);
+
+        uint256 idOff = assetsRegistry.hashPlanId(priceConfig, creditsConfigOff, address(this), 0);
+        uint256 idOn = assetsRegistry.hashPlanId(priceConfig, creditsConfigOn, address(this), 0);
+        assertTrue(idOff != idOn, 'onchainMirror must participate in hashPlanId');
     }
 
     function test_addFeesToPaymentsDistribution() public {
@@ -293,7 +378,7 @@ contract AssetsRegistryTest is BaseTest {
                 amount: 100,
                 minAmount: 1,
                 maxAmount: 1,
-                proofRequired: false,
+                onchainMirror: false,
                 nftAddress: address(nftCredits)
             }),
             lastUpdated: vm.getBlockTimestamp()
@@ -331,7 +416,7 @@ contract AssetsRegistryTest is BaseTest {
             amount: 100,
             minAmount: 1,
             maxAmount: 1,
-            proofRequired: false,
+            onchainMirror: false,
             nftAddress: address(nftCredits)
         });
 
@@ -598,7 +683,7 @@ contract AssetsRegistryTest is BaseTest {
             amount: 100,
             minAmount: 1,
             maxAmount: 1,
-            proofRequired: false,
+            onchainMirror: false,
             nftAddress: nonNftAddress
         });
 
@@ -631,7 +716,7 @@ contract AssetsRegistryTest is BaseTest {
             amount: 100,
             minAmount: 1,
             maxAmount: 1,
-            proofRequired: false,
+            onchainMirror: false,
             nftAddress: address(nftCredits)
         });
 
@@ -665,7 +750,7 @@ contract AssetsRegistryTest is BaseTest {
             amount: 100,
             minAmount: 1,
             maxAmount: 1,
-            proofRequired: false,
+            onchainMirror: false,
             nftAddress: address(nftCredits)
         });
 
@@ -699,7 +784,7 @@ contract AssetsRegistryTest is BaseTest {
             amount: 100,
             minAmount: 1,
             maxAmount: 1,
-            proofRequired: false,
+            onchainMirror: false,
             nftAddress: address(nftCredits)
         });
 
@@ -765,7 +850,7 @@ contract AssetsRegistryTest is BaseTest {
             amount: 100,
             minAmount: 1,
             maxAmount: 1,
-            proofRequired: false,
+            onchainMirror: false,
             nftAddress: address(nftCredits)
         });
 
@@ -833,7 +918,7 @@ contract AssetsRegistryTest is BaseTest {
             amount: 1,
             minAmount: 1,
             maxAmount: 1,
-            proofRequired: false,
+            onchainMirror: false,
             nftAddress: address(nftExpirableCredits)
         });
         (uint256[] memory _amounts, address[] memory _receivers) =
@@ -926,7 +1011,7 @@ contract AssetsRegistryTest is BaseTest {
                 amount: 100,
                 minAmount: 1,
                 maxAmount: 1,
-                proofRequired: false,
+                onchainMirror: false,
                 nftAddress: address(nftCredits)
             }),
             lastUpdated: vm.getBlockTimestamp()
@@ -987,7 +1072,7 @@ contract AssetsRegistryTest is BaseTest {
                 amount: 100,
                 minAmount: 1,
                 maxAmount: 1,
-                proofRequired: false,
+                onchainMirror: false,
                 nftAddress: address(nftCredits)
             }),
             lastUpdated: vm.getBlockTimestamp()
@@ -1028,7 +1113,7 @@ contract AssetsRegistryTest is BaseTest {
             amount: 1,
             minAmount: 1,
             maxAmount: 1,
-            proofRequired: false,
+            onchainMirror: false,
             nftAddress: address(nftExpirableCredits)
         });
 
@@ -1084,7 +1169,7 @@ contract AssetsRegistryTest is BaseTest {
                 amount: 100,
                 minAmount: 1,
                 maxAmount: 1,
-                proofRequired: false,
+                onchainMirror: false,
                 nftAddress: address(nftCredits)
             }),
             lastUpdated: vm.getBlockTimestamp()

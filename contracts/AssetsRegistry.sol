@@ -217,19 +217,29 @@ contract AssetsRegistry is IAsset, IIdentityRegistry, ERC721URIStorageUpgradeabl
         if ($.plans[planId].lastUpdated != 0) return planId;
         $.plans[planId] = Plan({
             owner: msg.sender,
-            price: PriceConfig(
-                false,
-                address(0),
-                new uint256[](0),
-                new address[](0),
-                address(0),
-                IFeeController(address(0)),
-                address(0)
-            ),
-            credits: CreditsConfig(false, RedemptionType.ONLY_OWNER, false, 0, 0, 0, 0, address(0)),
+            price: PriceConfig({
+                isCrypto: false,
+                tokenAddress: address(0),
+                amounts: new uint256[](0),
+                receivers: new address[](0),
+                externalPriceAddress: address(0),
+                feeController: IFeeController(address(0)),
+                templateAddress: address(0)
+            }),
+            credits: CreditsConfig({
+                isRedemptionAmountFixed: false,
+                redemptionType: RedemptionType.ONLY_OWNER,
+                onchainMirror: false,
+                durationSecs: 0,
+                amount: 0,
+                minAmount: 0,
+                maxAmount: 0,
+                nftAddress: address(0)
+            }),
             lastUpdated: block.timestamp
         });
-        emit PlanRegistered(planId, msg.sender);
+        // Empty plans never opt into the on-chain mirror.
+        emit PlanRegistered(planId, msg.sender, false);
     }
 
     function _setTokenMetadata(uint256 tokenId, string memory key, bytes memory value) internal {
@@ -310,11 +320,6 @@ contract AssetsRegistry is IAsset, IIdentityRegistry, ERC721URIStorageUpgradeabl
     ) internal returns (uint256) {
         AssetsRegistryStorage storage $ = _getAssetsRegistryStorage();
 
-        // The `proofRequired` slot is dormant after protocol#175 (see nvm-monorepo#1253).
-        // Normalize it to `false` before hashing + storing so two semantically-equivalent
-        // configs never produce different plan IDs because of the vestigial bit.
-        _creditsConfig.proofRequired = false;
-
         if (_creditsConfig.minAmount > _creditsConfig.maxAmount) {
             revert InvalidCreditsConfigAmounts(_creditsConfig.minAmount, _creditsConfig.maxAmount);
         }
@@ -361,7 +366,7 @@ contract AssetsRegistry is IAsset, IIdentityRegistry, ERC721URIStorageUpgradeabl
             $.planHooks[planId].push(_hooks[i]);
         }
 
-        emit PlanRegistered(planId, msg.sender);
+        emit PlanRegistered(planId, msg.sender, _creditsConfig.onchainMirror);
         return planId;
     }
 
@@ -414,10 +419,6 @@ contract AssetsRegistry is IAsset, IIdentityRegistry, ERC721URIStorageUpgradeabl
         PriceConfig memory _priceConfig,
         CreditsConfig memory _creditsConfig
     ) external {
-        // Mirror the normalization inside `_createPlan` so the local `hashPlanId` below
-        // and the internal hash match regardless of the caller's dormant bit.
-        _creditsConfig.proofRequired = false;
-
         uint256 nonce = uint256(_seed);
         uint256 planId = hashPlanId(_priceConfig, _creditsConfig, msg.sender, nonce);
         if (!planExists(planId)) {

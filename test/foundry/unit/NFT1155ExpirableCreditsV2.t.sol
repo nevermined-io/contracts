@@ -373,7 +373,7 @@ contract NFT1155ExpirableCreditsV2Test is BaseTest {
 
     // Historical name was `test_burnBatch_withSignature_required`; renamed after
     // protocol#175 nullified the EIP-712 signed-burn flow — the plans here don't set
-    // `proofRequired`, the sig is empty, and the test simply exercises role-gated
+    // `onchainMirror`, the sig is empty, and the test simply exercises role-gated
     // batch burn across multiple plans.
     function test_burnBatch_multiplePlans_succeeds() public {
         vm.prank(minter);
@@ -1424,7 +1424,7 @@ contract NFT1155ExpirableCreditsV2Test is BaseTest {
             amount: amount,
             minAmount: 1,
             maxAmount: maxAmount,
-            proofRequired: false,
+            onchainMirror: false,
             nftAddress: address(nftExpirableCreditsV2)
         });
 

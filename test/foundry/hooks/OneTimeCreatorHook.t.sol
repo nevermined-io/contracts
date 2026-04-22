@@ -83,7 +83,7 @@ contract OneTimeCreatorHookTest is BaseTest {
             amount: 100,
             minAmount: 1,
             maxAmount: 1,
-            proofRequired: false,
+            onchainMirror: false,
             nftAddress: address(nftCredits)
         });
 
@@ -181,7 +181,7 @@ contract OneTimeCreatorHookTest is BaseTest {
             amount: 100,
             minAmount: 1,
             maxAmount: 1,
-            proofRequired: false,
+            onchainMirror: false,
             nftAddress: address(nftCredits)
         });
 

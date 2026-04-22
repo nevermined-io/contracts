@@ -217,7 +217,7 @@ abstract contract BaseTest is Test, ToArrayUtils {
             amount: 100,
             minAmount: 1,
             maxAmount: 1,
-            proofRequired: false,
+            onchainMirror: false,
             nftAddress: address(nftCredits)
         });
 
@@ -230,18 +230,15 @@ abstract contract BaseTest is Test, ToArrayUtils {
         return assetsRegistry.hashPlanId(priceConfig, creditsConfig, address(this), nonce);
     }
 
-    /// @notice Creates a plan with the now-dormant `CreditsConfig.proofRequired` bit set
-    /// to `true` on the call into `createPlan` — used by regression tests that verify such
-    /// plans still burn successfully without an EIP-712 signature after the nullify
-    /// (protocol#175 / nvm-monorepo#1253).
-    /// @dev `_createPlan` normalizes `proofRequired` to `false` before hashing and
-    /// storing; this helper mirrors that normalization when computing the returned
-    /// `planId` so the caller can use it to interact with the stored plan.
-    function _createPlanWithProofRequired(uint256 nonce) internal returns (uint256) {
-        return _createPlanWithProofRequired(nonce, IAsset.RedemptionType.ONLY_GLOBAL_ROLE, address(this));
+    /// @notice Creates a plan that opts into the on-chain audit mirror
+    /// (`CreditsConfig.onchainMirror = true`) — default-off per protocol#177.
+    /// @dev The bit is preserved by `_createPlan`; the returned planId matches the
+    /// stored plan without any post-hash normalization.
+    function _createPlanWithOnchainMirror(uint256 nonce) internal returns (uint256) {
+        return _createPlanWithOnchainMirror(nonce, IAsset.RedemptionType.ONLY_GLOBAL_ROLE, address(this));
     }
 
-    function _createPlanWithProofRequired(uint256 nonce, IAsset.RedemptionType redemptionType, address planOwner)
+    function _createPlanWithOnchainMirror(uint256 nonce, IAsset.RedemptionType redemptionType, address planOwner)
         internal
         returns (uint256)
     {
@@ -266,7 +263,7 @@ abstract contract BaseTest is Test, ToArrayUtils {
             amount: 100,
             minAmount: 1,
             maxAmount: 1,
-            proofRequired: true,
+            onchainMirror: true,
             nftAddress: address(nftCredits)
         });
 
@@ -278,9 +275,6 @@ abstract contract BaseTest is Test, ToArrayUtils {
         vm.prank(planOwner);
         assetsRegistry.createPlan(priceConfig, creditsConfig, nonce);
 
-        // `_createPlan` normalized `proofRequired` to `false` before hashing; mirror that
-        // here so the returned planId matches the stored plan.
-        creditsConfig.proofRequired = false;
         return assetsRegistry.hashPlanId(priceConfig, creditsConfig, planOwner, nonce);
     }
 
@@ -310,7 +304,7 @@ abstract contract BaseTest is Test, ToArrayUtils {
             amount: amount,
             minAmount: 1,
             maxAmount: 100,
-            proofRequired: false,
+            onchainMirror: false,
             nftAddress: address(nftCredits)
         });
 
@@ -349,7 +343,7 @@ abstract contract BaseTest is Test, ToArrayUtils {
             amount: amount,
             minAmount: 1,
             maxAmount: 100,
-            proofRequired: false,
+            onchainMirror: false,
             nftAddress: address(nftCredits)
         });
 
@@ -401,7 +395,7 @@ abstract contract BaseTest is Test, ToArrayUtils {
             amount: amount,
             minAmount: 1,
             maxAmount: amount,
-            proofRequired: false,
+            onchainMirror: false,
             nftAddress: address(nftExpirableCredits)
         });
 

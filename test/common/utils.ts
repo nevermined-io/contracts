@@ -53,7 +53,7 @@ export function createCreditsConfig(nftAddress: `0x${string}`): any {
   return {
     isRedemptionAmountFixed: true, // FIXED
     redemptionType: 0, // ONLY_GLOBAL_ROLE
-    proofRequired: false,
+    onchainMirror: false,
     durationSecs: 0n,
     amount: 100n,
     minAmount: 1n,

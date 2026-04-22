@@ -596,7 +596,7 @@ contract NFT1155ExpirableCreditsTest is BaseTest {
             amount: 100,
             minAmount: 50, // minAmount is greater than maxAmount
             maxAmount: 30, // maxAmount is less than minAmount
-            proofRequired: false,
+            onchainMirror: false,
             nftAddress: address(nftExpirableCredits)
         });
 
@@ -797,7 +797,7 @@ contract NFT1155ExpirableCreditsTest is BaseTest {
             amount: amount,
             minAmount: 1,
             maxAmount: maxAmount,
-            proofRequired: false,
+            onchainMirror: false,
             nftAddress: address(nftExpirableCredits)
         });
 

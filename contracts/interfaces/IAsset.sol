@@ -126,14 +126,24 @@ interface IAsset {
          */
         RedemptionType redemptionType;
         /**
-         * @notice Deprecated — reserved slot retained for UUPS storage-layout stability.
-         * @dev Formerly gated an EIP-712 signed-burn flow; nullified in protocol#175
-         * (see nvm-monorepo#1253). The slot is kept because `Plan.lastUpdated` follows
-         * `CreditsConfig` in storage; reordering would collide on upgrade. A subsequent
-         * protocol issue will rename this field to repurpose it (see nvm-monorepo#1257).
-         * The on-chain value is ignored at runtime and setting it has no effect.
+         * @notice Opt-in flag that controls whether credits for this plan are mirrored
+         * on-chain in addition to the off-chain ledger.
+         * @dev Default `false` — credits live only in the off-chain backend
+         * (Postgres-primary; sub-millisecond reads; no gas per operation). Setting this
+         * to `true` opts the plan into dual-write: the off-chain backend stays the
+         * source of truth, and an asynchronous worker mirrors mint / burn events into
+         * the on-chain `NFT1155Credits` / `NFT1155ExpirableCredits` contracts so that
+         * readers of on-chain state see a lagging but durable audit record.
+         *
+         * The slot was historically `proofRequired` (EIP-712 signed-burn gate) and was
+         * nullified in protocol#175. This field reuses the same storage position and
+         * type (`bool` at `CreditsConfig` index 2) — plan IDs hashed by `hashPlanId`
+         * remain stable across the rename.
+         *
+         * See protocol#177 for the repurposing and nvm-monorepo#1257 for the end-to-end
+         * off-chain credits backend this flag integrates with.
          */
-        bool proofRequired;
+        bool onchainMirror;
         /**
          * The duration of the credits in seconds
          * @notice only if creditsType == EXPIRABLE
@@ -204,11 +214,24 @@ interface IAsset {
     event AgentRegistered(uint256 indexed agentId, address indexed creator);
 
     /**
-     * @notice Emitted when a new subscription/access plan is registered
+     * @notice Emitted when a new subscription/access plan is registered.
      * @param planId The unique identifier of the plan
      * @param creator The address that created the plan
+     * @param onchainMirror Whether the plan opts into dual-write (off-chain primary +
+     *     on-chain audit mirror). Indexed so the off-chain mirror worker can subscribe
+     *     to just the plans it needs to track without a separate `getPlan` call.
+     * @dev **Breaking event signature change in protocol#177 / #178.** Historical
+     * signature was `PlanRegistered(uint256,address)`; new signature is
+     * `PlanRegistered(uint256,address,bool)`. `topic0 = keccak256(<signature>)` therefore
+     * differs — downstream indexers and subgraphs subscribed to the old topic0 must
+     * switch to the new one before the upgraded proxy implementation is promoted beyond
+     * staging, otherwise new plans will be silently invisible to them.
+     *
+     * This event is now at the EVM's three-indexed-topic ceiling (topic0 is reserved
+     * for the signature hash). Any future addition to `PlanRegistered` that needs
+     * filtering support must un-index one of the existing fields.
      */
-    event PlanRegistered(uint256 indexed planId, address indexed creator);
+    event PlanRegistered(uint256 indexed planId, address indexed creator, bool indexed onchainMirror);
 
     /**
      * @notice Emitted when an asset's ownership is transferred

@@ -63,7 +63,7 @@ contract LockPaymentConditionTest is BaseTest {
             amount: 100,
             minAmount: 1,
             maxAmount: 100,
-            proofRequired: false,
+            onchainMirror: false,
             nftAddress: address(nftCredits)
         });
 
@@ -155,7 +155,7 @@ contract LockPaymentConditionTest is BaseTest {
             amount: 100,
             minAmount: 1,
             maxAmount: 100,
-            proofRequired: false,
+            onchainMirror: false,
             nftAddress: address(nftCredits)
         });
 
@@ -272,7 +272,7 @@ contract LockPaymentConditionTest is BaseTest {
             amount: 100,
             minAmount: 1,
             maxAmount: 100,
-            proofRequired: false,
+            onchainMirror: false,
             nftAddress: address(nftCredits)
         });
 
@@ -333,7 +333,7 @@ contract LockPaymentConditionTest is BaseTest {
             amount: 1,
             minAmount: 1,
             maxAmount: 1,
-            proofRequired: false,
+            onchainMirror: false,
             nftAddress: address(nftCredits)
         });
 
@@ -393,7 +393,7 @@ contract LockPaymentConditionTest is BaseTest {
             amount: 100,
             minAmount: 1,
             maxAmount: 100,
-            proofRequired: false,
+            onchainMirror: false,
             nftAddress: address(nftCredits)
         });
 
@@ -472,7 +472,7 @@ contract LockPaymentConditionTest is BaseTest {
             amount: 100,
             minAmount: 1,
             maxAmount: 100,
-            proofRequired: false,
+            onchainMirror: false,
             nftAddress: address(nftCredits)
         });
 
@@ -562,7 +562,7 @@ contract LockPaymentConditionTest is BaseTest {
             amount: 100,
             minAmount: 1,
             maxAmount: 100,
-            proofRequired: false,
+            onchainMirror: false,
             nftAddress: address(nftCredits)
         });
 
@@ -621,7 +621,7 @@ contract LockPaymentConditionTest is BaseTest {
             amount: 100,
             minAmount: 1,
             maxAmount: 100,
-            proofRequired: false,
+            onchainMirror: false,
             nftAddress: address(nftCredits)
         });
 
@@ -679,7 +679,7 @@ contract LockPaymentConditionTest is BaseTest {
             amount: 100,
             minAmount: 1,
             maxAmount: 100,
-            proofRequired: false,
+            onchainMirror: false,
             nftAddress: address(nftCredits)
         });
 
@@ -738,7 +738,7 @@ contract LockPaymentConditionTest is BaseTest {
             amount: 100,
             minAmount: 1,
             maxAmount: 100,
-            proofRequired: false,
+            onchainMirror: false,
             nftAddress: address(nftCredits)
         });
 

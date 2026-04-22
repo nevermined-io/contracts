@@ -55,7 +55,7 @@ contract PayAsYouGoTemplateTest is BaseTest, ERC1155Holder {
             amount: 100,
             minAmount: 1,
             maxAmount: 1,
-            proofRequired: false,
+            onchainMirror: false,
             nftAddress: address(nftCredits)
         });
 
@@ -91,7 +91,7 @@ contract PayAsYouGoTemplateTest is BaseTest, ERC1155Holder {
             amount: 100,
             minAmount: 1,
             maxAmount: 1,
-            proofRequired: false,
+            onchainMirror: false,
             nftAddress: address(nftCredits)
         });
 

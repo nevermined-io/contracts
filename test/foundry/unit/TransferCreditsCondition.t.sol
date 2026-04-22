@@ -55,7 +55,7 @@ contract TransferCreditsConditionTest is BaseTest {
             amount: 100,
             minAmount: 1,
             maxAmount: 100,
-            proofRequired: false,
+            onchainMirror: false,
             nftAddress: address(nftCredits)
         });
 
@@ -127,7 +127,7 @@ contract TransferCreditsConditionTest is BaseTest {
             amount: 100,
             minAmount: 1,
             maxAmount: 100,
-            proofRequired: false,
+            onchainMirror: false,
             nftAddress: address(nftExpirableCredits)
         });
 
@@ -198,7 +198,7 @@ contract TransferCreditsConditionTest is BaseTest {
             amount: 100,
             minAmount: 1,
             maxAmount: 100,
-            proofRequired: false,
+            onchainMirror: false,
             nftAddress: address(nftCredits)
         });
 
@@ -269,7 +269,7 @@ contract TransferCreditsConditionTest is BaseTest {
             amount: 100,
             minAmount: 1,
             maxAmount: 100,
-            proofRequired: false,
+            onchainMirror: false,
             nftAddress: address(nftCredits)
         });
 

@@ -118,7 +118,7 @@ contract NFT1155CreditsTest is BaseTest {
         IAsset.CreditsConfig memory creditsConfig = IAsset.CreditsConfig({
             isRedemptionAmountFixed: false,
             redemptionType: redemptionType,
-            proofRequired: false,
+            onchainMirror: false,
             durationSecs: 0,
             amount: amount,
             minAmount: 1,
@@ -206,16 +206,15 @@ contract NFT1155CreditsTest is BaseTest {
         nftCredits.burn(receiver, planId, 1, 0, '');
     }
 
-    // Regression for protocol#175 (nvm-monorepo#1253 protocol slice). A plan whose
-    // `CreditsConfig.proofRequired` bit was requested as `true` at creation — the shape
-    // pre-existing plans on-chain carry — must still burn successfully with an empty
-    // signature and a zero keyspace across every redemption path. `_createPlan`
-    // normalizes the dormant bit to `false` before hashing (see AssetsRegistry), so
-    // the bit is effectively `false` on storage, but we still exercise the full
-    // create-through-burn flow with `proofRequired: true` in the submitted config.
+    // Regression for protocol#177: the `onchainMirror` opt-in affects only the
+    // off-chain-backend mirroring decision (owned by the API); the contract must burn
+    // without interference regardless of the bit's value. These tests pin that across
+    // every redemption path by creating a plan with `onchainMirror: true` and exercising
+    // the full mint/burn flow. An empty signature + zero keyspace is also passed to keep
+    // the regression coverage for the nullified EIP-712 gate (protocol#175).
 
-    function test_burn_dormantProofRequired_succeedsWithoutSignature_globalRole() public {
-        uint256 planId = _createPlanWithProofRequired(0);
+    function test_burn_onchainMirror_succeedsAcrossGlobalRolePath() public {
+        uint256 planId = _createPlanWithOnchainMirror(0);
 
         _grantRole(CREDITS_MINTER_ROLE, address(this));
         _grantRole(CREDITS_BURNER_ROLE, address(this));
@@ -227,9 +226,9 @@ contract NFT1155CreditsTest is BaseTest {
         assertEq(nftCredits.balanceOf(receiver, planId), 4);
     }
 
-    function test_burn_dormantProofRequired_succeedsWithoutSignature_owner() public {
+    function test_burn_onchainMirror_succeedsAcrossOwnerPath() public {
         address planOwner = makeAddr('planOwner');
-        uint256 planId = _createPlanWithProofRequired(0, IAsset.RedemptionType.ONLY_OWNER, planOwner);
+        uint256 planId = _createPlanWithOnchainMirror(0, IAsset.RedemptionType.ONLY_OWNER, planOwner);
 
         _grantRole(CREDITS_MINTER_ROLE, address(this));
         nftCredits.mint(receiver, planId, 5, '');
@@ -240,10 +239,10 @@ contract NFT1155CreditsTest is BaseTest {
         assertEq(nftCredits.balanceOf(receiver, planId), 4);
     }
 
-    function test_burn_dormantProofRequired_succeedsWithoutSignature_planRole() public {
+    function test_burn_onchainMirror_succeedsAcrossPlanRolePath() public {
         address planOwner = makeAddr('planOwner');
         address planBurner = makeAddr('planBurner');
-        uint256 planId = _createPlanWithProofRequired(0, IAsset.RedemptionType.ONLY_PLAN_ROLE, planOwner);
+        uint256 planId = _createPlanWithOnchainMirror(0, IAsset.RedemptionType.ONLY_PLAN_ROLE, planOwner);
 
         _grantRole(CREDITS_MINTER_ROLE, address(this));
         nftCredits.mint(receiver, planId, 5, '');
@@ -257,9 +256,9 @@ contract NFT1155CreditsTest is BaseTest {
         assertEq(nftCredits.balanceOf(receiver, planId), 4);
     }
 
-    function test_burn_dormantProofRequired_succeedsWithoutSignature_subscriber() public {
+    function test_burn_onchainMirror_succeedsAcrossSubscriberPath() public {
         address planOwner = makeAddr('planOwner');
-        uint256 planId = _createPlanWithProofRequired(0, IAsset.RedemptionType.ONLY_SUBSCRIBER, planOwner);
+        uint256 planId = _createPlanWithOnchainMirror(0, IAsset.RedemptionType.ONLY_SUBSCRIBER, planOwner);
 
         _grantRole(CREDITS_MINTER_ROLE, address(this));
         nftCredits.mint(receiver, planId, 5, '');
@@ -270,9 +269,9 @@ contract NFT1155CreditsTest is BaseTest {
         assertEq(nftCredits.balanceOf(receiver, planId), 4);
     }
 
-    function test_burn_dormantProofRequired_succeedsWithoutSignature_ownerOrGlobalRole() public {
+    function test_burn_onchainMirror_succeedsAcrossOwnerOrGlobalRolePath() public {
         address planOwner = makeAddr('planOwner');
-        uint256 planId = _createPlanWithProofRequired(0, IAsset.RedemptionType.OWNER_OR_GLOBAL_ROLE, planOwner);
+        uint256 planId = _createPlanWithOnchainMirror(0, IAsset.RedemptionType.OWNER_OR_GLOBAL_ROLE, planOwner);
 
         _grantRole(CREDITS_MINTER_ROLE, address(this));
         _grantRole(CREDITS_BURNER_ROLE, address(this));
@@ -284,14 +283,14 @@ contract NFT1155CreditsTest is BaseTest {
         assertEq(nftCredits.balanceOf(receiver, planId), 4);
     }
 
-    // Sibling of the global-role createPlan normalization: the returned planId and the
-    // on-chain stored plan must agree despite the caller submitting `proofRequired: true`.
-    // Guards against reintroducing a path where `_createPlan` hashes with the raw bit.
-    function test_createPlan_normalizesProofRequired_soPlanIdMatchesNormalizedHash() public {
-        uint256 planId = _createPlanWithProofRequired(42);
+    // Under protocol#177 the field is no longer dormant — `_createPlan` must *preserve*
+    // the caller's `onchainMirror` bit (both on the stored struct and in the `PlanRegistered`
+    // event). This test guards against accidental reintroduction of a normalization pass.
+    function test_createPlan_preservesOnchainMirrorTrue() public {
+        uint256 planId = _createPlanWithOnchainMirror(42);
 
         IAsset.Plan memory stored = assetsRegistry.getPlan(planId);
-        assertFalse(stored.credits.proofRequired, 'dormant bit must be normalized to false on storage');
+        assertTrue(stored.credits.onchainMirror, 'onchainMirror must round-trip true from createPlan');
         assertGt(stored.lastUpdated, 0, 'plan must exist at the returned planId');
     }
 
@@ -353,12 +352,13 @@ contract NFT1155CreditsTest is BaseTest {
         nftCredits.burnBatch(receiver, ids, burnAmounts, 0, '');
     }
 
-    // Batch counterpart of `test_burn_dormantProofRequired_succeedsWithoutSignature` —
-    // a `burnBatch` over plans that still carry the dormant `proofRequired = true` bit
-    // must succeed with an empty signature (protocol#175 / nvm-monorepo#1253).
-    function test_burnBatch_dormantProofRequired_succeedsWithoutSignature() public {
-        uint256 planId1 = _createPlanWithProofRequired(0);
-        uint256 planId2 = _createPlanWithProofRequired(1);
+    // Batch counterpart of `test_burn_onchainMirror_succeedsAcrossGlobalRolePath`.
+    // `onchainMirror = true` is meaningful (it opts the plan into the off-chain backend's
+    // on-chain audit mirror) but must not gate `burnBatch` behaviour — burns proceed
+    // identically regardless of the bit.
+    function test_burnBatch_onchainMirror_succeedsAcrossGlobalRolePath() public {
+        uint256 planId1 = _createPlanWithOnchainMirror(0);
+        uint256 planId2 = _createPlanWithOnchainMirror(1);
 
         _grantRole(CREDITS_MINTER_ROLE, address(this));
         _grantRole(CREDITS_BURNER_ROLE, address(this));

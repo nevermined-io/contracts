@@ -20,6 +20,16 @@ The protocol uses OpenZeppelin libraries for the implementation of the Smart Con
 
 The contracts use **Foundry** for the implementation of the Smart Contracts.
 
+## Event signature migrations
+
+Events on `IAsset` are part of the protocol's public surface area — subgraphs and off-chain indexers subscribe to them by `topic0 = keccak256(<signature>)`. Adding or reordering fields changes `topic0` and silently breaks existing subscribers.
+
+Current active migration:
+
+- **`PlanRegistered`** — signature changed from `PlanRegistered(uint256,address)` to `PlanRegistered(uint256,address,bool)` in protocol#177 / #178 to surface the new `onchainMirror` flag alongside the plan id and creator. Neither storage layout nor plan ids change; only the event's `topic0` differs.
+
+Downstream indexer owners must switch to the new `topic0` **before** the upgraded proxy implementation is promoted beyond staging, otherwise new plans are invisible to them. Submodule bumps in `nvm-monorepo` (and any other repo that tracks `packages/protocol`) should only happen after the indexer change is ready.
+
 ## Compilation
 
 The code can be compiled using the following command:
