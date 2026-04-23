@@ -16,7 +16,9 @@ export function sha3(message: string): string {
 }
 
 export async function getTxEvents(publicClient: any, txHash: string) {
-  const receipt = await publicClient.waitForTransactionReceipt({ hash: txHash })
+  const receipt = await publicClient.waitForTransactionReceipt({
+    hash: txHash,
+  })
   if (receipt.status !== 'success') return []
   return receipt.logs
 }
@@ -47,6 +49,7 @@ export function createPriceConfig(tokenAddress: `0x${string}`, creatorAddress: `
 
 /**
  * Creates a credits configuration object for asset registration
+ * with the product default (`onchainMirror: false` — off-chain-only).
  * @returns Credits configuration object
  */
 export function createCreditsConfig(nftAddress: `0x${string}`): any {
@@ -59,6 +62,19 @@ export function createCreditsConfig(nftAddress: `0x${string}`): any {
     minAmount: 1n,
     maxAmount: 1n,
     nftAddress: nftAddress,
+  }
+}
+
+/**
+ * Creates a credits configuration that opts into the on-chain audit mirror
+ * (`onchainMirror: true`) — required for flows that assert on-chain balance
+ * after a plan order. See protocol#177 and nvm-monorepo#1257.
+ * @returns Credits configuration object with `onchainMirror: true`
+ */
+export function createCreditsConfigWithOnchainMirror(nftAddress: `0x${string}`): any {
+  return {
+    ...createCreditsConfig(nftAddress),
+    onchainMirror: true,
   }
 }
 

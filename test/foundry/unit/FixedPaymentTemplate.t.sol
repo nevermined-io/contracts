@@ -49,7 +49,7 @@ contract FixedPaymentTemplateTest is BaseTest, ERC1155Holder {
             amount: 100,
             minAmount: 1,
             maxAmount: 1,
-            onchainMirror: false,
+            onchainMirror: true,
             nftAddress: address(nftCredits)
         });
 
@@ -85,7 +85,7 @@ contract FixedPaymentTemplateTest is BaseTest, ERC1155Holder {
             amount: 100,
             minAmount: 1,
             maxAmount: 1,
-            onchainMirror: false,
+            onchainMirror: true,
             nftAddress: address(nftCredits)
         });
 
@@ -492,7 +492,7 @@ contract FixedPaymentTemplateTest is BaseTest, ERC1155Holder {
             amount: 100,
             minAmount: 1,
             maxAmount: 1,
-            onchainMirror: false,
+            onchainMirror: true,
             nftAddress: address(nftCredits)
         });
 

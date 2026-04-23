@@ -86,8 +86,11 @@ contract TransferCreditsCondition is ReentrancyGuardTransientUpgradeable, Templa
      * @param _receiverAddress Address that will receive the credits
      * @dev Only registered templates can call this function
      * @dev Checks if required conditions are fulfilled before proceeding
-     * @dev Mints credits based on the plan's configuration (expirable or fixed)
-     * @dev Reverts for unsupported credit types (dynamic)
+     * @dev Mints credits on-chain only when the plan opts into the audit
+     *      mirror (`CreditsConfig.onchainMirror == true`). For the default
+     *      off-chain polarity the condition still transitions to Fulfilled
+     *      so downstream bookkeeping runs; the balance is tracked by the
+     *      API-side credits service instead (see nvm-monorepo#1257).
      * @dev The condition is fulfilled before external calls to maintain security
      */
     function fulfill(
@@ -115,8 +118,10 @@ contract TransferCreditsCondition is ReentrancyGuardTransientUpgradeable, Templa
         // FULFILL THE CONDITION first (before external calls)
         $.agreementStore.updateConditionStatus(_agreementId, _conditionId, IAgreement.ConditionState.Fulfilled);
 
-        // Only mint if amount is greater than zero
-        if (plan.credits.amount > 0) {
+        // Only mint on-chain when the plan opts into the audit mirror.
+        // Off-chain-only plans (the default per protocol#177) still fulfil
+        // the condition above; their balances live in the API-side ledger.
+        if (plan.credits.amount > 0 && plan.credits.onchainMirror) {
             if (plan.credits.durationSecs > 0) {
                 NFT1155ExpirableCredits nft1155 = NFT1155ExpirableCredits(plan.credits.nftAddress);
                 nft1155.mint(

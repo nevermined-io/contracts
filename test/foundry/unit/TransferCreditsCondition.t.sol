@@ -55,7 +55,7 @@ contract TransferCreditsConditionTest is BaseTest {
             amount: 100,
             minAmount: 1,
             maxAmount: 100,
-            onchainMirror: false,
+            onchainMirror: true,
             nftAddress: address(nftCredits)
         });
 
@@ -127,7 +127,7 @@ contract TransferCreditsConditionTest is BaseTest {
             amount: 100,
             minAmount: 1,
             maxAmount: 100,
-            onchainMirror: false,
+            onchainMirror: true,
             nftAddress: address(nftExpirableCredits)
         });
 
@@ -198,7 +198,7 @@ contract TransferCreditsConditionTest is BaseTest {
             amount: 100,
             minAmount: 1,
             maxAmount: 100,
-            onchainMirror: false,
+            onchainMirror: true,
             nftAddress: address(nftCredits)
         });
 
@@ -243,6 +243,130 @@ contract TransferCreditsConditionTest is BaseTest {
 
         // Verify dynamic credits were minted
         assertEq(nftCredits.balanceOf(receiver, planId), 100, 'Dynamic credits should be minted to receiver');
+    }
+
+    // ---------------------------------------------------------------
+    // onchainMirror=false ⇒ mint is skipped but the condition still fulfils.
+    // These lock in protocol#177's off-chain-default polarity for the order
+    // flow: ERC-1155 credits are only minted for plans that opt into the
+    // on-chain audit mirror.
+    // ---------------------------------------------------------------
+
+    function test_fulfill_onchainMirrorFalse_skipsFixedMint() public {
+        (uint256 _planId, bytes32 _agreementId, bytes32 _conditionId) =
+            _setupOrderFlow(bytes32(uint256(9)), bytes32(uint256(10)), false, 0, address(nftCredits));
+        planId = _planId;
+        agreementId = _agreementId;
+        conditionId = _conditionId;
+
+        vm.prank(template);
+        transferCreditsCondition.fulfill(conditionId, agreementId, planId, new bytes32[](0), receiver);
+
+        assertEq(nftCredits.balanceOf(receiver, planId), 0, 'No on-chain credits minted when onchainMirror=false');
+        assertEq(
+            uint8(agreementsStore.getConditionState(agreementId, conditionId)),
+            uint8(IAgreement.ConditionState.Fulfilled),
+            'Condition still transitions to Fulfilled'
+        );
+    }
+
+    function test_fulfill_onchainMirrorFalse_skipsExpirableMint() public {
+        (uint256 _planId, bytes32 _agreementId, bytes32 _conditionId) =
+            _setupOrderFlow(bytes32(uint256(11)), bytes32(uint256(12)), false, 30 days, address(nftExpirableCredits));
+        planId = _planId;
+        agreementId = _agreementId;
+        conditionId = _conditionId;
+
+        vm.prank(template);
+        transferCreditsCondition.fulfill(conditionId, agreementId, planId, new bytes32[](0), receiver);
+
+        assertEq(
+            nftExpirableCredits.balanceOf(receiver, planId),
+            0,
+            'No on-chain expirable credits minted when onchainMirror=false'
+        );
+        assertEq(
+            uint8(agreementsStore.getConditionState(agreementId, conditionId)),
+            uint8(IAgreement.ConditionState.Fulfilled),
+            'Condition still transitions to Fulfilled'
+        );
+    }
+
+    function test_fulfill_onchainMirrorFalse_skipsDynamicMint() public {
+        (uint256 _planId, bytes32 _agreementId, bytes32 _conditionId) =
+            _setupOrderFlow(bytes32(uint256(13)), bytes32(uint256(14)), false, 0, address(nftCredits));
+        planId = _planId;
+        agreementId = _agreementId;
+        conditionId = _conditionId;
+
+        vm.prank(template);
+        transferCreditsCondition.fulfill(conditionId, agreementId, planId, new bytes32[](0), receiver);
+
+        assertEq(
+            nftCredits.balanceOf(receiver, planId), 0, 'No on-chain dynamic credits minted when onchainMirror=false'
+        );
+        assertEq(
+            uint8(agreementsStore.getConditionState(agreementId, conditionId)),
+            uint8(IAgreement.ConditionState.Fulfilled),
+            'Condition still transitions to Fulfilled'
+        );
+    }
+
+    /// @dev Builds a plan + agreement + condition wired for the order flow,
+    ///      returning the triplet (planId, agreementId, conditionId) without
+    ///      duplicating the 35-line harness across the three negative pins.
+    function _setupOrderFlow(
+        bytes32 planSeed,
+        bytes32 agreementSeed,
+        bool mirror,
+        uint256 durationSecs,
+        address nftAddress
+    ) internal returns (uint256 _planId, bytes32 _agreementId, bytes32 _conditionId) {
+        uint256[] memory amounts = new uint256[](1);
+        amounts[0] = 100;
+        address[] memory receivers = new address[](1);
+        receivers[0] = receiver;
+
+        IAsset.PriceConfig memory priceConfig = IAsset.PriceConfig({
+            isCrypto: true,
+            tokenAddress: address(0),
+            amounts: amounts,
+            receivers: receivers,
+            externalPriceAddress: address(0),
+            feeController: IFeeController(address(0)),
+            templateAddress: address(0)
+        });
+        IAsset.CreditsConfig memory creditsConfig = IAsset.CreditsConfig({
+            isRedemptionAmountFixed: durationSecs == 0,
+            redemptionType: IAsset.RedemptionType.ONLY_OWNER,
+            durationSecs: durationSecs,
+            amount: 100,
+            minAmount: 1,
+            maxAmount: 100,
+            onchainMirror: mirror,
+            nftAddress: nftAddress
+        });
+
+        (uint256[] memory finalAmounts, address[] memory finalReceivers) =
+            assetsRegistry.includeFeesInPaymentsDistribution(priceConfig, creditsConfig);
+        priceConfig.amounts = finalAmounts;
+        priceConfig.receivers = finalReceivers;
+
+        vm.prank(address(this));
+        assetsRegistry.registerAgentAndPlan(planSeed, 'https://nevermined.io', priceConfig, creditsConfig);
+        _planId = assetsRegistry.hashPlanId(priceConfig, creditsConfig, address(this), uint256(planSeed));
+
+        _agreementId = keccak256(abi.encode(transferCreditsCondition.NVM_CONTRACT_NAME(), user, agreementSeed, _planId));
+        _conditionId =
+            transferCreditsCondition.hashConditionId(_agreementId, transferCreditsCondition.NVM_CONTRACT_NAME());
+
+        bytes32[] memory conditionIds = new bytes32[](1);
+        conditionIds[0] = _conditionId;
+        IAgreement.ConditionState[] memory conditionStates = new IAgreement.ConditionState[](1);
+        conditionStates[0] = IAgreement.ConditionState.Unfulfilled;
+
+        vm.prank(template);
+        agreementsStore.register(_agreementId, user, _planId, conditionIds, conditionStates, 1, new bytes[](0));
     }
 
     function test_revert_conditionsNotFulfilled() public {

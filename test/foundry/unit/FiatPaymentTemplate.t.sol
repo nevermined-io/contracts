@@ -28,8 +28,9 @@ contract FiatPaymentTemplateTest is BaseTest {
         // Grant template role to this contract
         _grantTemplateRole(address(this));
 
-        // Create a plan
-        uint256 planId = _createPlan();
+        // Create a plan that opts into the on-chain audit mirror so the order
+        // flow actually mints ERC-1155 credits (protocol#177 default is off-chain-only).
+        uint256 planId = _createPlanWithOnchainMirror(block.number);
 
         // Create agreement using FiatPaymentTemplate
         bytes32 agreementSeed = bytes32(uint256(2));
