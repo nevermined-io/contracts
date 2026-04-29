@@ -34,7 +34,8 @@
     "deploy:remote:config": "forge script scripts/deploy/ConfigureAll.sol --rpc-url $RPC_URL --broadcast --mnemonics \"$OWNER_MNEMONIC\" --mnemonic-indexes $OWNER_INDEX --sender $OWNER_ADDRESS ",
     "deploy:remote:config:fees": "forge script scripts/deploy/SetNetworkFees.sol --rpc-url $RPC_URL --broadcast --mnemonics \"$GOVERNOR_MNEMONIC\" --mnemonic-indexes $GOVERNOR_INDEX --sender $GOVERNOR_ADDRESS ",
     "upgrade:initiate": "ts-node scripts/upgrade/upgrade.ts --initiate",
-    "upgrade:finalize": "ts-node scripts/upgrade/upgrade.ts --finalize"
+    "upgrade:finalize": "ts-node scripts/upgrade/upgrade.ts --finalize",
+    "upgrade:orchestrate": "ts-node scripts/upgrade/orchestrate.ts"
   },
   "dependencies": {
     "@openzeppelin/contracts": "^5.4.0",
