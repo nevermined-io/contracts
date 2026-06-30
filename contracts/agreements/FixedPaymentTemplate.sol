@@ -9,6 +9,7 @@ import {TransferCreditsCondition} from '../conditions/TransferCreditsCondition.s
 import {IAgreement} from '../interfaces/IAgreement.sol';
 
 import {IAsset} from '../interfaces/IAsset.sol';
+import {IERC3009} from '../interfaces/IERC3009.sol';
 import {INVMConfig} from '../interfaces/INVMConfig.sol';
 import {AgreementsStore} from './AgreementsStore.sol';
 import {BaseTemplate} from './BaseTemplate.sol';
@@ -155,6 +156,85 @@ contract FixedPaymentTemplate is BaseTemplate {
 
         // Execute after hooks
         _executeAfterHooks(_planId, agreementId, _msgSender(), conditionIds, _params);
+    }
+
+    /**
+     * @notice Creates a fixed payment agreement paid gaslessly via an EIP-3009 signed authorization
+     * @param _seed Unique seed for generating the agreement ID
+     * @param _planId Identifier of the pricing plan to use
+     * @param _buyer Address of the payer that signed the EIP-3009 authorization
+     * @param _creditsReceiver Address that will receive the credits
+     * @param _numberOfPurchases Number of times the plan is being purchased (typically 1)
+     * @param _params Additional parameters for the agreement
+     * @param _authorization The buyer-supplied validity window and signature
+     * @dev Unlike `order`, the transaction may be submitted by anyone (e.g. a relayer that pays gas);
+     *      the payer is `_buyer`, authenticated by the EIP-3009 signature rather than by `msg.sender`.
+     * @dev Only supports FIXED_PRICE crypto plans paid in an EIP-3009 compatible ERC20 token.
+     * @dev The authorization nonce is bound to the agreementId, which commits to the buyer, plan,
+     *      credits receiver, number of purchases, seed and params. The signature is therefore
+     *      single-use and a relayer cannot redirect credits or alter any of those fields.
+     */
+    function orderWithAuthorization(
+        bytes32 _seed,
+        uint256 _planId,
+        address _buyer,
+        address _creditsReceiver,
+        uint256 _numberOfPurchases,
+        bytes[] memory _params,
+        IERC3009.ReceiveAuthorization calldata _authorization
+    ) external {
+        FixedPaymentTemplateStorage storage $ = _getFixedPaymentTemplateStorage();
+
+        // Validate inputs
+        if (_seed == bytes32(0)) revert InvalidSeed(_seed);
+        if (_planId == 0) revert InvalidPlanId(_planId);
+        if (_buyer == address(0)) revert InvalidAddress();
+        if (_creditsReceiver == address(0)) revert InvalidReceiver(_creditsReceiver);
+
+        // Check if the Plan is registered in the AssetsRegistry
+        IAsset.Plan memory plan = _getBaseTemplateStorage().assetsRegistry.getPlan(_planId);
+        if (plan.lastUpdated == 0) revert IAsset.PlanNotFound(_planId);
+
+        // Revert if the Plan has associated a template AND is not the FixedPaymentTemplate
+        if (plan.price.templateAddress != address(0) && plan.price.templateAddress != address(this)) {
+            revert IAsset.PlanWithInvalidTemplate(_planId, address(this));
+        }
+
+        // Calculate agreementId from the BUYER (not msg.sender, which may be a relayer). The credits
+        // receiver is included so the buyer's signature (nonce == agreementId) binds it too.
+        bytes32 agreementId = keccak256(
+            abi.encode(NVM_CONTRACT_NAME, _buyer, _seed, _planId, _creditsReceiver, _numberOfPurchases, _params)
+        );
+
+        // Check if the agreement is already registered
+        IAgreement.Agreement memory agreement = $.agreementStore.getAgreement(agreementId);
+        if (agreement.lastUpdated != 0) {
+            revert IAgreement.AgreementAlreadyRegistered(agreementId);
+        }
+
+        // Register the agreement in the AgreementsStore
+        bytes32[] memory conditionIds = new bytes32[](3);
+        conditionIds[0] =
+            $.lockPaymentCondition.hashConditionId(agreementId, $.lockPaymentCondition.NVM_CONTRACT_NAME());
+        conditionIds[1] = $.transferCondition.hashConditionId(agreementId, $.transferCondition.NVM_CONTRACT_NAME());
+        conditionIds[2] = $.distributePaymentsCondition
+            .hashConditionId(agreementId, $.distributePaymentsCondition.NVM_CONTRACT_NAME());
+
+        IAgreement.ConditionState[] memory conditionStates = new IAgreement.ConditionState[](3);
+
+        // Execute before hooks
+        _executeBeforeHooks(_planId, agreementId, _buyer, conditionIds, conditionStates, _params);
+
+        $.agreementStore
+            .register(agreementId, _buyer, _planId, conditionIds, conditionStates, _numberOfPurchases, _params);
+
+        // Lock the payment via the EIP-3009 authorization, then transfer credits and distribute
+        $.lockPaymentCondition.fulfillWithAuthorization(conditionIds[0], agreementId, _planId, _buyer, _authorization);
+        _transferPlan(conditionIds[1], agreementId, _planId, conditionIds[0], _creditsReceiver);
+        _distributePayments(conditionIds[2], agreementId, _planId, conditionIds[0], conditionIds[1]);
+
+        // Execute after hooks
+        _executeAfterHooks(_planId, agreementId, _buyer, conditionIds, _params);
     }
 
     /**

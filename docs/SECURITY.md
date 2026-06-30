@@ -30,6 +30,20 @@ Current active migration:
 
 Downstream indexer owners must switch to the new `topic0` **before** the upgraded proxy implementation is promoted beyond staging, otherwise new plans are invisible to them. Submodule bumps in `nvm-monorepo` (and any other repo that tracks `packages/protocol`) should only happen after the indexer change is ready.
 
+## Payment and escrow invariants
+
+These invariants govern how value flows through `LockPaymentCondition`, `PaymentsVault`, and `DistributePaymentsCondition`. They constrain which tokens and pricing models the protocol accepts.
+
+- **Exact-transfer ERC20s only.** `PaymentsVault.depositERC20` asserts the vault balance increased by exactly the requested amount (`ERC20DepositMismatch` otherwise), mirroring the existing EIP-3009 deposit check. Tokens that do not transfer the exact amount — fee-on-transfer tokens, and non-exact / rebasing (e.g. stETH/aToken-class) tokens whose balance drifts by a few wei — are therefore **not supported** as payment tokens. This is fail-closed: a non-conforming token reverts at deposit rather than silently under-funding the escrow.
+
+- **External-price (`SMART_CONTRACT_PRICE`) settlement is bound to a write-once lock-time snapshot.** For plans priced by an external `INeverminedExternalPrice` contract, `LockPaymentCondition` calls `quote()` once and snapshots the per-purchase amounts into `AgreementsStore` (write-once, including an empty snapshot). `DistributePaymentsCondition` reuses that snapshot for both the success (distribute) and abort (refund) branches instead of re-quoting, so the amount distributed or refunded always equals the amount locked even if the external price source diverges after lock. Both branches **fail closed**: if the snapshot is missing or its length does not match the plan receivers, distribution reverts (`LockedAmountsReceiversLengthMismatch`) rather than withdrawing on a zero/misaligned array. No role-table change is involved — `setLockedAmounts` reuses the existing template/condition roles.
+
+## Fiat settlement role
+
+The `FiatSettlementCondition` records off-chain fiat payments (e.g. Stripe) on-chain. Its trust model has one invariant beyond the role gate:
+
+- **The plan owner may not settle their own plan.** Settling requires `FIAT_SETTLEMENT_ROLE` **and** the settler must not be the plan owner — even an owner who holds the role is rejected (`SelfSettlementNotAllowed`). This guarantees recording a fiat payment as received always involves an independent settler, preventing a plan owner from self-attesting a payment to mint themselves credits. Operationally, if a `FIAT_SETTLEMENT_ROLE` holder is also a plan owner (e.g. a first-party plan), that plan must be settled by a distinct settler address. `FIAT_SETTLEMENT_ROLE` remains a single global role trusted to Nevermined infrastructure.
+
 ## Compilation
 
 The code can be compiled using the following command:

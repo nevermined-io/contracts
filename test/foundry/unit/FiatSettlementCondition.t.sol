@@ -62,10 +62,15 @@ contract FiatSettlementConditionTest is BaseTest {
     }
 
     function test_fulfill_revertIfConditionAlreadyFulfilled() public {
-        // Grant condition role to this contract
-        _grantConditionRole(address(this));
+        // An external settler that holds FIAT_SETTLEMENT_ROLE and is NOT the plan owner.
+        address settler = address(1);
+        _grantRole(FIAT_SETTLEMENT_ROLE, settler);
 
-        // Create a plan
+        // Grant the condition role to the FiatSettlementCondition: it is the caller of
+        // AgreementsStore.updateConditionStatus when fulfill() runs (not this test contract).
+        _grantConditionRole(address(fiatSettlementCondition));
+
+        // Create a plan (owned by address(this))
         uint256 planId = _createPlan();
 
         // Get the condition ID first
@@ -82,11 +87,33 @@ contract FiatSettlementConditionTest is BaseTest {
         _grantTemplateRole(address(this));
         agreementsStore.register(agreementId, address(this), planId, conditionIds, conditionStates, 1, new bytes[](0));
 
-        // Fulfill the condition first time
-        fiatSettlementCondition.fulfill(conditionId, agreementId, planId, address(this), new bytes[](0));
+        // Fulfill the condition first time (by the external settler, not the owner)
+        fiatSettlementCondition.fulfill(conditionId, agreementId, planId, settler, new bytes[](0));
 
         // Try to fulfill again
         vm.expectRevert(abi.encodeWithSelector(IAgreement.ConditionAlreadyFulfilled.selector, agreementId, conditionId));
-        fiatSettlementCondition.fulfill(conditionId, agreementId, planId, address(this), new bytes[](0));
+        fiatSettlementCondition.fulfill(conditionId, agreementId, planId, settler, new bytes[](0));
+    }
+
+    /// @notice Regression for #198: a plan owner without FIAT_SETTLEMENT_ROLE cannot self-settle their own fiat plan.
+    function test_fulfill_revertOnOwnerSelfSettlement() public {
+        uint256 planId = _createPlan(); // owned by address(this)
+        bytes32 agreementId = _order(address(this), planId); // _order grants the template role to address(this)
+
+        // address(this) is the plan owner and holds no FIAT_SETTLEMENT_ROLE -> must revert.
+        vm.expectPartialRevert(IFiatSettlement.InvalidRole.selector);
+        fiatSettlementCondition.fulfill(keccak256('abc'), agreementId, planId, address(this), new bytes[](0));
+    }
+
+    /// @notice Regression for #198: the plan owner cannot self-settle even if they also hold FIAT_SETTLEMENT_ROLE.
+    function test_fulfill_revertOnOwnerSelfSettlementEvenWithRole() public {
+        _grantRole(FIAT_SETTLEMENT_ROLE, address(this));
+        uint256 planId = _createPlan(); // owned by address(this)
+        bytes32 agreementId = _order(address(this), planId);
+
+        // Owner holds the role, so the role check passes; the owner-exclusion check rejects it instead.
+        // Assert the reported address too, not just the selector.
+        vm.expectRevert(abi.encodeWithSelector(IFiatSettlement.SelfSettlementNotAllowed.selector, address(this)));
+        fiatSettlementCondition.fulfill(keccak256('abc'), agreementId, planId, address(this), new bytes[](0));
     }
 }

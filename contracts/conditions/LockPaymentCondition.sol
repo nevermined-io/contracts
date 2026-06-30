@@ -5,6 +5,7 @@ pragma solidity ^0.8.30;
 
 import {IAgreement} from '../interfaces/IAgreement.sol';
 import {IAsset} from '../interfaces/IAsset.sol';
+import {IERC3009} from '../interfaces/IERC3009.sol';
 import {INVMConfig} from '../interfaces/INVMConfig.sol';
 import {INeverminedExternalPrice} from '../interfaces/INeverminedExternalPrice.sol';
 import {IVault} from '../interfaces/IVault.sol';
@@ -73,6 +74,30 @@ contract LockPaymentCondition is ReentrancyGuardTransientUpgradeable, TemplateCo
      * @notice The price type provided is not supported by this condition
      */
     error UnsupportedPriceTypeOption();
+
+    /**
+     * @notice The EIP-3009 authorization payment path only supports ERC20 tokens, not the native token
+     */
+    error NativeTokenNotSupportedForAuthorization();
+
+    /**
+     * @notice The EIP-3009 authorization payment path requires a positive payment amount
+     */
+    error ZeroAmountNotSupportedForAuthorization();
+
+    /**
+     * @notice The payer (authorization signer) address must not be the zero address
+     */
+    error InvalidPayerAddress();
+
+    /**
+     * @notice The external price quote does not align 1:1 with the plan receivers
+     * @dev Distribution loops over the plan receivers, so a mismatch would strand or over-withdraw
+     *      locked funds. Rejected at lock time.
+     * @param quotedLength Number of amounts returned by the external price contract
+     * @param receiversLength Number of receivers configured on the plan
+     */
+    error QuotedAmountsReceiversLengthMismatch(uint256 quotedLength, uint256 receiversLength);
 
     /**
      * @notice Initializes the LockPaymentCondition contract with required dependencies
@@ -167,6 +192,16 @@ contract LockPaymentCondition is ReentrancyGuardTransientUpgradeable, TemplateCo
             // Dynamic pricing via external contract quote
             uint256[] memory quotedAmounts = INeverminedExternalPrice(plan.price.externalPriceAddress).quote(_planId);
 
+            // The quote must align 1:1 with the plan receivers: distribution loops over the receivers,
+            // so any mismatch would strand (under-run) or over-withdraw (over-run) locked funds.
+            if (quotedAmounts.length != plan.price.receivers.length) {
+                revert QuotedAmountsReceiversLengthMismatch(quotedAmounts.length, plan.price.receivers.length);
+            }
+
+            // Snapshot the per-purchase locked amounts so DistributePaymentsCondition reuses exactly what
+            // was locked, instead of re-quoting (which a plan-owned price contract could make diverge).
+            $.agreementStore.setLockedAmounts(_agreementId, quotedAmounts);
+
             // For SMART_CONTRACT_PRICE, protocol fees are currently 0 by policy
             uint256 amountToTransfer = TokenUtils.calculateAmountSum(quotedAmounts) * agreement.numberOfPurchases;
             if (amountToTransfer > 0) {
@@ -183,6 +218,77 @@ contract LockPaymentCondition is ReentrancyGuardTransientUpgradeable, TemplateCo
 
             $.agreementStore.updateConditionStatus(_agreementId, _conditionId, IAgreement.ConditionState.Fulfilled);
         }
+    }
+
+    /**
+     * @notice Fulfills the lock payment condition using an EIP-3009 signed authorization
+     * @param _conditionId Identifier of the condition to fulfill
+     * @param _agreementId Identifier of the agreement; also used as the single-use authorization nonce
+     * @param _planId Identifier of the pricing plan
+     * @param _from The buyer that signed the EIP-3009 authorization (the payer)
+     * @param _authorization The buyer-supplied validity window and signature
+     * @dev Only registered templates can call this function
+     * @dev Supports FIXED_PRICE crypto plans paid in an EIP-3009 compatible ERC20 token only
+     * @dev The authorization nonce is bound to `_agreementId`, so a signature can only ever be
+     *      consumed for this exact agreement (and is single-use, enforced by the token contract).
+     * @dev The transfer amount passed to the token equals the plan total; a signature over any
+     *      other amount, recipient, window, or nonce fails recovery and reverts the transaction.
+     */
+    function fulfillWithAuthorization(
+        bytes32 _conditionId,
+        bytes32 _agreementId,
+        uint256 _planId,
+        address _from,
+        IERC3009.ReceiveAuthorization calldata _authorization
+    ) external restricted nonReentrant {
+        LockPaymentConditionStorage storage $ = _getLockPaymentConditionStorage();
+
+        if (!$.agreementStore.agreementExists(_agreementId)) {
+            revert IAgreement.AgreementNotFound(_agreementId);
+        }
+
+        if ($.agreementStore.getConditionState(_agreementId, _conditionId) == IAgreement.ConditionState.Fulfilled) {
+            revert IAgreement.ConditionAlreadyFulfilled(_agreementId, _conditionId);
+        }
+
+        // Defense in depth: the only caller (FixedPaymentTemplate/PayAsYouGoTemplate) already validates
+        // the buyer, but this function is reachable by any CONTRACT_TEMPLATE_ROLE holder.
+        if (_from == address(0)) revert InvalidPayerAddress();
+
+        IAsset.Plan memory plan = $.assetsRegistry.getPlan(_planId);
+
+        if (!plan.price.isCrypto) revert UnsupportedPriceTypeOption();
+        // Dynamic pricing is not supported via the authorization path
+        if (plan.price.externalPriceAddress != address(0)) revert UnsupportedPriceTypeOption();
+        // EIP-3009 is an ERC20 mechanism; native-token plans must use the standard `fulfill` path
+        if (plan.price.tokenAddress == address(0)) revert NativeTokenNotSupportedForAuthorization();
+
+        if (!$.assetsRegistry.areNeverminedFeesIncluded(_planId)) {
+            revert IAsset.NeverminedFeesNotIncluded(plan.price.amounts, plan.price.receivers);
+        }
+
+        IAgreement.Agreement memory agreement = $.agreementStore.getAgreement(_agreementId);
+        uint256 amountToTransfer = TokenUtils.calculateAmountSum(plan.price.amounts) * agreement.numberOfPurchases;
+        if (amountToTransfer == 0) revert ZeroAmountNotSupportedForAuthorization();
+
+        // Checks-effects-interactions: mark the condition fulfilled BEFORE the external token call.
+        $.agreementStore.updateConditionStatus(_agreementId, _conditionId, IAgreement.ConditionState.Fulfilled);
+
+        // Pull funds gaslessly via the token's EIP-3009 `receiveWithAuthorization`. The nonce is the
+        // agreementId, binding the signature to this agreement; the token enforces signer, amount,
+        // recipient, validity window, and nonce single-use.
+        $.vault
+            .depositERC20WithAuthorization(
+                plan.price.tokenAddress,
+                _from,
+                amountToTransfer,
+                _authorization.validAfter,
+                _authorization.validBefore,
+                _agreementId,
+                _authorization.v,
+                _authorization.r,
+                _authorization.s
+            );
     }
 
     /**

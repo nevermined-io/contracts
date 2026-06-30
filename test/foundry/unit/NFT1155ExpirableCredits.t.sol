@@ -368,6 +368,94 @@ contract NFT1155ExpirableCreditsTest is BaseTest {
         assertEq(entries[1].amountMinted, 1);
     }
 
+    /// @notice Regression for the unbounded-array gas DoS (#197): expired entries are compacted on
+    /// mint/burn, so the per-(owner, plan) array tracks active lots instead of full history. Without
+    /// compaction the array would grow by one per mint forever, eventually bricking balanceOf/redeem.
+    function test_compaction_boundsArrayForExpiringCredits() public {
+        // Accumulate many short-lived lots within a single block (nothing expires yet).
+        vm.startPrank(minter);
+        for (uint256 i = 0; i < 20; i++) {
+            nftExpirableCredits.mint(receiver, planId, 1, 10, ''); // 10s expiry
+        }
+        vm.stopPrank();
+        assertEq(nftExpirableCredits.getMintedEntries(receiver, planId).length, 20, 'lots accumulate before expiry');
+
+        // Warp past expiry: the lots no longer count toward the balance.
+        vm.warp(vm.getBlockTimestamp() + 11);
+        assertEq(nftExpirableCredits.balanceOf(receiver, planId), 0, 'expired credits excluded');
+
+        // A subsequent mint compacts the 20 expired lots away instead of growing the array to 21.
+        vm.prank(minter);
+        nftExpirableCredits.mint(receiver, planId, 5, 10, '');
+        assertEq(nftExpirableCredits.getMintedEntries(receiver, planId).length, 1, 'expired entries compacted away');
+        assertEq(nftExpirableCredits.balanceOf(receiver, planId), 5, 'balance reflects only the live lot');
+    }
+
+    /// @notice Compaction also fires on the burn path (#197): burning a surviving lot drops the
+    /// accumulated expired lots instead of scanning/retaining full history.
+    function test_compaction_onBurnPath() public {
+        vm.startPrank(minter);
+        for (uint256 i = 0; i < 20; i++) {
+            nftExpirableCredits.mint(receiver, planId, 1, 10, ''); // 10s expiry
+        }
+        nftExpirableCredits.mint(receiver, planId, 5, 1000, ''); // long-lived survivor
+        vm.stopPrank();
+        assertEq(nftExpirableCredits.getMintedEntries(receiver, planId).length, 21);
+
+        // The 20 short lots expire; the survivor remains.
+        vm.warp(vm.getBlockTimestamp() + 11);
+        assertEq(nftExpirableCredits.balanceOf(receiver, planId), 5);
+
+        // A burn compacts the 20 expired lots before consuming from the survivor.
+        vm.prank(burner);
+        nftExpirableCredits.burn(receiver, planId, 1, 0, '');
+
+        // 20 expired removed; only the survivor mint + the new burn row remain.
+        assertEq(nftExpirableCredits.getMintedEntries(receiver, planId).length, 2, 'expired lots compacted on burn');
+        assertEq(nftExpirableCredits.balanceOf(receiver, planId), 4);
+    }
+
+    /// @notice Non-expiring credits (expirationSecs == 0) are never removed by compaction (#197).
+    function test_compaction_doesNotRemoveNonExpiringCredits() public {
+        vm.startPrank(minter);
+        for (uint256 i = 0; i < 5; i++) {
+            nftExpirableCredits.mint(receiver, planId, 1, 0, ''); // non-expiring
+        }
+        vm.stopPrank();
+        assertEq(nftExpirableCredits.getMintedEntries(receiver, planId).length, 5);
+
+        vm.warp(vm.getBlockTimestamp() + 1_000_000);
+
+        // A further mint runs compaction, but non-expiring entries are retained.
+        vm.prank(minter);
+        nftExpirableCredits.mint(receiver, planId, 1, 0, '');
+        assertEq(nftExpirableCredits.getMintedEntries(receiver, planId).length, 6, 'non-expiring entries retained');
+        assertEq(nftExpirableCredits.balanceOf(receiver, planId), 6);
+    }
+
+    /// @notice Order-preserving compaction keeps the burn-row expiry attribution identical to the
+    /// no-compaction behavior for heterogeneous per-lot expirations, so a future balance does not
+    /// diverge. Under the previous swap-and-pop a later burn consumed a different surviving lot and
+    /// inherited a different expiry, silently changing balanceOf at t0+40 (would assert 5, not 2).
+    function test_compaction_orderPreservedForHeterogeneousExpirations() public {
+        uint256 t0 = vm.getBlockTimestamp();
+        // Three lots minted at t0 with differing expirations, in this array order: X, Y, Z.
+        nftExpirableCredits.mint(receiver, planId, 5, 10, ''); // X: expires t0+10
+        nftExpirableCredits.mint(receiver, planId, 5, 1000, ''); // Y: expires t0+1000
+        nftExpirableCredits.mint(receiver, planId, 5, 20, ''); // Z: expires t0+20
+
+        // At t0+15, X is expired (balance is Y+Z = 10). Burning 3 compacts X away first; the burn
+        // must then consume the next live lot in the ORIGINAL order — Y, not Z — so the burn row
+        // inherits Y's long expiry (1000), exactly as it would without any compaction.
+        vm.warp(t0 + 15);
+        nftExpirableCredits.burn(receiver, planId, 3, 0, '');
+
+        // At t0+40: Y (+5, still alive) minus the burn row (-3, inherited exp1000 so still alive) = 2.
+        // Under swap-and-pop the burn consumed Z (exp20) → burn row expires by t0+35 → balance 5.
+        vm.warp(t0 + 40);
+        assertEq(nftExpirableCredits.balanceOf(receiver, planId), 2, 'order-preserving compaction keeps burn expiry');
+    }
+
     function test_mintBatch_invalidLength_reverts() public {
         uint256[] memory ids = new uint256[](2);
         uint256[] memory values = new uint256[](1); // Mismatched length

@@ -30,6 +30,11 @@ contract AgreementsStore is IAgreement, AccessManagedUUPSUpgradeable {
     struct AgreementsStoreStorage {
         /// The mapping of the agreements registered in the contract
         mapping(bytes32 => IAgreement.Agreement) agreements;
+        /// Per-agreement snapshot of the per-purchase amounts locked at lock time (appended; upgrade-safe)
+        mapping(bytes32 => uint256[]) lockedAmounts;
+        /// Tracks whether a snapshot was recorded, so the write-once guard holds even for an empty
+        /// snapshot (appended; upgrade-safe)
+        mapping(bytes32 => bool) lockedAmountsSet;
     }
 
     /**
@@ -122,6 +127,48 @@ contract AgreementsStore is IAgreement, AccessManagedUUPSUpgradeable {
             }
         }
         revert IAgreement.ConditionIdNotFound(_conditionId);
+    }
+
+    /**
+     * @notice Records the per-purchase amounts locked for an agreement at lock time
+     * @param _agreementId Identifier of the agreement
+     * @param _amounts The per-purchase amounts locked (aligned with the plan receivers)
+     * @dev Only templates or conditions can record locked amounts (same trust model as
+     *      updateConditionStatus). The lock condition snapshots the quoted amounts here so that
+     *      distribution/refund reuse the locked value instead of re-quoting an external price source.
+     * @dev The agreement must exist, and locked amounts may only be recorded once (write-once) so a
+     *      later call by a role-holder cannot rewrite the snapshot and under-/over-withdraw the vault.
+     */
+    function setLockedAmounts(bytes32 _agreementId, uint256[] calldata _amounts) external {
+        {
+            IAccessManager accessManager = IAccessManager(authority());
+            (bool hasTemplateRole,) = accessManager.hasRole(CONTRACT_TEMPLATE_ROLE, msg.sender);
+            if (!hasTemplateRole) {
+                (bool hasConditionRole,) = accessManager.hasRole(CONTRACT_CONDITION_ROLE, msg.sender);
+                require(hasConditionRole, OnlyTemplateOrConditionRole(msg.sender));
+            }
+        }
+
+        AgreementsStoreStorage storage $ = _getAgreementsStoreStorage();
+        if ($.agreements[_agreementId].lastUpdated == 0) {
+            revert AgreementNotFound(_agreementId);
+        }
+        // Write-once: a snapshot must never be overwritten, including an empty one (defense-in-depth;
+        // the lock condition only sets it once per agreement, guarded by ConditionAlreadyFulfilled).
+        if ($.lockedAmountsSet[_agreementId]) {
+            revert LockedAmountsAlreadySet(_agreementId);
+        }
+        $.lockedAmountsSet[_agreementId] = true;
+        $.lockedAmounts[_agreementId] = _amounts;
+    }
+
+    /**
+     * @notice Retrieves the per-purchase amounts locked for an agreement
+     * @param _agreementId Identifier of the agreement
+     * @return The per-purchase locked amounts (empty if none were recorded)
+     */
+    function getLockedAmounts(bytes32 _agreementId) external view returns (uint256[] memory) {
+        return _getAgreementsStoreStorage().lockedAmounts[_agreementId];
     }
 
     /**

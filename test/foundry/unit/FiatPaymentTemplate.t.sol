@@ -7,6 +7,7 @@ import {FIAT_SETTLEMENT_ROLE} from '../../../contracts/common/Roles.sol';
 import {IAgreement} from '../../../contracts/interfaces/IAgreement.sol';
 import {IAsset} from '../../../contracts/interfaces/IAsset.sol';
 import {IFeeController} from '../../../contracts/interfaces/IFeeController.sol';
+import {IFiatSettlement} from '../../../contracts/interfaces/IFiatSettlement.sol';
 import {ITemplate} from '../../../contracts/interfaces/ITemplate.sol';
 
 import {BaseTest} from '../common/BaseTest.sol';
@@ -24,13 +25,33 @@ contract FiatPaymentTemplateTest is BaseTest {
         assertTrue(hasRole, 'Test contract should have FIAT_SETTLEMENT_ROLE');
     }
 
+    /// @notice End-to-end #198 vector: the plan owner also holds FIAT_SETTLEMENT_ROLE and calls
+    /// order() on their own plan. order() auto-settles with _msgSender(), so the self-settlement
+    /// must be rejected on the path users actually hit (not just at the condition level).
+    function test_order_revertWhenOwnerSelfSettles() public {
+        _grantTemplateRole(address(this));
+        // Plan owned by THIS contract, which also holds FIAT_SETTLEMENT_ROLE (granted in setUp).
+        uint256 planId =
+            _createPlanWithOnchainMirror(block.number, IAsset.RedemptionType.ONLY_GLOBAL_ROLE, address(this));
+
+        bytes32 agreementSeed = bytes32(uint256(7));
+        address creditsReceiver = makeAddr('creditsReceiver');
+        bytes[] memory params = new bytes[](0);
+
+        vm.expectRevert(abi.encodeWithSelector(IFiatSettlement.SelfSettlementNotAllowed.selector, address(this)));
+        fiatPaymentTemplate.order(agreementSeed, planId, creditsReceiver, 1, params);
+    }
+
     function test_order() public {
         // Grant template role to this contract
         _grantTemplateRole(address(this));
 
         // Create a plan that opts into the on-chain audit mirror so the order
         // flow actually mints ERC-1155 credits (protocol#177 default is off-chain-only).
-        uint256 planId = _createPlanWithOnchainMirror(block.number);
+        // The plan is owned by a distinct seller: the fiat settler (this contract, holder of
+        // FIAT_SETTLEMENT_ROLE) must NOT be the plan owner (#198 — no self-settlement).
+        address seller = makeAddr('seller');
+        uint256 planId = _createPlanWithOnchainMirror(block.number, IAsset.RedemptionType.ONLY_GLOBAL_ROLE, seller);
 
         // Create agreement using FiatPaymentTemplate
         bytes32 agreementSeed = bytes32(uint256(2));
@@ -190,8 +211,10 @@ contract FiatPaymentTemplateTest is BaseTest {
         // Grant template role to this contract
         _grantTemplateRole(address(this));
 
-        // Create a plan
-        uint256 planId = _createPlan();
+        // Plan owned by a distinct seller; this contract is the FIAT_SETTLEMENT_ROLE settler (#198).
+        address seller = makeAddr('seller');
+        uint256 planId =
+            _createPlanWithAmountAndRedemptionTypeAsOwner(100, IAsset.RedemptionType.ONLY_GLOBAL_ROLE, seller);
 
         // Create agreement using FiatPaymentTemplate
         bytes32 agreementSeed = bytes32(uint256(2));

@@ -33,9 +33,13 @@
     "deploy:remote:install": "forge script scripts/deploy/DeployAll.sol --extra-output-files abi --rpc-url $RPC_URL --broadcast --mnemonics \"$OWNER_MNEMONIC\" --mnemonic-indexes $OWNER_INDEX --sender $OWNER_ADDRESS --verify --verifier etherscan ",
     "deploy:remote:config": "forge script scripts/deploy/ConfigureAll.sol --rpc-url $RPC_URL --broadcast --mnemonics \"$OWNER_MNEMONIC\" --mnemonic-indexes $OWNER_INDEX --sender $OWNER_ADDRESS ",
     "deploy:remote:config:fees": "forge script scripts/deploy/SetNetworkFees.sol --rpc-url $RPC_URL --broadcast --mnemonics \"$GOVERNOR_MNEMONIC\" --mnemonic-indexes $GOVERNOR_INDEX --sender $GOVERNOR_ADDRESS ",
+    "deploy:tempo:genesis": "./scripts/bin/deploy-tempo-genesis.sh",
     "upgrade:initiate": "ts-node scripts/upgrade/upgrade.ts --initiate",
     "upgrade:finalize": "ts-node scripts/upgrade/upgrade.ts --finalize",
-    "upgrade:orchestrate": "ts-node scripts/upgrade/orchestrate.ts"
+    "upgrade:orchestrate": "ts-node scripts/upgrade/orchestrate.ts",
+    "upgrade:tempo:schedule": "forge script scripts/upgrade/UpgradeEOA.s.sol:ScheduleUpgrade --rpc-url $RPC_URL --broadcast --tempo.fee-token $TEMPO_FEE_TOKEN --mnemonics \"$UPGRADER_MNEMONIC\" --mnemonic-indexes $UPGRADER_INDEX --sender $UPGRADER_ADDRESS ",
+    "upgrade:tempo:execute": "forge script scripts/upgrade/UpgradeEOA.s.sol:ExecuteUpgrade --rpc-url $RPC_URL --broadcast --tempo.fee-token $TEMPO_FEE_TOKEN --mnemonics \"$UPGRADER_MNEMONIC\" --mnemonic-indexes $UPGRADER_INDEX --sender $UPGRADER_ADDRESS ",
+    "ops:config:permissions:authorization": "forge script scripts/ops/ConfigureAuthorizationPermissions.s.sol --rpc-url $RPC_URL --broadcast --mnemonics \"$OWNER_MNEMONIC\" --mnemonic-indexes $OWNER_INDEX --sender $OWNER_ADDRESS "
   },
   "dependencies": {
     "@openzeppelin/contracts": "^5.4.0",

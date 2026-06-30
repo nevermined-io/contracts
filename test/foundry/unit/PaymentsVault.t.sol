@@ -4,11 +4,15 @@
 pragma solidity ^0.8.30;
 
 import '../../../contracts/common/Roles.sol';
+import {IERC3009} from '../../../contracts/interfaces/IERC3009.sol';
 import {IVault} from '../../../contracts/interfaces/IVault.sol';
+import {MockEIP3009Token} from '../../../contracts/test/MockEIP3009Token.sol';
 import {MockERC20} from '../../../contracts/test/MockERC20.sol';
+import {MockFeeOnTransferERC20} from '../../../contracts/test/MockFeeOnTransferERC20.sol';
 
 import {PaymentsVaultV2} from '../../../contracts/mock/PaymentsVaultV2.sol';
 import {BaseTest} from '../common/BaseTest.sol';
+import {EIP3009Sign} from '../common/EIP3009Sign.sol';
 import {UUPSUpgradeable} from '@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol';
 import {IAccessManaged} from '@openzeppelin/contracts/access/manager/IAccessManaged.sol';
 
@@ -17,6 +21,9 @@ contract PaymentsVaultTest is BaseTest {
     address public withdrawer;
     address public receiver;
     MockERC20 public mockERC20;
+    MockEIP3009Token public eip3009Token;
+    address public signer;
+    uint256 public signerPk;
     // Using DEPOSITOR_ROLE and WITHDRAW_ROLE from BaseTest
 
     function setUp() public override {
@@ -29,12 +36,29 @@ contract PaymentsVaultTest is BaseTest {
         // Deploy MockERC20
         mockERC20 = new MockERC20('Mock Token', 'MTK');
 
+        // Deploy an EIP-3009 token and fund a signer for authorization-based deposits
+        eip3009Token = new MockEIP3009Token('Mock USDC', 'mUSDC');
+        (signer, signerPk) = makeAddrAndKey('eip3009Signer');
+        eip3009Token.mint(signer, 1000 * 10 ** 18);
+
         // Grant roles
         _grantRole(DEPOSITOR_ROLE, depositor);
         _grantRole(WITHDRAW_ROLE, withdrawer);
 
         // Mint some tokens to depositor
         mockERC20.mint(depositor, 1000 * 10 ** 18);
+    }
+
+    /// @dev Signs an EIP-3009 ReceiveWithAuthorization paying the vault.
+    function _signReceiveToVault(uint256 value, uint256 validAfter, uint256 validBefore, bytes32 nonce)
+        internal
+        view
+        returns (uint8 v, bytes32 r, bytes32 s)
+    {
+        bytes32 digest = EIP3009Sign.receiveDigest(
+            eip3009Token, signer, address(paymentsVault), value, validAfter, validBefore, nonce
+        );
+        (v, r, s) = vm.sign(signerPk, digest);
     }
 
     function test_depositNativeToken() public {
@@ -144,6 +168,54 @@ contract PaymentsVaultTest is BaseTest {
         vm.prank(withdrawer);
         vm.expectPartialRevert(IAccessManaged.AccessManagedUnauthorized.selector);
         paymentsVault.depositERC20(address(mockERC20), depositAmount, withdrawer);
+    }
+
+    /// @notice A fee-on-transfer / deflationary token delivers less than the recorded amount; the vault
+    /// must reject it (otherwise distribution would withdraw the nominal amount from the shared pool,
+    /// drawing on other agreements' funds). Regression for escrow-integrity issue #194.
+    function test_depositERC20_revertsOnFeeOnTransferToken() public {
+        MockFeeOnTransferERC20 feeToken = new MockFeeOnTransferERC20();
+        uint256 depositAmount = 1000;
+        feeToken.mint(address(lockPaymentCondition), depositAmount);
+
+        vm.prank(address(lockPaymentCondition));
+        feeToken.approve(address(paymentsVault), depositAmount);
+
+        uint256 received = depositAmount - (depositAmount * feeToken.FEE_BPS()) / 10_000; // 990 (1% fee)
+        vm.prank(address(lockPaymentCondition));
+        vm.expectRevert(abi.encodeWithSelector(IVault.ERC20DepositMismatch.selector, depositAmount, received));
+        paymentsVault.depositERC20(address(feeToken), depositAmount, address(lockPaymentCondition));
+    }
+
+    function test_depositERC20WithAuthorization() public {
+        uint256 depositAmount = 100 * 10 ** 18;
+        bytes32 nonce = keccak256('vault-auth-nonce');
+        uint256 validBefore = block.timestamp + 1 days;
+        (uint8 v, bytes32 r, bytes32 s) = _signReceiveToVault(depositAmount, 0, validBefore, nonce);
+
+        vm.prank(depositor);
+        vm.expectEmit(true, true, true, true);
+        emit IVault.ReceivedERC20(address(eip3009Token), signer, depositAmount);
+        paymentsVault.depositERC20WithAuthorization(
+            address(eip3009Token), signer, depositAmount, 0, validBefore, nonce, v, r, s
+        );
+
+        assertEq(eip3009Token.balanceOf(address(paymentsVault)), depositAmount, 'vault received funds');
+        assertEq(eip3009Token.balanceOf(signer), 1000 * 10 ** 18 - depositAmount, 'signer paid');
+        assertTrue(eip3009Token.authorizationState(signer, nonce), 'nonce consumed');
+    }
+
+    function test_depositERC20WithAuthorization_onlyDepositor() public {
+        uint256 depositAmount = 100 * 10 ** 18;
+        bytes32 nonce = keccak256('vault-auth-nonce-2');
+        uint256 validBefore = block.timestamp + 1 days;
+        (uint8 v, bytes32 r, bytes32 s) = _signReceiveToVault(depositAmount, 0, validBefore, nonce);
+
+        vm.prank(withdrawer);
+        vm.expectPartialRevert(IAccessManaged.AccessManagedUnauthorized.selector);
+        paymentsVault.depositERC20WithAuthorization(
+            address(eip3009Token), signer, depositAmount, 0, validBefore, nonce, v, r, s
+        );
     }
 
     function test_getBalanceNativeToken() public {

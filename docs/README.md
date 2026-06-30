@@ -78,7 +78,7 @@ The Pricing Plans have a price type (fixed price in crypto, fixed price in fiat,
 
 - **FiatPaymentTemplate**: (See `contracts/agreements/FiatPaymentTemplate.sol`). This template allows processing payments in fiat. The fiat payments happen off-chain via the integration of a payments provider (i.e., Stripe). The template allows a **trusted fiat settlement role** to fulfill the template when the fiat payment is done. The template flow is as follows:
 
-1. An account with the `FIAT_SETTLEMENT_ROLE` role creates the agreement when there is a valid payment in fiat. (In evaluation to get some kind of proof of payment from the payment providers).
+1. An account with the `FIAT_SETTLEMENT_ROLE` role creates the agreement when there is a valid payment in fiat. (In evaluation to get some kind of proof of payment from the payment providers). The settler **may not be the owner of the plan being settled**: a plan owner cannot act as the fiat settlement role for their own plan, even if they hold `FIAT_SETTLEMENT_ROLE`, so that recording an off-chain payment as received always requires an independent settler.
 2. The protocol distributes the credits to the subscriber with the characteristics defined in the payment plan (duration, number of credits, etc).
 
 ### Management and distribution of payments to multiple receivers

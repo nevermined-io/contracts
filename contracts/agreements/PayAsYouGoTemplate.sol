@@ -8,6 +8,7 @@ import {LockPaymentCondition} from '../conditions/LockPaymentCondition.sol';
 import {IAgreement} from '../interfaces/IAgreement.sol';
 
 import {IAsset} from '../interfaces/IAsset.sol';
+import {IERC3009} from '../interfaces/IERC3009.sol';
 import {INVMConfig} from '../interfaces/INVMConfig.sol';
 import {AgreementsStore} from './AgreementsStore.sol';
 import {BaseTemplate} from './BaseTemplate.sol';
@@ -136,6 +137,74 @@ contract PayAsYouGoTemplate is BaseTemplate {
 
         // Execute after hooks
         _executeAfterHooks(_planId, agreementId, _msgSender(), conditionIds, _params);
+    }
+
+    /**
+     * @notice Creates a pay-as-you-go agreement paid gaslessly via an EIP-3009 signed authorization
+     * @param _seed Unique seed for generating the agreement ID
+     * @param _planId Identifier of the pricing plan to use
+     * @param _buyer Address of the payer that signed the EIP-3009 authorization
+     * @param _params Additional parameters for the agreement
+     * @param _authorization The buyer-supplied validity window and signature
+     * @dev Unlike `order`, the transaction may be submitted by anyone (e.g. a relayer that pays gas);
+     *      the payer is `_buyer`, authenticated by the EIP-3009 signature rather than by `msg.sender`.
+     * @dev Only supports FIXED_PRICE crypto plans paid in an EIP-3009 compatible ERC20 token.
+     * @dev The authorization nonce is bound to the agreementId (buyer, seed, plan, params), so the
+     *      signature is single-use and cannot be replayed against a different plan or agreement.
+     */
+    function orderWithAuthorization(
+        bytes32 _seed,
+        uint256 _planId,
+        address _buyer,
+        bytes[] memory _params,
+        IERC3009.ReceiveAuthorization calldata _authorization
+    ) external {
+        PayAsYouGoTemplateStorage storage $ = _getPayAsYouGoTemplateStorage();
+
+        // Validate inputs
+        if (_seed == bytes32(0)) revert InvalidSeed(_seed);
+        if (_planId == 0) revert InvalidPlanId(_planId);
+        if (_buyer == address(0)) revert InvalidAddress();
+
+        // Check if the Plan is registered in the AssetsRegistry
+        if (!_getBaseTemplateStorage().assetsRegistry.planExists(_planId)) {
+            revert IAsset.PlanNotFound(_planId);
+        }
+
+        // Check if the Plan has associated the PayAsYouGoTemplate
+        if (!_getBaseTemplateStorage().assetsRegistry.isPlanTemplate(_planId, address(this))) {
+            revert IAsset.PlanWithInvalidTemplate(_planId, address(this));
+        }
+
+        // Calculate agreementId from the BUYER (not msg.sender, which may be a relayer)
+        bytes32 agreementId = keccak256(abi.encode(NVM_CONTRACT_NAME, _buyer, _seed, _planId, _params));
+
+        // Check if the agreement is already registered
+        IAgreement.Agreement memory agreement = $.agreementStore.getAgreement(agreementId);
+        if (agreement.lastUpdated != 0) {
+            revert IAgreement.AgreementAlreadyRegistered(agreementId);
+        }
+
+        // Register the agreement in the AgreementsStore
+        bytes32[] memory conditionIds = new bytes32[](2);
+        conditionIds[0] =
+            $.lockPaymentCondition.hashConditionId(agreementId, $.lockPaymentCondition.NVM_CONTRACT_NAME());
+        conditionIds[1] = $.distributePaymentsCondition
+            .hashConditionId(agreementId, $.distributePaymentsCondition.NVM_CONTRACT_NAME());
+
+        IAgreement.ConditionState[] memory conditionStates = new IAgreement.ConditionState[](2);
+
+        // Execute before hooks
+        _executeBeforeHooks(_planId, agreementId, _buyer, conditionIds, conditionStates, _params);
+
+        $.agreementStore.register(agreementId, _buyer, _planId, conditionIds, conditionStates, 1, _params);
+
+        // Lock the payment via the EIP-3009 authorization, then distribute
+        $.lockPaymentCondition.fulfillWithAuthorization(conditionIds[0], agreementId, _planId, _buyer, _authorization);
+        _distributePayments(conditionIds[1], agreementId, _planId, conditionIds[0], conditionIds[0]);
+
+        // Execute after hooks
+        _executeAfterHooks(_planId, agreementId, _buyer, conditionIds, _params);
     }
 
     /**

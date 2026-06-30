@@ -34,6 +34,13 @@ interface IFiatSettlement {
     error InvalidRole(address addr, uint64 expectedRole);
 
     /**
+     * @notice Error thrown when the plan owner attempts to settle their own plan's fiat payment
+     * @dev A fiat payment must be attested by an external settlement role, never by the seller (plan owner)
+     * @param addr The plan owner that attempted self-settlement
+     */
+    error SelfSettlementNotAllowed(address addr);
+
+    /**
      * @notice Error thrown when an invalid assets registry address is provided in an agreement creation process
      * @dev The assets registry address must be a valid address
      */

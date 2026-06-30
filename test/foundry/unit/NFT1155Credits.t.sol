@@ -269,6 +269,69 @@ contract NFT1155CreditsTest is BaseTest {
         assertEq(nftCredits.balanceOf(receiver, planId), 4);
     }
 
+    /// @notice Regression for #196: a credits holder must NOT be able to burn a DIFFERENT account's
+    /// credits via the holder/subscriber path. Holding enough credits authorizes burning one's OWN
+    /// credits only; destroying another subscriber's credits requires a privileged redemption path.
+    function test_burn_holderCannotBurnAnotherAccountsCredits() public {
+        address planOwner = makeAddr('planOwner');
+        address attacker = makeAddr('attacker');
+        uint256 planId = _createPlanWithOnchainMirror(0, IAsset.RedemptionType.ONLY_SUBSCRIBER, planOwner);
+
+        _grantRole(CREDITS_MINTER_ROLE, address(this));
+        nftCredits.mint(receiver, planId, 5, ''); // victim
+        nftCredits.mint(attacker, planId, 5, ''); // attacker is also a holder (would pass the old isHolder check)
+
+        // Attacker holds enough credits but burns from the victim's account -> must revert.
+        vm.prank(attacker);
+        vm.expectPartialRevert(INFT1155.InvalidRedemptionPermission.selector);
+        nftCredits.burn(receiver, planId, 1, 0, '');
+
+        // Victim's balance is untouched...
+        assertEq(nftCredits.balanceOf(receiver, planId), 5);
+
+        // ...and the attacker can still redeem their OWN credits.
+        vm.prank(attacker);
+        nftCredits.burn(attacker, planId, 1, 0, '');
+        assertEq(nftCredits.balanceOf(attacker, planId), 4);
+    }
+
+    /// @notice The cross-account burn fix applies to all redemption types, not just ONLY_SUBSCRIBER:
+    /// a holder without the global burner role cannot burn another account's credits on a
+    /// ONLY_GLOBAL_ROLE plan.
+    function test_burn_holderCannotBurnAnotherAccountsCredits_globalRolePlan() public {
+        address planOwner = makeAddr('planOwner');
+        address attacker = makeAddr('attacker');
+        uint256 planId = _createPlanWithOnchainMirror(1, IAsset.RedemptionType.ONLY_GLOBAL_ROLE, planOwner);
+
+        _grantRole(CREDITS_MINTER_ROLE, address(this));
+        nftCredits.mint(receiver, planId, 5, ''); // victim
+        nftCredits.mint(attacker, planId, 5, ''); // attacker holds credits but lacks CREDITS_BURNER_ROLE
+
+        vm.prank(attacker);
+        vm.expectPartialRevert(INFT1155.InvalidRedemptionPermission.selector);
+        nftCredits.burn(receiver, planId, 1, 0, '');
+
+        assertEq(nftCredits.balanceOf(receiver, planId), 5);
+    }
+
+    /// @notice Same property for an ONLY_OWNER plan: a holder who is not the plan owner cannot burn
+    /// another account's credits.
+    function test_burn_holderCannotBurnAnotherAccountsCredits_ownerPlan() public {
+        address planOwner = makeAddr('planOwner');
+        address attacker = makeAddr('attacker');
+        uint256 planId = _createPlanWithOnchainMirror(2, IAsset.RedemptionType.ONLY_OWNER, planOwner);
+
+        _grantRole(CREDITS_MINTER_ROLE, address(this));
+        nftCredits.mint(receiver, planId, 5, ''); // victim
+        nftCredits.mint(attacker, planId, 5, ''); // attacker holds credits but is not the plan owner
+
+        vm.prank(attacker);
+        vm.expectPartialRevert(INFT1155.InvalidRedemptionPermission.selector);
+        nftCredits.burn(receiver, planId, 1, 0, '');
+
+        assertEq(nftCredits.balanceOf(receiver, planId), 5);
+    }
+
     function test_burn_onchainMirror_succeedsAcrossOwnerOrGlobalRolePath() public {
         address planOwner = makeAddr('planOwner');
         uint256 planId = _createPlanWithOnchainMirror(0, IAsset.RedemptionType.OWNER_OR_GLOBAL_ROLE, planOwner);

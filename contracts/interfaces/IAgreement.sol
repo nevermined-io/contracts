@@ -183,4 +183,30 @@ interface IAgreement {
         external
         view
         returns (bool);
+
+    /**
+     * @notice Error thrown when locked amounts are recorded more than once for the same agreement
+     * @param agreementId The agreement whose locked amounts were already set
+     */
+    error LockedAmountsAlreadySet(bytes32 agreementId);
+
+    /**
+     * @notice Records the per-purchase amounts locked for an agreement at lock time
+     * @dev Snapshotted by the lock condition so distribution and refund reuse the amount that was
+     *      actually locked, instead of re-deriving it from a (potentially divergent) external price
+     *      source. Only authorized templates/conditions can call this, and only once per agreement.
+     * @param _agreementId The unique identifier of the agreement
+     * @param _amounts The PER-PURCHASE amounts that were locked (one entry per plan receiver, same
+     *      order). These are NOT pre-multiplied totals: distribution and refund multiply each entry by
+     *      the agreement's numberOfPurchases. Passing pre-multiplied totals would double-multiply at
+     *      distribution and over-withdraw from the shared vault.
+     */
+    function setLockedAmounts(bytes32 _agreementId, uint256[] calldata _amounts) external;
+
+    /**
+     * @notice Retrieves the per-purchase amounts locked for an agreement
+     * @param _agreementId The unique identifier of the agreement
+     * @return The per-purchase locked amounts (empty if none were recorded)
+     */
+    function getLockedAmounts(bytes32 _agreementId) external view returns (uint256[] memory);
 }

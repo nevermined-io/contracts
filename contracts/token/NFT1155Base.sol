@@ -161,7 +161,7 @@ abstract contract NFT1155Base is ERC1155Upgradeable, INFT1155, AccessManagedUUPS
         );
 
         require(
-            _canRedeemCredits(_planId, plan.owner, plan.credits.redemptionType, msg.sender, creditsToRedeem),
+            _canRedeemCredits(_planId, plan.owner, plan.credits.redemptionType, msg.sender, _from, creditsToRedeem),
             InvalidRedemptionPermission(_planId, plan.credits.redemptionType, msg.sender)
         );
 
@@ -310,23 +310,31 @@ abstract contract NFT1155Base is ERC1155Upgradeable, INFT1155, AccessManagedUUPS
 
     /**
      * @notice Internal function to check if an account can redeem credits for a plan
-     * @notice Credits holders (aka subscribers) can always redeem their own credits
+     * @notice Credits holders (aka subscribers) can always redeem their OWN credits, i.e. when the burned
+     * account is the caller itself. Burning another account's credits requires a privileged redemption path
+     * (global burner role, plan owner, or plan-specific burn approval) per the plan's redemption type.
      * @param _planId Identifier of the plan
      * @param _owner Owner of the plan
      * @param _redemptionType Type of redemption allowed for the plan
      * @param _sender Address attempting to redeem credits
+     * @param _from Account whose credits are being burned
      * @param _amountToRedeem The amount of credits the sender is attempting to redeem
      * @return Boolean indicating whether the sender can redeem credits
-     * @dev Checks redemption permissions based on the plan's redemption type
+     * @dev Checks redemption permissions based on the plan's redemption type. The holder path authorizes
+     *      self-redemption only (`_sender == _from`); ONLY_SUBSCRIBER has no explicit branch because a
+     *      subscriber's own burn is covered by that holder path.
      */
     function _canRedeemCredits(
         uint256 _planId,
         address _owner,
         IAsset.RedemptionType _redemptionType,
         address _sender,
+        address _from,
         uint256 _amountToRedeem
     ) internal view returns (bool) {
-        bool isHolder = balanceOf(_sender, _planId) >= _amountToRedeem;
+        // The holder path authorizes self-redemption only: the caller may burn their own credits.
+        // It must NOT let a holder of the plan destroy a different account's credits.
+        bool isHolder = _sender == _from && balanceOf(_sender, _planId) >= _amountToRedeem;
 
         if (isHolder) {
             return true;
@@ -341,6 +349,9 @@ abstract contract NFT1155Base is ERC1155Upgradeable, INFT1155, AccessManagedUUPS
             (bool hasRole,) = IAccessManager(authority()).hasRole(CREDITS_BURNER_ROLE, _sender);
             return hasRole || _sender == _owner;
         }
+        // ONLY_SUBSCRIBER (and any unlisted type): no privileged branch — a subscriber's own burn is
+        // already authorized by the isHolder path above. Reaching here means _sender != _from (or the
+        // caller lacks the type's privilege), which must be rejected.
         return false;
     }
 

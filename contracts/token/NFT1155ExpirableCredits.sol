@@ -24,6 +24,16 @@ import {IAccessManager} from '@openzeppelin/contracts/access/manager/IAccessMana
  *
  * This contract inherits permissions management from NFT1155Base but implements custom
  * balance calculation logic to exclude expired credits.
+ *
+ * @dev Each mint and burn appends an entry to `credits[key]`. To keep `balanceOf` and the burn
+ * pre-processing (both O(n) over this array, and `balanceOf` gates on-chain redemption) from
+ * growing without bound, expired entries are compacted (order-preserving) on every mint and burn.
+ * Expired entries are already excluded from balances and burns, and compaction preserves the
+ * relative order of the surviving entries, so it changes no balance — present or future — and only
+ * reclaims storage and caps per-(owner, plan) gas growth for expiring plans.
+ * Note this does NOT bound non-expiring (expirationSecs == 0) credits, whose entries never expire;
+ * `NFT1155ExpirableCreditsV2`, which aggregates amounts per expiration, is the comprehensive fix
+ * and the recommended contract for new expirable plans.
  */
 contract NFT1155ExpirableCredits is NFT1155Base {
     // keccak256(abi.encode(uint256(keccak256("nevermined.nft1155expirablecredits.storage")) - 1)) & ~bytes32(uint256(0xff))
@@ -97,6 +107,9 @@ contract NFT1155ExpirableCredits is NFT1155Base {
         virtual
     {
         bytes32 _key = _getTokenKey(_to, _planId);
+
+        // Bound the array: drop expired entries before appending the new one.
+        _compactExpired(_key);
 
         _getNFT1155ExpirableCreditsStorage()
         .credits[_key].push(MintedCredits(_value, _secsDuration, block.timestamp, true));
@@ -184,6 +197,10 @@ contract NFT1155ExpirableCredits is NFT1155Base {
         NFT1155ExpirableCreditsStorage storage $ = _getNFT1155ExpirableCreditsStorage();
 
         bytes32 _key = _getTokenKey(_from, _planId);
+
+        // Bound the array: drop expired entries before scanning/appending burn rows.
+        _compactExpired(_key);
+
         uint256 _pendingToBurn = _value;
 
         uint256 _numEntries = $.credits[_key].length;
@@ -251,7 +268,10 @@ contract NFT1155ExpirableCredits is NFT1155Base {
      * @param _owner Address of the credits owner
      * @param _planId Identifier of the plan
      * @return Array of timestamps when credits were minted
-     * @dev Useful for auditing purposes and tracking credit history
+     * @dev Useful for auditing and tracking credit history. Note this returns only the currently
+     *      retained entries: expired entries are compacted away on mint/burn, so timestamps of
+     *      already-expired lots are not included. Off-chain indexers needing the full history should
+     *      rely on the ERC1155 transfer events, not a point-in-time snapshot of this view.
      */
     function whenWasMinted(address _owner, uint256 _planId) external view returns (uint256[] memory) {
         NFT1155ExpirableCreditsStorage storage $ = _getNFT1155ExpirableCreditsStorage();
@@ -271,10 +291,51 @@ contract NFT1155ExpirableCredits is NFT1155Base {
      * @param _owner Address of the credits owner
      * @param _planId Identifier of the plan
      * @return Array of MintedCredits structures containing detailed minting information
-     * @dev Provides complete historical data for all credit operations for a user and plan
+     * @dev Returns only the currently retained (non-expired) entries: expired entries are compacted
+     *      away on mint/burn to bound gas, so this is not a complete lifetime history. Off-chain
+     *      consumers needing the full audit trail should index the ERC1155 transfer events instead.
      */
     function getMintedEntries(address _owner, uint256 _planId) external view returns (MintedCredits[] memory) {
         return _getNFT1155ExpirableCreditsStorage().credits[_getTokenKey(_owner, _planId)];
+    }
+
+    /**
+     * @notice Removes expired credit entries from a key's array to bound its length, preserving order
+     * @param _key The (owner, planId) token key whose entries are compacted
+     * @dev Expired entries are already excluded from balanceOf and burn accounting, so removing them
+     *      never changes a balance — it only reclaims storage and caps O(n) gas growth for expiring
+     *      plans. Non-expiring entries (expirationSecs == 0) are retained.
+     *
+     *      Compaction is ORDER-PRESERVING (stable): surviving entries keep their relative order. This
+     *      matters because the burn loop consumes live mint lots in array order and stamps each burn
+     *      row with the consumed lot's expirationSecs (the burn-row expiry-drift). Preserving order
+     *      keeps the post-compaction consumption sequence identical to what it would have been without
+     *      compaction, so a later burn row inherits the same expirationSecs and future balances do not
+     *      diverge. Compaction is therefore fully behavior-preserving, not merely balance-neutral at
+     *      compaction time.
+     */
+    function _compactExpired(bytes32 _key) internal {
+        MintedCredits[] storage entries = _getNFT1155ExpirableCreditsStorage().credits[_key];
+        // Cache the live length locally to avoid an SLOAD of entries.length on every iteration
+        // (this function exists to bound gas).
+        uint256 len = entries.length;
+        // Shift surviving (non-expired) entries down into the next write slot, preserving their
+        // relative order, then pop the now-duplicated tail. When nothing expires, write == read
+        // throughout and no struct copy is performed.
+        uint256 write = 0;
+        for (uint256 read = 0; read < len; read++) {
+            MintedCredits storage entry = entries[read];
+            if (entry.expirationSecs != 0 && block.timestamp >= entry.mintTimestamp + entry.expirationSecs) {
+                continue; // expired: skip, leaving a gap that later survivors fill
+            }
+            if (write != read) {
+                entries[write] = entry;
+            }
+            write++;
+        }
+        while (entries.length > write) {
+            entries.pop();
+        }
     }
 
     /**

@@ -5,7 +5,6 @@ pragma solidity ^0.8.30;
 
 import {IAgreement} from '../interfaces/IAgreement.sol';
 import {IAsset} from '../interfaces/IAsset.sol';
-import {INeverminedExternalPrice} from '../interfaces/INeverminedExternalPrice.sol';
 import {IVault} from '../interfaces/IVault.sol';
 
 import {TokenUtils} from '../utils/TokenUtils.sol';
@@ -41,6 +40,16 @@ contract DistributePaymentsCondition is ReentrancyGuardTransientUpgradeable, Tem
     error InvalidAssetsRegistryAddress();
     error InvalidAgreementStoreAddress();
     error InvalidVaultAddress();
+
+    /**
+     * @notice The locked-amounts snapshot does not align 1:1 with the plan receivers
+     * @dev Fail-closed guard for external-price plans: distribution must cover exactly the locked
+     *      receivers. A mismatch should be impossible (the lock condition enforces alignment), so this
+     *      reverts rather than silently stranding or over-withdrawing.
+     * @param lockedLength Number of snapshotted locked amounts
+     * @param receiversLength Number of receivers configured on the plan
+     */
+    error LockedAmountsReceiversLengthMismatch(uint256 lockedLength, uint256 receiversLength);
 
     /// @custom:storage-location erc7201:nevermined.distributepaymentscondition.storage
     struct DistributePaymentsConditionStorage {
@@ -122,9 +131,14 @@ contract DistributePaymentsCondition is ReentrancyGuardTransientUpgradeable, Tem
             uint256[] memory amounts;
             address[] memory receivers;
             if (plan.price.externalPriceAddress != address(0)) {
-                // Recompute dynamic amounts; fees are not applied for SMART_CONTRACT_PRICE
-                amounts = INeverminedExternalPrice(plan.price.externalPriceAddress).quote(_planId);
+                // Reuse the amounts snapshotted at lock time instead of re-quoting the external price
+                // source, so the amount distributed equals the amount locked (no lock/distribute
+                // divergence, no stranding or over-withdrawal from the shared vault).
+                amounts = $.agreementStore.getLockedAmounts(_agreementId);
                 receivers = plan.price.receivers;
+                if (amounts.length != receivers.length) {
+                    revert LockedAmountsReceiversLengthMismatch(amounts.length, receivers.length);
+                }
             } else {
                 amounts = plan.price.amounts;
                 receivers = plan.price.receivers;
@@ -140,7 +154,19 @@ contract DistributePaymentsCondition is ReentrancyGuardTransientUpgradeable, Tem
             // Distribute the payments to the who locked the payment
             uint256[] memory _amountToRefund = new uint256[](1);
 
-            _amountToRefund[0] = TokenUtils.calculateAmountSum(plan.price.amounts);
+            // For external-price plans, plan.price.amounts is empty (sum 0), so refunding from it would
+            // send nothing and strand the locked funds on abort. Refund the actually-locked total, and
+            // fail closed (mirroring the success branch) if the snapshot is absent or misaligned with the
+            // receivers, so a missing snapshot reverts instead of silently refunding 0 and stranding funds.
+            if (plan.price.externalPriceAddress != address(0)) {
+                uint256[] memory lockedRefund = $.agreementStore.getLockedAmounts(_agreementId);
+                if (lockedRefund.length != plan.price.receivers.length) {
+                    revert LockedAmountsReceiversLengthMismatch(lockedRefund.length, plan.price.receivers.length);
+                }
+                _amountToRefund[0] = TokenUtils.calculateAmountSum(lockedRefund);
+            } else {
+                _amountToRefund[0] = TokenUtils.calculateAmountSum(plan.price.amounts);
+            }
             address[] memory _originalSender = new address[](1);
             _originalSender[0] = agreement.agreementCreator;
 

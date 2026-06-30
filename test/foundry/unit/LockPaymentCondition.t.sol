@@ -523,7 +523,7 @@ contract LockPaymentConditionTest is BaseTest {
 
     function test_dynamicPricing_linearPricingContract() public {
         // Deploy LinearPricing contract
-        LinearPricing linearPricing = new LinearPricing();
+        LinearPricing linearPricing = new LinearPricing(assetsRegistry);
 
         // Setup pricing parameters
         uint256 baseAmount = 100 ether;
@@ -582,7 +582,7 @@ contract LockPaymentConditionTest is BaseTest {
 
     function test_dynamicPricing_linearPricingContract_secondPurchase() public {
         // Deploy LinearPricing contract
-        LinearPricing linearPricing = new LinearPricing();
+        LinearPricing linearPricing = new LinearPricing(assetsRegistry);
 
         // Setup pricing parameters
         uint256 baseAmount = 100 ether;
@@ -644,7 +644,7 @@ contract LockPaymentConditionTest is BaseTest {
 
     function test_dynamicPricing_ERC20Token() public {
         // Deploy LinearPricing contract
-        LinearPricing linearPricing = new LinearPricing();
+        LinearPricing linearPricing = new LinearPricing(assetsRegistry);
 
         // Setup pricing parameters
         uint256 baseAmount = 1000e18; // 1000 tokens
@@ -699,7 +699,7 @@ contract LockPaymentConditionTest is BaseTest {
 
     function test_dynamicPricing_distributePayments() public {
         // Deploy LinearPricing contract
-        LinearPricing linearPricing = new LinearPricing();
+        LinearPricing linearPricing = new LinearPricing(assetsRegistry);
 
         // Setup pricing parameters
         uint256 baseAmount = 50 ether;

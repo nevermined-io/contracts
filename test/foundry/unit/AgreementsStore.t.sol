@@ -243,6 +243,35 @@ contract AgreementsStoreTest is BaseTest {
         );
     }
 
+    function test_setLockedAmounts_onlyTemplateOrConditionRole() public {
+        // Register an agreement as a template so it exists.
+        _grantTemplateRole(address(this));
+        bytes32 testAgreementId = agreementsStore.hashAgreementId(bytes32(0), address(this));
+        bytes32[] memory conditionIds = new bytes32[](1);
+        IAgreement.ConditionState[] memory conditionStates = new IAgreement.ConditionState[](1);
+        conditionIds[0] = bytes32(0);
+        conditionStates[0] = IAgreement.ConditionState.Unfulfilled;
+        agreementsStore.register(testAgreementId, address(this), 0, conditionIds, conditionStates, 1, new bytes[](0));
+
+        // A caller holding neither the template nor condition role must be rejected.
+        uint256[] memory amounts = new uint256[](1);
+        amounts[0] = 100;
+        address regularAddress = makeAddr('regular');
+        vm.prank(regularAddress);
+        vm.expectRevert(abi.encodeWithSelector(IAgreement.OnlyTemplateOrConditionRole.selector, regularAddress));
+        agreementsStore.setLockedAmounts(testAgreementId, amounts);
+    }
+
+    function test_setLockedAmounts_revertIfAgreementNotFound() public {
+        // A role-holder calling on a non-existent agreement must fail closed (existence check).
+        _grantTemplateRole(address(this));
+        bytes32 nonExistentAgreementId = bytes32(uint256(999));
+        uint256[] memory amounts = new uint256[](1);
+        amounts[0] = 100;
+        vm.expectRevert(abi.encodeWithSelector(IAgreement.AgreementNotFound.selector, nonExistentAgreementId));
+        agreementsStore.setLockedAmounts(nonExistentAgreementId, amounts);
+    }
+
     function test_updateConditionStatus_revertIfConditionIdNotFound() public {
         // Grant template role to this contract
         _grantTemplateRole(address(this));

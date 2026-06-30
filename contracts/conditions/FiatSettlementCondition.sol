@@ -97,9 +97,13 @@ contract FiatSettlementCondition is ReentrancyGuardTransientUpgradeable, Templat
         // Check if the plan config (token, amount) is correct
         IAsset.Plan memory plan = $.assetsRegistry.getPlan(_planId);
 
-        // Only an account with FIAT_SETTLEMENT_ROLE and not being the owner can fulfill the Fiat Settlement condition
+        // Only an account with FIAT_SETTLEMENT_ROLE that is NOT the plan owner can fulfill the Fiat Settlement
+        // condition. The plan owner is explicitly excluded to prevent self-settlement: a fiat payment must be attested
+        // by an external settlement role (e.g. the payment-processor backend), never by the seller themselves.
         (bool hasRole,) = IAccessManager(address(authority())).hasRole(FIAT_SETTLEMENT_ROLE, _senderAddress);
-        require(hasRole || plan.owner == _senderAddress, InvalidRole(_senderAddress, FIAT_SETTLEMENT_ROLE));
+        require(hasRole, InvalidRole(_senderAddress, FIAT_SETTLEMENT_ROLE));
+        // Exclude the plan owner even when they hold the role (distinct error so the reason is unambiguous).
+        require(plan.owner != _senderAddress, SelfSettlementNotAllowed(_senderAddress));
 
         if (plan.price.isCrypto) {
             revert OnlyPlanWithFiatPrice(_planId);

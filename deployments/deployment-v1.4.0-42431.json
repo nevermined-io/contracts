@@ -1,0 +1,39 @@
+{
+  "blockNumber": 23790945,
+  "chainId": 42431,
+  "contracts": {
+    "AccessManager": "0x3116A0aB34c8E829066d4D9Cd1e2534Ff14d5268",
+    "AgreementsStore": "0x1B8B04BbF240bfB15f12368352a1397E3882660C",
+    "AssetsRegistry": "0x1B093EE52104e407dfC80A28B07e62834AAB4Ae4",
+    "DistributePaymentsCondition": "0x44D2b43d6dD10506BBBf09c5f6D5A3513e66c028",
+    "ERC2771Forwarder": "0xF2c77aD0a66392538A2Dc32a1A9846b9C3249b69",
+    "FiatPaymentTemplate": "0x386eF80de6Afe51838672Ec6c08081C3f6A2C2d8",
+    "FiatSettlementCondition": "0x62d127c557ba53fa824249492d84eBD8E10EAb76",
+    "FixedPaymentTemplate": "0x32037D176558Eb02f6980eFA14bde14B0C61d059",
+    "LinearPricing": "0x774473Ce7aB785db11dCad1eE571Ea436fdBA699",
+    "LockPaymentCondition": "0x104ae701C9B3e8EA54145dE54D0ca7DDb2DE4DF5",
+    "NFT1155Credits": "0xb2F9bB43F768E0D4ADCa49CE708acbE577bC2d64",
+    "NFT1155ExpirableCredits": "0x6de675a697f9131D061F265fAf88E26158f4FfA2",
+    "NFT1155ExpirableCreditsV2": "0xF7Fe16718a779010E48859fb1c7Eae9fd540872F",
+    "NVMConfig": "0x88F1a9b3767f008821CbC4e4e30d77528473E7f3",
+    "OneTimeCreatorHook": "0x878B8500467d2fb8da7D322EDbA4f03A5821Aef9",
+    "PayAsYouGoTemplate": "0x5e852077b30099106Aa65B4d329FFF9b5C9a8e7C",
+    "PaymentsVault": "0x47A72d7094c4c5B0566E159579DBD79220A0EA24",
+    "ProtocolStandardFees": "0x18Daa0e4D63b1b20D428354bAffEd593d776FF7A",
+    "TokenUtils": "0x766fcde79BB22166d59FDb12b9a05C97bf5BF4b2",
+    "TransferCreditsCondition": "0x17B147345E6113572ca344003bFcA5303F7c75a6"
+  },
+  "deployedAt": 1782399242,
+  "governor": "0x35aFA2408BB4f479996fafb2bB3A183ec064C265",
+  "owner": "0xb8eF38EFB7DB89d2f8A37d17d87930BA6cC0A834",
+  "snapshotId": 0,
+  "upgrader": "0xb8eF38EFB7DB89d2f8A37d17d87930BA6cC0A834",
+  "version": "1.4.0",
+  "implementations": {
+    "AssetsRegistry": "0xE0BCbd186E2F90B487068e0084EcbBD3caA118f8",
+    "NFT1155Credits": "0x4815593dCA88a72f236BE2F848c98597fC6d31bC",
+    "NFT1155ExpirableCredits": "0x468dC6d758129c4563005B49aC58DfF2e6f7F08e",
+    "NFT1155ExpirableCreditsV2": "0x4Daad137D6eC1C73DF926B2c0410A18321DaB43A",
+    "TransferCreditsCondition": "0xc06Af78027B25D0696394717E81f18fb0a155132"
+  }
+}

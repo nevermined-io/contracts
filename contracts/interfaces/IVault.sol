@@ -59,6 +59,16 @@ interface IVault {
     error FailedToSendNativeToken();
 
     /**
+     * @notice Error thrown when an ERC20 deposit does not credit the vault with the expected amount
+     * @dev Reverts on both deposit paths — the standard `depositERC20` (balance-delta check) and the
+     *      EIP-3009 `receiveWithAuthorization` path — guarding against fee-on-transfer / non-exact
+     *      (e.g. rebasing) tokens and authorizations that do not move the full amount.
+     * @param expected The amount the deposit was expected to transfer
+     * @param received The amount actually received by the vault
+     */
+    error ERC20DepositMismatch(uint256 expected, uint256 received);
+
+    /**
      * @notice Deposits native token (e.g., ETH) into the vault
      * @dev The amount is determined by the value sent with the transaction (msg.value)
      */
@@ -72,6 +82,33 @@ interface IVault {
      * @param _from The address from which to transfer tokens
      */
     function depositERC20(address _erc20TokenAddress, uint256 _amount, address _from) external;
+
+    /**
+     * @notice Deposits ERC20 tokens into the vault using an EIP-3009 signed authorization
+     * @dev Pulls the tokens via the token's `receiveWithAuthorization`, so no prior `approve`
+     *      is required and the buyer does not submit the transaction (gasless for the buyer).
+     *      The vault is the EIP-3009 payee (`to`), satisfying the `to == msg.sender` guard.
+     * @param _erc20TokenAddress The address of the EIP-3009 compatible ERC20 token contract
+     * @param _from The token holder that signed the authorization
+     * @param _amount The amount of tokens to deposit (must equal the signed authorization value)
+     * @param _validAfter The authorization is invalid at or before this Unix timestamp
+     * @param _validBefore The authorization is invalid at or after this Unix timestamp
+     * @param _nonce Single-use authorization nonce, bound by callers to the agreement
+     * @param _v ECDSA signature recovery byte
+     * @param _r ECDSA signature r value
+     * @param _s ECDSA signature s value
+     */
+    function depositERC20WithAuthorization(
+        address _erc20TokenAddress,
+        address _from,
+        uint256 _amount,
+        uint256 _validAfter,
+        uint256 _validBefore,
+        bytes32 _nonce,
+        uint8 _v,
+        bytes32 _r,
+        bytes32 _s
+    ) external;
 
     /**
      * @notice Withdraws ERC20 tokens from the vault to a specified receiver
