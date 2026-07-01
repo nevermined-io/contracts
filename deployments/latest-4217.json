@@ -1,6 +1,6 @@
 {
-  "blockNumber": 43524838,
-  "chainId": 84532,
+  "blockNumber": 27849475,
+  "chainId": 4217,
   "contracts": {
     "AccessManager": "0x3116A0aB34c8E829066d4D9Cd1e2534Ff14d5268",
     "AgreementsStore": "0x1B8B04BbF240bfB15f12368352a1397E3882660C",
@@ -23,22 +23,22 @@
     "TokenUtils": "0x766fcde79BB22166d59FDb12b9a05C97bf5BF4b2",
     "TransferCreditsCondition": "0x17B147345E6113572ca344003bFcA5303F7c75a6"
   },
-  "implementations": {
-    "PaymentsVault": "0x61bF7E4C90d65F3Ed6E294767636E99B9eeA8DD6",
-    "AgreementsStore": "0x32A3eD82792CE2b8A26D25A77288f0101988B6e3",
-    "LockPaymentCondition": "0x4364Bf90ad01609Ee4589dF83026973e4F3C9a7d",
-    "DistributePaymentsCondition": "0xc2E531D7AE8771bbA5Fb5784fAAbC5f64098B07c",
-    "FiatSettlementCondition": "0x94c8d36b4Cbba4844824248ffa047F74E325b160",
-    "FixedPaymentTemplate": "0xc331d768F2aAe3Dc5ea9F17e3f702fd62B4A1F51",
-    "PayAsYouGoTemplate": "0x129eBDC9dE5D773B888d3Ea085f2f84749a6A2d3",
-    "NFT1155Credits": "0xAc583b626A1024302086dF293d0a215821a07153",
-    "NFT1155ExpirableCredits": "0x7F0a5eF9803d9B35Ed6Fab1E099157cC3896C791",
-    "NFT1155ExpirableCreditsV2": "0x1fBBF20FA1d9Fe95A92A6312254aa20380aA3F1F"
-  },
-  "deployedAt": 1782817966,
+  "deployedAt": 1782887951,
   "governor": "0x35aFA2408BB4f479996fafb2bB3A183ec064C265",
   "owner": "0xb8eF38EFB7DB89d2f8A37d17d87930BA6cC0A834",
   "snapshotId": 0,
-  "upgrader": "0x2020949c1B565421AC21b76e70340266c4CA9A90",
-  "version": "1.5.0"
+  "upgrader": "0xb8eF38EFB7DB89d2f8A37d17d87930BA6cC0A834",
+  "version": "1.5.0",
+  "implementations": {
+    "PaymentsVault": "0xaa44e15030D4762189b2A957Daf0543D886927A0",
+    "AgreementsStore": "0x477b1EbedfD8eB2Fc3Aed664c64EF996bA106589",
+    "LockPaymentCondition": "0x21fE6641C0D0a33583A6404D18F3f5b25878Be5f",
+    "DistributePaymentsCondition": "0xEdAb684299cCE2F0263CC44F563e0bA4B2cf289F",
+    "FiatSettlementCondition": "0xeC66402b4e17C03Ee52225692FD74aCf5CA01E88",
+    "FixedPaymentTemplate": "0x744Dd9664722fBc8dB7572f4CFD9b9893aCF8b70",
+    "PayAsYouGoTemplate": "0x3cFB0B3Bf7Af3e06B7171AB0f219dc233Cdefb19",
+    "NFT1155Credits": "0xd0cCadBcaFE4375db823bA1F4eC1c06Aae96eEEE",
+    "NFT1155ExpirableCredits": "0x32d430a4c85aAF63cb3d598D8e16f89D6E527956",
+    "NFT1155ExpirableCreditsV2": "0x300AaA2eEac9c8cC0c9E06f1B6aA29c20aB932e1"
+  }
 }
