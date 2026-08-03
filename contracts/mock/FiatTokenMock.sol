@@ -31,6 +31,15 @@ pragma solidity ^0.8.28;
  * `decimals`/`name`/`symbol` are compile-time constants, not storage, so the
  * contract is fully functional from `setCode` alone with no initialisation —
  * which is what lets it be injected at a canonical address.
+ *
+ * ── Why a mock rather than the real bytecode ────────────────────────────────
+ * Circle's live tokens are proxies. Copying a proxy's runtime code without also
+ * curating its implementation slot yields a contract that *has* code yet
+ * delegatecalls `address(0)`, so every call succeeds returning empty data and
+ * viem reports `returned no data ("0x")`. That is precisely what happened to
+ * EURC, which reached CI as raw proxy bytecode with a zeroed implementation slot
+ * and broke EIP-7702 wallet migration (the balance sweep calls `balanceOf` on
+ * it). A self-contained mock cannot fail that way. See `EurcTokenMock`.
  */
 contract FiatTokenMock {
     /// Slots 0-8. Reserved so `_balances` lands exactly on slot 9.
@@ -45,11 +54,14 @@ contract FiatTokenMock {
     event Transfer(address indexed from, address indexed to, uint256 value);
     event Approval(address indexed owner, address indexed spender, uint256 value);
 
-    function name() external pure returns (string memory) {
+    /// @dev `virtual` so `EurcTokenMock` can re-label the same layout. Only the
+    /// identity differs between the two; everything storage-related must not.
+    function name() external pure virtual returns (string memory) {
         return 'USD Coin';
     }
 
-    function symbol() external pure returns (string memory) {
+    /// @dev See `name()`.
+    function symbol() external pure virtual returns (string memory) {
         return 'USDC';
     }
 
